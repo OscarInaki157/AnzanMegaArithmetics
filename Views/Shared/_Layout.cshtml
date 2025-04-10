@@ -1,0 +1,352 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AnzanMega</title>
+    <style>
+        html {
+            font-size: 16px;
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        :root {
+            --color-header: #df312c;
+            --color-footer: #23395b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-weight: 600;
+            font-style: normal;
+            overflow-x: hidden;
+            font-family: sans-serif;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .main-content {
+            margin-top: 3.8rem;
+            padding: 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-main {
+            width: 90%;
+            max-width: 75rem;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .page-footer {
+            background-color: var(--color-footer);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: flex-start;
+            font-weight: 300;
+        }
+
+        .footer-values {
+            width: 50%;
+            text-align: left;
+        }
+
+            .footer-values img {
+                max-width: 80px;
+                margin-bottom: 1rem;
+            }
+
+        .footer-copyright {
+            width: 50%;
+            text-align: right;
+        }
+
+        .page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-header);
+            padding: 0.6rem 1rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .page-header img {
+                max-width: 5rem;
+                height: auto;
+                margin-right: 1rem;
+                transition: transform 0.3s ease;
+            }
+
+                .page-header img:hover {
+                    transform: scale(1.1);
+                }
+
+        .page-nav {
+            text-align: center;
+        }
+
+            .page-nav ul {
+                list-style: none;
+                display: flex;
+                justify-content: center;
+            }
+
+                .page-nav ul li {
+                    margin: 0 1.2rem;
+                }
+
+                    .page-nav ul li a {
+                        text-decoration: none;
+                        color: white;
+                        padding: 0;
+                        font-size: 1.1rem;
+                        font-weight: 400;
+                        position: relative;
+                        transition: font-size 0.3s ease;
+                    }
+
+                        .page-nav ul li a::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -0.125rem;
+                            left: 0;
+                            width: 100%;
+                            height: 0.125rem;
+                            background-color: white;
+                            transform: scaleX(0);
+                            transition: transform 0.3s ease;
+                        }
+
+                        .page-nav ul li a:hover {
+                            font-size: 1.2rem;
+                        }
+
+                            .page-nav ul li a:hover::after {
+                                transform: scaleX(1);
+                            }
+
+                        .page-nav ul li a.selected {
+                            font-weight: 600;
+                            border-bottom: 0.125rem solid white;
+                        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            margin-right: 3rem;
+        }
+
+            .header-buttons a {
+                padding: 0.625rem 1rem;
+                margin-left: 0.3125rem;
+                text-decoration: none;
+                color: white;
+                border: 0.125rem solid var(--color-footer);
+                border-radius: 1.25rem;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+            }
+
+                .header-buttons a:hover {
+                    transform: scale(1.05);
+                }
+
+                .header-buttons a.selected {
+                    background-color: var(--color-footer);
+                }
+
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-button-mobile {
+            display: none;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header
+
+        {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .page-header img {
+            margin-bottom: 0.5rem;
+            margin-right: 0;
+        }
+
+        .page-nav ul {
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin-top: 0;
+        }
+
+            .page-nav ul li {
+                margin: 0.3rem 0;
+            }
+
+        .header-buttons {
+            display: none;
+        }
+
+        .header-button-mobile {
+            display: block;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            text-align: center;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--color-header);
+        }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links li {
+                margin: 1rem 0;
+            }
+
+        .hamburger-menu {
+            display: flex;
+        }
+
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <img src="/Content/Images/AnzanLogo.png" alt="Anzan Logo" />
+        <nav class="page-nav">
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a asp-controller="Inicio" asp-action="Inicio" data-nav="inicio">Inicio</a></li>
+                <li><a asp-controller="Inicio" asp-action="Nosotros" data-nav="quienes">¿Quiénes somos?</a></li>
+                <li><a asp-controller="Inicio" asp-action="Login" data-nav="login" class="header-button-mobile">Iniciar sesión</a></li>
+                <li><a asp-controller="Inicio" asp-action="Registro" data-nav="register" class="header-button-mobile">Registrarse</a></li>
+            </ul>
+        </nav>
+        <div class="header-buttons">
+            <a asp-controller="Inicio" asp-action="Login" data-nav="login" class="selected">Iniciar sesión</a>
+            <a asp-controller="Inicio" asp-action="Registro" data-nav="register">Registrarse</a>
+        </div>
+    </header>
+    <div class="main-content">
+        <main class="page-main" role="main">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="page-footer">
+        <div class="footer-values">
+            <img src="/Content/Images/AnzanLogo.png" alt="Anzan Logo" />
+            <p>
+                Nuestros Valores:<br />
+                Innovación, compromiso, calidad y servicio al cliente.<br /><br />
+                Nuestra Misión:<br />
+                Somos una empresa dedicada a proporcionar educación de clase mundial sobre los métodos maemáticos.
+            </p>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; @DateTime.Now.Year - AnzanMega</p>
+        </div>
+    </footer>
+    <script>
+                document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const navLinks = document.querySelector('.nav-links');
+
+            // Asegura que el menú esté oculto inicialmente en pantallas pequeñas
+            if (window.innerWidth <= 768) {
+                navLinks.style.display = 'none';
+            }
+
+            hamburgerMenu.addEventListener('click', function() {
+                // Alternar el display si no se usa la clase active
+                if (window.innerWidth <= 768) {
+                    navLinks.style.display = navLinks.style.display === 'none' ? 'flex' : 'none';
+                } else {
+                    navLinks.classList.toggle('active');
+                }
+            });
+
+            const navLinksDesktop = document.querySelectorAll('.page-nav ul li a');
+            const headerButtons = document.querySelectorAll('.header-buttons a');
+
+            function handleLinkClick(links) {
+                links.forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        links.forEach(link => link.classList.remove('selected'));
+                        this.classList.add('selected');
+                    });
+                });
+            }
+
+            handleLinkClick(navLinksDesktop);
+            handleLinkClick(headerButtons);
+
+            // Seleccionar el botón basado en la URL actual
+            const currentUrl = window.location.pathname;
+
+            function selectButtonByUrl(links) {
+                links.forEach(link => {
+                    const linkUrl = link.getAttribute('href');
+                    if (currentUrl === linkUrl) {
+                        links.forEach(link => link.classList.remove('selected'));
+                        link.classList.add('selected');
+                    }
+                });
+            }
+
+            selectButtonByUrl(navLinksDesktop);
+            selectButtonByUrl(headerButtons);
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

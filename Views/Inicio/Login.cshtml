@@ -1,0 +1,100 @@
+﻿@model AnzanMegaArithmetics.Models.LoginResponseModel;
+@{
+    ViewBag.Title = "Iniciar Sesión";
+    Layout = "_Layout";
+}
+
+<style>
+    .login-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-self: center;
+        align-items: center;
+    }
+
+    .tit {
+        color: #ffffff;
+    }
+
+    .subtit {
+        color: #ffffff;
+    }
+
+    .login-left, .login-right {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-left {
+        background-color: #28502e;
+        text-align: center;
+    }
+
+        .login-left img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+    .login-right {
+        background-color: #e0e0e0;
+    }
+
+    @@media (min-width: 768px) {
+        .login-left, .login-right {
+            width: 50%;
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        max-width: 300px;
+        width: 100%;
+    }
+
+        form label, form input {
+            margin-bottom: 10px;
+        }
+
+        form button {
+            background-color: #df312c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+</style>
+
+<div class="login-container">
+    <div class="login-left">
+        <img src="/Content/Images/anzan1.jpg" alt="Anzan 1" />
+        <h1 class="tit">Únete a esta experiencia única, practica y aprende con nosotros</h1>
+        <h2 class="subtit">¡Inicia sesión en Anzan Mega Arithmetics!</h2>
+    </div>
+    <div class="login-right">
+        <form action="@Url.Action("ValidarUser", "Inicio")" method="post">
+            <label for="username">Nombre o correo:</label>
+            <input type="text" name="Usuario" placeholder="Nombre o correo" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" name="Pass" placeholder="Contraseña" required>
+
+            <button type="submit">Iniciar sesión</button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <p style="color: red;">@ViewBag.ErrorMessage</p>
+            }
+        </form>
+    </div>
+</div>
+
+<script>
+
+</script>

@@ -1,0 +1,9 @@
+﻿@{
+    ViewBag.Title = "Error";
+    Layout = "_Layout"; // O el layout que uses
+}
+<h1>⚠️ Algo salió mal</h1>
+<p>Ocurrió un problema mientras procesábamos tu solicitud.</p>
+<p>Por favor, intenta nuevamente o contacta al administrador.</p>
+<a href="@Url.Action("LecturaFinger", "Fingermath")" class="btn btn-primary">Volver a intentar</a>
+<a href="@Url.Action("Dashboard", "Dashboard")" class="btn btn-secondary">Ir al Dashboard</a>

@@ -1,0 +1,280 @@
+﻿@{
+    ViewBag.Title = "Bienvenido";
+    Layout = "_LayoutDashboard";
+}
+<style>
+    :root {
+        --dark-bg: #343a40;
+        --dark-card-bg: #495057;
+        --light-text: #f8f9fa;
+        --primary-color: #007bff;
+    }
+
+    .user-info-card {
+        background-color: var(--dark-card-bg);
+        color: var(--light-text);
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 1rem;
+        gap: 2rem;
+    }
+
+        .user-info-card p {
+            margin: 0;
+        }
+
+    @@media (max-width: 48em) {
+        .user-info-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+    }
+
+    .containers-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .rounded-container {
+        background-color: var(--dark-card-bg);
+        color: var(--light-text);
+        border-radius: 1rem;
+        width: calc(50% - 0.5rem);
+        height: auto;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        position: relative;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+        flex-direction: column;
+    }
+
+    .container-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 0;
+        margin-bottom: 0.75rem;
+        flex-shrink: 0;
+        align-self: center;
+    }
+
+        .container-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .container-text {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: auto;
+        align-items: center;
+    }
+
+        .container-text h1 {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .container-text p {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .container-text a.plus-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-decoration: none;
+            margin-top: 1rem;
+            align-self: flex-end;
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+            .container-text a.plus-button:hover {
+                transform: scale(1.1);
+            }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: var(--dark-card-bg);
+        border: 1px solid #6c757d;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        z-index: 10;
+        display: none;
+    }
+
+        .dropdown-menu a {
+            display: block;
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.25rem 0;
+        }
+
+            .dropdown-menu a:hover {
+                background-color: #6c757d;
+            }
+
+    @@media (max-width: 48em) {
+        .containers-wrapper {
+            flex-direction: column;
+        }
+
+        .rounded-container {
+            width: 100%;
+            align-items: center;
+        }
+
+        .container-text {
+            align-items: center;
+        }
+
+            .container-text p {
+                text-align: center;
+            }
+
+            .container-text a.plus-button {
+                align-self: center;
+                margin-left: 0;
+            }
+
+        .dropdown-menu {
+            top: auto;
+            bottom: -60px;
+            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+</style>
+
+<div class="user-info-card">
+    <p>ID de usuario: @ViewBag.IdUsuario</p>
+    <p>Nombre de usuario: @ViewBag.Nombre</p>
+    <p>Rol de usuario: @ViewBag.Rol</p>
+    <p>Clase: @ViewBag.Clase</p>
+    <p>Usuario: @ViewBag.Usuario</p>
+</div>
+
+<div class="containers-wrapper">
+    <div class="rounded-container">
+        <div class="container-image">
+            <img src="/Content/Images/High Five.gif" alt="Fingermath" />
+        </div>
+        <div class="container-text">
+            <h1>Fingermath</h1>
+            <p>Lectura y escritura</p>
+            <a href="#" class="plus-button" data-menu-id="fingermath-menu">+</a>
+            <div id="fingermath-menu" class="dropdown-menu">
+                <a href="@Url.Action("LecturaFinger", "Fingermath")" class="submenu-link navigation-link">Ejercicios Lectura</a>
+                <a href="@Url.Action("EscrituraFinger", "Fingermath")" class="submenu-link navigation-link">Ejercicios Escritura</a>
+            </div>
+        </div>
+    </div>
+    <div class="rounded-container">
+        <div class="container-image">
+            <img src="/Content/Images/Learned.gif" alt="Soroban" />
+        </div>
+        <div class="container-text">
+            <h1>Soroban</h1>
+            <p>Lectura y escritura</p>
+            <a href="#" class="plus-button" data-menu-id="soroban-menu">+</a>
+            <div id="soroban-menu" class="dropdown-menu">
+                <a href="#" class="submenu-link">Practicar Suma</a>
+                <a href="#" class="submenu-link">Practicar Resta</a>
+            </div>
+        </div>
+    </div>
+    <div class="rounded-container">
+        <div class="container-image">
+            <img src="/Content/Images/Activity.gif" alt="ANZAN Flash" />
+        </div>
+        <div class="container-text">
+            <h1>ANZAN Flash</h1>
+            <p>Anzan Flash y Spoken ANZAN</p>
+            <a href="#" class="plus-button" data-menu-id="anzan-menu">+</a>
+            <div id="anzan-menu" class="dropdown-menu">
+                <a href="#" class="submenu-link">Iniciar Flash Anzan</a>
+                <a href="#" class="submenu-link">Iniciar Spoken Anzan</a>
+            </div>
+        </div>
+    </div>
+    <div class="rounded-container">
+        <div class="container-image">
+            <img src="/Content/Images/Calculator.gif" alt="Ejercicios Suma y Restas" />
+        </div>
+        <div class="container-text">
+            <h1>Ejercicios Suma y Restas</h1>
+            <p>Ejercicios</p>
+            <a href="#" class="plus-button" data-menu-id="ejercicios-menu">+</a>
+            <div id="ejercicios-menu" class="dropdown-menu">
+                <a href="#" class="submenu-link">Sumas Simples</a>
+                <a href="#" class="submenu-link">Restas Simples</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleMenu(menuId, event) {
+        event.preventDefault();
+        const menu = document.getElementById(menuId);
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function preventLink(event) {
+        event.preventDefault();
+        console.log('Opción de menú clickeada');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const plusButtons = document.querySelectorAll('.plus-button');
+        plusButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                const menuId = this.dataset.menuId;
+                toggleMenu(menuId, event);
+            });
+        });
+
+    const submenuLinks = document.querySelectorAll('.submenu-link:not(.navigation-link)');
+        submenuLinks.forEach(link => {
+        link.addEventListener('click', preventLink);
+    });
+
+        document.addEventListener('click', function(event) {
+            const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+            dropdownMenus.forEach(menu => {
+                if (menu.style.display === 'block') {
+                    const button = menu.previousElementSibling;
+                    const isClickInsideMenu = menu && menu.contains(event.target);
+                    const isClickOnButton = button && button.contains(event.target);
+
+                    if (!isClickInsideMenu && !isClickOnButton) {
+                        menu.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+</script>

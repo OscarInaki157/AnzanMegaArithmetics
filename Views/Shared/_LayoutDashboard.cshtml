@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AnzanMega</title>
+    <style>
+        /* Estilos generales del dashboard */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-size: 1rem; /* Establece la fuente base para rem */
+        }
+
+        :root {
+            --color-header: #df312c;
+            --color-footer: #23395b;
+        }
+
+        .dashboard-header {
+            background-color: #333;
+            color: white;
+            padding: 0.625rem 1.25rem; /* Ajustado el padding */
+            display: none; /* Oculto por defecto en pantallas grandes */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .dashboard-header .hamburger-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5em;
+                cursor: pointer;
+            }
+
+            .dashboard-header .app-title {
+                font-size: 1.2em;
+            }
+
+        .dashboard-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .dashboard-sidebar {
+            background-color: var(--color-header); /* Cambiado a rojo */
+            color: white;
+            width: 15.625rem; /* 250px / 16px = 15.625rem */
+            padding-top: 3.75rem; /* 60px / 16px = 3.75rem */
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .sidebar-logo {
+            padding: 1.25rem; /* 20px / 16px = 1.25rem */
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .sidebar-nav ul li a, .sidebar-nav ul li button {
+                display: block;
+                padding: 0.9375rem 1.25rem; /* 15px / 16px = 0.9375rem, 20px / 16px = 1.25rem */
+                text-decoration: none;
+                color: white;
+                border-bottom: 1px solid #333;
+                width: 100%;
+                text-align: left;
+                background: none;
+                border: none;
+                cursor: pointer;
+            }
+
+                .sidebar-nav ul li a.active, .sidebar-nav ul li button.active {
+                    background-color: #444;
+                }
+
+                .sidebar-nav ul li a:hover, .sidebar-nav ul li button:hover {
+                    background-color: #444;
+                }
+
+        .logout-btn {
+            color: white;
+        }
+
+        .dashboard-main {
+            flex-grow: 1;
+            padding: 1.25rem; /* 20px / 16px = 1.25rem */
+            margin-left: 15.625rem; /* 250px / 16px = 15.625rem */
+            padding-top: 3.75rem; /* 60px / 16px = 3.75rem */
+        }
+
+        /* Estilos para dispositivos móviles (ancho máximo de 768px) */
+        @@media (max-width: 48em) { /* 768px / 16px = 48em */
+            .dashboard-sidebar {
+                left: -15.625rem; /* 250px / 16px = 15.625rem */
+                transition: left 0.3s ease; /* Agregamos la transición para la animación */
+            }
+
+                .dashboard-sidebar.open {
+                    left: 0; /* Cuando la clase 'open' esté presente, el sidebar estará visible */
+                }
+
+            .dashboard-main {
+                margin-left: 0;
+                padding-top: 4.375rem; /* 70px / 16px = 4.375rem */
+            }
+
+            .dashboard-header {
+                display: flex; /* Muestra el header en pantallas pequeñas */
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="container">
+            <a id="hamburger-btn" class="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </a>
+            <img src="/Content/Images/AnzanLogo.png" alt="Anzan Logo" style="max-width: 3.125rem; height: auto;" /> <span class="app-title">Panel de Control</span>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-logo">
+                <img src="/Content/Images/AnzanLogo.png" alt="Anzan Logo" style="max-width: 9.375rem;" />
+            </div>
+            <h1>Dashboard</h1>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <form method="post" action="@Url.Action("Logout", "Inicio")">
+                            <button type="submit" class="logout-btn">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                    <li><a href="#">Mi perfil</a></li>
+                    <li><a href="#" id="actividadesAnzanBtn">Actividades Anzan</a></li>
+                    <li><a href="#">Hojas de Ejercicios</a></li>
+                    <li><a href="#">Dashboard Administrador</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="dashboard-main">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const sidebar = document.querySelector('.dashboard-sidebar');
+            const actividadesAnzanBtn = document.getElementById('actividadesAnzanBtn'); // Obtenemos el botón por su ID
+
+            if (hamburgerBtn && sidebar) {
+                hamburgerBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+            }
+
+            // Verificar si estamos en la página del dashboard (Bienvenido)
+            const pageTitle = document.title;
+            if (pageTitle.includes('Bienvenido')) {
+                // Si estamos en el dashboard, agregamos la clase 'active' al botón de Actividades Anzan
+                if (actividadesAnzanBtn) {
+                    actividadesAnzanBtn.classList.add('active');
+                }
+            }
+        });
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
