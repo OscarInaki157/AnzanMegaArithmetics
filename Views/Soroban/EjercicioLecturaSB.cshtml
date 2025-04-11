@@ -1,0 +1,122 @@
+﻿@{
+    ViewBag.Title = "Ejercicio de Lectura - Soroban";
+    Layout = "_LayoutSoroban";
+
+    int respuestaCorrecta = ViewBag.RespuestaCorrecta;
+    float velocidad = ViewBag.VelocidadPreguntas;
+    int ejercicioActual = ViewBag.EjercicioActual;
+    int totalEjercicios = ViewBag.TotalEjercicios;
+
+    var sorobanCuentas = ViewBag.SorobanCuentas as List<(int columna, bool esSuperior, bool activa)>;
+    int columnas = ViewBag.Columnas;
+}
+
+<h1>📚 Ejercicio de Lectura - Soroban</h1>
+<p>Ejercicio @ejercicioActual de @totalEjercicios</p>
+
+@if (velocidad > 0)
+{
+    <p><strong>Tiempo restante:</strong> <span id="contador">@velocidad</span> segundos</p>
+}
+else
+{
+    <p><strong>Modo sin límite de tiempo</strong></p>
+}
+
+<!-- Botón para finalizar antes -->
+<form method="post" asp-action="FinalizarLecturaSoroban" style="margin-bottom: 20px;">
+    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
+</form>
+
+<!-- Soroban -->
+<div class="soroban-container">
+    @for (int col = columnas - 1; col >= 0; col--)
+    {
+        <div class="soroban-column">
+            <div class="bead superior @(sorobanCuentas.FirstOrDefault(b => b.columna == col && b.esSuperior).activa ? "activa" : "inactiva")"></div>
+            <div class="separator"></div>
+            @for (int i = 0; i < 4; i++)
+            {
+                var inferior = sorobanCuentas.Where(b => b.columna == col && !b.esSuperior).Skip(i).FirstOrDefault();
+                <div class="bead inferior @(inferior.activa ? "activa" : "inactiva")"></div>
+            }
+        </div>
+    }
+</div>
+
+
+<!-- Formulario para enviar la respuesta -->
+<form method="post" asp-action="ResultadoLecturaSoroban" id="formulario">
+    <input type="number" name="respuesta" required autofocus placeholder="¿Qué número representa el soroban?" />
+    <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
+    <input type="hidden" id="respondido" name="respondido" value="true" />
+    <br />
+    <button type="submit" class="btn btn-success">Enviar respuesta</button>
+</form>
+
+<style>
+    .soroban-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .soroban-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .bead {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin: 5px 0;
+        transition: background-color 0.3s;
+    }
+
+    .superior {
+        background-color: #ccc;
+    }
+
+    .inferior {
+        background-color: #ccc;
+    }
+
+    .activa {
+        background-color: #28a745;
+    }
+
+    .inactiva {
+        background-color: #dc3545;
+    }
+
+    .separator {
+        height: 10px;
+        width: 100%;
+        background-color: #333;
+        margin: 8px 0;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const velocidad = parseFloat("@velocidad");
+        const contador = document.getElementById("contador");
+
+        if (velocidad > 0 && contador) {
+            let tiempo = velocidad;
+            const intervalo = setInterval(() => {
+                tiempo -= 0.1;
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    document.getElementById("respondido").value = "false";
+                    document.getElementById("formulario").submit();
+                } else {
+                    contador.textContent = tiempo.toFixed(1);
+                }
+            }, 100);
+        }
+    </script>
+}

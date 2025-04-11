@@ -1,0 +1,91 @@
+﻿@using AnzanMegaArithmetics.Models
+@{
+    ViewBag.Title = "Resumen de Ejercicios - Soroban";
+    Layout = "_LayoutSoroban";
+
+    var resultadosJson = TempData["Resultados"] as string;
+    var resultados = string.IsNullOrEmpty(resultadosJson)
+        ? new List<RLecturaSorobanModel>()
+        : System.Text.Json.JsonSerializer.Deserialize<List<RLecturaSorobanModel>>(resultadosJson);
+
+    var total = resultados.Count;
+    var correctos = resultados.Count(r => r.EsCorrecto);
+    var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
+}
+
+<h1>📊 Resumen de Ejercicios - Soroban</h1>
+
+<hr />
+
+<!-- Botones centrados -->
+<div style="display: flex; justify-content: center; gap: 30px; margin: 30px 0;">
+    <form method="get" asp-action="LecturaSoroban">
+        <input type="hidden" name="cantidad" value="@TempData.Peek("CantidadEjercicios")" />
+        <input type="hidden" name="valMin" value="@TempData.Peek("VMinimo")" />
+        <input type="hidden" name="valMax" value="@TempData.Peek("VMaximo")" />
+        <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
+        <button type="submit" class="btn btn-primary" style="padding: 10px; font-size: 0.9rem;">
+            🔁 Repetir (ir a configuración)
+        </button>
+    </form>
+
+    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+        <button type="submit" class="btn btn-secondary" style="padding: 10px; font-size: 0.9rem;">
+            🏠 Regresar al dashboard
+        </button>
+    </form>
+</div>
+
+<!-- Contenedor de totales -->
+<div style="
+    background-color: #f5f8ff;
+    border: 2px solid #d0dff7;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    max-width: 800px;
+">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap; text-align: left;">
+        <!-- Totales -->
+        <div style="flex: 1;">
+            <p style="font-size: 1.25rem; margin: 8px 0;">📄 Total de ejercicios: <strong>@total</strong></p>
+            <p style="font-size: 1.25rem; margin: 8px 0;">✅ Correctos: <strong>@correctos</strong></p>
+            <p style="font-size: 1.25rem; margin: 8px 0;">❌ Incorrectos: <strong>@(total - correctos)</strong></p>
+        </div>
+
+        <!-- Porcentaje -->
+        <div style="flex: 1; text-align: center;">
+            <p style="margin-bottom: 10px; font-size: 1.2rem;">🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+            <div style="margin: 0 auto; width: 100%; max-width: 300px; background-color: #e0e0e0; border-radius: 6px; height: 22px; overflow: hidden;">
+                <div style="height: 100%; background-color: #28a745; width: @porcentaje%; transition: width 0.5s;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acordeón con detalles por ejercicio -->
+<div style="max-width: 800px; margin: 0 auto;">
+    @for (int i = 0; i < resultados.Count; i++)
+    {
+        var r = resultados[i];
+        var estado = r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto";
+        var color = r.EsCorrecto ? "green" : "red";
+        <details style="margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; background-color: #fdfdfd;">
+            <summary style="padding: 14px 18px; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: @color;">
+                Ejercicio @(i + 1): @estado
+            </summary>
+            <div style="padding: 16px 20px; border-top: 1px solid #ddd; background-color: #fafafa; font-size: 1.1rem;">
+                <p style="margin: 0 0 8px 0;">
+                    <span style="font-size: 1.2rem;">✍️</span> <strong>Tu respuesta:</strong>
+                    <span style="font-size: 1.2rem;">@(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</span>
+                </p>
+                <p style="margin: 0;">
+                    <span style="font-size: 1.2rem;">✔️</span> <strong>Respuesta correcta:</strong>
+                    <span style="font-size: 1.2rem;">@r.RespuestaCorrecta</span>
+                </p>
+            </div>
+        </details>
+    }
+</div>
+
