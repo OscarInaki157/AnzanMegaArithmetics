@@ -34,10 +34,10 @@ namespace AnzanMegaArithmetics.Controllers
         {
             var modelo = new ConfLecturaFingerModel
             {
-                TipoPregunta = tipo ?? "ambas",
-                VelocidadPreguntas = velocidad ?? "0",
-                TiempoMeditacion = 3,
-                CantidadEjercicios = cantidad ?? 5
+               TipoPregunta = tipo ?? "ambas",
+               VelocidadPreguntas = velocidad ?? "0",
+               TiempoMeditacion = 3,
+               CantidadEjercicios = cantidad ?? 5
             };
 
             return View(modelo);

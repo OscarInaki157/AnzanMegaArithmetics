@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AnzanMega</title>
+    <style>
+        html {
+            font-size: 16px;
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        :root {
+            --color-header: #df312c;
+            --color-footer: #23395b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-weight: 600;
+            font-style: normal;
+            overflow-x: hidden;
+            font-family: sans-serif;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .main-content {
+            margin-top: 3.8rem;
+            padding: 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-main {
+            width: 90%;
+            max-width: 75rem;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        .page-footer {
+            background-color: var(--color-footer);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: flex-start;
+            font-weight: 300;
+        }
+
+        .footer-copyright {
+            width: 100%;
+            text-align: center;
+        }
+
+        .page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-header);
+            padding: 0.6rem 1rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .page-header img {
+                max-width: 5rem;
+                height: auto;
+                margin-right: 1rem;
+                transition: transform 0.3s ease;
+            }
+
+                .page-header img:hover {
+                    transform: scale(1.1);
+                }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+                .page-header img {
+                    margin-bottom: 0.5rem;
+                    margin-right: 0;
+                }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <img src="/Content/Images/AnzanLogo.png" alt="Anzan Logo" />
+
+    </header>
+    <div class="main-content">
+        <main class="page-main" role="main">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="page-footer">
+        <div class="footer-copyright">
+            <p>&copy; @DateTime.Now.Year - AnzanMega</p>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

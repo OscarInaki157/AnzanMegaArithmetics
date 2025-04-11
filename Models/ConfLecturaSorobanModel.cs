@@ -2,7 +2,7 @@
 
 namespace AnzanMegaArithmetics.Models
 {
-    public class ConfEscrituraFingerModel
+    public class ConfLecturaSorobanModel
     {
         [Required]
         [Display(Name = "Número de ejercicios:")]
@@ -10,8 +10,14 @@ namespace AnzanMegaArithmetics.Models
         public int CantidadEjercicios { get; set; }
 
         [Required]
-        [Display(Name = "Tipo de ejercicios:")]
-        public string TipoPregunta { get; set; } = string.Empty;
+        [Display(Name = "Valor mínimo:")]
+        [Range(0, 9999999999)]
+        public int VMinimo { get; set; }
+
+        [Required]
+        [Display(Name = "Valor máximo:")]
+        [Range(0, 9999999999)]
+        public int VMaximo { get; set; }
 
         [Required]
         [Display(Name = "Velocidad por ejercicio:")]
