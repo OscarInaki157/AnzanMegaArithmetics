@@ -1,10 +1,12 @@
 ﻿using AnzanMegaArithmetics.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Controllers
 {
+    [Authorize]
     public class SorobanController : Controller
     {
         public IActionResult LecturaSoroban(int ? cantidad, int ? valMin, int ? valMax, string velocidad)
