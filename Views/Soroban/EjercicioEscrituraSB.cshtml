@@ -11,13 +11,22 @@
 <h1>✍️ Ejercicio de Escritura - Soroban</h1>
 <p>Ejercicio @ejercicioActual de @totalEjercicios</p>
 
-<h2 style="font-size: 3rem; text-align: center; margin: 20px 0;">
-    <strong>@numeroObjetivo</strong>
-</h2>
+@if (ViewBag.VelocidadPreguntas > 0)
+{
+    <p><strong>Tiempo restante:</strong> <span id="contador">@ViewBag.VelocidadPreguntas</span> segundos</p>
+}
+else
+{
+    <p><strong>Modo sin límite de tiempo</strong></p>
+}
 
 <form method="post" asp-action="FinalizarEscrituraSoroban" style="margin-top: 20px;">
     <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
 </form>
+
+<h2 style="font-size: 3rem; text-align: center; margin: 20px 0;">
+    <strong>@numeroObjetivo</strong>
+</h2>
 
 <form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario">
     <input type="hidden" name="respuesta" id="respuesta" />
@@ -83,6 +92,25 @@
         const respuestaInput = document.getElementById("respuesta");
         const columnas = document.querySelectorAll(".soroban-column");
 
+        // Tiempo (contador)
+        const velocidad = parseFloat("@ViewBag.VelocidadPreguntas");
+        const contador = document.getElementById("contador");
+
+        if (velocidad > 0 && contador) {
+            let tiempo = velocidad;
+            const intervalo = setInterval(() => {
+                tiempo -= 0.1;
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    document.getElementById("respondido").value = "false";
+                    document.getElementById("formulario").submit();
+                } else {
+                    contador.textContent = tiempo.toFixed(1);
+                }
+            }, 100);
+        }
+
+        // Lógica de interacción del soroban
         columnas.forEach((col, idx) => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
@@ -95,12 +123,10 @@
             inferiores.forEach((bead, i) => {
                 bead.addEventListener("click", () => {
                     if (bead.classList.contains("activa")) {
-                        // Apagar desde el último activo
                         for (let j = i; j < inferiores.length; j++) {
                             inferiores[j].classList.remove("activa");
                         }
                     } else {
-                        // Encender hasta el seleccionado
                         for (let j = 0; j <= i; j++) {
                             inferiores[j].classList.add("activa");
                         }
@@ -110,6 +136,7 @@
             });
         });
 
+        // Calcula el número representado actualmente en el soroban
         function actualizarSuma() {
             let suma = 0;
             columnas.forEach((col, idx) => {
@@ -129,4 +156,3 @@
         }
     </script>
 }
-
