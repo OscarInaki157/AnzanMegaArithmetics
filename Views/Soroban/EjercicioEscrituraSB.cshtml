@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Ejercicio de Escritura - Soroban";
+    Layout = "_LayoutSoroban";
+
+    int numeroObjetivo = ViewBag.NumeroObjetivo;
+    int ejercicioActual = ViewBag.EjercicioActual;
+    int totalEjercicios = ViewBag.TotalEjercicios;
+    int columnas = ViewBag.Columnas;
+}
+
+<h1>✍️ Ejercicio de Escritura - Soroban</h1>
+<p>Ejercicio @ejercicioActual de @totalEjercicios</p>
+
+<h2 style="font-size: 3rem; text-align: center; margin: 20px 0;">
+    <strong>@numeroObjetivo</strong>
+</h2>
+
+<form method="post" asp-action="FinalizarEscrituraSoroban" style="margin-top: 20px;">
+    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
+</form>
+
+<form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario">
+    <input type="hidden" name="respuesta" id="respuesta" />
+    <input type="hidden" id="respondido" name="respondido" value="true" />
+
+    <div class="soroban-container" id="soroban">
+        @for (int col = 0; col < columnas; col++)
+        {
+            <div class="soroban-column" data-col="@col">
+                <div class="bead superior" data-superior="true" data-valor="5"></div>
+                <div class="separator"></div>
+                @for (int i = 0; i < 4; i++)
+                {
+                    <div class="bead inferior" data-superior="false" data-valor="1"></div>
+                }
+            </div>
+        }
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-success">Enviar respuesta</button>
+</form>
+
+
+<style>
+    .soroban-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .soroban-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .bead {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin: 5px 0;
+        transition: background-color 0.3s;
+    }
+
+        .bead.activa {
+            background-color: #28a745;
+        }
+
+    .separator {
+        height: 10px;
+        width: 100%;
+        background-color: #333;
+        margin: 8px 0;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const respuestaInput = document.getElementById("respuesta");
+        const columnas = document.querySelectorAll(".soroban-column");
+
+        columnas.forEach((col, idx) => {
+            const superior = col.querySelector(".bead.superior");
+            const inferiores = col.querySelectorAll(".bead.inferior");
+
+            superior.addEventListener("click", () => {
+                superior.classList.toggle("activa");
+                actualizarSuma();
+            });
+
+            inferiores.forEach((bead, i) => {
+                bead.addEventListener("click", () => {
+                    if (bead.classList.contains("activa")) {
+                        // Apagar desde el último activo
+                        for (let j = i; j < inferiores.length; j++) {
+                            inferiores[j].classList.remove("activa");
+                        }
+                    } else {
+                        // Encender hasta el seleccionado
+                        for (let j = 0; j <= i; j++) {
+                            inferiores[j].classList.add("activa");
+                        }
+                    }
+                    actualizarSuma();
+                });
+            });
+        });
+
+        function actualizarSuma() {
+            let suma = 0;
+            columnas.forEach((col, idx) => {
+                const potencia = columnas.length - 1 - idx;
+                const multiplo = Math.pow(10, potencia);
+
+                const superior = col.querySelector(".bead.superior");
+                const inferiores = col.querySelectorAll(".bead.inferior");
+
+                let valor = 0;
+                if (superior.classList.contains("activa")) valor += 5;
+                valor += Array.from(inferiores).filter(b => b.classList.contains("activa")).length;
+
+                suma += valor * multiplo;
+            });
+            respuestaInput.value = suma;
+        }
+    </script>
+}
+

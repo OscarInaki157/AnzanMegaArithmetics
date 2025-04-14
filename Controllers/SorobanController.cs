@@ -166,5 +166,146 @@ namespace AnzanMegaArithmetics.Controllers
             TempData.Keep("Resultados");
             return View();
         }
+
+        //Métodos de soroban Escritura
+
+        [HttpGet]
+        public IActionResult EscrituraSoroban(int? cantidad, int? valMin, int? valMax, string velocidad)
+        {
+            var model = new ConfEscrituraSorobanModel
+            {
+                CantidadEjercicios = cantidad ?? 5,
+                VMinimo = valMin ?? 0,
+                VMaximo = valMax ?? 99,
+                VelocidadPreguntas = velocidad ?? "0",
+                TiempoMeditacion = 3
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ConcentracionES(ConfEscrituraSorobanModel config)
+        {
+            config.CantidadEjercicios = Math.Max(1, config.CantidadEjercicios);
+            config.TiempoMeditacion = Math.Max(0, config.TiempoMeditacion);
+
+            TempData["VMinimo"] = config.VMinimo;
+            TempData["VMaximo"] = config.VMaximo;
+            TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
+            TempData["TiempoMeditacion"] = config.TiempoMeditacion;
+            TempData["CantidadEjercicios"] = config.CantidadEjercicios;
+            TempData["EjerciciosRealizados"] = 0;
+            TempData["Resultados"] = JsonSerializer.Serialize(new List<REscrituraSorobanModel>());
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+            ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
+
+            return View("ConcentracionES");
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioEscrituraSB()
+        {
+            int valMin = Convert.ToInt32(TempData["VMinimo"]);
+            int valMax = Convert.ToInt32(TempData["VMaximo"]);
+            float velocidad = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
+            int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
+            int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
+
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            if (ejerciciosRealizados >= cantidadEjercicios)
+            {
+                TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+                return RedirectToAction("ResultadoEscrituraSoroban");
+            }
+
+            // Generar número objetivo
+            Random rnd = new Random();
+            int numeroObjetivo = rnd.Next(valMin, valMax + 1);
+
+            // Número de columnas del soroban
+            int columnas = numeroObjetivo.ToString().Length;
+
+            ViewBag.NumeroObjetivo = numeroObjetivo;
+            ViewBag.Columnas = columnas;
+            ViewBag.VelocidadPreguntas = velocidad;
+            ViewBag.EjercicioActual = ejerciciosRealizados + 1;
+            ViewBag.TotalEjercicios = cantidadEjercicios;
+
+            // Guardar en TempData
+            TempData["NumeroObjetivo"] = numeroObjetivo;
+            TempData["EjerciciosRealizados"] = ejerciciosRealizados;
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            TempData["CantidadEjercicios"] = cantidadEjercicios;
+            TempData["VMinimo"] = valMin;
+            TempData["VMaximo"] = valMax;
+            TempData["VelocidadPreguntas"] = velocidad.ToString(CultureInfo.InvariantCulture);
+
+            TempData.Keep();
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido)
+        {
+            bool respondio = respondido == "true";
+            int numeroCorrecto = Convert.ToInt32(TempData["NumeroObjetivo"]);
+            int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
+
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            resultados.Add(new REscrituraSorobanModel
+            {
+                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaCorrecta = numeroCorrecto
+            });
+
+            ejerciciosRealizados++;
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            TempData["EjerciciosRealizados"] = ejerciciosRealizados;
+
+            // Preservar para el siguiente ejercicio
+            TempData["CantidadEjercicios"] = TempData.Peek("CantidadEjercicios");
+            TempData["VMinimo"] = TempData.Peek("VMinimo");
+            TempData["VMaximo"] = TempData.Peek("VMaximo");
+            TempData["VelocidadPreguntas"] = TempData.Peek("VelocidadPreguntas");
+
+            if (ejerciciosRealizados >= Convert.ToInt32(TempData.Peek("CantidadEjercicios")))
+            {
+                return RedirectToAction("ResultadoEscrituraSoroban");
+            }
+
+            return RedirectToAction("EjercicioEscrituraSB");
+        }
+
+        [HttpPost]
+        public IActionResult FinalizarEscrituraSoroban()
+        {
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            return RedirectToAction("ResultadoEscrituraSoroban");
+        }
+
+        [HttpGet]
+        public IActionResult ResultadoEscrituraSoroban()
+        {
+            TempData.Keep("Resultados");
+            return View();
+        }
+
     }
 }
