@@ -3,11 +3,216 @@
     Layout = "_Layout";
 }
 
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>Aprende cálculo mental<br />de una manera interactiva</h1>
+            <p>Descubre técnicas como <strong>FingerMath</strong> y el <strong>ábaco japonés</strong> para resolver operaciones de forma rápida y eficiente.</p>
+            <a href="/Inicio/Registro" class="cta-button">Comienza ahora</a>
+        </div>
+        <div class="hero-image">
+            <img src="/Content/Images/im1bg.png" alt="Persona aprendiendo con ábaco" />
+        </div>
+    </div>
+</section>
+
+<section class="benefits-section">
+    <h2>Beneficios del cálculo mental</h2>
+    <div class="benefits-cards">
+        <div class="card purple">
+            <div class="icon-wrapper">
+                <img src="/Content/Images/icon-brain.png" alt="Ícono cerebro" />
+            </div>
+            <h3>Cálculo mental</h3>
+            <p>Mejora la agilidad mental y capacidad de resolución de problemas</p>
+        </div>
+
+        <div class="card purple-dark">
+            <div class="icon-wrapper">
+                <img src="/Content/Images/icon-finger.png" alt="Ícono dedos" />
+            </div>
+            <h3>Finger math</h3>
+            <p>Desarrolla habilidades numéricas desde una edad temprana</p>
+        </div>
+
+        <div class="card blue">
+            <div class="icon-wrapper">
+                <img src="/Content/Images/icon-abacus.png" alt="Ícono ábaco" />
+            </div>
+            <h3>Ábaco japonés</h3>
+            <p>Fortalece habilidades cognitivas como la memoria y la concentración</p>
+        </div>
+    </div>
+</section>
+
+
 <style>
+    .hero-section {
+        padding: 5rem 2rem;
+        display: flex;
+        justify-content: center;
+    }
 
+    .hero-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 3rem;
+    }
+
+    .hero-text {
+        flex: 1;
+        min-width: 280px;
+    }
+
+        .hero-text h1 {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text p {
+            color: #bcbce9;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+    .cta-button {
+        background-color: #4c4cff;
+        color: white;
+        text-decoration: none;
+        padding: 0.9rem 2rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+.cta-button:hover {
+    background-color: #3737e8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 76, 255, 0.4);
+}
+
+
+    .hero-image {
+        flex: 1;
+        text-align: center;
+        min-width: 280px;
+    }
+
+ .hero-image img {
+     max-width: 100%;
+     height: auto;
+ }
+
+ .benefits-section {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.benefits-section h2 {
+    font-size: 2.4rem;
+    color: white;
+    margin-bottom: 3rem;
+}
+
+.benefits-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.card {
+    background-color: #222459;
+    padding: 2rem 1.5rem;
+    border-radius: 1.5rem;
+    width: 280px;
+    max-width: 300px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.card img {
+    height: 60px;
+}
+
+.icon-wrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1rem auto;
+}
+
+.icon-wrapper img {
+    height: 48px;
+    width: auto;
+}
+
+
+.card h3 {
+    font-size: 1.3rem;
+    margin: 0.5rem 0;
+}
+
+.card p {
+    font-size: 1rem;
+    color: #d1d1f0;
+}
+
+.card.purple {
+    background-color: #7a50d3;
+}
+
+.card.purple-dark {
+    background-color: #6233b8;
+}
+
+.card.blue {
+    background-color: #4c4cff;
+}
+
+    @@media (max-width: 768px) {
+     .hero-content{
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 2rem;
+    }
+
+    .hero-text p {
+        font-size: 1rem;
+    }
+
+    .cta-button {
+        font-size: 1rem;
+    }
+
+    .hero-section {
+      padding: 0;
+    }
+
+    .benefits-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .benefits-section h2 {
+        font-size: 1.8rem;
+    }
+
+    }
 </style>
-<h1>AQUI SE MUESTRA UNA PAGINA DE INICIO, PARA INICIAR SESIÓN DA CLICK EN EL BOTÓN DEL ENCABEZADO (INICIAR SESIÓN O REGISTRARSE) PARA IR A LA PAGINA DEL LOGIN</h1>
-<script>
-
-</script>
-
