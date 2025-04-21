@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "Ejercicio de Suma y Resta";
+    Layout = "_LayoutSR";
+
+    var numeros = ViewBag.Numeros as List<int>;
+    var operaciones = ViewBag.Operaciones as List<string>;
+    float velocidad = float.Parse(ViewBag.VelocidadPreguntas.ToString());
+    int ejercicioActual = ViewBag.EjercicioActual;
+    int totalEjercicios = ViewBag.TotalEjercicios;
+}
+
+<h2 style="text-align:center;">🧮 Ejercicio @ejercicioActual de @totalEjercicios</h2>
+
+@if (velocidad > 0)
+{
+    <p><strong>Tiempo restante:</strong> <span id="contador">@velocidad</span> segundos</p>
+}
+else
+{
+    <p><strong>Modo sin límite de tiempo</strong></p>
+}
+
+<div style="display: flex; justify-content: center; gap: 50px; margin-top: 30px;">
+    <div>
+        <div style="font-size: 2rem; text-align: right; line-height: 1.6;">
+            @for (int i = 0; i < numeros.Count; i++)
+            {
+                <div>@(operaciones[i] == "-" ? "-" : "") @numeros[i]</div>
+            }
+        </div>
+
+        <form method="post" asp-action="ResultadoSR" id="formulario" style="margin-top: 20px;">
+            <input type="number" name="respuesta" placeholder="Resultado" required autofocus />
+            <input type="hidden" id="respondido" name="respondido" value="true" />
+            <br />
+            <button type="submit" class="btn btn-success" style="margin-top: 15px;">Enviar respuesta</button>
+        </form>
+    </div>
+
+    <div>
+        <!-- Aquí se incluirán después las manos o ábaco -->
+        <div style="text-align:center;">🧠 Área de ayuda (ábaco o manos)</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const velocidad = parseFloat("@velocidad");
+        const contador = document.getElementById("contador");
+
+        if (velocidad > 0 && contador) {
+            let tiempo = velocidad;
+            const intervalo = setInterval(() => {
+                tiempo -= 0.1;
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    document.getElementById("respondido").value = "false";
+                    document.getElementById("formulario").submit();
+                } else {
+                    contador.textContent = tiempo.toFixed(1);
+                }
+            }, 100);
+        }
+    </script>
+}

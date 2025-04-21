@@ -45,6 +45,22 @@
     </div>
 </section>
 
+<section class="modules-section">
+    <div class="modules-container">
+        <div class="modules-image">
+            <img src="/Content/Images/im2.png" alt="Ilustración módulos interactivos" />
+        </div>
+        <div class="modules-text">
+            <h2>Módulos interactivos</h2>
+            <p>
+                Contamos con varios módulos interactivos en donde el estudiante deberá poner en práctica el <strong>cálculo mental</strong>, la técnica de <strong>Fingermath</strong> y el <strong>ábaco japonés</strong>,
+                diseñados para que todos los usuarios tengan una experiencia de usuario buena, con interfaces bonitas, retroalimentación para mejorar y desafíos interesantes que superar.
+            </p>
+        </div>
+    </div>
+</section>
+
+
 
 <style>
     .hero-section {
@@ -183,6 +199,50 @@
     background-color: #4c4cff;
 }
 
+    .modules-section {
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        background-color: #10132f;
+    }
+
+    .modules-container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .modules-image {
+        flex: 1;
+        max-width:30rem;
+        text-align: center;
+    }
+
+        .modules-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    .modules-text {
+        flex: 1;
+        min-width: 280px;
+        color: white;
+    }
+
+        .modules-text h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .modules-text p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #d1d1f0;
+        }
+
     @@media (max-width: 768px) {
      .hero-content{
         flex-direction: column-reverse;
@@ -213,6 +273,19 @@
     .benefits-section h2 {
         font-size: 1.8rem;
     }
+
+        .modules-container {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .modules-text h2 {
+            font-size: 1.8rem;
+        }
+
+        .modules-text p {
+            font-size: 1rem;
+        }
 
     }
 </style>

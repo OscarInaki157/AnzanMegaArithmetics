@@ -1,0 +1,488 @@
+﻿@model AnzanMegaArithmetics.Models.ConfSumaRestaModel
+@{
+    ViewBag.Title = "Ejercicios Sumas y restas";
+    Layout = "_LayoutSR";
+    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
+}
+
+<h2 style="text-align:center;">🧮 Configuración - Suma y Resta</h2>
+
+<form method="get" asp-controller="Dashboard" asp-action="Dashboard" style="text-align: center; margin-top: 20px;">
+    <button type="submit" class="btn btn-secondary">🏠 Regresar al Dashboard</button>
+</form>
+
+<form method="post" action="/SumaResta/ConcentracionSR" id="formConfigSR" style="max-width: 900px; margin: 30px auto; padding: 25px; border: 1px solid #ccc; border-radius: 12px; background-color: #f9f9f9;">
+    <div class="form-grid">
+        <div class="form-column">
+            <div>
+                <label>Número de ejercicios:</label>
+                <select name="cantidadEjercicios" required>
+                    @for (int i = 1; i <= 30; i++)
+                    {
+                        if (i <= 10 || i % 5 == 0)
+                        {
+                            <option value="@i" selected="@(cantidad == i)">@i</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Tiempo de concentración:</label>
+                <select name="tiempoMeditacion" required>
+                    @foreach (var val in new[] { 0, 2, 3, 5, 8, 10 })
+                    {
+                        <option value="@val" selected="@(Model.TiempoMeditacion == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Número de operaciones por ejercicio:</label>
+                <select name="numeroOperaciones" id="numeroOperacionesSelect">
+                    @for (int i = 2; i <= 10; i++)
+                    {
+                        <option value="@i" selected="@(Model.NumeroOperaciones == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Número mínimo de dígitos:</label>
+                <select name="minDigitos" id="minDigitosSelect">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Número máximo de dígitos:</label>
+                <select name="maxDigitos" id="maxDigitosSelect">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Velocidad por ejercicio (segundos):</label>
+                <select name="velocidadPreguntas">
+                    @for (int i = 0; i <= 10; i++)
+                    {
+                        <option value="@i" selected="@(Model.VelocidadPreguntas.Equals(i))">@i @(i == 0 ? "(sin límite)" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Valor máximo:</label>
+                <input type="number" name="valorMaximo" min="1" value="@Model.ValorMaximo" required />
+            </div>
+
+            <div style="margin-top: 10px;">
+                <input type="hidden" name="usarMaximoComoBase" value="false" />
+                <input type="checkbox" name="usarMaximoComoBase" value="true"
+                @(Model.UsarMaximoComoBase ? "checked" : "") />
+                <label>El primer número será generado con respecto al máximo</label>
+            </div>
+
+        </div>
+
+        <div class="form-column">
+            <div>
+                <label>Tipo de operación:</label>
+                <select name="tipoOperacion" id="tipoOperacionSelect">
+                    <option value="suma" selected="@(Model.TipoOperacion == "suma")">Suma</option>
+                    <option value="resta" selected="@(Model.TipoOperacion == "resta")">Resta</option>
+                    <option value="ambos" selected="@(Model.TipoOperacion == "ambos")">Suma y Resta</option>
+                </select>
+            </div>
+
+
+            <div id="containerSuma" style="margin-top: 20px;">
+                <label style="color:black;">Dígitos permitidos en SUMA:</label>
+                <div class="tag-input" id="tagInputSuma">
+                    <div class="tags-container" id="tagsContainerSuma"></div>
+                    <div class="dropdown-toggle">▾</div>
+                    <div class="dropdown-options" id="dropdownSuma">
+                        <div class="option special" data-action="add-all">➕ Agregar todos</div>
+                        <div class="option special" data-action="remove-all">➖ Quitar todos</div>
+                        @for (int i = 1; i <= 9; i++)
+                        {
+                            <div class="option" data-value="@i">@i</div>
+                        }
+                    </div>
+                    <input type="hidden" name="digitosSuma" id="inputHiddenSuma" value="@Model.DigitosSuma" />
+                </div>
+                <label style="margin-top: 8px; display: block;">
+                    <input type="checkbox" name="directaSuma" id="chkDirectaSuma" @(Model.DirectaSuma ? "checked=\"checked\"" : "") /> Activar operaciones directas de SUMA
+                </label>
+            </div>
+
+            <div id="containerResta" style="margin-top: 20px;">
+                <label style="color:black;">Dígitos permitidos en RESTA:</label>
+                <div class="tag-input" id="tagInputResta">
+                    <div class="tags-container" id="tagsContainerResta"></div>
+                    <div class="dropdown-toggle">▾</div>
+                    <div class="dropdown-options" id="dropdownResta">
+                        <div class="option special" data-action="add-all">➕ Agregar todos</div>
+                        <div class="option special" data-action="remove-all">➖ Quitar todos</div>
+                        @for (int i = 1; i <= 9; i++)
+                        {
+                            <div class="option" data-value="@i">@i</div>
+                        }
+                    </div>
+                    <input type="hidden" name="digitosResta" id="inputHiddenResta" value="@Model.DigitosResta" />
+                </div>
+                <label style="margin-top: 8px; display: block;">
+                    <input type="checkbox" name="directaResta" id="chkDirectaResta" @(Model.DirectaResta ? "checked=\"checked\"" : "") /> Activar operaciones directas de RESTA
+                </label>
+            </div>
+            
+        </div>
+
+
+    </div>
+
+    <div style="margin-top: 30px; text-align:center;">
+        <button type="submit" class="btn btn-primary">Iniciar ejercicios</button>
+    </div>
+</form>
+
+<style>
+    form {
+        color: #000000;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: space-between;
+    }
+
+    .form-column {
+        flex: 1 1 48%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .tag-input {
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 5px 10px;
+        position: relative;
+        background-color: white;
+        min-height: 42px;
+        transition: border 0.2s ease-in-out;
+    }
+
+    .input-error {
+        border: 2px solid red !important;
+    }
+
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .tag {
+        background-color: #007bff;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+
+        .tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+    .dropdown-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #555;
+        user-select: none;
+    }
+
+    .dropdown-options {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 5px);
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        max-height: 180px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+
+    .option {
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option.special {
+            font-weight: bold;
+            background-color: #f7f7f7;
+            color: #007bff;
+        }
+
+            .option.special:hover {
+                background-color: #e9e9e9;
+            }
+</style>
+
+@section Scripts {
+    <script>
+        function setupTagInput(prefix) {
+            const container = document.getElementById(`tagInput${prefix}`);
+            const dropdown = document.getElementById(`dropdown${prefix}`);
+            const tagsContainer = document.getElementById(`tagsContainer${prefix}`);
+            const hiddenInput = document.getElementById(`inputHidden${prefix}`);
+
+            let tags = [];
+
+            container.addEventListener("click", () => {
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            });
+
+            dropdown.querySelectorAll(".option").forEach(option => {
+                const value = option.getAttribute("data-value");
+                const action = option.getAttribute("data-action");
+
+                if (action === "add-all") {
+                    option.addEventListener("click", () => {
+                        tags = [...Array(9).keys()].map(i => (i + 1).toString());
+                        renderTags();
+                    });
+                } else if (action === "remove-all") {
+                    option.addEventListener("click", () => {
+                        tags = [];
+                        renderTags();
+                    });
+                } else if (value !== null) {
+                    option.addEventListener("click", () => {
+                        if (!tags.includes(value)) {
+                            tags.push(value);
+                            renderTags();
+                        }
+                    });
+                }
+            });
+
+            function renderTags() {
+                tagsContainer.innerHTML = "";
+                tags.forEach(val => {
+                    const tag = document.createElement("div");
+                    tag.className = "tag";
+                    tag.innerHTML = `${val}<span class="remove">&times;</span>`;
+                    tag.querySelector(".remove").addEventListener("click", () => {
+                        tags = tags.filter(t => t !== val);
+                        renderTags();
+                    });
+                    tagsContainer.appendChild(tag);
+                });
+                hiddenInput.value = tags.join(",");
+
+                // Quitar resaltado si hay al menos un dígito
+                if (prefix === "Suma" && tags.length > 0) {
+                    document.getElementById("tagInputSuma").classList.remove("input-error");
+                }
+                if (prefix === "Resta" && tags.length > 0) {
+                    document.getElementById("tagInputResta").classList.remove("input-error");
+                }
+            }
+
+            document.addEventListener("click", (e) => {
+                if (!container.contains(e.target)) {
+                    dropdown.style.display = "none";
+                }
+            });
+        }
+
+        setupTagInput("Suma");
+        setupTagInput("Resta");
+
+        function actualizarVisibilidadOperaciones() {
+            const tipo = document.getElementById("tipoOperacionSelect").value;
+            document.getElementById("containerSuma").style.display = (tipo === "suma" || tipo === "ambos") ? "block" : "none";
+            document.getElementById("containerResta").style.display = (tipo === "resta" || tipo === "ambos") ? "block" : "none";
+        }
+
+        document.getElementById("tipoOperacionSelect").addEventListener("change", actualizarVisibilidadOperaciones);
+        actualizarVisibilidadOperaciones();
+
+        let valorPrevioOperaciones = 3;
+
+        function actualizarSelectOperacionesDirectas() {
+            const chkSuma = document.getElementById("chkDirectaSuma");
+            const chkResta = document.getElementById("chkDirectaResta");
+            const select = document.getElementById("numeroOperacionesSelect");
+
+            const directaActiva = chkSuma.checked || chkResta.checked;
+
+            if (!directaActiva) {
+                select.innerHTML = "";
+                for (let i = 2; i <= 10; i++) {
+                    const opt = document.createElement("option");
+                    opt.value = i;
+                    opt.textContent = i;
+                    if (i == valorPrevioOperaciones) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                }
+            } else {
+                valorPrevioOperaciones = select.value;
+                select.innerHTML = "";
+                [2, 3].forEach(num => {
+                    const opt = document.createElement("option");
+                    opt.value = num;
+                    opt.textContent = num;
+                    if (num === 3) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        document.getElementById("chkDirectaSuma").addEventListener("change", actualizarSelectOperacionesDirectas);
+        document.getElementById("chkDirectaResta").addEventListener("change", actualizarSelectOperacionesDirectas);
+        actualizarSelectOperacionesDirectas();
+
+        const minDigitosSelect = document.getElementById("minDigitosSelect");
+        const maxDigitosSelect = document.getElementById("maxDigitosSelect");
+
+        function actualizarMaximos() {
+            const minValue = parseInt(minDigitosSelect.value);
+            let maxValue = parseInt(maxDigitosSelect.value);
+
+            if (minValue > maxValue) {
+                maxDigitosSelect.value = minValue;
+                maxValue = minValue;
+            }
+
+            Array.from(maxDigitosSelect.options).forEach(option => {
+                option.disabled = parseInt(option.value) < minValue;
+            });
+        }
+
+        function actualizarMinimos() {
+            const maxValue = parseInt(maxDigitosSelect.value);
+            let minValue = parseInt(minDigitosSelect.value);
+
+            if (minValue > maxValue) {
+                minDigitosSelect.value = maxValue;
+                minValue = maxValue;
+            }
+
+            Array.from(minDigitosSelect.options).forEach(option => {
+                option.disabled = parseInt(option.value) > maxValue;
+            });
+        }
+
+        minDigitosSelect.addEventListener("change", actualizarMaximos);
+        maxDigitosSelect.addEventListener("change", actualizarMinimos);
+        actualizarMaximos();
+        actualizarMinimos();
+
+        // Validación de envío de formulario: mínimo 1 dígito seleccionado
+        document.getElementById("formConfigSR").addEventListener("submit", function (e) {
+            const tipo = document.getElementById("tipoOperacionSelect").value;
+            const digitosSuma = document.getElementById("inputHiddenSuma").value.trim();
+            const digitosResta = document.getElementById("inputHiddenResta").value.trim();
+            const tagInputSuma = document.getElementById("tagInputSuma");
+            const tagInputResta = document.getElementById("tagInputResta");
+
+            // Limpiar errores visuales anteriores
+            tagInputSuma.classList.remove("input-error");
+            tagInputResta.classList.remove("input-error");
+
+            let error = false;
+
+            if ((tipo === "suma" && digitosSuma === "")) {
+                tagInputSuma.classList.add("input-error");
+                error = true;
+            }
+
+            if ((tipo === "resta" && digitosResta === "")) {
+                tagInputResta.classList.add("input-error");
+                error = true;
+            }
+
+            if ((tipo === "ambos")) {
+                if (digitosSuma === "") {
+                    tagInputSuma.classList.add("input-error");
+                    error = true;
+                }
+                if (digitosResta === "") {
+                    tagInputResta.classList.add("input-error");
+                    error = true;
+                }
+            }
+
+            if (error) {
+                e.preventDefault();
+                alert("Debes seleccionar al menos un dígito en los campos correspondientes a SUMA y/o RESTA según el tipo de operación.");
+            }
+        });
+
+        function precargarDigitos(prefix, valores) {
+            const tagsContainer = document.getElementById(`tagsContainer${prefix}`);
+            const hiddenInput = document.getElementById(`inputHidden${prefix}`);
+            const tagInput = document.getElementById(`tagInput${prefix}`);
+
+            let tags = valores;
+
+            function renderTags() {
+                tagsContainer.innerHTML = "";
+                tags.forEach(val => {
+                    const tag = document.createElement("div");
+                    tag.className = "tag";
+                    tag.innerHTML = `${val}<span class="remove">&times;</span>`;
+                    tag.querySelector(".remove").addEventListener("click", () => {
+                        tags = tags.filter(t => t !== val);
+                        renderTags();
+                    });
+                    tagsContainer.appendChild(tag);
+                });
+                hiddenInput.value = tags.join(",");
+            }
+
+            renderTags();
+        }
+
+        // Obtener datos desde Razor en arrays JS
+        const valoresSuma = '@(Model.DigitosSuma ?? "")'.split(',').filter(x => x !== '');
+        const valoresResta = '@(Model.DigitosResta ?? "")'.split(',').filter(x => x !== '');
+
+
+        precargarDigitos("Suma", valoresSuma);
+        precargarDigitos("Resta", valoresResta);
+
+        // Forzar la visibilidad correcta en base a tipo operación seleccionado
+        document.addEventListener("DOMContentLoaded", function () {
+            actualizarVisibilidadOperaciones();
+        });
+    </script>
+}
+

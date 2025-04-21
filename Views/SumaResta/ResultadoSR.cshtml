@@ -1,0 +1,102 @@
+﻿@using AnzanMegaArithmetics.Models
+@{
+    ViewBag.Title = "Resumen de Ejercicios - Suma y Resta";
+    Layout = "_LayoutSR";
+
+    var resultadosJson = TempData["Resultados"] as string;
+    var resultados = string.IsNullOrEmpty(resultadosJson)
+        ? new List<RSumaRestaModel>()
+        : System.Text.Json.JsonSerializer.Deserialize<List<RSumaRestaModel>>(resultadosJson);
+
+    var total = resultados.Count;
+    var correctos = resultados.Count(r => r.EsCorrecto);
+    var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
+}
+
+<h1>📊 Resumen de Ejercicios - Suma y Resta</h1>
+
+<hr />
+
+<!-- Botones centrados -->
+<div style="display: flex; justify-content: center; gap: 30px; margin: 30px 0;">
+
+    <form method="post" asp-action="FormularioSR">
+        <input type="hidden" name="cantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
+        <input type="hidden" name="numeroOperaciones" value="@TempData.Peek("NumeroOperaciones")" />
+        <input type="hidden" name="minDigitos" value="@TempData.Peek("MinDigitos")" />
+        <input type="hidden" name="maxDigitos" value="@TempData.Peek("MaxDigitos")" />
+        <input type="hidden" name="velocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
+        <input type="hidden" name="valorMaximo" value="@TempData.Peek("ValorMaximo")" />
+        <input type="hidden" name="usarMaximoComoBase" value="@TempData.Peek("UsarMaximoComoBase")" />
+        <input type="hidden" name="tipoOperacion" value="@TempData.Peek("TipoOperacion")" />
+        <input type="hidden" name="tiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
+        <input type="hidden" name="digitosSuma" value="@TempData.Peek("DigitosSuma")" />
+        <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
+        <input type="hidden" name="directaSuma" value="@TempData.Peek("DirectaSuma")" />
+        <input type="hidden" name="directaResta" value="@TempData.Peek("DirectaResta")" />
+
+        <button type="submit" class="btn btn-primary" style="padding: 10px; font-size: 0.9rem;">
+            🔁 Repetir (ir a configuración)
+        </button>
+    </form>
+
+    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+        <button type="submit" class="btn btn-secondary" style="padding: 10px; font-size: 0.9rem;">
+            🏠 Regresar al dashboard
+        </button>
+    </form>
+</div>
+
+<!-- Contenedor de totales -->
+<div style="
+    background-color: #f5f8ff;
+    border: 2px solid #d0dff7;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    max-width: 800px;
+    color: black;
+">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap; text-align: left;">
+        <!-- Totales -->
+        <div style="flex: 1;">
+            <p style="font-size: 1.25rem; margin: 8px 0;">📄 Total de ejercicios: <strong>@total</strong></p>
+            <p style="font-size: 1.25rem; margin: 8px 0;">✅ Correctos: <strong>@correctos</strong></p>
+            <p style="font-size: 1.25rem; margin: 8px 0;">❌ Incorrectos: <strong>@(total - correctos)</strong></p>
+        </div>
+
+        <!-- Porcentaje -->
+        <div style="flex: 1; text-align: center;">
+            <p style="margin-bottom: 10px; font-size: 1.2rem;">🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+            <div style="margin: 0 auto; width: 100%; max-width: 300px; background-color: #e0e0e0; border-radius: 6px; height: 22px; overflow: hidden;">
+                <div style="height: 100%; background-color: #28a745; width: @porcentaje%; transition: width 0.5s;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acordeón con detalles por ejercicio -->
+<div style="max-width: 800px; margin: 0 auto;">
+    @for (int i = 0; i < resultados.Count; i++)
+    {
+        var r = resultados[i];
+        var estado = r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto";
+        var color = r.EsCorrecto ? "green" : "red";
+        <details style="margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; background-color: #fdfdfd; color: black;">
+            <summary style="padding: 14px 18px; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: @color;">
+                Ejercicio @(i + 1): @estado
+            </summary>
+            <div style="padding: 16px 20px; border-top: 1px solid #ddd; background-color: #fafafa; font-size: 1.1rem; color: black;">
+                <p style="margin: 0 0 8px 0;">
+                    <span style="font-size: 1.2rem;">✍️</span> <strong>Tu respuesta:</strong>
+                    <span style="font-size: 1.2rem;">@(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</span>
+                </p>
+                <p style="margin: 0;">
+                    <span style="font-size: 1.2rem;">✔️</span> <strong>Respuesta correcta:</strong>
+                    <span style="font-size: 1.2rem;">@r.RespuestaCorrecta</span>
+                </p>
+            </div>
+        </details>
+    }
+</div>

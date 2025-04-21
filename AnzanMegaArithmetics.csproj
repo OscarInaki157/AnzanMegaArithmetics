@@ -17,6 +17,7 @@
     <None Remove="Content\Images\icon-finger.png" />
     <None Remove="Content\Images\iconoMM.png" />
     <None Remove="Content\Images\im1bg.png" />
+    <None Remove="Content\Images\im2.png" />
     <None Remove="Content\Images\Learned.gif" />
     <None Remove="Content\Images\mano-derecha.png" />
     <None Remove="Content\Images\mano-izquierda.png" />
@@ -52,6 +53,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\im1bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\im2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Learned.gif">
