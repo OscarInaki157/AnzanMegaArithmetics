@@ -87,7 +87,18 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 int digitos = random.Next(minDig, maxDig + 1);
                 int min = (int)Math.Pow(10, digitos - 1);
-                int max = Math.Min((int)Math.Pow(10, digitos) - 1, valorMaximo);
+                int max = (int)Math.Pow(10, digitos) - 1;
+
+                if (valorMaximo > 0)
+                    max = Math.Min(max, valorMaximo);
+
+                if (min > max)
+                {
+                    var temp = min;
+                    min = max;
+                    max = temp;
+                }
+
                 int valor = random.Next(min, max + 1);
 
                 string op = tipoOperacion switch
@@ -98,7 +109,7 @@ namespace AnzanMegaArithmetics.Controllers
                     _ => "+"
                 };
 
-                if (usarMax && i == 0)
+                if (usarMax && i == 0 && valorMaximo > 0)
                     valor = valorMaximo;
 
                 numeros.Add(valor);
@@ -120,6 +131,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
+
 
         [HttpPost]
         public IActionResult ResultadoSR(int respuesta, string respondido)

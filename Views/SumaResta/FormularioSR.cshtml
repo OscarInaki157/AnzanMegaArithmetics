@@ -3,6 +3,7 @@
     ViewBag.Title = "Ejercicios Sumas y restas";
     Layout = "_LayoutSR";
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
+    var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
 }
 
 <h2 style="text-align:center;">🧮 Configuración - Suma y Resta</h2>
@@ -32,7 +33,7 @@
                 <select name="tiempoMeditacion" required>
                     @foreach (var val in new[] { 0, 2, 3, 5, 8, 10 })
                     {
-                        <option value="@val" selected="@(Model.TiempoMeditacion == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                        <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
                     }
                 </select>
             </div>
@@ -79,15 +80,24 @@
 
             <div>
                 <label>Valor máximo:</label>
-                <input type="number" name="valorMaximo" min="1" value="@Model.ValorMaximo" required />
+                <input type="number" name="valorMaximo" min="0" value="@Model.ValorMaximo"/>
             </div>
 
-            <div style="margin-top: 10px;">
-                <input type="hidden" name="usarMaximoComoBase" value="false" />
-                <input type="checkbox" name="usarMaximoComoBase" value="true"
-                @(Model.UsarMaximoComoBase ? "checked" : "") />
-                <label>El primer número será generado con respecto al máximo</label>
+            <div id="usarMaxContainer" style="margin-top: 10px;">
+                <label>¿El primer número será generado con respecto al máximo?</label>
+                <div>
+                    <label>
+                        <input type="radio" name="usarMaximoComoBase" value="true" @(Model.UsarMaximoComoBase ? "checked" : "") />
+                        Sí
+                    </label>
+                    <label style="margin-left: 15px;">
+                        <input type="radio" name="usarMaximoComoBase" value="false" @(!Model.UsarMaximoComoBase ? "checked" : "") />
+                        No
+                    </label>
+                </div>
             </div>
+
+
 
         </div>
 
@@ -117,9 +127,22 @@
                     </div>
                     <input type="hidden" name="digitosSuma" id="inputHiddenSuma" value="@Model.DigitosSuma" />
                 </div>
-                <label style="margin-top: 8px; display: block;">
-                    <input type="checkbox" name="directaSuma" id="chkDirectaSuma" @(Model.DirectaSuma ? "checked=\"checked\"" : "") /> Activar operaciones directas de SUMA
-                </label>
+
+                <div style="margin-top: 15px;">
+                    <label>¿Activar operaciones directas de SUMA?</label>
+                    <div>
+                        <label>
+                            <input type="radio" name="directaSuma" value="true" @(Model.DirectaSuma ? "checked" : "") />
+                            Sí
+                        </label>
+                        <label style="margin-left: 15px;">
+                            <input type="radio" name="directaSuma" value="false" @(!Model.DirectaSuma ? "checked" : "") />
+                            No
+                        </label>
+                    </div>
+                </div>
+
+
             </div>
 
             <div id="containerResta" style="margin-top: 20px;">
@@ -137,9 +160,22 @@
                     </div>
                     <input type="hidden" name="digitosResta" id="inputHiddenResta" value="@Model.DigitosResta" />
                 </div>
-                <label style="margin-top: 8px; display: block;">
-                    <input type="checkbox" name="directaResta" id="chkDirectaResta" @(Model.DirectaResta ? "checked=\"checked\"" : "") /> Activar operaciones directas de RESTA
-                </label>
+                
+                <div style="margin-top: 15px;">
+                    <label>¿Activar operaciones directas de RESTA?</label>
+                    <div>
+                        <label>
+                            <input type="radio" name="directaResta" value="true" @(Model.DirectaResta ? "checked" : "") />
+                            Sí
+                        </label>
+                        <label style="margin-left: 15px;">
+                            <input type="radio" name="directaResta" value="false" @(!Model.DirectaResta ? "checked" : "") />
+                            No
+                        </label>
+                    </div>
+                </div>
+
+
             </div>
             
         </div>
@@ -304,7 +340,6 @@
                 });
                 hiddenInput.value = tags.join(",");
 
-                // Quitar resaltado si hay al menos un dígito
                 if (prefix === "Suma" && tags.length > 0) {
                     document.getElementById("tagInputSuma").classList.remove("input-error");
                 }
@@ -335,11 +370,11 @@
         let valorPrevioOperaciones = 3;
 
         function actualizarSelectOperacionesDirectas() {
-            const chkSuma = document.getElementById("chkDirectaSuma");
-            const chkResta = document.getElementById("chkDirectaResta");
+            const chkSuma = document.querySelector('input[name="directaSuma"]:checked');
+            const chkResta = document.querySelector('input[name="directaResta"]:checked');
             const select = document.getElementById("numeroOperacionesSelect");
 
-            const directaActiva = chkSuma.checked || chkResta.checked;
+            const directaActiva = (chkSuma?.value === "true") || (chkResta?.value === "true");
 
             if (!directaActiva) {
                 select.innerHTML = "";
@@ -347,9 +382,7 @@
                     const opt = document.createElement("option");
                     opt.value = i;
                     opt.textContent = i;
-                    if (i == valorPrevioOperaciones) {
-                        opt.selected = true;
-                    }
+                    if (i == valorPrevioOperaciones) opt.selected = true;
                     select.appendChild(opt);
                 }
             } else {
@@ -359,14 +392,16 @@
                     const opt = document.createElement("option");
                     opt.value = num;
                     opt.textContent = num;
-                    if (num === 3) opt.selected = true;
+                    if (num == 3) opt.selected = true;
                     select.appendChild(opt);
                 });
             }
         }
 
-        document.getElementById("chkDirectaSuma").addEventListener("change", actualizarSelectOperacionesDirectas);
-        document.getElementById("chkDirectaResta").addEventListener("change", actualizarSelectOperacionesDirectas);
+        document.querySelectorAll('input[name="directaSuma"]').forEach(el =>
+            el.addEventListener("change", actualizarSelectOperacionesDirectas));
+        document.querySelectorAll('input[name="directaResta"]').forEach(el =>
+            el.addEventListener("change", actualizarSelectOperacionesDirectas));
         actualizarSelectOperacionesDirectas();
 
         const minDigitosSelect = document.getElementById("minDigitosSelect");
@@ -405,31 +440,37 @@
         actualizarMaximos();
         actualizarMinimos();
 
-        // Validación de envío de formulario: mínimo 1 dígito seleccionado
         document.getElementById("formConfigSR").addEventListener("submit", function (e) {
             const tipo = document.getElementById("tipoOperacionSelect").value;
-            const digitosSuma = document.getElementById("inputHiddenSuma").value.trim();
-            const digitosResta = document.getElementById("inputHiddenResta").value.trim();
+
+            const containerSuma = document.getElementById("tagsContainerSuma");
+            const containerResta = document.getElementById("tagsContainerResta");
+
+            const digitosSuma = Array.from(containerSuma.children).map(el => el.innerText.replace("×", "")).join(",");
+            const digitosResta = Array.from(containerResta.children).map(el => el.innerText.replace("×", "")).join(",");
+
+            document.getElementById("inputHiddenSuma").value = digitosSuma;
+            document.getElementById("inputHiddenResta").value = digitosResta;
+
             const tagInputSuma = document.getElementById("tagInputSuma");
             const tagInputResta = document.getElementById("tagInputResta");
 
-            // Limpiar errores visuales anteriores
             tagInputSuma.classList.remove("input-error");
             tagInputResta.classList.remove("input-error");
 
             let error = false;
 
-            if ((tipo === "suma" && digitosSuma === "")) {
+            if (tipo === "suma" && digitosSuma === "") {
                 tagInputSuma.classList.add("input-error");
                 error = true;
             }
 
-            if ((tipo === "resta" && digitosResta === "")) {
+            if (tipo === "resta" && digitosResta === "") {
                 tagInputResta.classList.add("input-error");
                 error = true;
             }
 
-            if ((tipo === "ambos")) {
+            if (tipo === "ambos") {
                 if (digitosSuma === "") {
                     tagInputSuma.classList.add("input-error");
                     error = true;
@@ -449,7 +490,6 @@
         function precargarDigitos(prefix, valores) {
             const tagsContainer = document.getElementById(`tagsContainer${prefix}`);
             const hiddenInput = document.getElementById(`inputHidden${prefix}`);
-            const tagInput = document.getElementById(`tagInput${prefix}`);
 
             let tags = valores;
 
@@ -471,18 +511,32 @@
             renderTags();
         }
 
-        // Obtener datos desde Razor en arrays JS
         const valoresSuma = '@(Model.DigitosSuma ?? "")'.split(',').filter(x => x !== '');
         const valoresResta = '@(Model.DigitosResta ?? "")'.split(',').filter(x => x !== '');
-
 
         precargarDigitos("Suma", valoresSuma);
         precargarDigitos("Resta", valoresResta);
 
-        // Forzar la visibilidad correcta en base a tipo operación seleccionado
         document.addEventListener("DOMContentLoaded", function () {
             actualizarVisibilidadOperaciones();
         });
+
+        function actualizarVisibilidadUsarMaximo() {
+            const valorMaximoInput = document.querySelector('input[name="valorMaximo"]');
+            const usarMaxContainer = document.getElementById("usarMaxContainer");
+
+            const valor = parseInt(valorMaximoInput.value) || 0;
+
+            if (valor === 0) {
+                usarMaxContainer.style.display = "none";
+            } else {
+                usarMaxContainer.style.display = "block";
+            }
+        }
+
+        const inputValorMaximo = document.querySelector('input[name="valorMaximo"]');
+        inputValorMaximo.addEventListener("input", actualizarVisibilidadUsarMaximo);
+        actualizarVisibilidadUsarMaximo();
+
     </script>
 }
-
