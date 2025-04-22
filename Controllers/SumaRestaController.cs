@@ -36,8 +36,9 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["TipoOperacion"] = config.TipoOperacion ?? "suma";
             TempData["TiempoMeditacion"] = config.TiempoMeditacion;
 
-            TempData["DigitosSuma"] = config.DigitosSuma ?? "";
-            TempData["DigitosResta"] = config.DigitosResta ?? "";
+            TempData["DigitosSuma"] = (config.DigitosSuma ?? "").Replace("\r", "").Replace("\n", "").Trim();
+            TempData["DigitosResta"] = (config.DigitosResta ?? "").Replace("\r", "").Replace("\n", "").Trim();
+
             TempData["DirectaSuma"] = config.DirectaSuma;
             TempData["DirectaResta"] = config.DirectaResta;
 
@@ -63,8 +64,17 @@ namespace AnzanMegaArithmetics.Controllers
             string tipoOperacion = TempData["TipoOperacion"].ToString();
             string velocidad = TempData["VelocidadPreguntas"].ToString();
 
-            string[] sumaPermitidos = TempData["DigitosSuma"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
-            string[] restaPermitidos = TempData["DigitosResta"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
+            string[] sumaPermitidos = TempData["DigitosSuma"].ToString()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToArray();
+
+            string[] restaPermitidos = TempData["DigitosResta"].ToString()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToArray();
+
+
             bool directaSuma = Convert.ToBoolean(TempData["DirectaSuma"]);
             bool directaResta = Convert.ToBoolean(TempData["DirectaResta"]);
 
@@ -83,23 +93,17 @@ namespace AnzanMegaArithmetics.Controllers
             var numeros = new List<int>();
             var operaciones = new List<string>();
 
+            var listaSuma = GenerarNumerosValidos(sumaPermitidos, minDig, maxDig, valorMaximo);
+            var listaResta = GenerarNumerosValidos(restaPermitidos, minDig, maxDig, valorMaximo);
+
+            if (listaSuma.Count == 0 && tipoOperacion != "resta")
+                listaSuma = sumaPermitidos.Select(d => int.Parse(d)).ToList();
+
+            if (listaResta.Count == 0 && tipoOperacion != "suma")
+                listaResta = restaPermitidos.Select(d => int.Parse(d)).ToList();
+
             for (int i = 0; i < numOperaciones; i++)
             {
-                int valor;
-
-                if (valorMaximo > 0 && usarMax && i == 0)
-                {
-                    // Primer número aleatorio entre 0 y valorMaximo
-                    valor = random.Next(0, valorMaximo + 1);
-                }
-                else
-                {
-                    int digitos = random.Next(minDig, maxDig + 1);
-                    int min = (int)Math.Pow(10, digitos - 1);
-                    int max = (int)Math.Pow(10, digitos) - 1;
-                    valor = random.Next(min, max + 1);
-                }
-
                 string op = tipoOperacion switch
                 {
                     "suma" => "+",
@@ -108,10 +112,11 @@ namespace AnzanMegaArithmetics.Controllers
                     _ => "+"
                 };
 
+                var listaActual = op == "+" ? listaSuma : listaResta;
+                int valor = listaActual[random.Next(listaActual.Count)];
                 numeros.Add(valor);
                 operaciones.Add(op);
             }
-
 
             ViewBag.Numeros = numeros;
             ViewBag.Operaciones = operaciones;
@@ -128,6 +133,41 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
+
+        private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, int valorMax)
+        {
+            var resultados = new HashSet<int>();
+            var digitos = digitosPermitidos.Distinct().ToArray();
+
+            for (int longitud = minDig; longitud <= maxDig; longitud++)
+            {
+                foreach (var combinacion in ProductoCartesiano(digitos, longitud))
+                {
+                    var numStr = string.Concat(combinacion);
+                    if (numStr.StartsWith("0")) continue;
+
+                    int num = int.Parse(numStr);
+                    if (valorMax > 0 && num > valorMax) continue;
+
+                    resultados.Add(num);
+                }
+            }
+
+            return resultados.OrderBy(n => n).ToList();
+        }
+
+        private IEnumerable<IEnumerable<string>> ProductoCartesiano(string[] elementos, int longitud)
+        {
+            IEnumerable<IEnumerable<string>> resultado = new[] { Enumerable.Empty<string>() };
+
+            for (int i = 0; i < longitud; i++)
+            {
+                resultado = resultado.SelectMany(seq => elementos.Select(e => seq.Append(e)));
+            }
+
+            return resultado;
+        }
+
 
 
         [HttpPost]
