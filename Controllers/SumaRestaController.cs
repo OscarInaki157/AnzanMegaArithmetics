@@ -153,11 +153,22 @@ namespace AnzanMegaArithmetics.Controllers
                 ? new List<RSumaRestaModel>()
                 : JsonSerializer.Deserialize<List<RSumaRestaModel>>(resultadosJson);
 
+            string operacionTexto = "";
+            for (int i = 0; i < numeros.Count; i++)
+            {
+                string signo = operaciones[i];
+                string num = numeros[i].ToString();
+                operacionTexto += (i == 0 ? "" : signo) + num;
+            }
+
             resultados.Add(new RSumaRestaModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = resultadoCorrecto
+                RespuestaCorrecta = resultadoCorrecto,
+                OperacionTexto = operacionTexto,
+                Respondido = respondio
             });
+
 
             ejerciciosRealizados++;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
