@@ -4,6 +4,7 @@
     Layout = "_LayoutSR";
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
+    var ambosTrue = Model.DirectaSuma && Model.DirectaResta;
 }
 
 <h2 style="text-align:center;">🧮 Configuración - Suma y Resta</h2>
@@ -177,6 +178,19 @@
 
 
             </div>
+
+            <div id="containerDirectaAmbos" style="margin-top: 20px; display:none;">
+                <label>¿Activar operaciones directas de SUMA Y RESTA?</label>
+                <div>
+                    <label>
+                        <input type="radio" name="directaAmbos" value="true" @(ambosTrue ? "checked" : "") /> Sí
+                    </label>
+                    <label style="margin-left: 15px;">
+                        <input type="radio" name="directaAmbos" value="false" @(!ambosTrue ? "checked" : "") /> No
+                    </label>
+                </div>
+            </div>
+
             
         </div>
 
@@ -288,6 +302,8 @@
             }
 </style>
 
+
+
 @section Scripts {
     <script>
         function setupTagInput(prefix) {
@@ -340,10 +356,10 @@
                 });
                 hiddenInput.value = tags.join(",");
 
-                if (prefix === "Suma" && tags.length > 0) {
+                if (prefix === "Suma") {
                     document.getElementById("tagInputSuma").classList.remove("input-error");
                 }
-                if (prefix === "Resta" && tags.length > 0) {
+                if (prefix === "Resta") {
                     document.getElementById("tagInputResta").classList.remove("input-error");
                 }
             }
@@ -360,9 +376,44 @@
 
         function actualizarVisibilidadOperaciones() {
             const tipo = document.getElementById("tipoOperacionSelect").value;
-            document.getElementById("containerSuma").style.display = (tipo === "suma" || tipo === "ambos") ? "block" : "none";
-            document.getElementById("containerResta").style.display = (tipo === "resta" || tipo === "ambos") ? "block" : "none";
+
+            const containerSuma = document.getElementById("containerSuma");
+            const containerResta = document.getElementById("containerResta");
+            const containerDirectaAmbos = document.getElementById("containerDirectaAmbos");
+
+            containerSuma.style.display = (tipo === "suma" || tipo === "ambos") ? "block" : "none";
+            containerResta.style.display = (tipo === "resta" || tipo === "ambos") ? "block" : "none";
+            containerDirectaAmbos.style.display = tipo === "ambos" ? "block" : "none";
+
+            const directaSumaOptions = document.querySelectorAll('input[name="directaSuma"]');
+            const directaRestaOptions = document.querySelectorAll('input[name="directaResta"]');
+
+            if (tipo === "ambos") {
+                // Ocultar opciones individuales
+                directaSumaOptions.forEach(el => el.closest("div").parentElement.style.display = "none");
+                directaRestaOptions.forEach(el => el.closest("div").parentElement.style.display = "none");
+
+                const directaAmbos = document.querySelector('input[name="directaAmbos"]:checked')?.value;
+                directaSumaOptions.forEach(r => r.checked = (r.value === directaAmbos));
+                directaRestaOptions.forEach(r => r.checked = (r.value === directaAmbos));
+            } else {
+                directaSumaOptions.forEach(el => el.closest("div").parentElement.style.display = "block");
+                directaRestaOptions.forEach(el => el.closest("div").parentElement.style.display = "block");
+            }
         }
+
+        document.querySelectorAll('input[name="directaAmbos"]').forEach(el => {
+            el.addEventListener("change", () => {
+                const val = el.value;
+                document.querySelectorAll('input[name="directaSuma"]').forEach(r => {
+                    r.checked = (r.value === val);
+                });
+                document.querySelectorAll('input[name="directaResta"]').forEach(r => {
+                    r.checked = (r.value === val);
+                });
+                actualizarSelectOperacionesDirectas();
+            });
+        });
 
         document.getElementById("tipoOperacionSelect").addEventListener("change", actualizarVisibilidadOperaciones);
         actualizarVisibilidadOperaciones();
@@ -403,6 +454,45 @@
         document.querySelectorAll('input[name="directaResta"]').forEach(el =>
             el.addEventListener("change", actualizarSelectOperacionesDirectas));
         actualizarSelectOperacionesDirectas();
+
+        function sincronizarDirectaAmbos() {
+            const suma = document.querySelector('input[name="directaSuma"][value="true"]').checked;
+            const resta = document.querySelector('input[name="directaResta"][value="true"]').checked;
+
+            const directaAmbosTrue = document.querySelector('input[name="directaAmbos"][value="true"]');
+            const directaAmbosFalse = document.querySelector('input[name="directaAmbos"][value="false"]');
+
+            if (suma && resta) {
+                if (directaAmbosTrue) directaAmbosTrue.checked = true;
+            } else {
+                if (directaAmbosFalse) directaAmbosFalse.checked = true;
+            }
+
+            actualizarSelectOperacionesDirectas();
+        }
+
+        function sincronizarTodosDirectos(origen, valor) {
+            // Forzamos todos los radios a coincidir con el valor de la fuente
+            document.querySelectorAll('input[name="directaSuma"]').forEach(r => r.checked = (r.value === valor));
+            document.querySelectorAll('input[name="directaResta"]').forEach(r => r.checked = (r.value === valor));
+            document.querySelectorAll('input[name="directaAmbos"]').forEach(r => r.checked = (r.value === valor));
+            actualizarSelectOperacionesDirectas(); // para aplicar el límite en número de operaciones
+        }
+
+                // Cuando se cambia cualquiera de los 3 radios
+        document.querySelectorAll('input[name="directaSuma"], input[name="directaResta"], input[name="directaAmbos"]').forEach(el => {
+            el.addEventListener("change", function () {
+                const valor = this.value;
+                sincronizarTodosDirectos(this.name, valor);
+            });
+        });
+
+
+
+        document.querySelectorAll('input[name="directaSuma"]').forEach(el =>
+            el.addEventListener("change", sincronizarDirectaAmbos));
+        document.querySelectorAll('input[name="directaResta"]').forEach(el =>
+            el.addEventListener("change", sincronizarDirectaAmbos));
 
         const minDigitosSelect = document.getElementById("minDigitosSelect");
         const maxDigitosSelect = document.getElementById("maxDigitosSelect");
@@ -519,7 +609,23 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             actualizarVisibilidadOperaciones();
+            sincronizarDirectaAmbos();
+            actualizarSelectOperacionesDirectas();
+
+            const sumaTrue = document.querySelector('input[name="directaSuma"][value="true"]').checked;
+            const restaTrue = document.querySelector('input[name="directaResta"][value="true"]').checked;
+
+            const directaAmbosTrue = document.querySelector('input[name="directaAmbos"][value="true"]');
+            const directaAmbosFalse = document.querySelector('input[name="directaAmbos"][value="false"]');
+
+            if (sumaTrue && restaTrue) {
+                if (directaAmbosTrue) directaAmbosTrue.checked = true;
+            } else {
+                if (directaAmbosFalse) directaAmbosFalse.checked = true;
+            }
+
         });
+
 
         function actualizarVisibilidadUsarMaximo() {
             const valorMaximoInput = document.querySelector('input[name="valorMaximo"]');
@@ -527,11 +633,7 @@
 
             const valor = parseInt(valorMaximoInput.value) || 0;
 
-            if (valor === 0) {
-                usarMaxContainer.style.display = "none";
-            } else {
-                usarMaxContainer.style.display = "block";
-            }
+            usarMaxContainer.style.display = valor === 0 ? "none" : "block";
         }
 
         const inputValorMaximo = document.querySelector('input[name="valorMaximo"]');

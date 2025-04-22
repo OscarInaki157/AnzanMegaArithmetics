@@ -85,21 +85,20 @@ namespace AnzanMegaArithmetics.Controllers
 
             for (int i = 0; i < numOperaciones; i++)
             {
-                int digitos = random.Next(minDig, maxDig + 1);
-                int min = (int)Math.Pow(10, digitos - 1);
-                int max = (int)Math.Pow(10, digitos) - 1;
+                int valor;
 
-                if (valorMaximo > 0)
-                    max = Math.Min(max, valorMaximo);
-
-                if (min > max)
+                if (valorMaximo > 0 && usarMax && i == 0)
                 {
-                    var temp = min;
-                    min = max;
-                    max = temp;
+                    // Primer número aleatorio entre 0 y valorMaximo
+                    valor = random.Next(0, valorMaximo + 1);
                 }
-
-                int valor = random.Next(min, max + 1);
+                else
+                {
+                    int digitos = random.Next(minDig, maxDig + 1);
+                    int min = (int)Math.Pow(10, digitos - 1);
+                    int max = (int)Math.Pow(10, digitos) - 1;
+                    valor = random.Next(min, max + 1);
+                }
 
                 string op = tipoOperacion switch
                 {
@@ -109,12 +108,10 @@ namespace AnzanMegaArithmetics.Controllers
                     _ => "+"
                 };
 
-                if (usarMax && i == 0 && valorMaximo > 0)
-                    valor = valorMaximo;
-
                 numeros.Add(valor);
                 operaciones.Add(op);
             }
+
 
             ViewBag.Numeros = numeros;
             ViewBag.Operaciones = operaciones;
