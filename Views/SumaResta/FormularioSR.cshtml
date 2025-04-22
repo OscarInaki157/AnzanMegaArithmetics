@@ -50,21 +50,21 @@
             </div>
 
             <div>
-                <label>Número mínimo de dígitos:</label>
-                <select name="minDigitos" id="minDigitosSelect">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
-                    }
-                </select>
-            </div>
-
-            <div>
                 <label>Número máximo de dígitos:</label>
                 <select name="maxDigitos" id="maxDigitosSelect">
                     @for (int i = 1; i <= 5; i++)
                     {
                         <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Número mínimo de dígitos:</label>
+                <select name="minDigitos" id="minDigitosSelect">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
                     }
                 </select>
             </div>
