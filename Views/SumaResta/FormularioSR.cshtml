@@ -98,8 +98,6 @@
                 </div>
             </div>
 
-
-
         </div>
 
         <div class="form-column">
@@ -472,22 +470,18 @@
         }
 
         function sincronizarTodosDirectos(origen, valor) {
-            // Forzamos todos los radios a coincidir con el valor de la fuente
             document.querySelectorAll('input[name="directaSuma"]').forEach(r => r.checked = (r.value === valor));
             document.querySelectorAll('input[name="directaResta"]').forEach(r => r.checked = (r.value === valor));
             document.querySelectorAll('input[name="directaAmbos"]').forEach(r => r.checked = (r.value === valor));
-            actualizarSelectOperacionesDirectas(); // para aplicar el límite en número de operaciones
+            actualizarSelectOperacionesDirectas();
         }
 
-                // Cuando se cambia cualquiera de los 3 radios
         document.querySelectorAll('input[name="directaSuma"], input[name="directaResta"], input[name="directaAmbos"]').forEach(el => {
             el.addEventListener("change", function () {
                 const valor = this.value;
                 sincronizarTodosDirectos(this.name, valor);
             });
         });
-
-
 
         document.querySelectorAll('input[name="directaSuma"]').forEach(el =>
             el.addEventListener("change", sincronizarDirectaAmbos));
@@ -575,6 +569,71 @@
                 e.preventDefault();
                 alert("Debes seleccionar al menos un dígito en los campos correspondientes a SUMA y/o RESTA según el tipo de operación.");
             }
+
+            if (!error) {
+                const numOperaciones = parseInt(document.getElementById("numeroOperacionesSelect").value);
+                const minDig = parseInt(document.getElementById("minDigitosSelect").value);
+                const maxDig = parseInt(document.getElementById("maxDigitosSelect").value);
+                const rawValor = document.querySelector('input[name="valorMaximo"]').value.trim();
+                const valorMaximo = rawValor === "" || isNaN(rawValor) ? 0 : parseInt(rawValor);
+
+
+
+                const sumaDigits = digitosSuma.split(",").map(d => d.trim()).filter(d => d !== "" && d !== "0");
+                const restaDigits = digitosResta.split(",").map(d => d.trim()).filter(d => d !== "" && d !== "0");
+
+
+                function posiblesCombinacionesFiltradas(digitos, minDig, maxDig, valorMax) {
+                    let total = 0;
+
+                    function backtrack(actual) {
+                        if (actual.length >= minDig && actual.length <= maxDig) {
+                            if (!actual.startsWith("0")) {
+                                const num = parseInt(actual);
+                                if (valorMax === 0 || num <= valorMax) {
+                                    total++;
+                                }
+                            }
+                        }
+
+                        if (actual.length >= maxDig) return;
+
+                        for (let d of digitos) {
+                            backtrack(actual + d);
+                        }
+                    }
+
+                    for (let d of digitos) {
+                        backtrack(d);
+                    }
+
+                    return total;
+                }
+
+
+                let combinacionesSuma = posiblesCombinacionesFiltradas(sumaDigits, minDig, maxDig, valorMaximo);
+                let combinacionesResta = posiblesCombinacionesFiltradas(restaDigits, minDig, maxDig, valorMaximo);
+
+                let combinacionesSuficientes = true;
+
+                if (tipo === "suma" && combinacionesSuma < (numOperaciones - 1)) {
+                    combinacionesSuficientes = false;
+                }
+
+                if (tipo === "resta" && combinacionesResta < (numOperaciones - 1)) {
+                    combinacionesSuficientes = false;
+                }
+
+                if (tipo === "ambos" && (combinacionesSuma + combinacionesResta) < (numOperaciones - 1)) {
+                    combinacionesSuficientes = false;
+                }
+
+                if (!combinacionesSuficientes) {
+                    e.preventDefault();
+                    alert("La configuración no permite generar suficientes combinaciones válidas. Ajusta los dígitos permitidos, el número de dígitos o el valor máximo.");
+                }
+            }
+
         });
 
         function precargarDigitos(prefix, valores) {

@@ -74,7 +74,6 @@ namespace AnzanMegaArithmetics.Controllers
                 .Select(s => s.Trim())
                 .ToArray();
 
-
             bool directaSuma = Convert.ToBoolean(TempData["DirectaSuma"]);
             bool directaResta = Convert.ToBoolean(TempData["DirectaResta"]);
 
@@ -102,21 +101,60 @@ namespace AnzanMegaArithmetics.Controllers
             if (listaResta.Count == 0 && tipoOperacion != "suma")
                 listaResta = restaPermitidos.Select(d => int.Parse(d)).ToList();
 
-            for (int i = 0; i < numOperaciones; i++)
+            for (int intento = 0; intento < 100; intento++)
             {
-                string op = tipoOperacion switch
-                {
-                    "suma" => "+",
-                    "resta" => "-",
-                    "ambos" => random.Next(0, 2) == 0 ? "+" : "-",
-                    _ => "+"
-                };
+                numeros.Clear();
+                operaciones.Clear();
 
-                var listaActual = op == "+" ? listaSuma : listaResta;
-                int valor = listaActual[random.Next(listaActual.Count)];
-                numeros.Add(valor);
-                operaciones.Add(op);
+                int primerValor;
+                if (usarMax && valorMaximo > 0)
+                {
+                    int minValor = (int)(valorMaximo * 0.8);
+                    primerValor = random.Next(minValor, valorMaximo + 1);
+                }
+                else
+                {
+                    int digitos = random.Next(minDig, maxDig + 1);
+                    int minValor = (int)Math.Pow(10, digitos - 1);
+                    int maxValor = (int)Math.Pow(10, digitos) - 1;
+
+                    if (valorMaximo > 0)
+                        maxValor = Math.Min(maxValor, valorMaximo);
+
+                    primerValor = random.Next(minValor, maxValor + 1);
+                }
+
+                numeros.Add(primerValor);
+                operaciones.Add("+"); 
+
+                // Resto de operaciones
+                for (int i = 1; i < numOperaciones; i++)
+                {
+                    string op = tipoOperacion switch
+                    {
+                        "suma" => "+",
+                        "resta" => "-",
+                        "ambos" => random.Next(0, 2) == 0 ? "+" : "-",
+                        _ => "+"
+                    };
+
+                    var listaActual = op == "+" ? listaSuma : listaResta;
+                    int valor = listaActual[random.Next(listaActual.Count)];
+
+                    numeros.Add(valor);
+                    operaciones.Add(op);
+                }
+
+                int resultado = 0;
+                for (int i = 0; i < numeros.Count; i++)
+                {
+                    resultado += operaciones[i] == "-" ? -numeros[i] : numeros[i];
+                }
+
+                if (resultado >= 0)
+                    break; 
             }
+
 
             ViewBag.Numeros = numeros;
             ViewBag.Operaciones = operaciones;
@@ -133,6 +171,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
+
 
         private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, int valorMax)
         {
