@@ -127,7 +127,6 @@ namespace AnzanMegaArithmetics.Controllers
                 numeros.Add(primerValor);
                 operaciones.Add("+"); 
 
-                // Resto de operaciones
                 for (int i = 1; i < numOperaciones; i++)
                 {
                     string op = tipoOperacion switch
@@ -281,5 +280,13 @@ namespace AnzanMegaArithmetics.Controllers
             TempData.Keep("Resultados");
             return View();
         }
+
+        [HttpPost]
+        public IActionResult FinalizarSR()
+        {
+            TempData.Keep("Resultados");
+            return RedirectToAction("ResultadoSR");
+        }
+
     }
 }

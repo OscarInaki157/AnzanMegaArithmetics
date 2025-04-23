@@ -20,6 +20,10 @@ else
     <p><strong>Modo sin límite de tiempo</strong></p>
 }
 
+<form method="post" asp-action="FinalizarSR" style="margin-top: 15px;" id="formFinalizar">
+    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
+</form>
+
 <div style="display: flex; justify-content: center; gap: 50px; margin-top: 30px;">
     <div>
         <div style="font-size: 2rem; text-align: right; line-height: 1.6;">
@@ -29,12 +33,13 @@ else
             }
         </div>
 
-        <form method="post" asp-action="ResultadoSR" id="formulario" style="margin-top: 20px;">
-            <input type="number" name="respuesta" placeholder="Resultado" autofocus />
+        <form method="post" asp-action="ResultadoSR" id="formRespuesta" style="margin-top: 20px;">
+            <input type="number" name="respuesta" placeholder="Resultado" autofocus required />
             <input type="hidden" id="respondido" name="respondido" value="true" />
             <br />
             <button type="submit" class="btn btn-success" style="margin-top: 15px;">Enviar respuesta</button>
         </form>
+
     </div>
 
     <div>
@@ -55,7 +60,7 @@ else
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
                     document.getElementById("respondido").value = "false";
-                    document.getElementById("formulario").submit();
+                    document.getElementById("formRespuesta").submit();
                 } else {
                     contador.textContent = tiempo.toFixed(1);
                 }

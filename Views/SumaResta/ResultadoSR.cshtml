@@ -39,7 +39,7 @@
         <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
         <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
 
-        <button type="submit" class="btn btn-primary">🔁 Repetir (ir a configuración)</button>
+        <button type="submit" class="btn btn-primary">⚙️ Ir a configuración</button>
     </form>
 
 
@@ -48,6 +48,25 @@
             🏠 Regresar al dashboard
         </button>
     </form>
+
+    <form method="post" asp-action="ConcentracionSR">
+        <input type="hidden" name="cantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
+        <input type="hidden" name="numeroOperaciones" value="@TempData.Peek("NumeroOperaciones")" />
+        <input type="hidden" name="minDigitos" value="@TempData.Peek("MinDigitos")" />
+        <input type="hidden" name="maxDigitos" value="@TempData.Peek("MaxDigitos")" />
+        <input type="hidden" name="velocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
+        <input type="hidden" name="valorMaximo" value="@TempData.Peek("ValorMaximo")" />
+        <input type="hidden" name="usarMaximoComoBase" value="@(Convert.ToBoolean(TempData.Peek("UsarMaximoComoBase")) ? "true" : "false")" />
+        <input type="hidden" name="tipoOperacion" value="@TempData.Peek("TipoOperacion")" />
+        <input type="hidden" name="tiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
+        <input type="hidden" name="digitosSuma" value="@TempData.Peek("DigitosSuma")" />
+        <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
+        <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
+        <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
+
+        <button type="submit" class="btn btn-success">🔁 Repetir (misma configuración)</button>
+    </form>
+
 </div>
 
 <!-- Contenedor de totales -->

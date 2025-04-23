@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Ejercicios Sumas y restas";
     Layout = "_LayoutSR";
-    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
+    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 1;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
     var ambosTrue = Model.DirectaSuma && Model.DirectaResta;
 }
@@ -72,12 +72,26 @@
             <div>
                 <label>Velocidad por ejercicio (segundos):</label>
                 <select name="velocidadPreguntas">
-                    @for (int i = 0; i <= 10; i++)
+                    @{
+                        var velocidades = new List<string>
                     {
-                        <option value="@i" selected="@(Model.VelocidadPreguntas.Equals(i))">@i @(i == 0 ? "(sin límite)" : "")</option>
+                    "0", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5",
+                    "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+                    "16", "17", "18", "19", "20", "25", "30", "35", "40", "45",
+                    "50", "55", "60", "70", "80", "90", "100", "110", "120",
+                    "130", "140", "150", "160", "170", "180", "190", "200",
+                    "210", "220", "230", "240", "250"
+                    };
+                    }
+                    @foreach (var v in velocidades)
+                    {
+                        <option value="@v" selected="@(Model.VelocidadPreguntas == v)">
+                            @v @(v == "0" ? "(sin límite)" : "")
+                        </option>
                     }
                 </select>
             </div>
+
 
             <div>
                 <label>Valor máximo:</label>
