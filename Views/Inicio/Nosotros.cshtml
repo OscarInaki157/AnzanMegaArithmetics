@@ -3,10 +3,192 @@
     Layout = "_Layout";
 }
 
+<section class="nosotros-section">
+    <div class="nosotros-content">
+        <div class="nosotros-text">
+            <h1>Nosotros</h1>
+            <p>
+                <strong>Mentes México</strong> es una iniciativa 100% mexicana integrada por un equipo multidisciplinario de profesionales: profesores, investigadores y desarrolladores apasionados por la enseñanza del cálculo mental.
+            </p>
+            <p>
+                Creamos una plataforma educativa moderna e interactiva que permite a estudiantes de todas las edades aprender técnicas como el cálculo mental tradicional, FingerMath y el ábaco japonés, todo desde una interfaz intuitiva y amigable.
+            </p>
+            <p>
+                Los alumnos pueden practicar según su nivel, personalizar su ritmo de aprendizaje y visualizar su progreso en tiempo real.
+            </p>
+            <p>
+                Para tutores y docentes, ofrecemos herramientas para monitorear el avance de sus estudiantes, identificar áreas de mejora y acompañarlos en su proceso educativo.
+            </p>
+            <p>
+                <strong>Únete a nuestra comunidad</strong> y descubre que aprender matemáticas también puede ser divertido.
+            </p>
+        </div>
+        <div class="nosotros-image">
+            <img src="/Content/Images/Nosotros1.png" alt="Equipo de Mentes México feliz usando la plataforma" />
+        </div>
+    </div>
+</section>
+
+<section class="mision-vision-section">
+    <div class="card-group">
+        <div class="card mv-card">
+            <h2>Nuestra misión</h2>
+            <p>
+                En Mentes México creemos que el aprendizaje del cálculo no debe ser aburrido ni exclusivo.
+                Nuestra misión es democratizar el acceso a herramientas de aprendizaje mental que sean atractivas, prácticas y accesibles para todos: estudiantes, padres, docentes e instituciones.
+            </p>
+            <p>Nos enfocamos en desarrollar experiencias digitales que fomenten:</p>
+            <ul>
+                <li>El pensamiento lógico</li>
+                <li>La rapidez y precisión mental</li>
+                <li>La confianza para resolver operaciones sin miedo</li>
+            </ul>
+            <p>Porque sabemos que el cálculo mental no solo mejora el rendimiento académico, sino también las habilidades cognitivas esenciales para la vida.</p>
+            <img src="/Content/Images/Nosotros2.png" alt="Ilustración misión" />
+        </div>
+        <div class="card mv-card">
+            <h2>Nuestra visión</h2>
+            <p>
+                En Mentes México aspiramos a ser la plataforma educativa líder en toda América Latina para el aprendizaje del cálculo mental. Visualizamos un futuro donde cualquier persona, sin importar su edad, nivel educativo o lugar de residencia, pueda desarrollar habilidades matemáticas sólidas a través de herramientas digitales accesibles, atractivas y eficaces.
+            </p>
+            <p>
+                Nuestra visión es construir una comunidad vibrante de estudiantes, docentes, familias e instituciones, conectados por el deseo de aprender, crecer y compartir el conocimiento. Una comunidad que abrace la innovación educativa y que utilice la tecnología no solo como un medio, sino como un puente hacia una educación más equitativa, moderna y significativa.
+            </p>
+            <img src="/Content/Images/Nosotros3.png" alt="Ilustración visión" />
+        </div>
+    </div>
+</section>
+
+
 <style>
+    .nosotros-section {
+        padding: 5rem 2rem;
+        display: flex;
+        justify-content: center;
+    }
 
+    .nosotros-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 3rem;
+    }
+
+    .nosotros-text {
+        flex: 1;
+        min-width: 280px;
+    }
+
+        .nosotros-text h1 {
+            font-size: 2.8rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .nosotros-text p {
+            color: #d1d1f0;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+    .nosotros-image {
+        flex: 1;
+        text-align: center;
+        min-width: 280px;
+    }
+
+        .nosotros-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    .mision-vision-section {
+        padding: 4rem 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .card-group {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    .mv-card {
+        background-color: #222459;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        flex: 1;
+        min-width: 280px;
+        max-width: 500px;
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+        .mv-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .mv-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d1d1f0;
+            text-align: justify;
+            margin-bottom: 1rem;
+        }
+
+        .mv-card ul {
+            padding-left: 1.2rem;
+            color: #d1d1f0;
+            margin-bottom: 1rem;
+        }
+
+        .mv-card li {
+            margin-bottom: 0.5rem;
+        }
+
+        .mv-card img {
+            margin-top: 1rem;
+            width: 100%;
+            border-radius: 1rem;
+        }
+
+
+    @@media (max-width: 768px) {
+        .nosotros-content
+
+    {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+
+    .nosotros-text h1 {
+        font-size: 2rem;
+    }
+
+    .nosotros-text p {
+        font-size: 1rem;
+    }
+
+        .card-group {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mv-card h2 {
+            font-size: 1.5rem;
+        }
+    }
 </style>
-<h1>AQUI SE MUESTRA UNA PAGINA DE "NOSOTROS", PARA INICIAR SESIÓN DA CLICK EN EL BOTÓN DEL ENCABEZADO (INICIAR SESIÓN O REGISTRARSE) PARA IR A LA PAGINA DEL LOGIN</h1>
-<script>
 
-</script>

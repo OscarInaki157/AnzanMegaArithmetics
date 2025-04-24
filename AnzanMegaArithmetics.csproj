@@ -22,6 +22,9 @@
     <None Remove="Content\Images\mano-derecha.png" />
     <None Remove="Content\Images\mano-izquierda.png" />
     <None Remove="Content\Images\MMlogo.png" />
+    <None Remove="Content\Images\Nosotros1.png" />
+    <None Remove="Content\Images\Nosotros2.png" />
+    <None Remove="Content\Images\Nosotros3.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,6 +71,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\MMlogo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Nosotros1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Nosotros2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Nosotros3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
