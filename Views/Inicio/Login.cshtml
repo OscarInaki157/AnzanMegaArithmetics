@@ -7,75 +7,120 @@
 <style>
     .login-container {
         display: flex;
-        flex-wrap: wrap;
-        justify-self: center;
-        align-items: center;
-    }
-
-    .tit {
-        color: #ffffff;
-    }
-
-    .subtit {
-        color: #ffffff;
-    }
-
-    .login-left, .login-right {
-        width: 100%;
-        padding: 20px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
+        padding: 4rem 2rem;
+        flex-wrap: wrap;
+        background-color: #10132f;
+        color: white;
     }
 
     .login-left {
-        background-color: #28502e;
+        flex: 1;
+        min-width: 300px;
         text-align: center;
+        padding: 2rem;
     }
 
         .login-left img {
-            max-width: 100%;
+            max-width: 60%;
             height: auto;
-            margin-bottom: 20px;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-left .tit {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .login-left .subtit {
+            font-size: 1.2rem;
+            color: #d1d1f0;
         }
 
     .login-right {
-        background-color: #e0e0e0;
+        flex: 1;
+        min-width: 300px;
+        background-color: #1b1e3c;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
 
-    @@media (min-width: 768px) {
-        .login-left, .login-right {
-            width: 50%;
-        }
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        max-width: 300px;
-        width: 100%;
-    }
-
-        form label, form input {
-            margin-bottom: 10px;
+        .login-right form {
+            display: flex;
+            flex-direction: column;
         }
 
-        form button {
-            background-color: #df312c;
-            color: white;
-            padding: 10px 15px;
+        .login-right label {
+            margin-bottom: 0.5rem;
+            color: #d1d1f0;
+            font-weight: 600;
+        }
+
+        .login-right input {
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
             border: none;
-            cursor: pointer;
+            border-radius: 0.6rem;
+            background-color: #292c4f;
+            color: white;
+            font-size: 1rem;
         }
+
+            .login-right input::placeholder {
+                color: #a0a0d0;
+            }
+
+        .login-right button {
+            background-color: #4c4cff;
+            color: white;
+            padding: 0.9rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .login-right button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+            }
+
+        .login-right p {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+    @@media (max-width: 768px) {
+        .login-container
+
+    {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .login-right {
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    }
 </style>
+
 
 <div class="login-container">
     <div class="login-left">
-        <img src="/Content/Images/anzan1.jpg" alt="Anzan 1" />
+        <img src="/Content/Images/iconoMM.png" alt="Anzan 1" />
         <h1 class="tit">Únete a esta experiencia única, practica y aprende con nosotros</h1>
-        <h2 class="subtit">¡Inicia sesión en Anzan Mega Arithmetics!</h2>
+        <h2 class="subtit">¡Inicia sesión en Mentes México!</h2>
     </div>
     <div class="login-right">
         <form action="@Url.Action("ValidarUser", "Inicio")" method="post">
@@ -94,7 +139,3 @@
         </form>
     </div>
 </div>
-
-<script>
-
-</script>

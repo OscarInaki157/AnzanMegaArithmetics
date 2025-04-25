@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <None Remove="Content\Images\Activity.gif" />
-    <None Remove="Content\Images\anzan1.jpg" />
-    <None Remove="Content\Images\AnzanLogo.png" />
     <None Remove="Content\Images\Calculator.gif" />
     <None Remove="Content\Images\contacto.png" />
     <None Remove="Content\Images\High Five.gif" />
@@ -30,12 +28,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Content\Images\Activity.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\anzan1.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\AnzanLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Calculator.gif">
