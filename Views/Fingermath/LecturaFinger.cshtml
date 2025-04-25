@@ -182,7 +182,7 @@
 <form id="configuracionEjercicios" method="post" asp-controller="Fingermath" asp-action="Concentracion">
     <div>
         <label asp-for="CantidadEjercicios"></label>
-        <input asp-for="CantidadEjercicios" type="number"/>
+        <input asp-for="CantidadEjercicios" type="number" min="1"/>
         <span asp-validation-for="CantidadEjercicios" class="text-danger"></span>
         <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
     </div>

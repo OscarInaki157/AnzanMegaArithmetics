@@ -11,83 +11,245 @@
     var total = resultados.Count;
     var correctos = resultados.Count(r => r.EsCorrecto);
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
+
+    string barraColor = porcentaje >= 80 ? "#28a745" : porcentaje >= 50 ? "#ffc107" : "#dc3545";
 }
 
-<h1>✍️ Resumen de Ejercicios de Escritura</h1>
+<style>
+    body {
+        background-color: #161a36;
+        color: #d1d1f0;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
+    h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-top: 30px;
+    }
+
+    hr {
+        border-color: #4c4cff;
+        width: 80%;
+        margin: 20px auto;
+    }
+
+    .botones-centrados {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+    }
+
+        .botones-centrados button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+    .btn-primary {
+        background-color: #4c4cff;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+        }
+
+    .btn-secondary {
+        background-color: #292c4f;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #1b1e3c;
+            transform: translateY(-2px);
+        }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+    .resumen-contenedor {
+        background-color: #1b1e3c;
+        border: 2px solid #4c4cff;
+        border-radius: 12px;
+        padding: 25px 30px;
+        margin: 20px auto;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.1);
+        max-width: 800px;
+    }
+
+        .resumen-contenedor p {
+            font-size: 1.2rem;
+        }
+
+    .barra-progreso {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 300px;
+        background-color: #292c4f;
+        border-radius: 6px;
+        height: 22px;
+        overflow: hidden;
+    }
+
+    .barra-progreso-interna {
+        height: 100%;
+        transition: width 0.5s ease;
+    }
+
+    details {
+        margin-bottom: 14px;
+        border-radius: 10px;
+        background-color: #2a2d56;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    summary {
+        padding: 14px 20px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.2rem;
+        background-color: #202349;
+        color: #ffffff;
+        list-style: none;
+        position: relative;
+        padding-left: 30px;
+    }
+
+        summary::before {
+            content: "▶";
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+            color: #d1d1f0;
+        }
+
+        summary::marker {
+            display: none;
+        }
+
+    details[open] summary {
+        border-bottom: 1px solid #444;
+    }
+
+        details[open] summary::before {
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+    details div {
+        padding: 16px 22px;
+        font-size: 1.1rem;
+        background-color: #1b1e3c;
+    }
+
+        details div p {
+            margin-bottom: 10px;
+        }
+
+    .correcto {
+        color: #28a745;
+    }
+
+    .incorrecto {
+        color: #dc3545;
+    }
+
+    @@media (max-width: 768px) {
+        h1 {
+            font-size: 2rem;
+        }
+
+        .resumen-contenedor {
+            padding: 20px;
+        }
+
+        .botones-centrados {
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .botones-centrados button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+        summary {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<h1>📊 Resumen de Ejercicios de Escritura</h1>
 <hr />
 
-<!-- Botones centrados y estilizados -->
-<div style="display: flex; justify-content: center; gap: 30px; margin: 30px 0;">
+<div class="botones-centrados">
     <form method="get" asp-action="EscrituraFinger">
         <input type="hidden" name="tipo" value="@TempData.Peek("TipoPregunta")" />
         <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
         <input type="hidden" name="cantidad" value="@TempData.Peek("CantidadEjercicios")" />
-        <button type="submit" class="btn btn-primary" style="padding: 10px; font-size: 0.9rem;">
-            🔁 Repetir (ir a configuración)
-        </button>
+        <button type="submit" class="btn-primary">⚙️ Ir a configuración</button>
+    </form>
+
+    <form method="post" asp-action="ConcentracionEscritura">
+        <input type="hidden" name="TipoPregunta" value="@TempData.Peek("TipoPregunta")" />
+        <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
+        <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
+        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
+        <button type="submit" class="btn-success">🔁 Repetir (misma configuración)</button>
     </form>
 
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
-        <button type="submit" class="btn btn-secondary" style="padding: 10px; font-size: 0.9rem;">
-            🏠 Regresar al dashboard
-        </button>
+        <button type="submit" class="btn-secondary">🏠 Regresar al dashboard</button>
     </form>
 </div>
 
-<!-- Contenedor resultados y barra -->
-<div style="
-    background-color: #f5f8ff;
-    border: 2px solid #d0dff7;
-    border-radius: 12px;
-    padding: 25px 30px;
-    margin: 20px auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    max-width: 800px;
-">
-
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 40px; flex-wrap: wrap; text-align: left;">
-
-        <!-- Totales -->
+<div class="resumen-contenedor">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
         <div style="flex: 1;">
-            <p style="font-size: 1.25rem; margin: 8px 0;">📄 Total de ejercicios: <strong>@total</strong></p>
-            <p style="font-size: 1.25rem; margin: 8px 0;">✅ Correctos: <strong>@correctos</strong></p>
-            <p style="font-size: 1.25rem; margin: 8px 0;">❌ Incorrectos: <strong>@(total - correctos)</strong></p>
+            <p>📄 Total de ejercicios: <strong>@total</strong></p>
+            <p>✅ Correctos: <strong>@correctos</strong></p>
+            <p>❌ Incorrectos: <strong>@(total - correctos)</strong></p>
         </div>
-
-        <!-- Porcentaje -->
         <div style="flex: 1; text-align: center;">
-            <p style="margin-bottom: 10px; font-size: 1.2rem;">🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
-            <div style="margin: 0 auto; width: 100%; max-width: 300px; background-color: #e0e0e0; border-radius: 6px; height: 22px; overflow: hidden;">
-                <div style="height: 100%; background-color: #28a745; width: @porcentaje%; transition: width 0.5s;"></div>
+            <p>🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+            <div class="barra-progreso">
+                <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
             </div>
         </div>
     </div>
-
 </div>
 
-<!-- Accordion de resultados -->
 <div style="max-width: 800px; margin: 0 auto;">
     @for (int i = 0; i < resultados.Count; i++)
     {
         var r = resultados[i];
-        var estado = r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto";
-        var color = r.EsCorrecto ? "green" : "red";
-        <details style="margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; background-color: #fdfdfd;">
-            <summary style="padding: 14px 18px; cursor: pointer; font-weight: bold; font-size: 1.2rem; color: @color;">
-                Ejercicio @(i + 1): @estado
+        var colorClass = r.EsCorrecto ? "correcto" : "incorrecto";
+        <details>
+            <summary class="@colorClass">
+                Ejercicio @(i + 1): @(r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto")
             </summary>
-            <div style="padding: 16px 20px; border-top: 1px solid #ddd; background-color: #fafafa; font-size: 1.1rem;">
-                <p style="margin: 0 0 8px 0;">
-                    <span style="font-size: 1.2rem;">✍️</span> <strong>Tu respuesta:</strong>
-                    <span style="font-size: 1.2rem;">
-                        @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())
-                    </span>
-                </p>
-                <p style="margin: 0;">
-                    <span style="font-size: 1.2rem;">✔️</span> <strong>Respuesta correcta:</strong>
-                    <span style="font-size: 1.2rem;">@r.RespuestaCorrecta</span>
-                </p>
+            <div>
+                <p>✍️ <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
+                <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
             </div>
         </details>
     }

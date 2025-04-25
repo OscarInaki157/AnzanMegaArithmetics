@@ -73,6 +73,17 @@
             transform: translateY(-2px);
         }
 
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+
     .resumen-contenedor {
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
@@ -199,13 +210,23 @@
         <input type="hidden" name="tipo" value="@TempData.Peek("TipoPregunta")" />
         <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
         <input type="hidden" name="cantidad" value="@TempData.Peek("CantidadEjercicios")" />
-        <button type="submit" class="btn-primary">🔁 Repetir (ir a configuración)</button>
+        <button type="submit" class="btn-primary">⚙️ Ir a configuración</button>
     </form>
+
+    <form method="post" asp-action="Concentracion">
+        <input type="hidden" name="TipoPregunta" value="@TempData.Peek("TipoPregunta")" />
+        <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
+        <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
+        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
+        <button type="submit" class="btn-success">🔁 Repetir (misma configuración)</button>
+    </form>
+
 
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
         <button type="submit" class="btn-secondary">🏠 Regresar al dashboard</button>
     </form>
 </div>
+
 
 <div class="resumen-contenedor">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
