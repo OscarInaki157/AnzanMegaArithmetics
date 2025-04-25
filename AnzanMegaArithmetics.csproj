@@ -11,6 +11,7 @@
     <None Remove="Content\Images\anzan1.jpg" />
     <None Remove="Content\Images\AnzanLogo.png" />
     <None Remove="Content\Images\Calculator.gif" />
+    <None Remove="Content\Images\contacto.png" />
     <None Remove="Content\Images\High Five.gif" />
     <None Remove="Content\Images\icon-abacus.png" />
     <None Remove="Content\Images\icon-brain.png" />
@@ -38,6 +39,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Calculator.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\contacto.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\High Five.gif">

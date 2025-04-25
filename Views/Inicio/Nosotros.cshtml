@@ -59,6 +59,32 @@
     </div>
 </section>
 
+<section class="contacto-section">
+    <div class="contacto-content">
+        <div class="contacto-image">
+            <img src="/Content/Images/contacto.png" alt="Persona contactando a Mentes México" />
+        </div>
+        <div class="contacto-form">
+            <h2>Contáctanos</h2>
+            <form @* method="post" action="/Inicio/EnviarMensaje" *@>
+                <input type="text" name="Nombre" placeholder="Nombre completo" required />
+                <input type="email" name="Correo" placeholder="Correo electrónico" required />
+                <input type="tel" name="Telefono" placeholder="Número telefónico" />
+
+                <select name="Asunto" required>
+                    <option value="">Selecciona un asunto</option>
+                    <option value="Ventas">Ventas</option>
+                    <option value="Soporte técnico">Soporte técnico</option>
+                </select>
+
+                <input name="Mensaje" rows="5" placeholder="Escribe tu mensaje aquí..." required />
+
+                <button type="submit">Enviar mensaje</button>
+            </form>
+        </div>
+    </div>
+</section>
+
 
 <style>
     .nosotros-section {
@@ -160,9 +186,93 @@
 
         .mv-card img {
             margin-top: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right:auto;
             width: 100%;
-            border-radius: 1rem;
+            max-width: 20rem; 
+            height: auto;
+            object-fit: contain;
         }
+
+    .contacto-section {
+        padding: 5rem 2rem;
+        background-color: var(--bg-color);
+        display: flex;
+        justify-content: center;
+    }
+
+    .contacto-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1200px;
+        width: 100%;
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+
+    .contacto-image {
+        flex: 1;
+        min-width: 300px;
+        text-align: center;
+    }
+
+        .contacto-image img {
+            max-width: 80%;
+            height: auto;
+        }
+
+    .contacto-form {
+        flex: 1;
+        min-width: 300px;
+        background-color: #1b1e3c;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+        .contacto-form h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .contacto-form input,
+        .contacto-form select,
+        .contacto-form textarea {
+            width: 100%;
+            padding: 0.9rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            background-color: #292c4f;
+            color: white;
+        }
+
+            .contacto-form input::placeholder,
+            .contacto-form textarea::placeholder {
+                color: #a0a0d0;
+            }
+
+        .contacto-form button {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .contacto-form button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+            }
 
 
     @@media (max-width: 768px) {
@@ -188,6 +298,15 @@
 
         .mv-card h2 {
             font-size: 1.5rem;
+        }
+
+        .contacto-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .contacto-form {
+            width: 100%;
         }
     }
 </style>
