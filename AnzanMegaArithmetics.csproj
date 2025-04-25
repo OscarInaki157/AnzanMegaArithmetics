@@ -7,36 +7,37 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Content\Images\Activity.gif" />
-    <None Remove="Content\Images\Calculator.gif" />
+    <None Remove="Content\Images\abacoicon.png" />
     <None Remove="Content\Images\contacto.png" />
-    <None Remove="Content\Images\High Five.gif" />
+    <None Remove="Content\Images\ficon.png" />
+    <None Remove="Content\Images\Flashicon.png" />
     <None Remove="Content\Images\icon-abacus.png" />
     <None Remove="Content\Images\icon-brain.png" />
     <None Remove="Content\Images\icon-finger.png" />
     <None Remove="Content\Images\iconoMM.png" />
     <None Remove="Content\Images\im1bg.png" />
     <None Remove="Content\Images\im2.png" />
-    <None Remove="Content\Images\Learned.gif" />
     <None Remove="Content\Images\mano-derecha.png" />
     <None Remove="Content\Images\mano-izquierda.png" />
     <None Remove="Content\Images\MMlogo.png" />
     <None Remove="Content\Images\Nosotros1.png" />
     <None Remove="Content\Images\Nosotros2.png" />
     <None Remove="Content\Images\Nosotros3.png" />
+    <None Remove="Content\Images\profer.png" />
+    <None Remove="Content\Images\SRicon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Content\Images\Activity.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Calculator.gif">
+    <EmbeddedResource Include="Content\Images\abacoicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\contacto.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\High Five.gif">
+    <EmbeddedResource Include="Content\Images\ficon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Flashicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\icon-abacus.png">
@@ -57,9 +58,6 @@
     <EmbeddedResource Include="Content\Images\im2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Learned.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\mano-derecha.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -76,6 +74,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Nosotros3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\profer.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\SRicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
