@@ -301,7 +301,11 @@
 <script>
     const dedosIzquierda = @Html.Raw(Json.Serialize(ViewBag.DedosIzquierda));
     const dedosDerecha = @Html.Raw(Json.Serialize(ViewBag.DedosDerecha));
+    const formRespuesta = document.getElementById("formRespuesta");
+    const inputRespuesta = document.getElementById("respuesta");
+    const contadorElemento = document.getElementById("contador");
 
+    // Iluminar dedos
     dedosIzquierda.forEach(num => {
         const punto = document.querySelector(`.dedo${num}`);
         if (punto) punto.classList.add('iluminado');
@@ -313,7 +317,6 @@
     });
 
     const velocidad = parseFloat("@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", ViewBag.VelocidadPreguntas)");
-    const contadorElemento = document.getElementById("contador");
 
     if (velocidad > 0) {
         let tiempoRestante = velocidad;
@@ -325,9 +328,16 @@
             if (tiempoRestante <= 0) {
                 clearInterval(interval);
                 contadorElemento.textContent = "0.0";
-                document.getElementById("respondido").value = "false";
 
-                const formRespuesta = document.getElementById("formRespuesta");
+                const respuestaEscrita = inputRespuesta.value.trim();
+                const respondidoInput = document.getElementById("respondido");
+
+                if (respuestaEscrita !== "") {
+                    respondidoInput.value = "true"; // Respondió algo
+                } else {
+                    respondidoInput.value = "false"; // No respondió
+                }
+
                 if (formRespuesta) {
                     formRespuesta.submit();
                 }
@@ -337,7 +347,11 @@
         }, 100);
     }
 
-    window.onload = () => {
-        document.getElementById("respuesta").focus();
-    };
+    // Dar focus sin hacer scroll automático
+    window.addEventListener('load', function () {
+        if (inputRespuesta) {
+            inputRespuesta.focus({ preventScroll: true });
+        }
+    });
 </script>
+
