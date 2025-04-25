@@ -1,82 +1,129 @@
 ﻿@{
-    ViewBag.Title = "Ejercicio de Lectura - Fingermath";
+    ViewBag.Title = "Ejercicio de Lectura Fingermath";
     Layout = "_LayoutFinger";
 
     var dedosIzquierda = ViewBag.DedosIzquierda as int[] ?? new int[] { };
     var dedosDerecha = ViewBag.DedosDerecha as int[] ?? new int[] { };
     float velocidad = (ViewBag.VelocidadPreguntas);
-
 }
+<div class="fin-wrapper">
+    <form method="post" asp-action="FinalizarLectura" class="form-fin">
+        <button type="submit" class="btn-finalizar">🚪 Finalizar ejercicios</button>
+    </form>
+</div>
 
-<h1>Ejercicio lectura Fingermath</h1>
-<p>Ejercicio @ViewBag.EjercicioActual de @ViewBag.TotalEjercicios</p>
 
-<div>
-    @if (velocidad > 0)
-    {
+<div class="ejercicio-wrapper">
+    <div class="info-panel">
+        <p>📄 Ejercicio <strong>@ViewBag.EjercicioActual</strong> de <strong>@ViewBag.TotalEjercicios</strong></p>
         <p>
-            <strong>Tiempo restante:</strong>
-            <span id="contador">@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", velocidad)</span> segundos
+            @if (velocidad > 0)
+            {
+                <span>⏱ Tiempo restante: <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> segundos</span>
+            }
+            else
+            {
+                <span>⏱ <strong>Modo sin límite de tiempo</strong></span>
+            }
         </p>
-
-    }
-    else
-    {
-        <p><strong>Modo sin límite de tiempo</strong></p>
-    }
-</div>
-
-<form method="post" asp-action="FinalizarLectura" style="margin-top: 20px;">
-    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
-</form>
-
-
-<div style="display: flex; gap: 40px; margin-top: 20px;">
-    <!-- Mano Izquierda -->
-    <div class="mano-container">
-        <img src="/Content/Images/mano-izquierda.png" class="mano-img" alt="Mano izquierda" />
-        <div class="punto dedo1"></div>
-        <div class="punto dedo2"></div>
-        <div class="punto dedo3"></div>
-        <div class="punto dedo4"></div>
-        <div class="punto dedo5"></div>
     </div>
 
-    <!-- Mano Derecha -->
-    <div class="mano-container">
-        <img src="/Content/Images/mano-derecha.png" class="mano-img" alt="Mano derecha" />
-        <div class="punto dedo6"></div>
-        <div class="punto dedo7"></div>
-        <div class="punto dedo8"></div>
-        <div class="punto dedo9"></div>
-        <div class="punto dedo10"></div>
+    <div class="manos-wrapper">
+        <!-- Mano Izquierda -->
+        <div class="mano-container">
+            <img src="/Content/Images/mano-izquierda.png" class="mano-img" alt="Mano izquierda" />
+            <div class="punto dedo1"></div>
+            <div class="punto dedo2"></div>
+            <div class="punto dedo3"></div>
+            <div class="punto dedo4"></div>
+            <div class="punto dedo5"></div>
+        </div>
+
+        <!-- Mano Derecha -->
+        <div class="mano-container">
+            <img src="/Content/Images/mano-derecha.png" class="mano-img" alt="Mano derecha" />
+            <div class="punto dedo6"></div>
+            <div class="punto dedo7"></div>
+            <div class="punto dedo8"></div>
+            <div class="punto dedo9"></div>
+            <div class="punto dedo10"></div>
+        </div>
     </div>
+
+    <form method="post" asp-action="ResultadoLectura" id="formRespuesta" class="form-respuesta">
+        <label for="respuesta">RESULTADO:</label>
+        <input type="number" id="respuesta" name="respuesta" required />
+
+        <input type="hidden" name="respuestaCorrecta" value="@ViewBag.RespuestaCorrecta" />
+        <input type="hidden" id="respondido" name="respondido" value="true" />
+        <input type="hidden" name="tipoPregunta" value="@ViewBag.TipoPregunta" />
+        <input type="hidden" name="velocidadPreguntas" value="@ViewBag.VelocidadPreguntas" />
+
+        <button type="submit">Enviar respuesta</button>
+    </form>
 </div>
-
-<br />
-
-<form method="post" asp-action="ResultadoLectura" id="formRespuesta">
-    <label for="respuesta">RESULTADO:</label><br />
-    <input type="number" id="respuesta" name="respuesta" required /><br /><br />
-
-    <input type="hidden" name="respuestaCorrecta" value="@ViewBag.RespuestaCorrecta" />
-    <input type="hidden" id="respondido" name="respondido" value="true" />
-
-    <input type="hidden" name="tipoPregunta" value="@ViewBag.TipoPregunta" />
-    <input type="hidden" name="velocidadPreguntas" value="@ViewBag.VelocidadPreguntas" />
-
-    <input type="submit" value="Enviar respuesta" />
-</form>
 
 <style>
-
-    .btn-danger {
-        background-color: #dc3545;
+    body {
+        background-color: #161a36;
         color: white;
-        padding: 10px 15px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .fin-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+
+    .ejercicio-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .info-panel {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .contador {
+        color: #4c4cff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 10px 20px;
         border: none;
-        border-radius: 4px;
+        border-radius: 10px;
+        font-size: 1rem;
         cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .manos-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
     }
 
     .mano-container {
@@ -100,10 +147,52 @@
     }
 
         .punto.iluminado {
-            background-color: red;
+            background-color: #ff4c4c;
             opacity: 1;
+            box-shadow: 0 0 10px #ff4c4c;
         }
 
+    .form-respuesta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+        .form-respuesta label {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .form-respuesta input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            width: 200px;
+            text-align: center;
+        }
+
+        .form-respuesta button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4c4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .form-respuesta button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+            }
+
+    /* Dedos */
     .dedo1 {
         top: 30px;
         left: 30px;
@@ -153,6 +242,60 @@
         top: 30px;
         left: 180px;
     }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .manos-wrapper
+
+    {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .mano-container {
+        width: 200px;
+    }
+
+    .form-respuesta input[type="number"] {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    }
 </style>
 
 <script>
@@ -184,7 +327,6 @@
                 contadorElemento.textContent = "0.0";
                 document.getElementById("respondido").value = "false";
 
-                // ⬇️ Este es el cambio importante
                 const formRespuesta = document.getElementById("formRespuesta");
                 if (formRespuesta) {
                     formRespuesta.submit();
@@ -199,4 +341,3 @@
         document.getElementById("respuesta").focus();
     };
 </script>
-
