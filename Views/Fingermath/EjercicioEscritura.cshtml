@@ -155,6 +155,7 @@
     .svg-wrapper svg {
         width: 100%;
         height: 100%;
+        z-index:1;
     }
 
     .puntos-wrapper {
@@ -163,7 +164,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        pointer-events: none;
+        z-index:2;
     }
 
     .punto {
@@ -234,36 +235,124 @@
 
     const respuestaInput = document.getElementById("respuesta");
     const tecladoInvisible = document.getElementById("tecladoInvisible");
+    const formRespuesta = document.getElementById("formulario");
+    const respondidoInput = document.getElementById("respondido");
+    const puntos = document.querySelectorAll('.punto');
 
-    document.getElementById("finalizarForm")?.addEventListener("submit", () => {
+    document.querySelector(".form-fin")?.addEventListener("submit", () => {
         finalizando = true;
     });
 
-
-document.querySelectorAll('.punto').forEach(p => {
-    p.addEventListener('click', function () {
-        const valor = parseInt(this.dataset.valor);
-
-        const clases = this.classList;
-        const claseDedo = [...clases].find(c => c.startsWith('dedo'));
-        const numDedo = claseDedo.replace('dedo', '');
-
-        const dedoSvg = document.getElementById(`#dedo${numDedo}`); 
-
-        if (this.classList.contains('iluminado')) {
-            this.classList.remove('iluminado');
-            if (dedoSvg) dedoSvg.classList.remove('iluminado'); 
-            suma -= valor;
-        } else {
-            this.classList.add('iluminado');
-            if (dedoSvg) dedoSvg.classList.add('iluminado');
-            suma += valor;
-        }
-
+    function actualizarSuma() {
+        suma = 0;
+        document.querySelectorAll('.punto.iluminado').forEach(p => {
+            suma += parseInt(p.dataset.valor);
+        });
         respuestaInput.value = suma;
-        setTimeout(() => tecladoInvisible.focus(), 50);
+    }
+
+    function iluminarDedo(num) {
+        const punto = document.querySelector(`.punto.dedo${num}`);
+        const dedoSvg = document.getElementById(`dedo${num}`);
+        if (punto && !punto.classList.contains('iluminado')) {
+            punto.classList.add('iluminado');
+            if (dedoSvg) dedoSvg.classList.add('iluminado');
+        }
+    }
+
+    function desiluminarDedo(num) {
+        const punto = document.querySelector(`.punto.dedo${num}`);
+        const dedoSvg = document.getElementById(`dedo${num}`);
+        if (punto && punto.classList.contains('iluminado')) {
+            punto.classList.remove('iluminado');
+            if (dedoSvg) dedoSvg.classList.remove('iluminado');
+        }
+    }
+
+    function estaIluminado(num) {
+        const punto = document.querySelector(`.punto.dedo${num}`);
+        return punto?.classList.contains('iluminado');
+    }
+
+    puntos.forEach(p => {
+        p.addEventListener('click', function () {
+            const clases = this.classList;
+            const claseDedo = [...clases].find(c => c.startsWith('dedo') && c !== 'dedo');
+            const numDedo = parseInt(claseDedo.replace('dedo', ''));
+
+
+            const iluminado = estaIluminado(numDedo);
+
+            if (numDedo >= 1 && numDedo <= 5) {
+                if (numDedo === 5 || numDedo === 4) {
+                    iluminado ? desiluminarDedo(numDedo) : iluminarDedo(numDedo);
+                }
+                else if (numDedo === 3) {
+                    if (iluminado) {
+                        desiluminarDedo(3);
+                    } else {
+                        iluminarDedo(3);
+                        iluminarDedo(4);
+                    }
+                }
+                else if (numDedo === 2) {
+                    if (iluminado) {
+                        desiluminarDedo(2);
+                    } else {
+                        iluminarDedo(2);
+                        iluminarDedo(3);
+                        iluminarDedo(4);
+                    }
+                }
+                else if (numDedo === 1) {
+                    if (iluminado) {
+                        desiluminarDedo(1);
+                    } else {
+                        iluminarDedo(1);
+                        iluminarDedo(2);
+                        iluminarDedo(3);
+                        iluminarDedo(4);
+                    }
+                }
+            }
+
+            if (numDedo >= 6 && numDedo <= 10) {
+                if (numDedo === 6 || numDedo === 7) {
+                    iluminado ? desiluminarDedo(numDedo) : iluminarDedo(numDedo);
+                }
+                else if (numDedo === 8) {
+                    if (iluminado) {
+                        desiluminarDedo(8);
+                    } else {
+                        iluminarDedo(7);
+                        iluminarDedo(8);
+                    }
+                }
+                else if (numDedo === 9) {
+                    if (iluminado) {
+                        desiluminarDedo(9);
+                    } else {
+                        iluminarDedo(7);
+                        iluminarDedo(8);
+                        iluminarDedo(9);
+                    }
+                }
+                else if (numDedo === 10) {
+                    if (iluminado) {
+                        desiluminarDedo(10);
+                    } else {
+                        iluminarDedo(7);
+                        iluminarDedo(8);
+                        iluminarDedo(9);
+                        iluminarDedo(10);
+                    }
+                }
+            }
+
+            actualizarSuma();
+            setTimeout(() => tecladoInvisible.focus(), 50);
+        });
     });
-});
 
     const velocidad = parseFloat("@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", velocidad)");
     const contadorElemento = document.getElementById("contador");
@@ -278,18 +367,13 @@ document.querySelectorAll('.punto').forEach(p => {
             if (tiempoRestante <= 0) {
                 clearInterval(interval);
                 contadorElemento.textContent = "0.0";
-                    if (!finalizando) {
-                        const respondidoInput = document.getElementById("respondido");
-
-                        if (respuestaInput.value.trim() === "") {
-                            respuestaInput.value = "0";
-                        }
-                        respondidoInput.value = "true";
-
-
-                        document.getElementById("formulario").submit();
+                if (!finalizando) {
+                    if (respuestaInput.value.trim() === "") {
+                        respuestaInput.value = "0";
                     }
-
+                    respondidoInput.value = "true";
+                    formRespuesta.submit();
+                }
             } else {
                 contadorElemento.textContent = tiempoRestante.toFixed(1);
             }
