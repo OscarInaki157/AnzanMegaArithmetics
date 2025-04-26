@@ -11,55 +11,84 @@
     int columnas = ViewBag.Columnas;
 }
 
-<h1>📚 Ejercicio de Lectura - Soroban</h1>
-<p>Ejercicio @ejercicioActual de @totalEjercicios</p>
-
-@if (velocidad > 0)
-{
-    <p><strong>Tiempo restante:</strong> <span id="contador">@velocidad</span> segundos</p>
-}
-else
-{
-    <p><strong>Modo sin límite de tiempo</strong></p>
-}
-
-<!-- Botón para finalizar antes -->
-<form method="post" asp-action="FinalizarLecturaSoroban" style="margin-bottom: 20px;">
-    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
-</form>
-
-<!-- Soroban -->
-<div class="soroban-container">
-    @for (int col = columnas - 1; col >= 0; col--)
-    {
-        <div class="soroban-column">
-            <div class="bead superior @(sorobanCuentas.FirstOrDefault(b => b.columna == col && b.esSuperior).activa ? "activa" : "inactiva")"></div>
-            <div class="separator"></div>
-            @for (int i = 0; i < 4; i++)
-            {
-                var inferior = sorobanCuentas.Where(b => b.columna == col && !b.esSuperior).Skip(i).FirstOrDefault();
-                <div class="bead inferior @(inferior.activa ? "activa" : "inactiva")"></div>
-            }
-        </div>
-    }
+<div class="fin-wrapper">
+    <form method="post" asp-action="FinalizarLecturaSoroban" class="form-fin">
+        <button type="submit" class="btn-finalizar">🚪 Finalizar ejercicios</button>
+    </form>
 </div>
 
+<div class="ejercicio-wrapper">
+    <div class="info-panel">
+        <p>📄 Ejercicio <strong>@ejercicioActual</strong> de <strong>@totalEjercicios</strong></p>
+        <p>
+            @if (velocidad > 0)
+            {
+                <span>⏱ Tiempo restante: <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> segundos</span>
+            }
+            else
+            {
+                <span>⏱ <strong>Modo sin límite de tiempo</strong></span>
+            }
+        </p>
+    </div>
 
-<!-- Formulario para enviar la respuesta -->
-<form method="post" asp-action="ResultadoLecturaSoroban" id="formulario">
-    <input type="number" name="respuesta" required autofocus placeholder="¿Qué número representa el soroban?" />
-    <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
-    <input type="hidden" id="respondido" name="respondido" value="true" />
-    <br />
-    <button type="submit" class="btn btn-success">Enviar respuesta</button>
-</form>
+    <div class="soroban-frame">
+        <div class="soroban-container">
+            @for (int col = columnas - 1; col >= 0; col--)
+            {
+                <div class="soroban-column">
+                    <div class="bead superior @(sorobanCuentas.FirstOrDefault(b => b.columna == col && b.esSuperior).activa ? "activa" : "inactiva")"></div>
+
+                    <div class="separator-column"></div>
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        var inferior = sorobanCuentas.Where(b => b.columna == col && !b.esSuperior).Skip(i).FirstOrDefault();
+                        <div class="bead inferior @(inferior.activa ? "activa" : "inactiva")"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+
+    <form method="post" asp-action="ResultadoLecturaSoroban" id="formulario" class="form-respuesta">
+        <label for="respuesta">RESULTADO:</label>
+        <input type="number" id="respuesta" name="respuesta" />
+        <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
+        <input type="hidden" id="respondido" name="respondido" value="true" />
+        <br />
+        <button type="submit">Enviar respuesta</button>
+    </form>
+</div>
 
 <style>
+    body {
+        background-color: #161a36;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .soroban-frame {
+        background-color: #1b1e3c;
+        border: 8px solid #4c4cff;
+        border-radius: 20px;
+        padding: 30px 20px;
+        margin: 2rem auto;
+        width: fit-content;
+        max-width: 100%;
+        box-shadow: 0 8px 25px rgba(76, 76, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .soroban-container {
         display: flex;
         gap: 30px;
         justify-content: center;
-        margin: 30px 0;
+        flex-wrap: wrap;
     }
 
     .soroban-column {
@@ -69,54 +98,225 @@ else
     }
 
     .bead {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
+        margin: 8px 0;
         border-radius: 50%;
-        margin: 5px 0;
-        transition: background-color 0.3s;
-    }
-
-    .superior {
-        background-color: #ccc;
-    }
-
-    .inferior {
-        background-color: #ccc;
+        background: linear-gradient(145deg, #2d2d5e, #1b1e3c);
+        box-shadow: 3px 3px 6px #14162c, -3px -3px 6px #1f2250;
+        transition: all 0.3s ease;
     }
 
     .activa {
-        background-color: #28a745;
+        background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+        transform: scale(1.15);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        animation: bounce 0.5s ease;
     }
 
     .inactiva {
-        background-color: #dc3545;
+        background: linear-gradient(145deg, #555577, #2d2d5e);
+        opacity: 0.7;
     }
 
-    .separator {
-        height: 10px;
+    .separator-column {
         width: 100%;
-        background-color: #333;
-        margin: 8px 0;
+        height: 8px;
+        background-color: #555;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+
+    @@keyframes bounce {
+        0%
+
+    {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1.15);
+    }
+
+    }
+
+    /* ======================== */
+    /* Estilos generales extra: */
+
+    .fin-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .ejercicio-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .info-panel {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .contador {
+        color: #4c4cff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .form-respuesta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: -1rem;
+        gap: 10px;
+    }
+
+        .form-respuesta label {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .form-respuesta input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            width: 250px;
+            text-align: center;
+            background-color: #292c4f;
+            color: white;
+        }
+
+        .form-respuesta button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4c4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .form-respuesta button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+            }
+
+    /* Animaciones básicas */
+    @@keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Responsive para móvil */
+    @@media (max-width: 768px) {
+        .soroban-container
+
+    {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .soroban-frame {
+        width: 95%;
+    }
+
+    .form-respuesta input[type="number"] {
+        width: 100%;
+        max-width: 300px;
+    }
+
     }
 </style>
 
-@section Scripts {
-    <script>
-        const velocidad = parseFloat("@velocidad");
-        const contador = document.getElementById("contador");
+<script>
+    const velocidad = parseFloat("@velocidad");
+    const contador = document.getElementById("contador");
+    const form = document.getElementById("formulario");
+    const respondido = document.getElementById("respondido");
+    const inputRespuesta = document.getElementById("respuesta");
 
-        if (velocidad > 0 && contador) {
-            let tiempo = velocidad;
-            const intervalo = setInterval(() => {
-                tiempo -= 0.1;
-                if (tiempo <= 0) {
-                    clearInterval(intervalo);
-                    document.getElementById("respondido").value = "false";
-                    document.getElementById("formulario").submit();
+    if (velocidad > 0 && contador) {
+        let tiempo = velocidad;
+        const intervalo = setInterval(() => {
+            tiempo -= 0.1;
+            if (tiempo <= 0) {
+                clearInterval(intervalo);
+
+                const respuestaEscrita = inputRespuesta.value.trim();
+                if (respuestaEscrita !== "") {
+                    respondido.value = "true";
                 } else {
-                    contador.textContent = tiempo.toFixed(1);
+                    respondido.value = "false";
                 }
-            }, 100);
-        }
-    </script>
-}
+
+                form.submit();
+            } else {
+                contador.textContent = tiempo.toFixed(1);
+            }
+        }, 100);
+    }
+
+    window.addEventListener('load', function () {
+        inputRespuesta?.focus({ preventScroll: true });
+    });
+</script>
