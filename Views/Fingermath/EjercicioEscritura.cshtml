@@ -278,10 +278,18 @@ document.querySelectorAll('.punto').forEach(p => {
             if (tiempoRestante <= 0) {
                 clearInterval(interval);
                 contadorElemento.textContent = "0.0";
-                if (!finalizando) {
-                    document.getElementById("respondido").value = "false";
-                    document.getElementById("formulario").submit();
-                }
+                    if (!finalizando) {
+                        const respondidoInput = document.getElementById("respondido");
+
+                        if (respuestaInput.value.trim() === "") {
+                            respuestaInput.value = "0";
+                        }
+                        respondidoInput.value = "true";
+
+
+                        document.getElementById("formulario").submit();
+                    }
+
             } else {
                 contadorElemento.textContent = tiempoRestante.toFixed(1);
             }
