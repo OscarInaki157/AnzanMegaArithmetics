@@ -6,57 +6,90 @@
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
     int columnas = ViewBag.Columnas;
+    float velocidad = ViewBag.VelocidadPreguntas;
 }
 
-<h1>✍️ Ejercicio de Escritura - Soroban</h1>
-<p>Ejercicio @ejercicioActual de @totalEjercicios</p>
+<div class="fin-wrapper">
+    <form method="post" asp-action="FinalizarEscrituraSoroban" class="form-fin">
+        <button type="submit" class="btn-finalizar">🚪 Finalizar ejercicios</button>
+    </form>
+</div>
 
-@if (ViewBag.VelocidadPreguntas > 0)
-{
-    <p><strong>Tiempo restante:</strong> <span id="contador">@ViewBag.VelocidadPreguntas</span> segundos</p>
-}
-else
-{
-    <p><strong>Modo sin límite de tiempo</strong></p>
-}
-
-<form method="post" asp-action="FinalizarEscrituraSoroban" style="margin-top: 20px;">
-    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
-</form>
-
-<h2 style="font-size: 3rem; text-align: center; margin: 20px 0;">
-    <strong>@numeroObjetivo</strong>
-</h2>
-
-<form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario">
-    <input type="hidden" name="respuesta" id="respuesta" />
-    <input type="hidden" id="respondido" name="respondido" value="true" />
-
-    <div class="soroban-container" id="soroban">
-        @for (int col = 0; col < columnas; col++)
-        {
-            <div class="soroban-column" data-col="@col">
-                <div class="bead superior" data-superior="true" data-valor="5"></div>
-                <div class="separator"></div>
-                @for (int i = 0; i < 4; i++)
-                {
-                    <div class="bead inferior" data-superior="false" data-valor="1"></div>
-                }
-            </div>
-        }
+<div class="ejercicio-wrapper">
+    <div class="info-panel">
+        <p>📄 Ejercicio <strong>@ejercicioActual</strong> de <strong>@totalEjercicios</strong></p>
+        <p>
+            @if (velocidad > 0)
+            {
+                <span>⏱ Tiempo restante: <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> segundos</span>
+            }
+            else
+            {
+                <span>⏱ <strong>Modo sin límite de tiempo</strong></span>
+            }
+        </p>
     </div>
 
-    <br />
-    <button type="submit" class="btn btn-success">Enviar respuesta</button>
-</form>
+    <h2 style="font-size: 3rem; text-align: center; margin: 20px 0; color: white; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);">
+        @numeroObjetivo
+    </h2>
 
+
+    <div class="soroban-frame">
+        <div class="soroban-container" id="soroban">
+            @for (int col = 0; col < columnas; col++)
+            {
+                <div class="soroban-column" data-col="@col">
+                    <div class="bead superior" data-superior="true" data-valor="5"></div>
+                    <div class="separator-column"></div>
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <div class="bead inferior" data-superior="false" data-valor="1"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario">
+        <input type="hidden" name="respuesta" id="respuesta" />
+        <input type="hidden" id="respondido" name="respondido" value="true" />
+
+        <div class="form-respuesta" style="margin-top: 20px;">
+            <button type="submit" class="btn-enviar">Enviar respuesta</button>
+        </div>
+    </form>
+
+</div>
 
 <style>
+    body {
+        background-color: #161a36;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .soroban-frame {
+        background-color: #1b1e3c;
+        border: 8px solid #4c4cff;
+        border-radius: 20px;
+        padding: 30px 20px;
+        margin: 2rem auto;
+        width: fit-content;
+        max-width: 100%;
+        box-shadow: 0 8px 25px rgba(76, 76, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .soroban-container {
         display: flex;
         gap: 30px;
         justify-content: center;
-        margin: 30px 0;
+        flex-wrap: wrap;
     }
 
     .soroban-column {
@@ -67,92 +100,218 @@ else
     }
 
     .bead {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
+        margin: 8px 0;
         border-radius: 50%;
-        background-color: #ccc;
-        margin: 5px 0;
-        transition: background-color 0.3s;
+        background: linear-gradient(145deg, #2d2d5e, #1b1e3c);
+        box-shadow: 3px 3px 6px #14162c, -3px -3px 6px #1f2250;
+        transition: all 0.3s ease;
     }
 
         .bead.activa {
-            background-color: #28a745;
+            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+            animation: bounce 0.5s ease;
         }
 
-    .separator {
-        height: 10px;
+    .separator-column {
         width: 100%;
-        background-color: #333;
-        margin: 8px 0;
+        height: 8px;
+        background-color: #555;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+
+    .fin-wrapper {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .ejercicio-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .info-panel {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .contador {
+        color: #4c4cff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .form-respuesta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1.5rem;
+    }
+
+        .form-respuesta button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4c4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .form-respuesta button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+            }
+
+    @@keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1.15);
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .soroban-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .soroban-frame {
+            width: 95%;
+        }
     }
 </style>
 
-@section Scripts {
-    <script>
-        const respuestaInput = document.getElementById("respuesta");
-        const columnas = document.querySelectorAll(".soroban-column");
+<script>
+    const respuestaInput = document.getElementById("respuesta");
+    const columnas = document.querySelectorAll(".soroban-column");
+    const velocidad = parseFloat("@velocidad");
+    const contador = document.getElementById("contador");
+    const form = document.getElementById("formulario");
+    const respondido = document.getElementById("respondido");
 
-        // Tiempo (contador)
-        const velocidad = parseFloat("@ViewBag.VelocidadPreguntas");
-        const contador = document.getElementById("contador");
+    if (velocidad > 0 && contador) {
+        let tiempo = velocidad;
+        const intervalo = setInterval(() => {
+            tiempo -= 0.1;
+            if (tiempo <= 0) {
+                clearInterval(intervalo);
+                respondido.value = respuestaInput.value.trim() !== "" ? "true" : "false";
+                form.submit();
+            } else {
+                contador.textContent = tiempo.toFixed(1);
+            }
+        }, 100);
+    }
 
-        if (velocidad > 0 && contador) {
-            let tiempo = velocidad;
-            const intervalo = setInterval(() => {
-                tiempo -= 0.1;
-                if (tiempo <= 0) {
-                    clearInterval(intervalo);
-                    document.getElementById("respondido").value = "false";
-                    document.getElementById("formulario").submit();
-                } else {
-                    contador.textContent = tiempo.toFixed(1);
-                }
-            }, 100);
-        }
+    columnas.forEach(col => {
+        const superior = col.querySelector(".bead.superior");
+        const inferiores = col.querySelectorAll(".bead.inferior");
 
-        // Lógica de interacción del soroban
+        superior.addEventListener("click", () => {
+            superior.classList.toggle("activa");
+            actualizarSuma();
+        });
+
+        inferiores.forEach((bead, i) => {
+            bead.addEventListener("click", () => {
+                const activar = !bead.classList.contains("activa");
+                inferiores.forEach((b, j) => {
+                    if ((activar && j <= i) || (!activar && j >= i)) {
+                        b.classList.toggle("activa", activar);
+                    }
+                });
+                actualizarSuma();
+            });
+        });
+    });
+
+    function actualizarSuma() {
+        let suma = 0;
         columnas.forEach((col, idx) => {
+            const potencia = columnas.length - 1 - idx;
+            const multiplo = Math.pow(10, potencia);
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
 
-            superior.addEventListener("click", () => {
-                superior.classList.toggle("activa");
-                actualizarSuma();
-            });
+            let valor = superior.classList.contains("activa") ? 5 : 0;
+            valor += Array.from(inferiores).filter(b => b.classList.contains("activa")).length;
 
-            inferiores.forEach((bead, i) => {
-                bead.addEventListener("click", () => {
-                    if (bead.classList.contains("activa")) {
-                        for (let j = i; j < inferiores.length; j++) {
-                            inferiores[j].classList.remove("activa");
-                        }
-                    } else {
-                        for (let j = 0; j <= i; j++) {
-                            inferiores[j].classList.add("activa");
-                        }
-                    }
-                    actualizarSuma();
-                });
-            });
+            suma += valor * multiplo;
         });
+        respuestaInput.value = suma;
+    }
 
-        // Calcula el número representado actualmente en el soroban
-        function actualizarSuma() {
-            let suma = 0;
-            columnas.forEach((col, idx) => {
-                const potencia = columnas.length - 1 - idx;
-                const multiplo = Math.pow(10, potencia);
-
-                const superior = col.querySelector(".bead.superior");
-                const inferiores = col.querySelectorAll(".bead.inferior");
-
-                let valor = 0;
-                if (superior.classList.contains("activa")) valor += 5;
-                valor += Array.from(inferiores).filter(b => b.classList.contains("activa")).length;
-
-                suma += valor * multiplo;
-            });
-            respuestaInput.value = suma;
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("formulario").requestSubmit();
         }
-    </script>
-}
+    });
+
+</script>
