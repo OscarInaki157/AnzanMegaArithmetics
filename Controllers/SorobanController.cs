@@ -64,9 +64,13 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("ResultadoLecturaSoroban");
             }
 
+            if (valMax > long.MaxValue)
+            {
+                valMax = (ulong)long.MaxValue;
+            }
+
             // Generar número objetivo
-            Random rnd = new Random();
-            int numeroObjetivo = rnd.Next((int)valMin, (int)valMax + 1);
+            ulong numeroObjetivo = (ulong)Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
 
             // Preparar estructura del Soroban
             string numStr = numeroObjetivo.ToString();
@@ -105,7 +109,7 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.Columnas = columnas;
 
             // Guardar en TempData
-            TempData["NumeroObjetivo"] = numeroObjetivo;
+            TempData["NumeroObjetivo"] = numeroObjetivo.ToString();
             TempData["EjerciciosRealizados"] = ejerciciosRealizados;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             TempData["CantidadEjercicios"] = cantidadEjercicios;
@@ -233,9 +237,13 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("ResultadoEscrituraSoroban");
             }
 
+            if (valMax > long.MaxValue)
+            {
+                valMax = (ulong)long.MaxValue;
+            }
+
             // Generar número objetivo
-            Random rnd = new Random();
-            int numeroObjetivo = rnd.Next((int)valMin, (int)valMax + 1);
+            ulong numeroObjetivo = (ulong)Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
 
             // Número de columnas del soroban
             int columnas = numeroObjetivo.ToString().Length;
@@ -247,7 +255,7 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.TotalEjercicios = cantidadEjercicios;
 
             // Guardar en TempData
-            TempData["NumeroObjetivo"] = numeroObjetivo;
+            TempData["NumeroObjetivo"] = numeroObjetivo.ToString();
             TempData["EjerciciosRealizados"] = ejerciciosRealizados;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             TempData["CantidadEjercicios"] = cantidadEjercicios;

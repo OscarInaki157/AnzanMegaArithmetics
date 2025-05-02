@@ -54,7 +54,8 @@
 
     <form method="post" asp-action="ResultadoLecturaSoroban" id="formulario" class="form-respuesta">
         <label for="respuesta">RESULTADO:</label>
-        <input type="number" id="respuesta" name="respuesta" />
+        <input type="text" id="respuesta" name="respuesta" inputmode="numeric" pattern="[0-9]*" autocomplete="off"/>
+
         <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
         <input type="hidden" id="respondido" name="respondido" value="true" />
         <br />
@@ -319,5 +320,13 @@
 
     window.addEventListener('load', function () {
         inputRespuesta?.focus({ preventScroll: true });
+
+        inputRespuesta.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                const valor = inputRespuesta.value.trim();
+                respondido.value = valor !== "" ? "true" : "false";
+            }
+        });
     });
+
 </script>
