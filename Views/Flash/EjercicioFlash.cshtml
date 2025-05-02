@@ -7,12 +7,14 @@
     var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
 }
 
-<div class="flash-container">
-    <div class="top-bar">
-        <form method="post" action="/Flash/FinalizarDesdeEjercicio" style="display: inline;">
-            <button type="submit" class="btn btn-danger">Finalizar</button>
-        </form>
-        <div class="contador-ejercicio" id="temporizador">@velocidad</div>
+<div class="flash-wrapper">
+    <form method="post" action="/Flash/FinalizarDesdeEjercicio">
+        <button type="submit" class="btn-finalizar">🚪 Finalizar</button>
+    </form>
+
+    <div class="contador-box">
+        <span class="contador-label">⏱</span>
+        <span id="temporizador" class="contador-numero">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span>
     </div>
 
     <div class="numero-flash" id="numeroFlash" tabindex="-1">
@@ -21,82 +23,121 @@
 </div>
 
 <style>
-    .flash-container {
+    :root {
+        --color-bg: #161a36;
+        --color-card-bg: #1b1e3c;
+        --color-primary: #4c4cff;
+        --color-primary-dark: #3737e8;
+        --color-light: #d1d1f0;
+        --color-text: #d1d1f0;
+        --color-accent: #6233b8;
+        --color-danger: #df312c;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .flash-wrapper {
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 85vh;
+        gap: 2rem;
+        padding: 2rem;
         text-align: center;
+    }
+
+    .btn-finalizar {
+        background-color: var(--color-danger);
         color: white;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        width: 80%;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .contador-ejercicio {
-        font-size: 2rem;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
         font-weight: bold;
-        padding: 10px 20px;
-        background: #333;
-        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(223, 49, 44, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-finalizar:hover {
+        background-color: #c62828;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(223, 49, 44, 0.5);
+    }
+
+    .contador-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.5rem 1rem;
+        color: var(--color-primary);
+        font-size: 1.6rem;
+        font-weight: bold;
+        animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .contador-label {
+        font-size: 1.4rem;
+    }
+
+    .contador-numero {
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: var(--color-primary);
     }
 
     .numero-flash {
         font-size: 8rem;
         font-weight: bold;
-        animation: fadeIn 0.5s ease-in-out;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        animation: zoomIn 0.4s ease-in-out;
+        color: var(--color-light);
         outline: none;
     }
 
-    @@keyframes fadeIn {
-        from
-
-    {
-        opacity: 0;
-        transform: scale(0.8);
+    @@keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.7); }
+        to   { opacity: 1; transform: scale(1); }
     }
 
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-
+    @@keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
     }
 
     @@media (max-width: 768px) {
-        .numero-flash
-
-    {
-        font-size: 4rem;
-    }
-
+        .numero-flash { font-size: 4rem; }
+        .contador-numero { font-size: 1.3rem; }
+        .btn-finalizar { font-size: 0.9rem; padding: 0.5rem 1rem; }
     }
 </style>
 
+
 @section Scripts {
-    <script>
-        const tiempo = parseFloat("@velocidad");
-        const temporizador = document.getElementById("temporizador");
-        const numeroFlash = document.getElementById("numeroFlash");
-        numeroFlash.focus();
+        <script>
+            const velocidad = parseFloat("@velocidad");
+            const temporizador = document.getElementById("temporizador");
+            const numeroFlash = document.getElementById("numeroFlash");
 
-        let restante = tiempo;
+            numeroFlash.focus();
 
-        const interval = setInterval(() => {
-            restante -= 1;
-            if (restante <= 0) {
-                clearInterval(interval);
-                window.location.href = "/Flash/EjercicioFlash";
-            } else {
-                temporizador.textContent = restante.toFixed(0);
-            }
-        }, 1000);
-    </script>
+            let restante = velocidad;
+            const intervalo = setInterval(() => {
+                restante -= 0.1;
+                if (restante <= 0) {
+                    clearInterval(intervalo);
+                    window.location.href = "/Flash/EjercicioFlash";
+                } else {
+                    temporizador.textContent = restante.toFixed(1);
+                }
+            }, 100);
+        </script>
 }

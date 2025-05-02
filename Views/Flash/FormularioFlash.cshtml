@@ -8,13 +8,18 @@
     velocidad = string.IsNullOrWhiteSpace(velocidad) ? "1.0" : velocidad.Replace(",", ".");
 }
 
+
+<div class="dashboard-button-wrapper">
+    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+        <button type="submit" class="btn-dashboard">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+    </form>
+</div>
+
 <h2 style="text-align:center;">Configuración Numeros Flash</h2>
 
-<form method="get" asp-controller="Dashboard" asp-action="Dashboard" style="text-align: center; margin-top: 20px;">
-    <button type="submit" class="btn btn-secondary">🏠 Regresar al Dashboard</button>
-</form>
-
-<form method="post" action="/Flash/Concentracion" id="formConfigSR" style="max-width: 900px; margin: 30px auto; padding: 25px; border: 1px solid #ccc; border-radius: 12px; background-color: #f9f9f9;">
+<form method="post" action="/Flash/Concentracion" id="formConfigSR" class="formulario-flash">
     <div class="form-grid">
         <div class="form-column">
             <div>
@@ -61,7 +66,7 @@
             </div>
 
             <div>
-                <label>Velocidad entre números (segundos):</label>
+                <label>Velocidad entre números:</label>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <input type="range" id="velocidadSlider" min="0.1" max="10" step="0.1" value="@velocidad" style="flex: 1;" />
                     <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0.1" max="10" step="0.1" value="@velocidad" style="width: 70px;" />
@@ -81,7 +86,7 @@
             </div>
 
             <div id="containerSuma" style="margin-top: 20px;">
-                <label style="color:black;">Dígitos permitidos en SUMA:</label>
+                <label class="label-operacion">Dígitos permitidos en SUMA:</label>
                 <div class="tag-input" id="tagInputSuma">
                     <div class="tags-container" id="tagsContainerSuma"></div>
                     <div class="dropdown-toggle">▾</div>
@@ -98,7 +103,7 @@
             </div>
 
             <div id="containerResta" style="margin-top: 20px;">
-                <label style="color:black;">Dígitos permitidos en RESTA:</label>
+                <label class="label-operacion">Dígitos permitidos en RESTA:</label>
                 <div class="tag-input" id="tagInputResta">
                     <div class="tags-container" id="tagsContainerResta"></div>
                     <div class="dropdown-toggle">▾</div>
@@ -122,104 +127,306 @@
 </form>
 
 <style>
-    form {
-        color: #000000;
+    :root {
+        --color-bg: #161a36;
+        --color-card-bg: #1b1e3c;
+        --color-primary: #4c4cff;
+        --color-primary-dark: #3737e8;
+        --color-light: #d1d1f0;
+        --color-text: #d1d1f0;
+        --color-accent: #6233b8;
+        --color-danger: #df312c;
     }
 
-    .form-grid {
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+
+    .formulario-flash {
+        max-width: 900px;
+        margin: 1rem auto 2rem auto;
+        padding: 2rem;
+        border-radius: 1rem;
+        background-color: var(--color-card-bg);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
+    }
+
+    .label-operacion {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-light);
+        margin-bottom: 0.5rem;
+    }
+
+
+        .formulario-flash .form-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: space-between;
+        }
+
+        .formulario-flash .form-column {
+            flex: 1 1 48%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .formulario-flash label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--color-light);
+        }
+
+        .formulario-flash input[type="number"],
+        .formulario-flash select,
+        .formulario-flash input[type="range"] {
+            width: 100%;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #292c4f;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .formulario-flash input::placeholder {
+            color: #a0a0d0;
+        }
+
+        .formulario-flash small {
+            display: block;
+            margin-top: 0.4rem;
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        .formulario-flash button[type="submit"] {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 0.9rem 1.2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        }
+
+            .formulario-flash button[type="submit"]:hover {
+                background-color: var(--color-primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+            }
+
+    .dashboard-button-wrapper {
         display: flex;
-        flex-wrap: wrap;
-        gap: 30px;
-        justify-content: space-between;
+        justify-content: center;
+        margin-bottom: 2rem;
     }
 
-    .form-column {
-        flex: 1 1 48%;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.8rem 1.8rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
     }
 
+        .btn-dashboard i {
+            font-size: 1.1rem;
+        }
+
+        .btn-dashboard:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+        }
+
+    /* Estilos para tag-inputs personalizados */
     .tag-input {
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 5px 10px;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background-color: #292c4f;
         position: relative;
-        background-color: white;
-        min-height: 42px;
+        cursor: pointer;
+        min-height: 48px;
         transition: border 0.2s ease-in-out;
     }
 
-    .input-error {
-        border: 2px solid red !important;
-    }
+        .tag-input:hover {
+            border-color: var(--color-primary);
+        }
 
     .tags-container {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 0.5rem;
     }
 
     .tag {
-        background-color: #007bff;
+        background-color: var(--color-primary);
         color: white;
-        padding: 4px 10px;
-        border-radius: 20px;
+        padding: 5px 12px;
+        border-radius: 999px;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
         .tag .remove {
             margin-left: 8px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
         }
 
     .dropdown-toggle {
         position: absolute;
         top: 10px;
         right: 10px;
-        font-size: 20px;
-        cursor: pointer;
-        color: #555;
+        font-size: 1.4rem;
+        color: #ccc;
         user-select: none;
     }
 
     .dropdown-options {
         position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
-        top: calc(100% + 5px);
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        background-color: #1b1e3c;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        margin-top: 6px;
+        z-index: 10;
+        display: none;
         max-height: 180px;
         overflow-y: auto;
-        z-index: 1000;
-        display: none;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     }
 
     .option {
-        padding: 8px 12px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        color: var(--color-light);
         cursor: pointer;
-        font-size: 14px;
+        transition: background-color 0.2s ease;
     }
 
         .option:hover {
-            background-color: #f0f0f0;
+            background-color: var(--color-primary-dark);
         }
 
         .option.special {
             font-weight: bold;
-            background-color: #f7f7f7;
-            color: #007bff;
+            background-color: #292c4f;
+            color: var(--color-primary);
         }
 
             .option.special:hover {
-                background-color: #e9e9e9;
+                background-color: #3737e8;
+                color: white;
             }
+
+    /* Estilo para error */
+    .input-error {
+        border: 2px solid var(--color-danger) !important;
+    }
+
+    /* Estilo para botón de volver al dashboard */
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.8rem 1.8rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+        .btn-dashboard:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+        }
+
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .formulario-flash,
+        .btn-dashboard {
+            padding: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        .formulario-flash button,
+        .btn-dashboard {
+            font-size: 1rem;
+        }
+
+        .formulario-flash .form-grid {
+            flex-direction: column;
+        }
+    }
 </style>
+
 
 @section Scripts {
     <script>
@@ -415,14 +622,15 @@
                 input.value = slider.value;
             });
 
-            input.addEventListener("input", () => {
+             input.addEventListener("input", () => {
                 const val = parseFloat(input.value);
                 if (!isNaN(val) && val >= 0.1 && val <= 10) {
                     slider.value = val;
+                } else {
+                    input.value = Math.min(Math.max(val, 0.1), 10);
                 }
             });
         });
-
 
     </script>
 }

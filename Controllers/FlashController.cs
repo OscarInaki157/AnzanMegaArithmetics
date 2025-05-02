@@ -7,10 +7,31 @@ namespace AnzanMegaArithmetics.Controllers
     public class FlashController : Controller
     {
         [HttpGet]
-        public IActionResult FormularioFlash()
+        public IActionResult FormularioFlash(
+            int? CantidadEjercicios,
+            string VelocidadPreguntas,
+            int? TiempoMeditacion,
+            string TipoOperacion,
+            string DigitosSuma,
+            string DigitosResta,
+            int? MinDigitos,
+            int? MaxDigitos)
         {
-            return View(new ConfFlashModel());
+            var modelo = new ConfFlashModel
+            {
+                CantidadEjercicios = CantidadEjercicios ?? 3,
+                VelocidadPreguntas = string.IsNullOrWhiteSpace(VelocidadPreguntas) ? "1.0" : VelocidadPreguntas,
+                TiempoMeditacion = TiempoMeditacion ?? 3,
+                TipoOperacion = TipoOperacion ?? "suma",
+                DigitosSuma = DigitosSuma ?? "",
+                DigitosResta = DigitosResta ?? "",
+                MinDigitos = MinDigitos ?? 1,
+                MaxDigitos = MaxDigitos ?? 2
+            };
+
+            return View(modelo);
         }
+
 
         [HttpPost]
         public IActionResult Concentracion(ConfFlashModel config)
@@ -131,9 +152,6 @@ namespace AnzanMegaArithmetics.Controllers
             return View();
         }
 
-
-
-
         private string GenerarNumero(List<string> digitosPermitidos, int minDig, int maxDig)
         {
             var random = new Random();
@@ -180,9 +198,6 @@ namespace AnzanMegaArithmetics.Controllers
             TempData.Keep();
             return RedirectToAction("RespuestaFlash");
         }
-
-
-
 
     }
 }

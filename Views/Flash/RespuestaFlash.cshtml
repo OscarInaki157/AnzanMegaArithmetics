@@ -4,53 +4,108 @@
 }
 
 <div class="respuesta-container">
-    <h1>El resultado es:</h1>
-    <form method="post" action="/Flash/ResultadoFlash">
+    <h1>🧠 Ingresa tu respuesta final</h1>
+    <form method="post" action="/Flash/ResultadoFlash" class="respuesta-form">
         <input type="number" name="respuestaUsuario" class="respuesta-input" required autofocus />
-        <div style="margin-top: 20px;">
-            <button type="submit" class="btn btn-primary">Enviar</button>
-        </div>
+        <button type="submit" class="btn-enviar">Enviar</button>
     </form>
 </div>
 
 <style>
+    :root {
+        --color-bg: #161a36;
+        --color-card-bg: #1b1e3c;
+        --color-primary: #4c4cff;
+        --color-primary-dark: #3737e8;
+        --color-light: #d1d1f0;
+        --color-text: #d1d1f0;
+        --color-danger: #df312c;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
     .respuesta-container {
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 80vh;
+        padding: 2rem;
         text-align: center;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
+        animation: fadeIn 0.4s ease;
     }
 
-        .respuesta-container h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
+    .respuesta-container h1 {
+        font-size: 2rem;
+        color: var(--color-light);
+        margin-bottom: 2rem;
+    }
+
+    .respuesta-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
 
     .respuesta-input {
         font-size: 3rem;
-        padding: 10px;
+        padding: 0.5rem 1rem;
         text-align: center;
-        border-radius: 8px;
+        border-radius: 12px;
         border: none;
-        width: 200px;
-    }
-
-    .btn-primary {
-        font-size: 1.2rem;
-        padding: 10px 30px;
-        border: none;
-        border-radius: 8px;
-        background-color: #4caf50;
+        width: 250px;
+        background-color: var(--color-card-bg);
         color: white;
-        cursor: pointer;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.15);
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
     }
 
-        .btn-primary:hover {
-            background-color: #45a049;
-        }
-</style>
+    .respuesta-input:focus {
+        outline: none;
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.3);
+        transform: scale(1.03);
+    }
 
+    .btn-enviar {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.8rem 2rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-enviar:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(76, 76, 255, 0.5);
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @@media (max-width: 600px) {
+        .respuesta-input {
+            font-size: 2rem;
+            width: 200px;
+        }
+
+        .btn-enviar {
+            font-size: 1rem;
+            padding: 0.6rem 1.5rem;
+        }
+    }
+</style>
