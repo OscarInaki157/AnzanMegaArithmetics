@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Tu respuesta";
+    Layout = "_LayoutFlash";
+}
+
+<div class="respuesta-container">
+    <h1>El resultado es:</h1>
+    <form method="post" action="/Flash/ResultadoFlash">
+        <input type="number" name="respuestaUsuario" class="respuesta-input" required autofocus />
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .respuesta-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+        text-align: center;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+        .respuesta-container h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+    .respuesta-input {
+        font-size: 3rem;
+        padding: 10px;
+        text-align: center;
+        border-radius: 8px;
+        border: none;
+        width: 200px;
+    }
+
+    .btn-primary {
+        font-size: 1.2rem;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+</style>
+
