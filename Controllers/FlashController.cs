@@ -1,9 +1,11 @@
 ﻿using AnzanMegaArithmetics.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Controllers
 {
+    [Authorize]
     public class FlashController : Controller
     {
         [HttpGet]

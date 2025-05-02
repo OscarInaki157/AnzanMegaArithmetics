@@ -176,14 +176,14 @@
 
     <div>
         <label asp-for="VMinimo"></label>
-        <input asp-for="VMinimo" type="number" min="0" max="9999999999" step="1" />
+        <input asp-for="VMinimo" id="VMinimo" type="number" min="0" max="9999999999" step="1" pattern="[0-9]+" />
         <span asp-validation-for="VMinimo" class="text-danger"></span>
         <small>Valor mínimo del número generado.</small>
     </div>
 
     <div>
         <label asp-for="VMaximo"></label>
-        <input asp-for="VMaximo" type="number" min="0" max="9999999999" step="1" />
+        <input asp-for="VMaximo" id="VMaximo" type="number" min="0" max="9999999999" step="1" pattern="[0-9]+" />
         <span asp-validation-for="VMaximo" class="text-danger"></span>
         <small>Valor máximo del número generado.</small>
     </div>
@@ -217,3 +217,41 @@
 
     <button type="submit">🧠 Iniciar Ejercicios de Lectura</button>
 </form>
+
+@section Scripts {
+    <script>
+        const form = document.getElementById("configuracionEjercicios");
+
+        form.addEventListener("submit", function (e) {
+            const vMin = parseFloat(document.getElementById("VMinimo").value);
+            const vMax = parseFloat(document.getElementById("VMaximo").value);
+
+            const maxPermitido = 9999999999;
+
+            // Validación general
+            if (isNaN(vMin) || isNaN(vMax)) {
+                alert("Debes ingresar valores válidos para mínimo y máximo.");
+                e.preventDefault();
+                return;
+            }
+
+            if (vMin < 0 || vMax < 0) {
+                alert("No se permiten números negativos.");
+                e.preventDefault();
+                return;
+            }
+
+            if (vMin > vMax) {
+                alert("El valor mínimo no puede ser mayor que el máximo.");
+                e.preventDefault();
+                return;
+            }
+
+            if (vMax > maxPermitido || vMin > maxPermitido) {
+                alert("El valor máximo permitido es 9,999,999,999.");
+                e.preventDefault();
+                return;
+            }
+        });
+    </script>
+}

@@ -1,6 +1,6 @@
 ﻿@using AnzanMegaArithmetics.Models
 @{
-    ViewBag.Title = "Resumen de Ejercicios - Soroban";
+    ViewBag.Title = "Resumen de Ejercicios Soroban";
     Layout = "_LayoutSoroban";
 
     var resultadosJson = TempData["Resultados"] as string;
@@ -252,8 +252,9 @@
             <div>
                 <p>
                     🧠 <strong>Tu respuesta:</strong>
-                    @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())
+                    @(r.RespuestaUsuario == 0 && !r.EsCorrecto ? "No respondió" : r.RespuestaUsuario.ToString())
                 </p>
+
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
             </div>
         </details>

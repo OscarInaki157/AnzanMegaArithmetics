@@ -1,8 +1,9 @@
 ﻿@{
-    ViewBag.Title = "Ejercicio de Lectura - Soroban";
+    ViewBag.Title = "Ejercicio de Lectura Soroban";
     Layout = "_LayoutSoroban";
 
-    int respuestaCorrecta = ViewBag.RespuestaCorrecta;
+    ulong respuestaCorrecta = Convert.ToUInt64(ViewBag.RespuestaCorrecta);
+
     float velocidad = ViewBag.VelocidadPreguntas;
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
