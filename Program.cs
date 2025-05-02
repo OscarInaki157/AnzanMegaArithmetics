@@ -20,7 +20,7 @@ builder.Services.AddDbContext<AnzanMegaContext>(options =>
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); //Tiempo en el que expira la sesión
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -33,14 +33,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });
 
 // Configuración de la localización
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources"); // O la ruta donde guardes tus recursos de localización si los tienes
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 //Configuración de la localización
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
         new CultureInfo("es-MX"),
-        new CultureInfo("en-US"), // Puedes agregar más culturas si es necesario
+        new CultureInfo("en-US"),
     };
 
     options.DefaultRequestCulture = new RequestCulture("es-MX");

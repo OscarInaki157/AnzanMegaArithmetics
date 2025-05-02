@@ -177,7 +177,7 @@ namespace AnzanMegaArithmetics.Controllers
         //Métodos de soroban Escritura
 
         [HttpGet]
-        public IActionResult EscrituraSoroban(int? cantidad, int? valMin, int? valMax, string velocidad)
+        public IActionResult EscrituraSoroban(int? cantidad, ulong? valMin, ulong? valMax, string velocidad)
         {
             var model = new ConfEscrituraSorobanModel
             {
@@ -197,8 +197,9 @@ namespace AnzanMegaArithmetics.Controllers
             config.CantidadEjercicios = Math.Max(1, config.CantidadEjercicios);
             config.TiempoMeditacion = Math.Max(0, config.TiempoMeditacion);
 
-            TempData["VMinimo"] = config.VMinimo;
-            TempData["VMaximo"] = config.VMaximo;
+            TempData["VMinimo"] = config.VMinimo.ToString();
+            TempData["VMaximo"] = config.VMaximo.ToString();
+
             TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
             TempData["TiempoMeditacion"] = config.TiempoMeditacion;
             TempData["CantidadEjercicios"] = config.CantidadEjercicios;
@@ -214,8 +215,9 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EjercicioEscrituraSB()
         {
-            int valMin = Convert.ToInt32(TempData["VMinimo"]);
-            int valMax = Convert.ToInt32(TempData["VMaximo"]);
+            ulong valMin = ulong.Parse(TempData["VMinimo"].ToString());
+            ulong valMax = ulong.Parse(TempData["VMaximo"].ToString());
+
             float velocidad = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
             int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
@@ -233,7 +235,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             // Generar número objetivo
             Random rnd = new Random();
-            int numeroObjetivo = rnd.Next(valMin, valMax + 1);
+            int numeroObjetivo = rnd.Next((int)valMin, (int)valMax + 1);
 
             // Número de columnas del soroban
             int columnas = numeroObjetivo.ToString().Length;
@@ -249,8 +251,10 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["EjerciciosRealizados"] = ejerciciosRealizados;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             TempData["CantidadEjercicios"] = cantidadEjercicios;
-            TempData["VMinimo"] = valMin;
-            TempData["VMaximo"] = valMax;
+
+            TempData["VMinimo"] = valMin.ToString();
+            TempData["VMaximo"] = valMax.ToString();
+
             TempData["VelocidadPreguntas"] = velocidad.ToString(CultureInfo.InvariantCulture);
 
             TempData.Keep();
@@ -262,7 +266,7 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido)
         {
             bool respondio = respondido == "true";
-            int numeroCorrecto = Convert.ToInt32(TempData["NumeroObjetivo"]);
+            ulong numeroCorrecto = Convert.ToUInt64(TempData["NumeroObjetivo"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
             var resultadosJson = TempData["Resultados"] as string;
@@ -272,7 +276,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             resultados.Add(new REscrituraSorobanModel
             {
-                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaUsuario = (ulong)(respondio ? respuesta : 0),
                 RespuestaCorrecta = numeroCorrecto
             });
 
@@ -283,8 +287,10 @@ namespace AnzanMegaArithmetics.Controllers
 
             // Preservar para el siguiente ejercicio
             TempData["CantidadEjercicios"] = TempData.Peek("CantidadEjercicios");
-            TempData["VMinimo"] = TempData.Peek("VMinimo");
-            TempData["VMaximo"] = TempData.Peek("VMaximo");
+
+            TempData["VMinimo"] = TempData.Peek("VMinimo")?.ToString();
+            TempData["VMaximo"] = TempData.Peek("VMaximo")?.ToString();
+
             TempData["VelocidadPreguntas"] = TempData.Peek("VelocidadPreguntas");
 
             if (ejerciciosRealizados >= Convert.ToInt32(TempData.Peek("CantidadEjercicios")))

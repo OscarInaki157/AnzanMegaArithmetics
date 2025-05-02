@@ -12,12 +12,12 @@ namespace AnzanMegaArithmetics.Models
         [Required]
         [Display(Name = "Valor mínimo:")]
         [Range(0, 9999999999)]
-        public int VMinimo { get; set; }
+        public ulong VMinimo { get; set; }
 
         [Required]
         [Display(Name = "Valor máximo:")]
         [Range(0, 9999999999)]
-        public int VMaximo { get; set; }
+        public ulong VMaximo { get; set; }
 
         [Required]
         [Display(Name = "Velocidad por ejercicio:")]

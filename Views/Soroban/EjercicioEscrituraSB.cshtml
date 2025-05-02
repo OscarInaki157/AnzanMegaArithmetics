@@ -1,8 +1,9 @@
 ﻿@{
-    ViewBag.Title = "Ejercicio de Escritura - Soroban";
+    ViewBag.Title = "Ejercicio de Escritura Soroban";
     Layout = "_LayoutSoroban";
 
-    int numeroObjetivo = ViewBag.NumeroObjetivo;
+    ulong numeroObjetivo = Convert.ToUInt64(ViewBag.NumeroObjetivo);
+
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
     int columnas = ViewBag.Columnas;

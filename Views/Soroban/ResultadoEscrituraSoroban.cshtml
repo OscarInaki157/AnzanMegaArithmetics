@@ -250,7 +250,7 @@
             <div>
                 <p>
                     🧠 <strong>Tu respuesta:</strong>
-                    @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())
+                    @(r.RespuestaUsuario == 0 && !r.EsCorrecto ? "No respondió" : r.RespuestaUsuario.ToString())
                 </p>
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
             </div>
