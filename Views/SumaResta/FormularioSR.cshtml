@@ -439,27 +439,34 @@
 
             const directaActiva = (chkSuma?.value === "true") || (chkResta?.value === "true");
 
-            if (!directaActiva) {
+            if (directaActiva) {
+                    // Guardar solo si aún no se ha guardado antes
+                    if (!valorPrevioOperaciones || valorPrevioOperaciones < 4 || valorPrevioOperaciones > 10) {
+                        valorPrevioOperaciones = select.value;
+                    }
+                // Limitar a 1-3
                 select.innerHTML = "";
-                for (let i = 2; i <= 10; i++) {
-                    const opt = document.createElement("option");
-                    opt.value = i;
-                    opt.textContent = i;
-                    if (i == valorPrevioOperaciones) opt.selected = true;
-                    select.appendChild(opt);
-                }
-            } else {
-                valorPrevioOperaciones = select.value;
-                select.innerHTML = "";
-                [2, 3].forEach(num => {
+                [1, 2, 3].forEach(num => {
                     const opt = document.createElement("option");
                     opt.value = num;
                     opt.textContent = num;
                     if (num == 3) opt.selected = true;
                     select.appendChild(opt);
                 });
+            } else {
+                // Restaurar el valor previo
+                const prev = parseInt(valorPrevioOperaciones || 2);
+                select.innerHTML = "";
+                for (let i = 2; i <= 10; i++) {
+                    const opt = document.createElement("option");
+                    opt.value = i;
+                    opt.textContent = i;
+                    if (i == prev) opt.selected = true;
+                    select.appendChild(opt);
+                }
             }
         }
+
 
         document.querySelectorAll('input[name="directaSuma"]').forEach(el =>
             el.addEventListener("change", actualizarSelectOperacionesDirectas));
