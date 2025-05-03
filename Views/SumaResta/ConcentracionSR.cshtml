@@ -10,6 +10,10 @@
 </div>
 
 <style>
+    :root {
+        --color-light: #d1d1f0;
+    }
+
     .contenedor-meditacion {
         display: flex;
         flex-direction: column;
@@ -19,14 +23,29 @@
         text-align: center;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         animation: fadeIn 1s ease-in-out;
+        color: var(--color-light);
+        padding: 1rem;
     }
+
+        .contenedor-meditacion h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-light);
+        }
+
+        .contenedor-meditacion p {
+            font-size: 1.2rem;
+            color: var(--color-light);
+            margin-bottom: 1.5rem;
+        }
 
     #contador {
         font-size: 8rem;
         font-weight: bold;
-        color: #007bff;
+        color: white;
         margin-top: 20px;
         animation: pulse 1s infinite ease-in-out;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
     }
 
     @@keyframes pulse {
@@ -55,6 +74,20 @@
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        #contador {
+            font-size: 5rem;
+        }
+
+        .contenedor-meditacion h1 {
+            font-size: 2rem;
+        }
+
+        .contenedor-meditacion p {
+            font-size: 1rem;
         }
     }
 </style>

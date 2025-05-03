@@ -7,13 +7,18 @@
     var ambosTrue = Model.DirectaSuma && Model.DirectaResta;
 }
 
-<h2 style="text-align:center;">🧮 Configuración - Suma y Resta</h2>
+<div class="dashboard-button-wrapper">
+    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+        <button type="submit" class="btn-dashboard">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+    </form>
+</div>
 
-<form method="get" asp-controller="Dashboard" asp-action="Dashboard" style="text-align: center; margin-top: 20px;">
-    <button type="submit" class="btn btn-secondary">🏠 Regresar al Dashboard</button>
-</form>
+<h2>Configuración - Suma y Resta</h2>
 
-<form method="post" action="/SumaResta/ConcentracionSR" id="formConfigSR" style="max-width: 900px; margin: 30px auto; padding: 25px; border: 1px solid #ccc; border-radius: 12px; background-color: #f9f9f9;">
+<form method="post" action="/SumaResta/ConcentracionSR" id="formConfigSR" class="formulario-flash">
+
     <div class="form-grid">
         <div class="form-column">
             <div>
@@ -95,17 +100,17 @@
 
             <div>
                 <label>Valor máximo:</label>
-                <input type="number" name="valorMaximo" min="0" value="@Model.ValorMaximo"/>
+                <input type="number" name="valorMaximo" min="0" max="9999999999" value="@Model.ValorMaximo" />
             </div>
 
-            <div id="usarMaxContainer" style="margin-top: 10px;">
+            <div id="usarMaxContainer">
                 <label>¿El primer número será generado con respecto al máximo?</label>
                 <div>
                     <label>
                         <input type="radio" name="usarMaximoComoBase" value="true" @(Model.UsarMaximoComoBase ? "checked" : "") />
                         Sí
                     </label>
-                    <label style="margin-left: 15px;">
+                    <label>
                         <input type="radio" name="usarMaximoComoBase" value="false" @(!Model.UsarMaximoComoBase ? "checked" : "") />
                         No
                     </label>
@@ -125,8 +130,8 @@
             </div>
 
 
-            <div id="containerSuma" style="margin-top: 20px;">
-                <label style="color:black;">Dígitos permitidos en SUMA:</label>
+            <div id="containerSuma">
+                <label>Dígitos permitidos en SUMA:</label>
                 <div class="tag-input" id="tagInputSuma">
                     <div class="tags-container" id="tagsContainerSuma"></div>
                     <div class="dropdown-toggle">▾</div>
@@ -141,14 +146,14 @@
                     <input type="hidden" name="digitosSuma" id="inputHiddenSuma" value="@Model.DigitosSuma" />
                 </div>
 
-                <div style="margin-top: 15px;">
+                <div>
                     <label>¿Activar operaciones directas de SUMA?</label>
                     <div>
                         <label>
                             <input type="radio" name="directaSuma" value="true" @(Model.DirectaSuma ? "checked" : "") />
                             Sí
                         </label>
-                        <label style="margin-left: 15px;">
+                        <label>
                             <input type="radio" name="directaSuma" value="false" @(!Model.DirectaSuma ? "checked" : "") />
                             No
                         </label>
@@ -158,8 +163,8 @@
 
             </div>
 
-            <div id="containerResta" style="margin-top: 20px;">
-                <label style="color:black;">Dígitos permitidos en RESTA:</label>
+            <div id="containerResta">
+                <label>Dígitos permitidos en RESTA:</label>
                 <div class="tag-input" id="tagInputResta">
                     <div class="tags-container" id="tagsContainerResta"></div>
                     <div class="dropdown-toggle">▾</div>
@@ -174,14 +179,14 @@
                     <input type="hidden" name="digitosResta" id="inputHiddenResta" value="@Model.DigitosResta" />
                 </div>
                 
-                <div style="margin-top: 15px;">
+                <div>
                     <label>¿Activar operaciones directas de RESTA?</label>
                     <div>
                         <label>
                             <input type="radio" name="directaResta" value="true" @(Model.DirectaResta ? "checked" : "") />
                             Sí
                         </label>
-                        <label style="margin-left: 15px;">
+                        <label>
                             <input type="radio" name="directaResta" value="false" @(!Model.DirectaResta ? "checked" : "") />
                             No
                         </label>
@@ -191,128 +196,285 @@
 
             </div>
 
-            <div id="containerDirectaAmbos" style="margin-top: 20px; display:none;">
+            <div id="containerDirectaAmbos">
                 <label>¿Activar operaciones directas de SUMA Y RESTA?</label>
                 <div>
                     <label>
                         <input type="radio" name="directaAmbos" value="true" @(ambosTrue ? "checked" : "") /> Sí
                     </label>
-                    <label style="margin-left: 15px;">
+                    <label>
                         <input type="radio" name="directaAmbos" value="false" @(!ambosTrue ? "checked" : "") /> No
                     </label>
                 </div>
             </div>
-
             
         </div>
-
 
     </div>
 
     <div style="margin-top: 30px; text-align:center;">
         <button type="submit" class="btn btn-primary">Iniciar ejercicios</button>
     </div>
+
 </form>
 
 <style>
-    form {
-        color: #000000;
+    :root {
+        --color-bg: #161a36;
+        --color-card-bg: #1b1e3c;
+        --color-primary: #4c4cff;
+        --color-primary-dark: #3737e8;
+        --color-light: #d1d1f0;
+        --color-text: #f0f0f0;
+        --color-accent: #6233b8;
+        --color-danger: #df312c;
     }
+
+    body {
+        background-color: var(--color-bg);
+        font-family: 'Segoe UI', sans-serif;
+        color: var(--color-light);
+    }
+
+    h2 {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1.8rem;
+        color: var(--color-light);
+    }
+
+    form#formConfigSR {
+        background-color: var(--color-card-bg);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .formulario-flash {
+        max-width: 900px;
+        margin: 1rem auto 2rem auto;
+        padding: 2rem;
+        border-radius: 1rem;
+        background-color: var(--color-card-bg);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
+    }
+
 
     .form-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 30px;
-        justify-content: space-between;
+        gap: 2rem;
     }
 
     .form-column {
         flex: 1 1 48%;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 1.2rem;
+    }
+
+    form#formConfigSR label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: block;
+        font-size: 1rem;
+        color: var(--color-light);
+    }
+
+    form#formConfigSR select,
+    form#formConfigSR input[type="number"] {
+        padding: 0.65rem;
+        background-color: #292c4f;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        color: white;
+        width: 100%;
+    }
+
+    form#formConfigSR input[type="radio"] {
+        accent-color: var(--color-primary);
+        transform: scale(1.1);
+    }
+
+    .btn.btn-primary {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 0.6rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+    }
+
+        .btn.btn-primary:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+        }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.8rem 1.8rem;
+        border: none;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    form#formConfigSR {
+        margin-top: 2rem;
+    }
+
+
+        .btn-dashboard i {
+            font-size: 1.1rem;
+        }
+
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-dashboard:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
     }
 
     .tag-input {
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 5px 10px;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background-color: #292c4f;
         position: relative;
-        background-color: white;
-        min-height: 42px;
-        transition: border 0.2s ease-in-out;
-    }
-
-    .input-error {
-        border: 2px solid red !important;
+        cursor: pointer;
+        min-height: 48px;
     }
 
     .tags-container {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 0.5rem;
     }
 
     .tag {
-        background-color: #007bff;
+        background-color: var(--color-primary);
         color: white;
-        padding: 4px 10px;
-        border-radius: 20px;
+        padding: 5px 12px;
+        border-radius: 999px;
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
         .tag .remove {
             margin-left: 8px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
         }
 
     .dropdown-toggle {
         position: absolute;
         top: 10px;
         right: 10px;
-        font-size: 20px;
-        cursor: pointer;
-        color: #555;
+        font-size: 1.4rem;
+        color: #ccc;
         user-select: none;
     }
 
     .dropdown-options {
         position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
-        top: calc(100% + 5px);
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        background-color: #1b1e3c;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        margin-top: 6px;
+        z-index: 10;
+        display: none;
         max-height: 180px;
         overflow-y: auto;
-        z-index: 1000;
-        display: none;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     }
 
     .option {
-        padding: 8px 12px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        color: var(--color-light);
         cursor: pointer;
-        font-size: 14px;
+        transition: background-color 0.2s ease;
     }
 
         .option:hover {
-            background-color: #f0f0f0;
+            background-color: var(--color-primary-dark);
         }
 
         .option.special {
             font-weight: bold;
-            background-color: #f7f7f7;
-            color: #007bff;
+            background-color: #292c4f;
+            color: var(--color-primary);
         }
 
             .option.special:hover {
-                background-color: #e9e9e9;
+                background-color: #3737e8;
+                color: white;
             }
+
+    .input-error {
+        border: 2px solid var(--color-danger) !important;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid
+
+    {
+        flex-direction: column;
+    }
+
+    .btn-dashboard {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .btn.btn-primary {
+        font-size: 1rem;
+    }
+
+    }
 </style>
+
 
 
 @section Scripts {
