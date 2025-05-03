@@ -31,7 +31,9 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["MinDigitos"] = config.MinDigitos;
             TempData["MaxDigitos"] = config.MaxDigitos;
             TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
-            TempData["ValorMaximo"] = config.ValorMaximo;
+
+            TempData["ValorMaximo"] = config.ValorMaximo.ToString();
+
             TempData["UsarMaximoComoBase"] = config.UsarMaximoComoBase;
             TempData["TipoOperacion"] = config.TipoOperacion ?? "suma";
             TempData["TiempoMeditacion"] = config.TiempoMeditacion;
@@ -59,7 +61,9 @@ namespace AnzanMegaArithmetics.Controllers
             int numOperaciones = Convert.ToInt32(TempData["NumeroOperaciones"]);
             int minDig = Convert.ToInt32(TempData["MinDigitos"]);
             int maxDig = Convert.ToInt32(TempData["MaxDigitos"]);
-            int valorMaximo = Convert.ToInt32(TempData["ValorMaximo"]);
+
+            long valorMaximo = Convert.ToInt64(TempData["ValorMaximo"]);
+
             bool usarMax = Convert.ToBoolean(TempData["UsarMaximoComoBase"]);
             string tipoOperacion = TempData["TipoOperacion"].ToString();
             string velocidad = TempData["VelocidadPreguntas"].ToString();
@@ -89,7 +93,7 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             var random = new Random();
-            var numeros = new List<int>();
+            var numeros = new List<long>();
             var operaciones = new List<string>();
 
             var listaSuma = GenerarNumerosValidos(sumaPermitidos, minDig, maxDig, valorMaximo);
@@ -106,22 +110,23 @@ namespace AnzanMegaArithmetics.Controllers
                 numeros.Clear();
                 operaciones.Clear();
 
-                int primerValor;
+                long primerValor, minValor, maxValor, maxRand, minRand;
                 if (usarMax && valorMaximo > 0)
                 {
-                    int minValor = (int)(valorMaximo * 0.8);
-                    primerValor = random.Next(minValor, valorMaximo + 1);
+                    maxRand = Math.Min(valorMaximo, long.MaxValue);
+                    minRand = Math.Max(0, maxRand * (long)0.8);
+                    primerValor = RandomLong(random, minRand, maxRand + 1);
                 }
                 else
                 {
                     int digitos = random.Next(minDig, maxDig + 1);
-                    int minValor = (int)Math.Pow(10, digitos - 1);
-                    int maxValor = (int)Math.Pow(10, digitos) - 1;
+                    minValor = (long)Math.Pow(10, digitos - 1);
+                    maxValor = (long)Math.Pow(10, digitos) - 1;
 
                     if (valorMaximo > 0)
                         maxValor = Math.Min(maxValor, valorMaximo);
 
-                    primerValor = random.Next(minValor, maxValor + 1);
+                    primerValor = RandomLong(random, minValor, maxValor + 1);
                 }
 
                 numeros.Add(primerValor);
@@ -144,7 +149,7 @@ namespace AnzanMegaArithmetics.Controllers
                     operaciones.Add(op);
                 }
 
-                int resultado = 0;
+                long resultado = 0;
                 for (int i = 0; i < numeros.Count; i++)
                 {
                     resultado += operaciones[i] == "-" ? -numeros[i] : numeros[i];
@@ -171,8 +176,16 @@ namespace AnzanMegaArithmetics.Controllers
             return View();
         }
 
+        private long RandomLong(Random rng, long min, long max)
+        {
+            if (min >= max) return min;
+            byte[] buf = new byte[8];
+            rng.NextBytes(buf);
+            long longRand = Math.Abs(BitConverter.ToInt64(buf, 0));
+            return min + (longRand % (max - min + 1));
+        }
 
-        private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, int valorMax)
+        private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, long valorMax)
         {
             var resultados = new HashSet<int>();
             var digitos = digitosPermitidos.Distinct().ToArray();
@@ -185,7 +198,7 @@ namespace AnzanMegaArithmetics.Controllers
                     if (numStr.StartsWith("0")) continue;
 
                     int num = int.Parse(numStr);
-                    if (valorMax > 0 && num > valorMax) continue;
+                    if (valorMax > 0 && (long)num > valorMax) continue;
 
                     resultados.Add(num);
                 }
@@ -214,10 +227,10 @@ namespace AnzanMegaArithmetics.Controllers
             bool respondio = respondido == "true";
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
-            var numeros = JsonSerializer.Deserialize<List<int>>(TempData["UltimosNumeros"].ToString());
+            var numeros = JsonSerializer.Deserialize<List<long>>(TempData["UltimosNumeros"].ToString());
             var operaciones = JsonSerializer.Deserialize<List<string>>(TempData["UltimasOperaciones"].ToString());
 
-            int resultadoCorrecto = 0;
+            long resultadoCorrecto = 0;
             for (int i = 0; i < numeros.Count; i++)
             {
                 if (operaciones[i] == "-")
@@ -257,7 +270,9 @@ namespace AnzanMegaArithmetics.Controllers
             TempData.Keep("MinDigitos");
             TempData.Keep("MaxDigitos");
             TempData.Keep("VelocidadPreguntas");
+
             TempData.Keep("ValorMaximo");
+
             TempData.Keep("UsarMaximoComoBase");
             TempData.Keep("TipoOperacion");
             TempData.Keep("DigitosSuma");

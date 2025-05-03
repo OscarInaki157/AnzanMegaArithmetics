@@ -2,7 +2,7 @@
     ViewBag.Title = "Ejercicio de Suma y Resta";
     Layout = "_LayoutSR";
 
-    var numeros = ViewBag.Numeros as List<int>;
+    var numeros = ViewBag.Numeros as List<long>;
     var operaciones = ViewBag.Operaciones as List<string>;
     float velocidad = float.Parse(ViewBag.VelocidadPreguntas.ToString());
     int ejercicioActual = ViewBag.EjercicioActual;
@@ -34,7 +34,7 @@ else
         </div>
 
         <form method="post" asp-action="ResultadoSR" id="formRespuesta" style="margin-top: 20px;">
-            <input type="number" name="respuesta" placeholder="Resultado" autofocus />
+            <input type="number" name="respuesta" placeholder="Resultado" autofocus autocomplete="off"/>
             <input type="hidden" id="respondido" name="respondido" value="true" />
             <br />
             <button type="submit" class="btn btn-success" style="margin-top: 15px;">Enviar respuesta</button>

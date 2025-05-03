@@ -15,7 +15,7 @@ namespace AnzanMegaArithmetics.Models
         [Required]
         public string VelocidadPreguntas { get; set; } = string.Empty;
         [Required]
-        public int ValorMaximo { get; set; }
+        public long ValorMaximo { get; set; }
         [Required]
         public bool UsarMaximoComoBase { get; set; }
         [Required]

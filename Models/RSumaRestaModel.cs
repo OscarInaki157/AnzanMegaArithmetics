@@ -2,11 +2,9 @@
 {
     public class RSumaRestaModel
     {
-        public int EjercicioNumero { get; set; }             
-        public List<string> OperacionesMostradas { get; set; }
         public string OperacionTexto { get; set; }
-        public int RespuestaCorrecta { get; set; }
-        public int RespuestaUsuario { get; set; }
+        public long RespuestaCorrecta { get; set; }
+        public long RespuestaUsuario { get; set; }
         public bool EsCorrecto => RespuestaUsuario == RespuestaCorrecta;
         public bool Respondido { get; set; }
     }
