@@ -20,7 +20,9 @@ builder.Services.AddDbContext<AnzanMegaContext>(options =>
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    //Tiempo de inactividad, acumulable
+    //options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromHours(1);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -28,7 +30,9 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(
     option => {
         option.LoginPath = "/Inicio/Login";
-        option.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        //Tiempo de vida de la cookie de authenticación
+        //option.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        option.ExpireTimeSpan = TimeSpan.FromHours(1);
         option.AccessDeniedPath = "/Inicio/Inicio";
 });
 

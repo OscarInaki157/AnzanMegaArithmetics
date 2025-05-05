@@ -121,5 +121,12 @@
 
         const cuenta = setInterval(actualizarContador, 1000);
         actualizarContador();
+
+        window.addEventListener("load", function () {
+            const meditacion = document.querySelector('.contenedor-meditacion');
+            if (meditacion) {
+                meditacion.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        });
     </script>
 }
