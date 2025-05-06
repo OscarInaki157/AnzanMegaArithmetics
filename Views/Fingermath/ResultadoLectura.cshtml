@@ -24,14 +24,15 @@
 
     h1 {
         text-align: center;
-        font-size: 2.5rem;
-        margin-top: 30px;
+        font-size: 2rem;
+        margin-top: 10px;
+        margin-bottom: 0.5rem;
     }
 
     hr {
         border-color: #4c4cff;
         width: 80%;
-        margin: 20px auto;
+        margin: 10px auto 30px auto;
     }
 
     .botones-centrados {
@@ -83,19 +84,19 @@
             transform: translateY(-2px);
         }
 
-
-    .resumen-contenedor {
+    .resumen-grid-contenedor {
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
         border-radius: 12px;
         padding: 25px 30px;
-        margin: 20px auto;
         box-shadow: 0 0 20px rgba(76, 76, 255, 0.1);
-        max-width: 800px;
+        margin: 0 auto 30px auto;
+        max-width: 1200px;
     }
 
-        .resumen-contenedor p {
-            font-size: 1.2rem;
+        .resumen-grid-contenedor p {
+            font-size: 1.3rem;
+            margin: 10px 0;
         }
 
     .barra-progreso {
@@ -113,76 +114,92 @@
         transition: width 0.5s ease;
     }
 
-    details {
-        margin-bottom: 14px;
-        border-radius: 10px;
-        background-color: #2a2d56;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    .grid-acordeones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto 50px auto;
+        align-items: start;
     }
 
-    summary {
-        padding: 14px 20px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 1.2rem;
-        background-color: #202349;
-        color: #ffffff;
-        list-style: none;
-        position: relative;
-        padding-left: 30px;
-    }
-
-        summary::before {
-            content: "▶";
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            transition: transform 0.3s ease;
-            color: #d1d1f0;
+        .grid-acordeones details {
+            background-color: #2a2d56;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        summary::marker {
+        .grid-acordeones summary {
+            padding: 14px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #202349;
+            color: white;
+            list-style: none;
+            position: relative;
+            font-size: 1rem;
+            border-radius: 10px 10px 0 0;
+        }
+
+            .grid-acordeones summary::before {
+                content: "▶";
+                display: inline-block;
+                margin-right: 10px;
+                transition: transform 0.3s ease;
+            }
+
+        .grid-acordeones details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .grid-acordeones summary::-webkit-details-marker {
             display: none;
         }
 
-    details[open] summary {
-        border-bottom: 1px solid #444;
-    }
-
-        details[open] summary::before {
-            transform: translateY(-50%) rotate(90deg);
+        .grid-acordeones details > div {
+            padding: 14px 18px;
+            background-color: #1b1e3c;
+            color: #d1d1f0;
+            font-size: 1rem;
+            border-radius: 0 0 10px 10px;
         }
 
-    details div {
-        padding: 16px 22px;
-        font-size: 1.1rem;
-        background-color: #1b1e3c;
-    }
-
-        details div p {
-            margin-bottom: 10px;
-        }
-
-    .correcto {
+    .correcto summary {
         color: #28a745;
     }
 
-    .incorrecto {
+    .incorrecto summary {
         color: #dc3545;
     }
 
-    @@media (max-width: 768px) {
-        h1
+    @@media (max-width: 1200px) {
+        .grid-acordeones
 
     {
-        font-size: 2rem;
+        grid-template-columns: repeat(3, 1fr);
     }
 
-    .resumen-contenedor {
-        padding: 20px;
+    }
+
+    @@media (max-width: 900px) {
+        .grid-acordeones
+
+    {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    }
+
+    @@media (max-width: 600px) {
+        .grid-acordeones
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 1.7rem;
     }
 
     .botones-centrados {
@@ -195,12 +212,13 @@
             max-width: 300px;
         }
 
-    summary {
-        font-size: 1rem;
-    }
+        .resumen-grid-contenedor p {
+            font-size:1rem;
+        }
 
     }
 </style>
+
 
 <h1>📊 Resumen de Ejercicios</h1>
 <hr />
@@ -210,7 +228,7 @@
         <input type="hidden" name="tipo" value="@TempData.Peek("TipoPregunta")" />
         <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
         <input type="hidden" name="cantidad" value="@TempData.Peek("CantidadEjercicios")" />
-        <button type="submit" class="btn-primary">⚙️ Ir a configuración</button>
+        <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
     <form method="post" asp-action="Concentracion">
@@ -218,17 +236,15 @@
         <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
         <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
         <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <button type="submit" class="btn-success">🔁 Repetir (misma configuración)</button>
+        <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
 
-
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
-        <button type="submit" class="btn-secondary">🏠 Regresar al dashboard</button>
+        <button type="submit" class="btn-secondary">🏠 Dashboard</button>
     </form>
 </div>
 
-
-<div class="resumen-contenedor">
+<div class="resumen-grid-contenedor">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
         <div style="flex: 1;">
             <p>📄 Total de ejercicios: <strong>@total</strong></p>
@@ -244,22 +260,20 @@
     </div>
 </div>
 
-<div style="max-width: 800px; margin: 0 auto;">
+<div class="grid-acordeones">
     @for (int i = 0; i < resultados.Count; i++)
     {
         var r = resultados[i];
         var colorClass = r.EsCorrecto ? "correcto" : "incorrecto";
-        <details>
-            <summary class="@colorClass">
+        <details class="@colorClass">
+            <summary>
                 Ejercicio @(i + 1): @(r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto")
             </summary>
             <div>
-                <p>
-                    🧠 <strong>Tu respuesta:</strong>
-                    @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())
-                </p>
+                <p>🧠 <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
             </div>
         </details>
     }
 </div>
+

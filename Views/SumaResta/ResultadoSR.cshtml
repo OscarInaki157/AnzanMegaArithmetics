@@ -222,7 +222,7 @@
         <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
         <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
         <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
-        <button type="submit" class="btn-primary">⚙️ Ir a configuración</button>
+        <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
     <form method="post" asp-action="ConcentracionSR">
@@ -239,11 +239,11 @@
         <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
         <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
         <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
-        <button type="submit" class="btn-success">🔁 Repetir (misma configuración)</button>
+        <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
 
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
-        <button type="submit" class="btn-secondary">🏠 Regresar al dashboard</button>
+        <button type="submit" class="btn-secondary">🏠 Dashboard</button>
     </form>
 </div>
 

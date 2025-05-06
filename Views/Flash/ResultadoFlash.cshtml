@@ -20,7 +20,7 @@
         <input type="hidden" name="DigitosResta" value="@TempData.Peek("DigitosResta")" />
         <input type="hidden" name="MinDigitos" value="@TempData.Peek("MinDigitos")" />
         <input type="hidden" name="MaxDigitos" value="@TempData.Peek("MaxDigitos")" />
-        <button type="submit" class="btn-dashboard btn-primary">⚙️ Ir a configuración</button>
+        <button type="submit" class="btn-dashboard btn-primary">⚙️ Configuración</button>
     </form>
 
 
@@ -35,11 +35,11 @@
         <input type="hidden" name="DigitosResta" value="@TempData.Peek("DigitosResta")" />
         <input type="hidden" name="MinDigitos" value="@TempData.Peek("MinDigitos")" />
         <input type="hidden" name="MaxDigitos" value="@TempData.Peek("MaxDigitos")" />
-        <button type="submit" class="btn-dashboard btn-success">🔁 Repetir (misma configuración)</button>
+        <button type="submit" class="btn-dashboard btn-success">🔁 Repetir</button>
     </form>
 
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
-        <button type="submit" class="btn-dashboard btn-secondary">🏠 Regresar al dashboard</button>
+        <button type="submit" class="btn-dashboard btn-secondary">🏠 Dashboard</button>
     </form>
 </div>
 
