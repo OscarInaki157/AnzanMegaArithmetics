@@ -171,13 +171,32 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarLectura()
+        public IActionResult FinalizarLectura(int respuesta, string respondido, int respuestaCorrecta)
         {
-            // Solo mantiene los resultados hasta el momento
             var resultadosJson = TempData["Resultados"] as string;
             List<RLecturaFingerModel> resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<RLecturaFingerModel>()
                 : JsonSerializer.Deserialize<List<RLecturaFingerModel>>(resultadosJson);
+
+            bool respondio = respondido == "true";
+            resultados.Add(new RLecturaFingerModel
+            {
+                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaCorrecta = respuestaCorrecta
+            });
+
+            int ejerciciosRealizados = resultados.Count;
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            // Agrega los que faltan como no respondidos
+            for (int i = ejerciciosRealizados; i < cantidadEjercicios; i++)
+            {
+                resultados.Add(new RLecturaFingerModel
+                {
+                    RespuestaUsuario = -1,
+                    RespuestaCorrecta = 0
+                });
+            }
 
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoLectura");

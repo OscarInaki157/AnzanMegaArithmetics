@@ -11,11 +11,12 @@
 }
 
 <div class="top-bar">
-    <form method="post" asp-action="FinalizarLectura" class="form-fin">
-        <button type="submit" class="btn-finalizar">
+    <form id="formFinalizar" class="form-fin" onsubmit="return false;">
+        <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
             ❌ <span>Finalizar ejercicios</span>
         </button>
     </form>
+
 
     <div class="barra-progreso-contenedor">
         <div class="barra-progreso">
@@ -97,7 +98,7 @@
     <form method="post" asp-action="ResultadoLectura" id="formRespuesta" class="form-respuesta-barra">
         <label for="respuesta" class="etiqueta-respuesta">Resultado:</label>
 
-        <input type="number" id="respuesta" name="respuesta" required autocomplete="off" />
+        <input type="number" id="respuesta" name="respuesta" autocomplete="off" />
 
         <button type="submit">Enviar respuesta</button>
 
@@ -319,7 +320,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* para que los clicks pasen al SVG si quieres */
+    pointer-events: none;
 }
 
 
@@ -576,5 +577,37 @@ top: 134px;
             inputRespuesta.focus({ preventScroll: true });
         }
     });
+
+     function finalizarConRespuesta() {
+        const respuestaInput = document.getElementById("respuesta");
+        const respuesta = respuestaInput.value.trim();
+        const respondio = respuesta !== "";
+
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "/Fingermath/FinalizarLectura";
+
+        const campoRespuesta = document.createElement("input");
+        campoRespuesta.type = "hidden";
+        campoRespuesta.name = "respuesta";
+        campoRespuesta.value = respondio ? respuesta : "-1";
+
+        const campoRespondido = document.createElement("input");
+        campoRespondido.type = "hidden";
+        campoRespondido.name = "respondido";
+        campoRespondido.value = respondio;
+
+        const campoCorrecta = document.createElement("input");
+        campoCorrecta.type = "hidden";
+        campoCorrecta.name = "respuestaCorrecta";
+        campoCorrecta.value = "@ViewBag.RespuestaCorrecta";
+
+        form.appendChild(campoRespuesta);
+        form.appendChild(campoRespondido);
+        form.appendChild(campoCorrecta);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 
