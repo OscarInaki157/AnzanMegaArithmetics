@@ -84,6 +84,17 @@
             transform: translateY(-2px);
         }
 
+        .resultados{
+            display: flex; 
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cont-onl{
+            flex: 1 1 50%;
+        }
+
     .resumen-grid-contenedor {
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
@@ -93,6 +104,76 @@
         margin: 0 auto 30px auto;
         max-width: 1200px;
     }
+
+    .contenedores-resumen {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .resultados-con-glow {
+        background-color: #1b1e3c;
+        border: 2px solid #4c4cff;
+        border-radius: 12px;
+        padding: 20px 20px;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
+        margin: 0 auto 30px auto;
+        max-width: 1200px;
+    }
+
+
+    .card-resumen {
+        flex: 1 1 110px;
+        max-width: 130px;
+        min-width:90px;
+        background-color: #292c4f;
+        border-radius: 12px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.4);
+        color: white;
+        transition: transform 0.3s ease;
+    }
+
+
+        .card-resumen:hover {
+            transform: scale(1.05);
+        }
+
+    .card-titulo {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .card-icono {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .card-valor {
+        font-size: 1.6rem;
+        font-weight: bold;
+    }
+
+    .card-resumen.total {
+        background-color: #00acc1;
+    }
+
+
+    .card-resumen.correctos {
+        background-color: #28a745;
+    }
+
+    .card-resumen.incorrectos {
+        background-color: #dc3545;
+    }
+
+    .card-resumen.experiencia {
+        background-color: #4c4cff;
+    }
+
 
         .resumen-grid-contenedor p {
             font-size: 1.3rem;
@@ -112,6 +193,14 @@
     .barra-progreso-interna {
         height: 100%;
         transition: width 0.5s ease;
+    }
+
+    .container-barrap{
+        flex: 1 1 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .grid-acordeones {
@@ -193,7 +282,6 @@
 
     @@media (max-width: 600px) {
         .grid-acordeones
-
     {
         grid-template-columns: 1fr;
     }
@@ -202,9 +290,17 @@
         font-size: 1.7rem;
     }
 
+    .resultados{
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
     .botones-centrados {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
+        flex-wrap: inherit;
+        gap: 10px;
+        margin: 30px 5px;
     }
 
         .botones-centrados button {
@@ -214,6 +310,36 @@
 
         .resumen-grid-contenedor p {
             font-size:1rem;
+        }
+
+        .card-resumen{
+            flex: 1 1 45%;
+            max-width: 100%;
+        }
+
+        .card-valor{
+            font-size:1.2rem;
+        }
+
+        .card-icono{
+            font-size: 1rem;
+        }
+
+        .contenedores-resumen{
+            gap: 5px;
+            flex-direction: row;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .container-barrap{
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .cont-onl, .container-barrap{
+            flex:1 1 100%;
+            max-width:100%;
         }
 
     }
@@ -244,21 +370,42 @@
     </form>
 </div>
 
-<div class="resumen-grid-contenedor">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
-        <div style="flex: 1;">
-            <p>📄 Total de ejercicios: <strong>@total</strong></p>
-            <p>✅ Correctos: <strong>@correctos</strong></p>
-            <p>❌ Incorrectos: <strong>@(total - correctos)</strong></p>
-        </div>
-        <div style="flex: 1; text-align: center;">
-            <p>🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
-            <div class="barra-progreso">
-                <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
+<div class="resultados resultados-con-glow">
+    <div class="cont-onl">
+        <div class="contenedores-resumen">
+            <div class="card-resumen total">
+                <div class="card-titulo">TOTAL</div>
+                <div class="card-icono">📄</div>
+                <div class="card-valor">@total</div>
+            </div>
+            <div class="card-resumen correctos">
+                <div class="card-titulo">CORRECTOS</div>
+                <div class="card-icono">✅</div>
+                <div class="card-valor">@correctos</div>
+            </div>
+            <div class="card-resumen incorrectos">
+                <div class="card-titulo">INCORRECTOS</div>
+                <div class="card-icono">❌</div>
+                <div class="card-valor">@(total - correctos)</div>
+            </div>
+            <div class="card-resumen experiencia">
+                <div class="card-titulo">XP</div>
+                <div class="card-icono">✨</div>
+                <div class="card-valor">@porcentaje XP</div>
             </div>
         </div>
     </div>
+
+    <div class="container-barrap">
+        <p>🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+        <div class="barra-progreso" style="width: 100%; max-width: 300px;">
+            <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
+        </div>
+    </div>
 </div>
+
+
+
 
 <div class="grid-acordeones">
     @for (int i = 0; i < resultados.Count; i++)
