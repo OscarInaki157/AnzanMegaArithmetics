@@ -337,23 +337,43 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult ResultadoEscritura()
         {
             TempData.Keep("Resultados");
+            ViewBag.CantidadEjercicios = TempData.Peek("CantidadEjercicios");
             return View();
         }
 
+
         [HttpPost]
-        public IActionResult FinalizarEscritura()
+        public IActionResult FinalizarEscritura(int respuesta, string respondido, int respuestaCorrecta)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<REscrituraFingerModel> resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<REscrituraFingerModel>()
                 : JsonSerializer.Deserialize<List<REscrituraFingerModel>>(resultadosJson);
 
+            bool respondio = respondido == "true";
+            resultados.Add(new REscrituraFingerModel
+            {
+                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaCorrecta = respuestaCorrecta,
+                EsCorrecto = respondio && respuesta == respuestaCorrecta
+            });
+
+            int ejerciciosRealizados = resultados.Count;
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            for (int i = ejerciciosRealizados; i < cantidadEjercicios; i++)
+            {
+                resultados.Add(new REscrituraFingerModel
+                {
+                    RespuestaUsuario = -1,
+                    RespuestaCorrecta = 0,
+                    EsCorrecto = false
+                });
+            }
+
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoEscritura");
         }
-
-
-
 
     }
 }
