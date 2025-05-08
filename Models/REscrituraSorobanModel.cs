@@ -2,8 +2,8 @@
 {
     public class REscrituraSorobanModel
     {
-        public ulong RespuestaUsuario { get; set; }
-        public ulong RespuestaCorrecta { get; set; }
+        public long RespuestaUsuario { get; set; }
+        public long RespuestaCorrecta { get; set; }
         public bool EsCorrecto => RespuestaUsuario == RespuestaCorrecta;
     }
 }

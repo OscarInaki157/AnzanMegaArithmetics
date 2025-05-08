@@ -9,7 +9,7 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class SorobanController : Controller
     {
-        public IActionResult LecturaSoroban(int ? cantidad, ulong ? valMin, ulong ? valMax, string velocidad)
+        public IActionResult LecturaSoroban(int ? cantidad, long ? valMin, long ? valMax, string velocidad)
         {
             var model = new ConfLecturaSorobanModel 
             {
@@ -46,8 +46,8 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EjercicioLecturaSB()
         {
-            ulong valMin = ulong.Parse(TempData["VMinimo"].ToString());
-            ulong valMax = ulong.Parse(TempData["VMaximo"].ToString());
+            long valMin = long.Parse(TempData["VMinimo"].ToString());
+            long valMax = long.Parse(TempData["VMaximo"].ToString());
 
             float velocidad = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
             int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
@@ -66,11 +66,11 @@ namespace AnzanMegaArithmetics.Controllers
 
             if (valMax > long.MaxValue)
             {
-                valMax = (ulong)long.MaxValue;
+                valMax = long.MaxValue;
             }
 
             // Generar número objetivo
-            ulong numeroObjetivo = (ulong)Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
+            long numeroObjetivo = Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
 
             // Preparar estructura del Soroban
             string numStr = numeroObjetivo.ToString();
@@ -129,7 +129,7 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult ResultadoLecturaSoroban(int respuesta, string respondido)
         {
             bool respondio = respondido == "true";
-            ulong numeroCorrecto = Convert.ToUInt64(TempData["NumeroObjetivo"]);
+            long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
             var resultadosJson = TempData["Resultados"] as string;
@@ -139,7 +139,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             resultados.Add(new RLecturaSorobanModel
             {
-                RespuestaUsuario = (ulong)(respondio ? respuesta : 0),
+                RespuestaUsuario = (respondio ? respuesta : 0),
                 RespuestaCorrecta = numeroCorrecto
             });
 
@@ -181,7 +181,7 @@ namespace AnzanMegaArithmetics.Controllers
         //Métodos de soroban Escritura
 
         [HttpGet]
-        public IActionResult EscrituraSoroban(int? cantidad, ulong? valMin, ulong? valMax, string velocidad)
+        public IActionResult EscrituraSoroban(int? cantidad, long? valMin, long? valMax, string velocidad)
         {
             var model = new ConfEscrituraSorobanModel
             {
@@ -219,8 +219,8 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EjercicioEscrituraSB()
         {
-            ulong valMin = ulong.Parse(TempData["VMinimo"].ToString());
-            ulong valMax = ulong.Parse(TempData["VMaximo"].ToString());
+            long valMin = long.Parse(TempData["VMinimo"].ToString());
+            long valMax = long.Parse(TempData["VMaximo"].ToString());
 
             float velocidad = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
             int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
@@ -239,11 +239,11 @@ namespace AnzanMegaArithmetics.Controllers
 
             if (valMax > long.MaxValue)
             {
-                valMax = (ulong)long.MaxValue;
+                valMax = long.MaxValue;
             }
 
             // Generar número objetivo
-            ulong numeroObjetivo = (ulong)Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
+            long numeroObjetivo = Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
 
             // Número de columnas del soroban
             int columnas = numeroObjetivo.ToString().Length;
@@ -274,7 +274,7 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido)
         {
             bool respondio = respondido == "true";
-            ulong numeroCorrecto = Convert.ToUInt64(TempData["NumeroObjetivo"]);
+            long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
             var resultadosJson = TempData["Resultados"] as string;
@@ -284,7 +284,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             resultados.Add(new REscrituraSorobanModel
             {
-                RespuestaUsuario = (ulong)(respondio ? respuesta : 0),
+                RespuestaUsuario = (respondio ? respuesta : 0),
                 RespuestaCorrecta = numeroCorrecto
             });
 
