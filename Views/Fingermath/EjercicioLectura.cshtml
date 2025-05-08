@@ -13,7 +13,7 @@
 <div class="top-bar">
     <form id="formFinalizar" class="form-fin" onsubmit="return false;">
         <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
-            ❌ <span>Finalizar ejercicios</span>
+            ❌ <span>Finalizar</span>
         </button>
     </form>
 
@@ -135,7 +135,7 @@
         flex-wrap: wrap;
         gap: 1rem;
         border-radius: 25px;
-        margin-top: -2rem;
+        margin-top: -2.3rem;
     }
 
     .btn-finalizar {
@@ -222,7 +222,7 @@
         border-radius: 25px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
         flex-wrap: wrap;
-        margin-top: -3.5rem;
+        margin-top: -4rem;
         z-index: 100;
         position: relative;
     }
@@ -491,12 +491,79 @@ top: 134px;
 
     }
 
-    @@media (max-width: 768px) {
-        .manos-wrapper
+    @@media (min-width: 768px) and (max-width: 1024px) {
 
+        .ejercicio-wrapper {
+            margin-top: 2rem;
+        }
+
+        .punto {
+            width: 30px;
+            height: 30px;
+        }
+        .dedo1 {
+            top: 25%;
+            left: 1%;
+        }
+
+        .dedo2 {
+            top: 15%;
+            left: 11%;
+        }
+
+        .dedo3 {
+            top: 10%;
+            left: 22%;
+        }
+
+        .dedo4 {
+            top: 14%;
+            left: 33%;
+        }
+
+        .dedo5 {
+           top: 36%;
+            left: 42%;
+        }
+
+        .dedo6 {
+            top: 36%;
+            left: 52%;
+        }
+
+        .dedo7 {
+            top: 14%;
+            left: 60%;
+        }
+
+        .dedo8 {
+            top: 10%;
+            left: 72%;
+        }
+
+        .dedo9 {
+            top: 15%;
+            left: 83%;
+        }
+
+        .dedo10 {
+            top: 24%;
+            left: 93%;
+        }
+
+        .form-respuesta-barra {
+            margin-top: -1.5rem;
+        }
+    }
+
+
+    @@media (max-width: 767px) {
+        .manos-wrapper
     {
-        flex-direction: column;
-        gap: 30px;
+        width:100%;
+        height:auto;
+        margin-top:2rem;
+        margin-bottom:2rem;
     }
 
     .mano-container {
@@ -504,9 +571,14 @@ top: 134px;
     }
 
     .form-respuesta input[type="number"] {
-        width: 100%;
+        width: 50%;
+        margin:0 auto;
         max-width: 300px;
     }
+
+        .progreso-texto {
+            font-size:0.8rem;
+        }
 
         .form-respuesta-barra {
             flex-direction: column;
@@ -520,6 +592,65 @@ top: 134px;
             .form-respuesta-barra button {
                 width: 100%;
             }
+        /* Dedos */
+        .dedo1 {
+            top: 23%;
+            left: 1%;
+        }
+
+        .dedo2 {
+            top: 13%;
+            left: 10%;
+        }
+
+        .dedo3 {
+            top: 9%;
+            left: 21%;
+        }
+
+        .dedo4 {
+            top: 12%;
+            left: 33%;
+        }
+
+        .dedo5 {
+            top: 35%;
+            left: 42%;
+        }
+
+        .dedo6 {
+            top: 35%;
+            left: 51%;
+        }
+
+        .dedo7 {
+            top: 13%;
+            left: 60%;
+        }
+
+        .dedo8 {
+           top: 9%;
+            left: 71%;
+        }
+
+        .dedo9 {
+        top: 13%;
+        left: 83%;
+        }
+
+        .dedo10 {
+            top: 23%;
+            left: 93%;
+        }
+
+        .btn-finalizar{
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
 
     }
 </style>
