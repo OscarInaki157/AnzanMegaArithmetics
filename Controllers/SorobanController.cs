@@ -9,7 +9,8 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class SorobanController : Controller
     {
-        public IActionResult LecturaSoroban(int? cantidad, long? valMin, long? valMax, string velocidad)
+        [HttpGet]
+        public IActionResult LecturaSoroban(int? cantidad, long? valMin, long? valMax, string velocidad, int? TiempoMeditacion)
         {
             var model = new ConfLecturaSorobanModel
             {
@@ -17,7 +18,7 @@ namespace AnzanMegaArithmetics.Controllers
                 VMinimo = valMin ?? 0,
                 VMaximo = valMax ?? 99,
                 VelocidadPreguntas = velocidad ?? "0",
-                TiempoMeditacion = 3
+                TiempoMeditacion = TiempoMeditacion ?? 3
             };
             return View(model);
         }
@@ -178,5 +179,156 @@ namespace AnzanMegaArithmetics.Controllers
             TempData.Keep("Resultados");
             return View();
         }
+
+
+        //escritura soroban
+        [HttpGet]
+        public IActionResult EscrituraSoroban(int? cantidad, long? valMin, long? valMax, string velocidad, int? TiempoMeditacion)
+        {
+            var model = new ConfEscrituraSorobanModel
+            {
+                CantidadEjercicios = cantidad ?? 5,
+                VMinimo = valMin ?? 0,
+                VMaximo = valMax ?? 99,
+                VelocidadPreguntas = velocidad ?? "0",
+                TiempoMeditacion = TiempoMeditacion ?? 3
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ConcentracionES(ConfEscrituraSorobanModel config)
+        {
+            config.CantidadEjercicios = Math.Max(1, config.CantidadEjercicios);
+            config.TiempoMeditacion = Math.Max(0, config.TiempoMeditacion);
+
+            TempData["VMinimo"] = config.VMinimo.ToString();
+            TempData["VMaximo"] = config.VMaximo.ToString();
+
+            TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
+            TempData["TiempoMeditacion"] = config.TiempoMeditacion;
+            TempData["CantidadEjercicios"] = config.CantidadEjercicios;
+            TempData["EjerciciosRealizados"] = 0;
+            TempData["Resultados"] = JsonSerializer.Serialize(new List<REscrituraSorobanModel>());
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+            ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
+
+            return View("ConcentracionES");
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioEscrituraSB()
+        {
+            long valMin = long.Parse(TempData["VMinimo"].ToString());
+            long valMax = long.Parse(TempData["VMaximo"].ToString());
+
+            float velocidad = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
+            int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
+            int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
+
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            if (ejerciciosRealizados >= cantidadEjercicios)
+            {
+                TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+                return RedirectToAction("ResultadoEscrituraSoroban");
+            }
+
+            if (valMax > long.MaxValue)
+            {
+                valMax = long.MaxValue;
+            }
+
+            // Generar número objetivo
+            long numeroObjetivo = Random.Shared.NextInt64((long)valMin, (long)(valMax + 1));
+
+            // Número de columnas del soroban
+            int columnas = numeroObjetivo.ToString().Length;
+
+            ViewBag.NumeroObjetivo = numeroObjetivo;
+            ViewBag.Columnas = columnas;
+            ViewBag.VelocidadPreguntas = velocidad;
+            ViewBag.EjercicioActual = ejerciciosRealizados + 1;
+            ViewBag.TotalEjercicios = cantidadEjercicios;
+
+            // Guardar en TempData
+            TempData["NumeroObjetivo"] = numeroObjetivo.ToString();
+            TempData["EjerciciosRealizados"] = ejerciciosRealizados;
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            TempData["CantidadEjercicios"] = cantidadEjercicios;
+
+            TempData["VMinimo"] = valMin.ToString();
+            TempData["VMaximo"] = valMax.ToString();
+
+            TempData["VelocidadPreguntas"] = velocidad.ToString(CultureInfo.InvariantCulture);
+
+            TempData.Keep();
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido)
+        {
+            bool respondio = respondido == "true";
+            long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
+            int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
+
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            resultados.Add(new REscrituraSorobanModel
+            {
+                RespuestaUsuario = (respondio ? respuesta : 0),
+                RespuestaCorrecta = numeroCorrecto
+            });
+
+            ejerciciosRealizados++;
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            TempData["EjerciciosRealizados"] = ejerciciosRealizados;
+
+            // Preservar para el siguiente ejercicio
+            TempData["CantidadEjercicios"] = TempData.Peek("CantidadEjercicios");
+
+            TempData["VMinimo"] = TempData.Peek("VMinimo")?.ToString();
+            TempData["VMaximo"] = TempData.Peek("VMaximo")?.ToString();
+
+            TempData["VelocidadPreguntas"] = TempData.Peek("VelocidadPreguntas");
+
+            if (ejerciciosRealizados >= Convert.ToInt32(TempData.Peek("CantidadEjercicios")))
+            {
+                return RedirectToAction("ResultadoEscrituraSoroban");
+            }
+
+            return RedirectToAction("EjercicioEscrituraSB");
+        }
+
+        [HttpPost]
+        public IActionResult FinalizarEscrituraSoroban()
+        {
+            var resultadosJson = TempData["Resultados"] as string;
+            List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<REscrituraSorobanModel>()
+                : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            return RedirectToAction("ResultadoEscrituraSoroban");
+        }
+
+        [HttpGet]
+        public IActionResult ResultadoEscrituraSoroban()
+        {
+            TempData.Keep("Resultados");
+            return View();
+        }
+
     }
 }
