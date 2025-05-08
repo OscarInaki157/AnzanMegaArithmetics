@@ -445,6 +445,13 @@
                     clearInterval(interval);
                     contadorElemento.textContent = "0.0";
                     inputRespuesta.focus({ preventScroll: true });
+
+                    // 🔽 Aquí desactivamos las cuentas
+                    document.querySelectorAll(".bead").forEach(bead => {
+                        bead.classList.remove("activa");
+                        bead.classList.add("inactiva");
+                    });
+
                 } else {
                     contadorElemento.textContent = tiempoRestante.toFixed(1);
                 }
@@ -483,3 +490,4 @@
         });
     </script>
 }
+
