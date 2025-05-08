@@ -95,10 +95,10 @@
 </div>
 
 
-    <form method="post" asp-action="ResultadoLectura" id="formRespuesta" class="form-respuesta-barra">
+    <form method="post" asp-action="ResultadoLectura" id="formRespuesta" class="form-respuesta-barra" onsubmit="return validarRespuesta();">
         <label for="respuesta" class="etiqueta-respuesta">Resultado:</label>
 
-        <input type="number" id="respuesta" name="respuesta" autocomplete="off" />
+        <input type="number" id="respuesta" name="respuesta" autocomplete="off" min="0" max="99"/>
 
         <button type="submit">Enviar respuesta</button>
 
@@ -578,7 +578,7 @@ top: 134px;
         }
     });
 
-     function finalizarConRespuesta() {
+    function finalizarConRespuesta() {
         const respuestaInput = document.getElementById("respuesta");
         const respuesta = respuestaInput.value.trim();
         const respondio = respuesta !== "";
@@ -608,6 +608,18 @@ top: 134px;
 
         document.body.appendChild(form);
         form.submit();
+    }
+
+        function validarRespuesta() {
+        const input = document.getElementById("respuesta");
+        const respondido = document.getElementById("respondido");
+        if (input.value.trim() === "") {
+            respondido.value = "false";
+            input.value = "-1";
+        } else {
+            respondido.value = "true";
+        }
+        return true;
     }
 </script>
 

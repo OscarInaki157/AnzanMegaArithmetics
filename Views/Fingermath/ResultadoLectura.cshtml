@@ -262,6 +262,11 @@
         color: #dc3545;
     }
 
+    .no-respondio summary{
+        color: #f1c40f;
+    }
+
+
     @@media (max-width: 1200px) {
         .grid-acordeones
 
@@ -391,7 +396,7 @@
             <div class="card-resumen experiencia">
                 <div class="card-titulo">XP</div>
                 <div class="card-icono">✨</div>
-                <div class="card-valor">@porcentaje XP</div>
+                <div class="card-valor">@porcentaje/100 XP</div>
             </div>
         </div>
     </div>
@@ -411,11 +416,16 @@
     @for (int i = 0; i < resultados.Count; i++)
     {
         var r = resultados[i];
-        var colorClass = r.EsCorrecto ? "correcto" : "incorrecto";
+
+        var colorClass = r.RespuestaUsuario == -1
+        ? "no-respondio"
+        : (r.EsCorrecto ? "correcto" : "incorrecto");
+
         <details class="@colorClass">
             <summary>
-                Ejercicio @(i + 1): @(r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto")
+                Ejercicio @(i + 1): @(r.RespuestaUsuario == -1 ? "❓ No respondió" : (r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto"))
             </summary>
+
             <div>
                 <p>🧠 <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
