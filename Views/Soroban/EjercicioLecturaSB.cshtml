@@ -3,36 +3,41 @@
     Layout = "_LayoutSoroban";
 
     long respuestaCorrecta = Convert.ToInt64(ViewBag.RespuestaCorrecta);
-
     float velocidad = ViewBag.VelocidadPreguntas;
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
-
+    int porcentaje = (int)(((float)ejercicioActual / totalEjercicios) * 100);
     var sorobanCuentas = ViewBag.SorobanCuentas as List<(int columna, bool esSuperior, bool activa)>;
     int columnas = ViewBag.Columnas;
 }
 
-<div class="fin-wrapper">
-    <form method="post" asp-action="FinalizarLecturaSoroban" class="form-fin">
-        <button type="submit" class="btn-finalizar">🚪 Finalizar ejercicios</button>
+<div class="top-bar">
+    <form id="formFinalizar" class="form-fin" onsubmit="return false;">
+        <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
+            ❌ <span>Finalizar</span>
+        </button>
     </form>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        @if (velocidad > 0)
+        {
+            <span>⏱ <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
+        }
+        else
+        {
+            <span class="modo-libre">⏱ <strong>Modo sin límite de tiempo</strong></span>
+        }
+    </div>
 </div>
 
 <div class="ejercicio-wrapper">
-    <div class="info-panel">
-        <p>📄 Ejercicio <strong>@ejercicioActual</strong> de <strong>@totalEjercicios</strong></p>
-        <p>
-            @if (velocidad > 0)
-            {
-                <span>⏱ Tiempo restante: <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> segundos</span>
-            }
-            else
-            {
-                <span>⏱ <strong>Modo sin límite de tiempo</strong></span>
-            }
-        </p>
-    </div>
-
     <div class="soroban-frame">
         <div class="soroban-container">
             @for (int col = columnas - 1; col >= 0; col--)
@@ -51,17 +56,16 @@
         </div>
     </div>
 
-
-    <form method="post" asp-action="ResultadoLecturaSoroban" id="formulario" class="form-respuesta">
-        <label for="respuesta">RESULTADO:</label>
-        <input type="text" id="respuesta" name="respuesta" inputmode="numeric" pattern="[0-9]*" autocomplete="off"/>
-
-        <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
-        <input type="hidden" id="respondido" name="respondido" value="true" />
-        <br />
-        <button type="submit">Enviar respuesta</button>
-    </form>
 </div>
+
+<form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-barra" onsubmit="return validarRespuesta();">
+    <label for="respuesta" class="etiqueta-respuesta">Resultado:</label>
+    <input type="number" id="respuesta" name="respuesta" autocomplete="off" min="0" />
+    <button type="submit">Enviar respuesta</button>
+
+    <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
+    <input type="hidden" id="respondido" name="respondido" value="true" />
+</form>
 
 <style>
     body {
@@ -71,6 +75,98 @@
         margin: 0;
         padding: 0;
     }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
 
     .soroban-frame {
         background-color: #1b1e3c;
@@ -129,6 +225,56 @@
         margin: 10px 0;
     }
 
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: #1b1e3c;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="number"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
     @@keyframes bounce {
         0%
 
@@ -146,94 +292,6 @@
 
     }
 
-    /* ======================== */
-    /* Estilos generales extra: */
-
-    .fin-wrapper {
-        display: flex;
-        justify-content: center;
-        margin: 10px 0;
-    }
-
-    .btn-finalizar {
-        background-color: #df312c;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
-
-        .btn-finalizar:hover {
-            background-color: #b22222;
-            transform: scale(1.05);
-        }
-
-    .ejercicio-wrapper {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-        text-align: center;
-    }
-
-    .info-panel {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        animation: fadeIn 0.6s ease;
-    }
-
-    .contador {
-        color: #4c4cff;
-        font-weight: bold;
-        font-size: 1.6rem;
-        animation: pulse 1s infinite ease-in-out;
-    }
-
-    .form-respuesta {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: -1rem;
-        gap: 10px;
-    }
-
-        .form-respuesta label {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .form-respuesta input[type="number"] {
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: none;
-            width: 250px;
-            text-align: center;
-            background-color: #292c4f;
-            color: white;
-        }
-
-        .form-respuesta button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4c4cff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-            .form-respuesta button:hover {
-                background-color: #3737e8;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
-            }
-
-    /* Animaciones básicas */
     @@keyframes pulse {
         0%
 
@@ -269,64 +327,123 @@
 
     }
 
-    /* Responsive para móvil */
     @@media (max-width: 768px) {
-        .soroban-container
 
-    {
+        .etiqueta-respuesta{
+            text-align:center;
+        }
+
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+    .form-respuesta-barra {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+    }
+
+        .form-respuesta input[type="number"] {
+            width: 50%;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .form-respuesta-barra input[type="number"] {
+            width: 100%;
+        }
+
+        .form-respuesta-barra button {
+            width: 100%;
+        }
+
+    .progreso-texto {
+        font-size: 0.8rem;
+    }
+
+    .soroban-container {
+        flex-direction: column;
+        gap: 20px;
     }
 
     .soroban-frame {
         width: 95%;
     }
 
-    .form-respuesta input[type="number"] {
-        width: 100%;
-        max-width: 300px;
-    }
-
     }
 </style>
 
-<script>
-    const velocidad = parseFloat("@velocidad");
-    const contador = document.getElementById("contador");
-    const form = document.getElementById("formulario");
-    const respondido = document.getElementById("respondido");
-    const inputRespuesta = document.getElementById("respuesta");
 
-    if (velocidad > 0 && contador) {
-        let tiempo = velocidad;
-        const intervalo = setInterval(() => {
-            tiempo -= 0.1;
-            if (tiempo <= 0) {
-                clearInterval(intervalo);
+@section Scripts {
+    <script>
+        const velocidad = parseFloat("@velocidad");
+        const contadorElemento = document.getElementById("contador");
+        const formRespuesta = document.getElementById("formRespuesta");
+        const inputRespuesta = document.getElementById("respuesta");
+        const respondidoInput = document.getElementById("respondido");
 
-                const respuestaEscrita = inputRespuesta.value.trim();
-                if (respuestaEscrita !== "") {
-                    respondido.value = "true";
+        if (velocidad > 0) {
+            let tiempoRestante = velocidad;
+            const interval = setInterval(() => {
+                tiempoRestante -= 0.1;
+                if (tiempoRestante <= 0) {
+                    clearInterval(interval);
+                    contadorElemento.textContent = "0.0";
+                    inputRespuesta.focus({ preventScroll: true });
                 } else {
-                    respondido.value = "false";
+                    contadorElemento.textContent = tiempoRestante.toFixed(1);
                 }
+            }, 100);
+        }
 
-                form.submit();
+        function validarRespuesta() {
+            if (inputRespuesta.value.trim() === "") {
+                respondidoInput.value = "false";
+                inputRespuesta.value = "-1";
             } else {
-                contador.textContent = tiempo.toFixed(1);
+                respondidoInput.value = "true";
             }
-        }, 100);
-    }
+            return true;
+        }
 
-    window.addEventListener('load', function () {
-        inputRespuesta?.focus({ preventScroll: true });
+        function finalizarConRespuesta() {
+            const respuesta = inputRespuesta.value.trim();
+            const respondio = respuesta !== "";
 
-        inputRespuesta.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
-                const valor = inputRespuesta.value.trim();
-                respondido.value = valor !== "" ? "true" : "false";
-            }
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/Soroban/FinalizarLecturaSoroban";
+
+            const campoRespuesta = document.createElement("input");
+            campoRespuesta.type = "hidden";
+            campoRespuesta.name = "respuesta";
+            campoRespuesta.value = respondio ? respuesta : "-1";
+
+            const campoRespondido = document.createElement("input");
+            campoRespondido.type = "hidden";
+            campoRespondido.name = "respondido";
+            campoRespondido.value = respondio;
+
+            const campoCorrecta = document.createElement("input");
+            campoCorrecta.type = "hidden";
+            campoCorrecta.name = "respuestaCorrecta";
+            campoCorrecta.value = "@respuestaCorrecta";
+
+            form.appendChild(campoRespuesta);
+            form.appendChild(campoRespondido);
+            form.appendChild(campoCorrecta);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        window.addEventListener("load", function () {
+            inputRespuesta?.focus({ preventScroll: true });
         });
-    });
-
-</script>
+    </script>
+}
