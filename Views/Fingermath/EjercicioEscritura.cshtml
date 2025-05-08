@@ -308,6 +308,7 @@
             height: 100%;
         }
 
+
     .puntos-wrapper {
         position: absolute;
         top: 0;
@@ -656,6 +657,7 @@
     const respondidoInput = document.getElementById("respondido");
     const puntos = document.querySelectorAll('.punto');
 
+
     document.querySelector(".form-fin")?.addEventListener("submit", () => {
         finalizando = true;
     });
@@ -697,79 +699,55 @@
             const claseDedo = [...clases].find(c => c.startsWith('dedo') && c !== 'dedo');
             const numDedo = parseInt(claseDedo.replace('dedo', ''));
 
-
             const iluminado = estaIluminado(numDedo);
 
-            if (numDedo >= 1 && numDedo <= 5) {
-                if (numDedo === 5 || numDedo === 4) {
-                    iluminado ? desiluminarDedo(numDedo) : iluminarDedo(numDedo);
-                }
-                else if (numDedo === 3) {
-                    if (iluminado) {
-                        desiluminarDedo(3);
-                    } else {
-                        iluminarDedo(3);
-                        iluminarDedo(4);
+            if (numDedo >= 1 && numDedo <= 4) {
+                if (iluminado) {
+                    // Desilumina desde dedo 1 hasta el actual
+                    for (let i = 1; i <= numDedo; i++) {
+                        desiluminarDedo(i);
                     }
-                }
-                else if (numDedo === 2) {
-                    if (iluminado) {
-                        desiluminarDedo(2);
-                    } else {
-                        iluminarDedo(2);
-                        iluminarDedo(3);
-                        iluminarDedo(4);
-                    }
-                }
-                else if (numDedo === 1) {
-                    if (iluminado) {
-                        desiluminarDedo(1);
-                    } else {
-                        iluminarDedo(1);
-                        iluminarDedo(2);
-                        iluminarDedo(3);
-                        iluminarDedo(4);
+                } else {
+                    // Ilumina desde el dedo actual hasta el 4
+                    for (let i = numDedo; i <= 4; i++) {
+                        iluminarDedo(i);
                     }
                 }
             }
 
-            if (numDedo >= 6 && numDedo <= 10) {
-                if (numDedo === 6 || numDedo === 7) {
-                    iluminado ? desiluminarDedo(numDedo) : iluminarDedo(numDedo);
-                }
-                else if (numDedo === 8) {
-                    if (iluminado) {
-                        desiluminarDedo(8);
-                    } else {
-                        iluminarDedo(7);
-                        iluminarDedo(8);
+            if (numDedo === 5) {
+                iluminado ? desiluminarDedo(5) : iluminarDedo(5);
+            }
+
+            if (numDedo === 6) {
+                iluminado ? desiluminarDedo(6) : iluminarDedo(6);
+            }
+
+            if (numDedo >= 7 && numDedo <= 10) {
+                if (iluminado) {
+                    // Desilumina desde el dedo actual hasta el 10
+                    for (let i = numDedo; i <= 10; i++) {
+                        desiluminarDedo(i);
                     }
-                }
-                else if (numDedo === 9) {
-                    if (iluminado) {
-                        desiluminarDedo(9);
-                    } else {
-                        iluminarDedo(7);
-                        iluminarDedo(8);
-                        iluminarDedo(9);
-                    }
-                }
-                else if (numDedo === 10) {
-                    if (iluminado) {
-                        desiluminarDedo(10);
-                    } else {
-                        iluminarDedo(7);
-                        iluminarDedo(8);
-                        iluminarDedo(9);
-                        iluminarDedo(10);
+                } else {
+                    // Ilumina desde el 7 hasta el dedo actual
+                    for (let i = 7; i <= numDedo; i++) {
+                        iluminarDedo(i);
                     }
                 }
             }
 
             actualizarSuma();
-            setTimeout(() => tecladoInvisible.focus(), 50);
+
+            if (!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                setTimeout(() => tecladoInvisible.focus(), 50);
+            }
         });
     });
+
+
+
+
 
     const velocidad = parseFloat("@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", velocidad)");
     const contadorElemento = document.getElementById("contador");
@@ -848,6 +826,7 @@
         document.body.appendChild(form);
         form.submit();
     }
+
 
 
 </script>
