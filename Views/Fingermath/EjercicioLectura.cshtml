@@ -431,13 +431,13 @@ top: 27%;
     }
 
     .dedo9 {
-            top: 27%;
-    left: 93%;
+        top: 17%;
+        left: 84%;
     }
 
     .dedo10 {
-        top: 133px;
-        left: 465px;
+        top: 27%;
+        left: 93%;
     }
 
     @@keyframes pulse {
@@ -645,6 +645,7 @@ top: 27%;
     const formRespuesta = document.getElementById("formRespuesta");
     const inputRespuesta = document.getElementById("respuesta");
     const contadorElemento = document.getElementById("contador");
+    const respondidoInput = document.getElementById("respondido");
 
     // Iluminar dedos
     [...dedosIzquierda, ...dedosDerecha].forEach(num => {
@@ -653,7 +654,6 @@ top: 27%;
         if (punto) punto.classList.add('iluminado');
         if (dedoSvg) dedoSvg.classList.add('iluminado');
     });
-
 
     const velocidad = parseFloat("@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", ViewBag.VelocidadPreguntas)");
 
@@ -668,25 +668,21 @@ top: 27%;
                 clearInterval(interval);
                 contadorElemento.textContent = "0.0";
 
-                const respuestaEscrita = inputRespuesta.value.trim();
-                const respondidoInput = document.getElementById("respondido");
-
-                if (respuestaEscrita !== "") {
-                    respondidoInput.value = "true"; // Respondió algo
-                } else {
-                    respondidoInput.value = "false"; // No respondió
+                // Desiluminar todos los dedos y puntos
+                document.querySelectorAll('.punto.iluminado').forEach(p => p.classList.remove('iluminado'));
+                for (let i = 1; i <= 10; i++) {
+                    const dedoSvg = document.getElementById(`dedo${i}`);
+                    if (dedoSvg) dedoSvg.classList.remove('iluminado');
                 }
 
-                if (formRespuesta) {
-                    formRespuesta.submit();
-                }
+                // No enviar automáticamente, solo enfocar input
+                inputRespuesta.focus({ preventScroll: true });
             } else {
                 contadorElemento.textContent = tiempoRestante.toFixed(1);
             }
         }, 100);
     }
 
-    // Dar focus sin hacer scroll automático
     window.addEventListener('load', function () {
         if (inputRespuesta) {
             inputRespuesta.focus({ preventScroll: true });
@@ -694,8 +690,7 @@ top: 27%;
     });
 
     function finalizarConRespuesta() {
-        const respuestaInput = document.getElementById("respuesta");
-        const respuesta = respuestaInput.value.trim();
+        const respuesta = inputRespuesta.value.trim();
         const respondio = respuesta !== "";
 
         const form = document.createElement("form");
@@ -725,16 +720,15 @@ top: 27%;
         form.submit();
     }
 
-        function validarRespuesta() {
-        const input = document.getElementById("respuesta");
-        const respondido = document.getElementById("respondido");
-        if (input.value.trim() === "") {
-            respondido.value = "false";
-            input.value = "-1";
+    function validarRespuesta() {
+        if (inputRespuesta.value.trim() === "") {
+            respondidoInput.value = "false";
+            inputRespuesta.value = "-1";
         } else {
-            respondido.value = "true";
+            respondidoInput.value = "true";
         }
         return true;
     }
+
 </script>
 
