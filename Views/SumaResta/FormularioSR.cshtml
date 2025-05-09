@@ -45,7 +45,7 @@
             </div>
 
             <div>
-                <label>Número de operaciones por ejercicio:</label>
+                <label id="etiquetaNumeroOperaciones">Número de operaciones:</label>
                 <select name="numeroOperaciones" id="numeroOperacionesSelect">
                     @for (int i = 2; i <= 10; i++)
                     {
@@ -880,6 +880,23 @@
         const inputValorMaximo = document.querySelector('input[name="valorMaximo"]');
         inputValorMaximo.addEventListener("input", actualizarVisibilidadUsarMaximo);
         actualizarVisibilidadUsarMaximo();
+
+        function actualizarEtiquetaOperaciones() {
+            const tipo = document.getElementById("tipoOperacionSelect").value;
+            const etiqueta = document.getElementById("etiquetaNumeroOperaciones");
+
+            if (tipo === "suma") {
+                etiqueta.textContent = "Número de sumandos:";
+            } else if (tipo === "resta") {
+                etiqueta.textContent = "Número de substraendos:";
+            } else if (tipo === "ambos") {
+                etiqueta.textContent = "Número de sumandos y substraendos:";
+            }
+        }
+
+        document.getElementById("tipoOperacionSelect").addEventListener("change", actualizarEtiquetaOperaciones);
+        actualizarEtiquetaOperaciones();
+
 
     </script>
 }

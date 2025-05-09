@@ -94,6 +94,26 @@
     }
 
     /* ===== TARJETAS DE MÓDULOS ===== */
+
+    .modulo-link {
+        background-color: var(--color-primary);
+        color: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        text-decoration: none;
+        transition: transform 0.2s ease;
+    }
+
+        .modulo-link:hover {
+            background-color: var(--color-primary-dark);
+            transform: scale(1.1);
+        }
+
     .containers-wrapper {
         display: flex;
         flex-wrap: wrap;
@@ -471,13 +491,8 @@
                 <h2>Suma y Resta</h2>
                 <p>Ejercicios</p>
             </div>
-            <button class="modulo-toggle" data-menu-id="suma-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="suma-menu" class="modulo-menu">
-            <a href="@Url.Action("FormularioSR", "SumaResta")">
-                <i class="fas fa-calculator"></i> Ejercicios Suma y Resta
+            <a href="@Url.Action("FormularioSR", "SumaResta")" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -492,16 +507,15 @@
                 <h2>Números Flash</h2>
                 <p>Mentes Flash</p>
             </div>
-            <button class="modulo-toggle" data-menu-id="anzan-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="anzan-menu" class="modulo-menu">
-            <a href="@Url.Action("FormularioFlash", "Flash")">
-                <i class="fas fa-calculator"></i> Iniciar Numeros Flash
+            <a href="@Url.Action("FormularioFlash", "Flash")" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
+
+
+
+
 </div>
 
 
