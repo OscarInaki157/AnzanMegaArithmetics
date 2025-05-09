@@ -1,6 +1,6 @@
 ﻿@using AnzanMegaArithmetics.Models
 @{
-    ViewBag.Title = "Resumen de Ejercicios - Escritura Soroban";
+    ViewBag.Title = "Resumen de Ejercicios Escritura Soroban";
     Layout = "_LayoutSoroban";
 
     var resultadosJson = TempData["Resultados"] as string;
@@ -13,6 +13,7 @@
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
     string barraColor = porcentaje >= 80 ? "#28a745" : porcentaje >= 50 ? "#ffc107" : "#dc3545";
 }
+
 <style>
     body {
         background-color: #161a36;
@@ -22,14 +23,15 @@
 
     h1 {
         text-align: center;
-        font-size: 2.5rem;
-        margin-top: 30px;
+        font-size: 2rem;
+        margin-top: 10px;
+        margin-bottom: 0.5rem;
     }
 
     hr {
         border-color: #4c4cff;
         width: 80%;
-        margin: 20px auto;
+        margin: 10px auto 30px auto;
     }
 
     .botones-centrados {
@@ -81,19 +83,101 @@
             transform: translateY(-2px);
         }
 
-    .resumen-contenedor {
+    .resultados {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .cont-onl {
+        flex: 1 1 50%;
+    }
+
+    .resumen-grid-contenedor {
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
         border-radius: 12px;
         padding: 25px 30px;
-        margin: 20px auto;
         box-shadow: 0 0 20px rgba(76, 76, 255, 0.1);
-        max-width: 800px;
+        margin: 0 auto 30px auto;
+        max-width: 1200px;
     }
 
-        .resumen-contenedor p {
-            font-size: 1.2rem;
+    .contenedores-resumen {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .resultados-con-glow {
+        background-color: #1b1e3c;
+        border: 2px solid #4c4cff;
+        border-radius: 12px;
+        padding: 20px 20px;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
+        margin: 0 auto 30px auto;
+        max-width: 1200px;
+    }
+
+
+    .card-resumen {
+        flex: 1 1 110px;
+        max-width: 130px;
+        min-width: 90px;
+        background-color: #292c4f;
+        border-radius: 12px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.4);
+        color: white;
+        transition: transform 0.3s ease;
+    }
+
+
+        .card-resumen:hover {
+            transform: scale(1.05);
         }
+
+    .card-titulo {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .card-icono {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .card-valor {
+        font-size: 1.6rem;
+        font-weight: bold;
+    }
+
+    .card-resumen.total {
+        background-color: #00acc1;
+    }
+
+
+    .card-resumen.correctos {
+        background-color: #28a745;
+    }
+
+    .card-resumen.incorrectos {
+        background-color: #dc3545;
+    }
+
+    .card-resumen.experiencia {
+        background-color: #4c4cff;
+    }
+
+
+    .resumen-grid-contenedor p {
+        font-size: 1.3rem;
+        margin: 10px 0;
+    }
 
     .barra-progreso {
         margin: 0 auto;
@@ -110,79 +194,110 @@
         transition: width 0.5s ease;
     }
 
-    details {
-        margin-bottom: 14px;
-        border-radius: 10px;
-        background-color: #2a2d56;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    .container-barrap {
+        flex: 1 1 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
-    summary {
-        padding: 14px 20px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 1.2rem;
-        background-color: #202349;
-        color: #ffffff;
-        list-style: none;
-        position: relative;
-        padding-left: 30px;
+    .grid-acordeones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto 50px auto;
+        align-items: start;
     }
 
-        summary::before {
-            content: "▶";
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            transition: transform 0.3s ease;
-            color: #d1d1f0;
+        .grid-acordeones details {
+            background-color: #2a2d56;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        summary::marker {
+        .grid-acordeones summary {
+            padding: 14px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #202349;
+            color: white;
+            list-style: none;
+            position: relative;
+            font-size: 1rem;
+            border-radius: 10px 10px 0 0;
+        }
+
+            .grid-acordeones summary::before {
+                content: "▶";
+                display: inline-block;
+                margin-right: 10px;
+                transition: transform 0.3s ease;
+            }
+
+        .grid-acordeones details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .grid-acordeones summary::-webkit-details-marker {
             display: none;
         }
 
-    details[open] summary::before {
-        transform: translateY(-50%) rotate(90deg);
-    }
-
-    details[open] summary {
-        border-bottom: 1px solid #444;
-    }
-
-    details div {
-        padding: 16px 22px;
-        font-size: 1.1rem;
-        background-color: #1b1e3c;
-    }
-
-        details div p {
-            margin-bottom: 10px;
+        .grid-acordeones details > div {
+            padding: 14px 18px;
+            background-color: #1b1e3c;
+            color: #d1d1f0;
+            font-size: 1rem;
+            border-radius: 0 0 10px 10px;
         }
 
-    .correcto {
+    .correcto summary {
         color: #28a745;
     }
 
-    .incorrecto {
+    .incorrecto summary {
         color: #dc3545;
     }
 
-    @@media (max-width: 768px) {
-        h1 {
-            font-size: 2rem;
+    .no-respondio summary {
+        color: #f1c40f;
+    }
+
+
+    @@media (max-width: 1200px) {
+        .grid-acordeones {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .grid-acordeones {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .grid-acordeones {
+            grid-template-columns: 1fr;
         }
 
-        .resumen-contenedor {
-            padding: 20px;
+        h1 {
+            font-size: 1.7rem;
+        }
+
+        .resultados {
+            display: flex;
+            flex-direction: column-reverse;
         }
 
         .botones-centrados {
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
+            flex-wrap: inherit;
+            gap: 10px;
+            margin: 30px 5px;
         }
 
             .botones-centrados button {
@@ -190,13 +305,43 @@
                 max-width: 300px;
             }
 
-        summary {
+        .resumen-grid-contenedor p {
             font-size: 1rem;
+        }
+
+        .card-resumen {
+            flex: 1 1 45%;
+            max-width: 100%;
+        }
+
+        .card-valor {
+            font-size: 1.2rem;
+        }
+
+        .card-icono {
+            font-size: 1rem;
+        }
+
+        .contenedores-resumen {
+            gap: 5px;
+            flex-direction: row;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .container-barrap {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .cont-onl, .container-barrap {
+            flex: 1 1 100%;
+            max-width: 100%;
         }
     }
 </style>
 
-<h1>📊 Resumen de Escritura - Soroban</h1>
+<h1>📊 Resumen de Escritura Soroban</h1>
 <hr />
 
 <div class="botones-centrados">
@@ -205,6 +350,7 @@
         <input type="hidden" name="valMin" value="@TempData.Peek("VMinimo")" />
         <input type="hidden" name="valMax" value="@TempData.Peek("VMaximo")" />
         <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
+        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
@@ -222,36 +368,54 @@
     </form>
 </div>
 
-<div class="resumen-contenedor">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 40px;">
-        <div style="flex: 1;">
-            <p>📄 Total de ejercicios: <strong>@total</strong></p>
-            <p>✅ Correctos: <strong>@correctos</strong></p>
-            <p>❌ Incorrectos: <strong>@(total - correctos)</strong></p>
-        </div>
-        <div style="flex: 1; text-align: center;">
-            <p>🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
-            <div class="barra-progreso">
-                <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
+<div class="resultados resultados-con-glow">
+    <div class="cont-onl">
+        <div class="contenedores-resumen">
+            <div class="card-resumen total">
+                <div class="card-titulo">TOTAL</div>
+                <div class="card-icono">📄</div>
+                <div class="card-valor">@total</div>
             </div>
+            <div class="card-resumen correctos">
+                <div class="card-titulo">CORRECTOS</div>
+                <div class="card-icono">✅</div>
+                <div class="card-valor">@correctos</div>
+            </div>
+            <div class="card-resumen incorrectos">
+                <div class="card-titulo">INCORRECTOS</div>
+                <div class="card-icono">❌</div>
+                <div class="card-valor">@(total - correctos)</div>
+            </div>
+            <div class="card-resumen experiencia">
+                <div class="card-titulo">XP</div>
+                <div class="card-icono">✨</div>
+                <div class="card-valor">@porcentaje/100 XP</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-barrap">
+        <p>🌟 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+        <div class="barra-progreso">
+            <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
         </div>
     </div>
 </div>
 
-<div style="max-width: 800px; margin: 0 auto;">
+<div class="grid-acordeones">
     @for (int i = 0; i < resultados.Count; i++)
     {
         var r = resultados[i];
-        var colorClass = r.EsCorrecto ? "correcto" : "incorrecto";
-        <details>
-            <summary class="@colorClass">
-                Ejercicio @(i + 1): @(r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto")
+        var colorClass = r.RespuestaUsuario == -1
+        ? "no-respondio"
+        : (r.EsCorrecto ? "correcto" : "incorrecto");
+
+        <details class="@colorClass">
+            <summary>
+                Ejercicio @(i + 1): @(r.RespuestaUsuario == -1 ? "❓ No respondió" : (r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto"))
             </summary>
             <div>
-                <p>
-                    🧠 <strong>Tu respuesta:</strong>
-                    @(r.RespuestaUsuario == 0 && !r.EsCorrecto ? "No respondió" : r.RespuestaUsuario.ToString())
-                </p>
+                <p>🧠 <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
             </div>
         </details>

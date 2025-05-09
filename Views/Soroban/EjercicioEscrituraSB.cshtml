@@ -3,66 +3,70 @@
     Layout = "_LayoutSoroban";
 
     long numeroObjetivo = Convert.ToInt64(ViewBag.NumeroObjetivo);
-
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
     int columnas = ViewBag.Columnas;
     float velocidad = ViewBag.VelocidadPreguntas;
+    int porcentaje = (int)(((float)ejercicioActual / totalEjercicios) * 100);
 }
 
-<div class="fin-wrapper">
-    <form method="post" asp-action="FinalizarEscrituraSoroban" class="form-fin">
-        <button type="submit" class="btn-finalizar">🚪 Finalizar ejercicios</button>
+<div class="top-bar">
+    <form id="formFinalizar" class="form-fin" onsubmit="return false;">
+        <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
+            ❌ <span>Finalizar</span>
+        </button>
     </form>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        @if (velocidad > 0)
+        {
+            <span>⏱ <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
+        }
+        else
+        {
+            <span class="modo-libre">⏱ <strong>Modo sin límite de tiempo</strong></span>
+        }
+    </div>
 </div>
 
 <div class="ejercicio-wrapper">
-    <div class="info-panel">
-        <p>📄 Ejercicio <strong>@ejercicioActual</strong> de <strong>@totalEjercicios</strong></p>
-        <p>
-            @if (velocidad > 0)
-            {
-                <span>⏱ Tiempo restante: <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> segundos</span>
-            }
-            else
-            {
-                <span>⏱ <strong>Modo sin límite de tiempo</strong></span>
-            }
-        </p>
-    </div>
-
     <h2 style="font-size: 3rem; text-align: center; margin: 20px 0; color: white; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);">
         @numeroObjetivo
     </h2>
 
-
     <div class="soroban-frame">
+        <div class="barra-horizontal"></div>
         <div class="soroban-container" id="soroban">
             @for (int col = 0; col < columnas; col++)
             {
                 <div class="soroban-column" data-col="@col">
+                    <div class="palito-vertical"></div>
                     <div class="bead superior" data-superior="true" data-valor="5"></div>
-                    <div class="separator-column"></div>
                     @for (int i = 0; i < 4; i++)
                     {
-                        <div class="bead inferior" data-superior="false" data-valor="1"></div>
+                        <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
                     }
                 </div>
             }
         </div>
     </div>
 
-    <form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario">
-        <input type="text" name="respuesta" id="respuesta" inputmode="numeric" pattern="[0-9]*" />
+    <form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario" class="form-respuesta-barra">
+        <input type="hidden" name="respuesta" id="respuesta" />
         <input type="hidden" id="respondido" name="respondido" value="true" />
-        <div class="form-respuesta" style="margin-top: 20px;">
-            <button type="submit" class="btn-enviar">Enviar respuesta</button>
-        </div>
+        <button type="submit">Enviar</button>
     </form>
-
 </div>
 
 <style>
+ 
     body {
         background-color: #161a36;
         color: white;
@@ -71,74 +75,41 @@
         padding: 0;
     }
 
-    .soroban-frame {
-        background-color: #1b1e3c;
-        border: 8px solid #4c4cff;
-        border-radius: 20px;
-        padding: 30px 20px;
-        margin: 2rem auto;
-        width: fit-content;
-        max-width: 100%;
-        box-shadow: 0 8px 25px rgba(76, 76, 255, 0.2);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
     }
 
-    .soroban-container {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .soroban-column {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .bead {
-        width: 40px;
-        height: 40px;
-        margin: 8px 0;
-        border-radius: 50%;
-        background: linear-gradient(145deg, #2d2d5e, #1b1e3c);
-        box-shadow: 3px 3px 6px #14162c, -3px -3px 6px #1f2250;
-        transition: all 0.3s ease;
-    }
-
-        .bead.activa {
-            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
-            transform: scale(1.15);
-            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
-            animation: bounce 0.5s ease;
-        }
-
-    .separator-column {
+    .top-bar {
         width: 100%;
-        height: 8px;
-        background-color: #555;
-        border-radius: 4px;
-        margin: 10px 0;
-    }
-
-    .fin-wrapper {
         display: flex;
-        justify-content: center;
-        margin: 10px 0;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
     }
 
     .btn-finalizar {
         background-color: #df312c;
         color: white;
-        padding: 10px 20px;
+        padding: 0.6rem 1rem;
         border: none;
-        border-radius: 10px;
-        font-size: 1rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
         cursor: pointer;
-        transition: transform 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
     }
 
         .btn-finalizar:hover {
@@ -146,51 +117,216 @@
             transform: scale(1.05);
         }
 
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
     .ejercicio-wrapper {
-        max-width: 900px;
         margin: 0 auto;
-        padding: 20px;
         text-align: center;
+        padding: 1rem;
     }
 
-    .info-panel {
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        animation: fadeIn 0.6s ease;
-    }
-
-    .contador {
-        color: #4c4cff;
-        font-weight: bold;
-        font-size: 1.6rem;
-        animation: pulse 1s infinite ease-in-out;
-    }
-
-    .form-respuesta {
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        gap: 10px;
-        margin-top: 1.5rem;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: #1b1e3c;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
     }
 
-        .form-respuesta button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4c4cff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="text"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
         }
 
-            .form-respuesta button:hover {
-                background-color: #3737e8;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+    .soroban-frame {
+        background-color: #1b1e3c;
+        padding: 0 1rem;
+        margin: 1rem auto;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 20px;
+        box-shadow: 0 0 1rem rgba(76, 76, 255, 0.2);
+        position: relative;
+        border: 0.9rem solid #888888;
+    }
+
+    .barra-horizontal {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 27%;
+        height: 0.9rem;
+        background-color: #888888;
+        z-index: 5;
+    }
+
+    .soroban-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+    }
+
+    .soroban-column {
+        position: relative;
+        width: 3rem;
+        height: 16rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        cursor: pointer;
+    }
+
+    .bead {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2.8rem;
+        height: 1.95rem;
+        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        background: linear-gradient(145deg, #2d2d5e, #1b1e3c);
+        box-shadow: 3px 3px 6px #14162c, -3px -3px 6px #1f2250;
+        transition: top 0.3s ease, transform 0.3s ease;
+        z-index: 1;
+    }
+
+        .bead.activa {
+            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        }
+
+        .bead.superior {
+            top: 0%;
+        }
+
+            .bead.superior.activa {
+                top: 15%;
             }
+
+    .bead-inferior-0 {
+        top: 52%;
+    }
+
+    .bead-inferior-1 {
+        top: 64%;
+    }
+
+    .bead-inferior-2 {
+        top: 76%;
+    }
+
+    .bead-inferior-3 {
+        top: 88%;
+    }
+
+    .bead-inferior-0.activa {
+        top: 32%;
+    }
+
+    .bead-inferior-1.activa {
+        top: 44%;
+    }
+
+    .bead-inferior-2.activa {
+        top: 56%;
+    }
+
+    .bead-inferior-3.activa {
+        top: 68%;
+    }
+
+    .palito-vertical {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0.25rem;
+        background-color: #888;
+        z-index: 0;
+    }
 
     @@keyframes bounce {
         0% {
@@ -203,18 +339,6 @@
 
         100% {
             transform: scale(1.15);
-        }
-    }
-
-    @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
         }
     }
 
@@ -235,83 +359,151 @@
         }
     }
 
-    @@media (max-width: 768px) {
-        .soroban-container {
-            flex-direction: column;
-            align-items: center;
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        .soroban-frame {
-            width: 95%;
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+        .etiqueta-respuesta {
+            text-align: center;
+        }
+
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .form-respuesta-barra {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-respuesta input[type="number"] {
+            width: 50%;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .form-respuesta-barra input[type="number"] {
+            width: 100%;
+        }
+
+        .form-respuesta-barra button {
+            width: 100%;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
+        .bead {
+            width: 2rem;
+            height: 1.96rem;
         }
     }
 </style>
 
-<script>
-    const respuestaInput = document.getElementById("respuesta");
-    const columnas = document.querySelectorAll(".soroban-column");
-    const velocidad = parseFloat("@velocidad");
-    const contador = document.getElementById("contador");
-    const form = document.getElementById("formulario");
-    const respondido = document.getElementById("respondido");
+@section Scripts {
+    <script>
+        const velocidad = parseFloat("@velocidad");
+        const contadorElemento = document.getElementById("contador");
+        const respuestaInput = document.getElementById("respuesta");
+        const columnas = document.querySelectorAll(".soroban-column");
+        const respondido = document.getElementById("respondido");
+        const form = document.getElementById("formulario");
 
-    if (velocidad > 0 && contador) {
-        let tiempo = velocidad;
-        const intervalo = setInterval(() => {
-            tiempo -= 0.1;
-            if (tiempo <= 0) {
-                clearInterval(intervalo);
-                respondido.value = respuestaInput.value.trim() !== "" ? "true" : "false";
-                form.submit();
-            } else {
-                contador.textContent = tiempo.toFixed(1);
-            }
-        }, 100);
-    }
+        if (velocidad > 0) {
+            let tiempo = velocidad;
+            const interval = setInterval(() => {
+                tiempo -= 0.1;
+                if (tiempo <= 0) {
+                    clearInterval(interval);
+                    respondido.value = respuestaInput.value.trim() !== "" ? "true" : "false";
+                    form.submit();
+                } else {
+                    contadorElemento.textContent = tiempo.toFixed(1);
+                }
+            }, 100);
+        }
 
-    columnas.forEach(col => {
-        const superior = col.querySelector(".bead.superior");
-        const inferiores = col.querySelectorAll(".bead.inferior");
-
-        superior.addEventListener("click", () => {
-            superior.classList.toggle("activa");
-            actualizarSuma();
-        });
-
-        inferiores.forEach((bead, i) => {
-            bead.addEventListener("click", () => {
-                const activar = !bead.classList.contains("activa");
-                inferiores.forEach((b, j) => {
-                    if ((activar && j <= i) || (!activar && j >= i)) {
-                        b.classList.toggle("activa", activar);
-                    }
-                });
-                actualizarSuma();
-            });
-        });
-    });
-
-    function actualizarSuma() {
-        let suma = 0;
-        columnas.forEach((col, idx) => {
-            const potencia = columnas.length - 1 - idx;
-            const multiplo = Math.pow(10, potencia);
+        columnas.forEach(col => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
 
-            let valor = superior.classList.contains("activa") ? 5 : 0;
-            valor += Array.from(inferiores).filter(b => b.classList.contains("activa")).length;
+            superior.addEventListener("click", () => {
+                superior.classList.toggle("activa");
+                actualizarSuma();
+            });
 
-            suma += valor * multiplo;
+            inferiores.forEach((bead, i) => {
+                bead.addEventListener("click", () => {
+                    const activar = !bead.classList.contains("activa");
+                    inferiores.forEach((b, j) => {
+                        if ((activar && j <= i) || (!activar && j >= i)) {
+                            b.classList.toggle("activa", activar);
+                        }
+                    });
+                    actualizarSuma();
+                });
+            });
         });
-        respuestaInput.value = suma.toString();
-    }
 
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById("formulario").requestSubmit();
+        function actualizarSuma() {
+            let suma = 0;
+            columnas.forEach((col, idx) => {
+                const potencia = columnas.length - 1 - idx;
+                const multiplo = Math.pow(10, potencia);
+                const superior = col.querySelector(".bead.superior");
+                const inferiores = col.querySelectorAll(".bead.inferior");
+
+                let valor = superior.classList.contains("activa") ? 5 : 0;
+                valor += Array.from(inferiores).filter(b => b.classList.contains("activa")).length;
+
+                suma += valor * multiplo;
+            });
+            respuestaInput.value = suma.toString();
         }
-    });
 
-</script>
+        function finalizarConRespuesta() {
+            const respuesta = respuestaInput.value.trim();
+            const respondio = respuesta !== "";
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/Soroban/FinalizarEscrituraSoroban";
+
+            form.innerHTML = `
+                <input type="hidden" name="respuesta" value="${respondio ? respuesta : '0'}" />
+                <input type="hidden" name="respondido" value="${respondio}" />
+            `;
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        window.addEventListener("load", function () {
+            respuestaInput?.focus({ preventScroll: true });
+        });
+    </script>
+}

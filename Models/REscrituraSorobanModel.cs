@@ -4,6 +4,8 @@
     {
         public long RespuestaUsuario { get; set; }
         public long RespuestaCorrecta { get; set; }
-        public bool EsCorrecto => RespuestaUsuario == RespuestaCorrecta;
+        public bool EsCorrecto =>
+            RespuestaUsuario != -1 &&
+            RespuestaUsuario == RespuestaCorrecta;
     }
 }

@@ -312,16 +312,39 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarEscrituraSoroban()
+        public IActionResult FinalizarEscrituraSoroban(int respuesta, string respondido)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<REscrituraSorobanModel>()
                 : JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(resultadosJson);
 
+            bool respondio = respondido == "true";
+            long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
+
+            resultados.Add(new REscrituraSorobanModel
+            {
+                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaCorrecta = numeroCorrecto
+            });
+
+            int ejerciciosRealizados = resultados.Count;
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            for (int i = ejerciciosRealizados; i < cantidadEjercicios; i++)
+            {
+                resultados.Add(new REscrituraSorobanModel
+                {
+                    RespuestaUsuario = -1,
+                    RespuestaCorrecta = 0
+                });
+            }
+
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoEscrituraSoroban");
         }
+
+
 
         [HttpGet]
         public IActionResult ResultadoEscrituraSoroban()
