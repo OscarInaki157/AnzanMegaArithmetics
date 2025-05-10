@@ -7,44 +7,327 @@
     float velocidad = float.Parse(ViewBag.VelocidadPreguntas.ToString());
     int ejercicioActual = ViewBag.EjercicioActual;
     int totalEjercicios = ViewBag.TotalEjercicios;
+    int porcentaje = (int)(((float)ejercicioActual / totalEjercicios) * 100);
 }
 
-<h2 style="text-align:center;">🧮 Ejercicio @ejercicioActual de @totalEjercicios</h2>
+<style>
+   
 
-@if (velocidad > 0)
-{
-    <p><strong>Tiempo restante:</strong> <span id="contador">@velocidad</span> segundos</p>
-}
-else
-{
-    <p><strong>Modo sin límite de tiempo</strong></p>
-}
+    body {
+        background-color: #161a36;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-<form method="post" asp-action="FinalizarSR" style="margin-top: 15px;" id="formFinalizar">
-    <button type="submit" class="btn btn-danger">🚪 Finalizar</button>
-</form>
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
 
-<div style="display: flex; justify-content: center; gap: 50px; margin-top: 30px;">
-    <div>
-        <div style="font-size: 2rem; text-align: right; line-height: 1.6;">
-            @for (int i = 0; i < numeros.Count; i++)
-            {
-                <div>@(operaciones[i] == "-" ? "-" : "") @numeros[i]</div>
-            }
+    .btn-enviar-respuesta {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+    }
+
+        .btn-enviar-respuesta:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+        }
+
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: #1b1e3c;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="number"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
+    @@keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1.15);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+
+        .etiqueta-respuesta {
+            text-align: center;
+        }
+
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .form-respuesta-barra {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-respuesta input[type="number"] {
+            width: 50%;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .form-respuesta-barra input[type="number"] {
+            width: 100%;
+        }
+
+        .form-respuesta-barra button {
+            width: 100%;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
+    }
+
+</style>
+
+
+<div class="top-bar">
+
+    <form id="formFinalizar" class="form-fin" method="post" onsubmit="return enviarYFinalizar();">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
+    </form>
+
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
         </div>
-
-        <form method="post" asp-action="ResultadoSR" id="formRespuesta" style="margin-top: 20px;">
-            <input type="number" name="respuesta" placeholder="Resultado" autofocus autocomplete="off"/>
-            <input type="hidden" id="respondido" name="respondido" value="true" />
-            <br />
-            <button type="submit" class="btn btn-success" style="margin-top: 15px;">Enviar respuesta</button>
-        </form>
-
     </div>
 
-    <div>
-        <!-- Aquí se incluirán después las manos o ábaco -->
-        <div style="text-align:center;">🧠 Área de ayuda (ábaco o manos)</div>
+    <div class="info-tiempo">
+        @if (velocidad > 0)
+        {
+            <span>⏱ <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
+        }
+        else
+        {
+            <span class="modo-libre">⏱ <strong>Modo sin límite de tiempo</strong></span>
+        }
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+    <div style="display: flex; justify-content: center; gap: 50px; flex-wrap: wrap;">
+        <div>
+            <div style="font-size: 2rem; text-align: right; line-height: 1.2;">
+                @for (int i = 0; i < numeros.Count; i++)
+                {
+                    <div>@(operaciones[i] == "-" ? "-" : "") @numeros[i]</div>
+                }
+            </div>
+
+            <form method="post" asp-action="ResultadoSR" id="formRespuesta" style="margin-top: 20px;">
+                <input type="number" name="respuesta" placeholder="Resultado" autofocus autocomplete="off"
+                       style="padding: 0.6rem 1rem; font-size: 1rem; border-radius: 8px; border: none; width: 160px; text-align: center; background-color: #292c4f; color: white;" />
+                <input type="hidden" id="respondido" name="respondido" value="true" />
+                <br />
+                <button type="submit" class="btn-enviar-respuesta">Enviar respuesta</button>
+            </form>
+        </div>
+
+        <div style="text-align:center;">
+            🧠 Área de ayuda (ábaco o manos)
+        </div>
     </div>
 </div>
 
@@ -59,12 +342,46 @@ else
                 tiempo -= 0.1;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
-                    document.getElementById("respondido").value = "false";
+
+                    const inputRespuesta = document.querySelector("input[name='respuesta']");
+                    const respondido = document.getElementById("respondido");
+
+                    if (inputRespuesta.value.trim() !== "") {
+                        respondido.value = "true";
+                    } else {
+                        respondido.value = "false";
+                    }
+
                     document.getElementById("formRespuesta").submit();
                 } else {
                     contador.textContent = tiempo.toFixed(1);
                 }
             }, 100);
+        }
+
+
+        const form = document.getElementById("formRespuesta");
+        const inputRespuesta = form.querySelector("input[name='respuesta']");
+        const respondidoField = document.getElementById("respondido");
+
+        form.addEventListener("submit", function (e) {
+            if (!inputRespuesta.value.trim()) {
+                respondidoField.value = "false";
+            }
+        });
+
+            function enviarYFinalizar() {
+            const formRespuesta = document.getElementById("formRespuesta");
+            const inputRespuesta = formRespuesta.querySelector("input[name='respuesta']");
+            const respondido = document.getElementById("respondido");
+
+            if (!inputRespuesta.value.trim()) {
+                respondido.value = "false";
+            }
+
+            formRespuesta.action = "/SumaResta/FinalizarSR";
+            formRespuesta.submit();
+            return false; 
         }
     </script>
 }

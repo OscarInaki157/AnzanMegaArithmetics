@@ -297,11 +297,57 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarSR()
+        public IActionResult FinalizarSR(int respuesta, string respondido)
         {
-            TempData.Keep("Resultados");
+            bool respondio = respondido == "true";
+            var resultadosJson = TempData["Resultados"] as string;
+            var resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<RSumaRestaModel>()
+                : JsonSerializer.Deserialize<List<RSumaRestaModel>>(resultadosJson);
+
+            var numeros = JsonSerializer.Deserialize<List<long>>(TempData["UltimosNumeros"].ToString());
+            var operaciones = JsonSerializer.Deserialize<List<string>>(TempData["UltimasOperaciones"].ToString());
+
+            long resultadoCorrecto = 0;
+            for (int i = 0; i < numeros.Count; i++)
+            {
+                resultadoCorrecto += operaciones[i] == "-" ? -numeros[i] : numeros[i];
+            }
+
+            string operacionTexto = "";
+            for (int i = 0; i < numeros.Count; i++)
+            {
+                string signo = operaciones[i];
+                string num = numeros[i].ToString();
+                operacionTexto += (i == 0 ? "" : signo) + num;
+            }
+
+            resultados.Add(new RSumaRestaModel
+            {
+                RespuestaUsuario = respondio ? respuesta : -1,
+                RespuestaCorrecta = resultadoCorrecto,
+                OperacionTexto = operacionTexto,
+                Respondido = respondio
+            });
+
+            int ejerciciosRealizados = resultados.Count;
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            for (int i = ejerciciosRealizados; i < cantidadEjercicios; i++)
+            {
+                resultados.Add(new RSumaRestaModel
+                {
+                    RespuestaUsuario = -1,
+                    RespuestaCorrecta = 0,
+                    OperacionTexto = "No realizado",
+                    Respondido = false
+                });
+            }
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoSR");
         }
+
 
     }
 }
