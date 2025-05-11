@@ -41,6 +41,7 @@
         box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
     }
 
+
         .btn-enviar-respuesta:hover {
             background-color: #3737e8;
             transform: translateY(-2px);
@@ -315,7 +316,7 @@
                     <div>@(operaciones[i] == "-" ? "-" : "") @numeros[i]</div>
                 }
             </div>
-
+            <hr />
             <form method="post" asp-action="ResultadoSR" id="formRespuesta" style="margin-top: 20px;">
                 <input type="number" name="respuesta" placeholder="Resultado" autofocus autocomplete="off"
                        style="padding: 0.6rem 1rem; font-size: 1rem; border-radius: 8px; border: none; width: 160px; text-align: center; background-color: #292c4f; color: white;" />

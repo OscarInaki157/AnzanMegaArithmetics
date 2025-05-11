@@ -5,6 +5,7 @@
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 1;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
     var ambosTrue = Model.DirectaSuma && Model.DirectaResta;
+    var velocidad = string.IsNullOrWhiteSpace(Model.VelocidadPreguntas) ? "0" : Model.VelocidadPreguntas.Replace(",", ".");
 }
 
 <div class="dashboard-button-wrapper">
@@ -65,28 +66,12 @@
             </div>
 
             <div>
-                <label>Velocidad por ejercicio (segundos):</label>
-                <select name="velocidadPreguntas">
-                    @{
-                        var velocidades = new List<string>
-                    {
-                    "0", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5",
-                    "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-                    "16", "17", "18", "19", "20", "25", "30", "35", "40", "45",
-                    "50", "55", "60", "70", "80", "90", "100", "110", "120",
-                    "130", "140", "150", "160", "170", "180", "190", "200",
-                    "210", "220", "230", "240", "250"
-                    };
-                    }
-                    @foreach (var v in velocidades)
-                    {
-                        <option value="@v" selected="@(Model.VelocidadPreguntas == v)">
-                            @v @(v == "0" ? "(sin límite)" : "")
-                        </option>
-                    }
-                </select>
+                <label>Velocidad por ejercicio: <small style="color:#aaa;">(0 = sin límite)</small></label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="velocidadSlider" min="0" max="250" step="0.5" value="@velocidad" style="flex: 1;" />
+                    <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0" max="250" step="0.5" value="@velocidad" style="width: 70px;" />
+                </div>
             </div>
-
 
             <div>
                 <label>Valor máximo:</label>
@@ -243,6 +228,11 @@
         font-weight: 600;
         font-size: clamp(1.4rem, 2vw, 1.7rem);
     }
+
+    form#formConfigSR input[type="range"] {
+        background-color: #292c4f;
+    }
+
 
     .formulario-flash {
         max-width: 900px;
@@ -905,6 +895,23 @@
             }
         });
 
+        document.addEventListener("DOMContentLoaded", () => {
+            const slider = document.getElementById("velocidadSlider");
+            const input = document.getElementById("velocidadInput");
+
+            slider.addEventListener("input", () => {
+                input.value = slider.value;
+            });
+
+            input.addEventListener("input", () => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val) && val >= 0 && val <= 250) {
+                    slider.value = val;
+                } else {
+                    input.value = Math.min(Math.max(val, 0), 250);
+                }
+            });
+        });
 
     </script>
 }
