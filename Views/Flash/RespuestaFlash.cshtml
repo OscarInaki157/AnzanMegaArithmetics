@@ -4,9 +4,9 @@
 }
 
 <div class="respuesta-container">
-    <h1>🧠 Ingresa tu respuesta final</h1>
+    <h1>🧠 RESPUESTA</h1>
     <form method="post" action="/Flash/ResultadoFlash" class="respuesta-form">
-        <input type="number" name="respuestaUsuario" class="respuesta-input" required autofocus />
+        <input type="number" name="respuestaUsuario" class="respuesta-input" autofocus />
         <button type="submit" class="btn-enviar">Enviar</button>
     </form>
 </div>
@@ -109,3 +109,13 @@
         }
     }
 </style>
+
+@section Scripts {
+    <script>
+        // Forzar scroll al centro
+        window.onload = function () {
+            document.querySelector('.respuesta-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+    </script>
+}
+

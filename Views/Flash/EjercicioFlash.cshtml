@@ -7,100 +7,55 @@
     var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
 }
 
-<div class="flash-wrapper">
-    <form method="post" action="/Flash/FinalizarDesdeEjercicio">
-        <button type="submit" class="btn-finalizar">🚪 Finalizar</button>
+<div class="top-bar">
+    <form method="post" action="/Flash/FinalizarDesdeEjercicio" class="form-fin">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
     </form>
 
-    <div class="contador-box">
-        <span class="contador-label">⏱</span>
-        <span id="temporizador" class="contador-numero">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span>
+    <div class="info-tiempo">
+        <span>⏱ <span id="temporizador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
     </div>
+</div>
 
+<div class="flash-wrapper">
     <div class="numero-flash" id="numeroFlash" tabindex="-1">
         @numeroActual
     </div>
 </div>
 
-<style>
-    :root {
-        --color-bg: #161a36;
-        --color-card-bg: #1b1e3c;
-        --color-primary: #4c4cff;
-        --color-primary-dark: #3737e8;
-        --color-light: #d1d1f0;
-        --color-text: #d1d1f0;
-        --color-accent: #6233b8;
-        --color-danger: #df312c;
-    }
 
-    body {
-        background-color: var(--color-bg);
-        color: var(--color-text);
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
+<style>
+
 
     .flash-wrapper {
-        min-height: 100vh;
+        flex:1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2rem;
-        padding: 2rem;
         text-align: center;
-    }
-
-    .btn-finalizar {
-        background-color: var(--color-danger);
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(223, 49, 44, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .btn-finalizar:hover {
-        background-color: #c62828;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(223, 49, 44, 0.5);
-    }
-
-    .contador-box {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 0.5rem 1rem;
-        color: var(--color-primary);
-        font-size: 1.6rem;
-        font-weight: bold;
-        animation: pulse 1.2s infinite ease-in-out;
-    }
-
-    .contador-label {
-        font-size: 1.4rem;
-    }
-
-    .contador-numero {
-        font-size: 1.6rem;
-        font-weight: bold;
-        color: var(--color-primary);
+        padding:1rem;
+        min-height:calc(100vh - 10rem);
     }
 
     .numero-flash {
-        font-size: 8rem;
+        font-size: clamp(3rem, 15vw, 12rem);
         font-weight: bold;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         animation: zoomIn 0.4s ease-in-out;
         color: var(--color-light);
         outline: none;
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
     }
+
+
 
     @@keyframes zoomIn {
         from { opacity: 0; transform: scale(0.7); }
@@ -115,8 +70,143 @@
 
     @@media (max-width: 768px) {
         .numero-flash { font-size: 4rem; }
-        .contador-numero { font-size: 1.3rem; }
-        .btn-finalizar { font-size: 0.9rem; padding: 0.5rem 1rem; }
+    }
+
+
+    body {
+        background-color: #161a36;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+   
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+
+
+    @@keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1.15);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+
+       
+
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        
+
     }
 </style>
 
@@ -139,5 +229,11 @@
                     temporizador.textContent = restante.toFixed(1);
                 }
             }, 100);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const numeroFlash = document.getElementById("numeroFlash");
+            numeroFlash?.focus();
+        });
+
         </script>
 }

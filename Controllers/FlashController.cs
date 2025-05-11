@@ -28,7 +28,7 @@ namespace AnzanMegaArithmetics.Controllers
                 DigitosSuma = DigitosSuma ?? "",
                 DigitosResta = DigitosResta ?? "",
                 MinDigitos = MinDigitos ?? 1,
-                MaxDigitos = MaxDigitos ?? 2
+                MaxDigitos = MaxDigitos ?? 1
             };
 
             return View(modelo);
@@ -183,16 +183,25 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult ResultadoFlash(int respuestaUsuario)
+        public IActionResult ResultadoFlash(string respuestaUsuario)
         {
             var resultado = JsonSerializer.Deserialize<RFlashModel>(TempData["ResultadoFlash"]?.ToString() ?? "{}");
 
-            resultado.Respondido = true;
-            resultado.RespuestaUsuario = respuestaUsuario;
+            if (string.IsNullOrWhiteSpace(respuestaUsuario))
+            {
+                resultado.Respondido = false;
+                resultado.RespuestaUsuario = -1;
+            }
+            else
+            {
+                resultado.Respondido = true;
+                resultado.RespuestaUsuario = int.TryParse(respuestaUsuario, out var valor) ? valor : -1;
+            }
 
             TempData["ResultadoFlash"] = JsonSerializer.Serialize(resultado);
             return View("ResultadoFlash", resultado);
         }
+
 
         [HttpPost]
         public IActionResult FinalizarDesdeEjercicio()
