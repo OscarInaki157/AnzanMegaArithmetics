@@ -432,6 +432,117 @@
         left: 91%;
     }
 
+
+    /* soroban */
+    .soroban-frame {
+        background-color: #1b1e3c;
+        padding: 0 1rem;
+        margin: 1rem auto;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 20px;
+        box-shadow: 0 0 1rem rgba(76, 76, 255, 0.2);
+        position: relative;
+        border: 0.9rem solid #888888;
+    }
+
+    .barra-horizontal {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 27%;
+        height: 0.9rem;
+        background-color: #888888;
+        z-index: 5;
+    }
+
+    .soroban-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+    }
+
+    .soroban-column {
+        position: relative;
+        width: 3rem;
+        height: 16rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        cursor: pointer;
+    }
+
+    .palito-vertical {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0.25rem;
+        background-color: #888;
+        z-index: 0;
+    }
+
+    .bead {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2.8rem;
+        height: 1.95rem;
+        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        background: linear-gradient(145deg, #2d2d5e, #1b1e3c);
+        box-shadow: 3px 3px 6px #14162c, -3px -3px 6px #1f2250;
+        transition: top 0.3s ease, transform 0.3s ease;
+        z-index: 1;
+    }
+
+        .bead.activa {
+            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        }
+
+        .bead.superior {
+            top: 0%;
+        }
+
+            .bead.superior.activa {
+                top: 15%;
+            }
+
+    .bead-inferior-0 {
+        top: 52%;
+    }
+
+    .bead-inferior-1 {
+        top: 64%;
+    }
+
+    .bead-inferior-2 {
+        top: 76%;
+    }
+
+    .bead-inferior-3 {
+        top: 88%;
+    }
+
+    .bead-inferior-0.activa {
+        top: 32%;
+    }
+
+    .bead-inferior-1.activa {
+        top: 44%;
+    }
+
+    .bead-inferior-2.activa {
+        top: 56%;
+    }
+
+    .bead-inferior-3.activa {
+        top: 68%;
+    }
+
     @@media (min-width: 768px) and (max-width: 1024px) {
 
         .ejercicio-wrapper {
@@ -684,6 +795,26 @@
             left: 92%;
         }
 
+        /* soroban */
+
+        .bead {
+            width: 2rem;
+            height: 1.8rem;
+        }
+
+        .soroban-column {
+            width: 2.2rem;
+            height: 14rem;
+        }
+
+        .soroban-container {
+            gap: 0.5rem;
+        }
+
+        .soroban-frame {
+            padding: 0 0.5rem;
+        }
+
     }
 
 </style>
@@ -808,10 +939,26 @@
                     
                 </div>
             </div>
-            <div class="tab-content" id="tab-soroban">
-                
+            <div class="tab-content" id="tab-soroban">          
                 <div id="contenedorSoroban">
-                    
+
+                    <div class="soroban-frame">
+                        <div class="barra-horizontal"></div>
+                        <div class="soroban-container" id="sorobanSR">
+                            @for (int col = 0; col < 7; col++)
+                            {
+                                <div class="soroban-column" data-col="@col">
+                                    <div class="palito-vertical"></div>
+                                    <div class="bead superior" data-superior="true" data-valor="5"></div>
+                                    @for (int i = 0; i < 4; i++)
+                                    {
+                                        <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -934,6 +1081,26 @@
             });
         });
 
+        //soroban
+        document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
+            const superior = col.querySelector(".bead.superior");
+            const inferiores = col.querySelectorAll(".bead.inferior");
+
+            superior.addEventListener("click", () => {
+                superior.classList.toggle("activa");
+            });
+
+            inferiores.forEach((bead, i) => {
+                bead.addEventListener("click", () => {
+                    const activar = !bead.classList.contains("activa");
+                    inferiores.forEach((b, j) => {
+                        if ((activar && j <= i) || (!activar && j >= i)) {
+                            b.classList.toggle("activa", activar);
+                        }
+                    });
+                });
+            });
+        });
 
 
     </script>
