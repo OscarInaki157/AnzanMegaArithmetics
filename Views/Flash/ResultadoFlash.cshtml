@@ -6,6 +6,17 @@
     var correcto = Model.EsCorrecto;
     var total = TempData.Peek("CantidadEjercicios") != null ? Convert.ToInt32(TempData.Peek("CantidadEjercicios")) : 1;
     var porcentaje = correcto ? 100 : 0;
+
+    var historialStr = Context.Session.GetString("HistorialFlash");
+    var sesiones = string.IsNullOrEmpty(historialStr)
+        ? new List<AnzanMegaArithmetics.Models.SesionFlashModel>()
+        : System.Text.Json.JsonSerializer.Deserialize<List<AnzanMegaArithmetics.Models.SesionFlashModel>>(historialStr);
+
+    int totalSesiones = sesiones.Count;
+    int correctas = sesiones.Count(s => s.FueCorrecta);
+    int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
+
+
     var barraColor = correcto ? "#28a745" : "#dc3545";
     var textoResultado = !Model.Respondido ? "❓ No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
 }
@@ -55,10 +66,11 @@
     </div>
 
     <div class="container-barrap">
-        <p>🌟 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+        <p>🌟 Porcentaje de éxito global: <strong>@porcentajeGlobal% (@totalSesiones sesión)</strong></p>
         <div class="barra-progreso">
-            <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
+            <div class="barra-progreso-interna" style="width: @porcentajeGlobal%; background-color: #4caf50;"></div>
         </div>
+
     </div>
 </div>
 

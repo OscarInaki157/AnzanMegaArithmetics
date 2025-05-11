@@ -212,28 +212,34 @@
 
 
 @section Scripts {
-        <script>
-            const velocidad = parseFloat("@velocidad");
-            const temporizador = document.getElementById("temporizador");
-            const numeroFlash = document.getElementById("numeroFlash");
+    <script>
+        const velocidad = parseFloat("@velocidad"); // en segundos
+        const totalEjercicios = parseInt("@totalEjercicios");
+        const ejercicioActual = parseInt("@ejercicioActual");
+        const temporizador = document.getElementById("temporizador");
 
-            numeroFlash.focus();
+        const tiempoEntre = velocidad * 1000; // en milisegundos
+        const tiempoInicio = performance.now();
 
-            let restante = velocidad;
-            const intervalo = setInterval(() => {
-                restante -= 0.1;
-                if (restante <= 0) {
-                    clearInterval(intervalo);
-                    window.location.href = "/Flash/EjercicioFlash";
-                } else {
-                    temporizador.textContent = restante.toFixed(1);
-                }
-            }, 100);
+        function siguientePaso() {
+            const ahora = performance.now();
+            const tiempoTranscurrido = ahora - tiempoInicio;
+            const tiempoObjetivo = tiempoEntre;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const numeroFlash = document.getElementById("numeroFlash");
-            numeroFlash?.focus();
-        });
+            if (tiempoTranscurrido >= tiempoObjetivo) {
+                window.location.href = "/Flash/EjercicioFlash";
+            } else {
+                // Actualizar contador visible
+                const restante = (tiempoObjetivo - tiempoTranscurrido) / 1000;
+                temporizador.textContent = restante.toFixed(1);
 
-        </script>
+                // Calcular cuánto falta para el próximo paso
+                const delay = Math.max(0, tiempoObjetivo - tiempoTranscurrido);
+                requestAnimationFrame(siguientePaso);
+            }
+        }
+
+        requestAnimationFrame(siguientePaso);
+    </script>
 }
+

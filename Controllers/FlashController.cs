@@ -19,6 +19,9 @@ namespace AnzanMegaArithmetics.Controllers
             int? MinDigitos,
             int? MaxDigitos)
         {
+
+            HttpContext.Session.Remove("HistorialFlash");
+
             var modelo = new ConfFlashModel
             {
                 CantidadEjercicios = CantidadEjercicios ?? 3,
@@ -198,9 +201,28 @@ namespace AnzanMegaArithmetics.Controllers
                 resultado.RespuestaUsuario = int.TryParse(respuestaUsuario, out var valor) ? valor : -1;
             }
 
+            bool fueCorrecta = resultado.Respondido && resultado.RespuestaUsuario == resultado.RespuestaCorrecta;
+
+            // Obtener historial desde Session
+            var historialStr = HttpContext.Session.GetString("HistorialFlash");
+            var sesiones = string.IsNullOrEmpty(historialStr)
+                ? new List<SesionFlashModel>()
+                : JsonSerializer.Deserialize<List<SesionFlashModel>>(historialStr);
+
+            // Agregar esta sesión
+            sesiones.Add(new SesionFlashModel
+            {
+                TotalEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios")),
+                FueCorrecta = fueCorrecta
+            });
+
+            // Guardar nuevamente en Session
+            HttpContext.Session.SetString("HistorialFlash", JsonSerializer.Serialize(sesiones));
+
             TempData["ResultadoFlash"] = JsonSerializer.Serialize(resultado);
             return View("ResultadoFlash", resultado);
         }
+
 
 
         [HttpPost]
