@@ -3,12 +3,36 @@
     Layout = "_LayoutFlash";
 }
 
-<div class="respuesta-container">
-    <h1>🧠 RESPUESTA</h1>
-    <form method="post" action="/Flash/ResultadoFlash" class="respuesta-form">
-        <input type="number" name="respuestaUsuario" class="respuesta-input" autofocus />
-        <button type="submit" class="btn-enviar">Enviar</button>
-    </form>
+<div class="respuesta-flash-wrapper">
+    <div class="respuesta-left">
+        <h1>🧠 RESPUESTA</h1>
+        <form method="post" action="/Flash/ResultadoFlash" class="respuesta-form">
+            <input type="number" name="respuestaUsuario" id="respuestaInput" class="respuesta-input" autofocus />
+            <button type="submit" class="btn-enviar">Enviar</button>
+        </form>
+    </div>
+
+    <div class="teclado-numerico">
+        <div class="fila">
+            <button type="button" class="tecla">7</button>
+            <button type="button" class="tecla">8</button>
+            <button type="button" class="tecla">9</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">4</button>
+            <button type="button" class="tecla">5</button>
+            <button type="button" class="tecla">6</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">1</button>
+            <button type="button" class="tecla">2</button>
+            <button type="button" class="tecla">3</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla mitad">0</button>
+            <button type="button" class="tecla mitad borrar">←</button>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -19,39 +43,73 @@
         --color-primary-dark: #3737e8;
         --color-light: #d1d1f0;
         --color-text: #d1d1f0;
-        --color-danger: #df312c;
+        --color-success: #28a745;
+        --color-error: #e53935;
+        --color-secondary: #292c4f;
     }
-
-    body {
-        background-color: var(--color-bg);
-        color: var(--color-text);
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
-    .respuesta-container {
+    .respuesta-flash-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
         min-height: 100vh;
+        padding: 2rem;
+        gap: 2rem;
+        background-color: var(--color-bg);
+        flex-wrap: wrap;
+    }
+
+    .respuesta-left {
+        flex: 1 1 300px;
+        max-width: 50%;
+        text-align: center;
+    }
+
+    .teclado-numerico {
+        flex: 1 1 300px;
+        max-width: 50%;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        text-align: center;
-        animation: fadeIn 0.4s ease;
+        gap: 1rem;
     }
 
-    .respuesta-container h1 {
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .tecla {
+        flex: 1;
         font-size: 2rem;
-        color: var(--color-light);
-        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--color-primary); /* azul como el botón */
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+        .tecla:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+
+    .mitad {
+        flex: 0 0 50%;
+    }
+
+    .borrar {
+        background-color: var(--color-danger);
     }
 
     .respuesta-form {
         display: flex;
         flex-direction: column;
-        align-items: center;
         gap: 1.5rem;
+        align-items: center;
     }
 
     .respuesta-input {
@@ -67,14 +125,14 @@
         transition: box-shadow 0.3s ease, transform 0.2s ease;
     }
 
-    .respuesta-input:focus {
-        outline: none;
-        box-shadow: 0 0 15px rgba(76, 76, 255, 0.3);
-        transform: scale(1.03);
-    }
+        .respuesta-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.3);
+            transform: scale(1.03);
+        }
 
     .btn-enviar {
-        background-color: var(--color-primary);
+        background-color: var(--color-primary); /* azul */
         color: white;
         padding: 0.8rem 2rem;
         font-size: 1.2rem;
@@ -86,36 +144,51 @@
         transition: all 0.3s ease;
     }
 
-    .btn-enviar:hover {
-        background-color: var(--color-primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(76, 76, 255, 0.5);
-    }
-
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @@media (max-width: 600px) {
-        .respuesta-input {
-            font-size: 2rem;
-            width: 200px;
+        .btn-enviar:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 76, 255, 0.5);
         }
 
-        .btn-enviar {
-            font-size: 1rem;
-            padding: 0.6rem 1.5rem;
-        }
+    @@media (max-width: 768px) {
+        .respuesta-flash-wrapper
+
+    {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .respuesta-left, .teclado-numerico {
+        max-width: 100%;
+    }
+
     }
 </style>
 
 @section Scripts {
     <script>
-        // Forzar scroll al centro
+        // Scroll para centrar
         window.onload = function () {
-            document.querySelector('.respuesta-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.querySelector('.respuesta-flash-wrapper')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
         };
+
+        // Interacción teclado
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById('respuestaInput');
+                if (btn.classList.contains('borrar')) {
+                    input.value = input.value.slice(0, -1);
+                } else {
+                    input.value += btn.textContent.trim();
+                }
+
+                input.focus(); // Mantiene el foco
+            });
+        });
     </script>
 }
-
