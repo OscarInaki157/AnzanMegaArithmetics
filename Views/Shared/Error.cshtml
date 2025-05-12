@@ -5,4 +5,17 @@
 <h1>⚠️ Algo salió mal</h1>
 <p>Ocurrió un problema mientras procesábamos tu solicitud.</p>
 <p>Por favor, intenta nuevamente o contacta al administrador.</p>
-<a href="@Url.Action("Dashboard", "Dashboard")" class="btn btn-secondary">Ir al Dashboard</a>
+<a href="@Url.Action("Inicio", "Inicio")" class="btn btn-secondary">Ir al Inicio</a>
+
+<script>
+    // medio proteger
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+                             e.preventDefault();
+        }
+    });
+</script>
