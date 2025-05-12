@@ -13,20 +13,39 @@ namespace AnzanMegaArithmetics.Controllers
         }
         public IActionResult Dashboard()
         {
-         
-            ViewBag.IdUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            ViewBag.Nombre = User.FindFirst(ClaimTypes.Name)?.Value;
-            ViewBag.Rol = User.FindFirst(ClaimTypes.Role)?.Value;
-            ViewBag.Clase = User.FindFirst("Clase")?.Value;
-            ViewBag.Usuario = User.FindFirst("Usuario")?.Value;
+            var idUsuario = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var nombre = User.FindFirst(ClaimTypes.Name)?.Value;
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
+            var clase = User.FindFirst("Clase")?.Value;
+            var usuario = User.FindFirst("Usuario")?.Value;
 
-            
-            if (string.IsNullOrEmpty(ViewBag.IdUsuario))
+            ViewBag.IdUsuario = idUsuario;
+            ViewBag.Nombre = nombre;
+            ViewBag.Rol = rol;
+            ViewBag.Clase = clase;
+            ViewBag.Usuario = usuario;
+
+            var frases = new List<string>
+            {
+                $"¡Hola {nombre}, bienvenido a Mentes México!",
+                $"¡{nombre}, hoy es un gran día para aprender!",
+                $"¡Tu mente es poderosa, {nombre}!",
+                $"¡Listo para un nuevo desafío, {nombre}!",
+                $"¡Vamos a hacer magia con los números, {nombre}!",
+                $"¡Cada clic te acerca a la maestría, {nombre}!"
+            };
+
+            var random = new Random();
+            int index = random.Next(frases.Count);
+            ViewBag.FraseBienvenida = frases[index];
+
+            if (string.IsNullOrEmpty(idUsuario))
             {
                 return RedirectToAction("Inicio", "Inicio");
             }
 
             return View();
         }
+
     }
 }

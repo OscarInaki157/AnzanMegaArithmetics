@@ -40,7 +40,7 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: space-evenly;
         border-radius: 1rem;
     }
 
@@ -61,7 +61,6 @@
         }
 
         .user-info-card i {
-            color: var(--color-primary);
             font-size: 1.3rem;
         }
 
@@ -351,6 +350,22 @@
                 background-color: var(--color-accent);
             }
 
+    .speech-bubble {
+        position: relative;
+        top: -10%;
+        left: -2%;
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 1.2rem;
+        font-size: 0.7rem;
+        max-width: 10rem;
+        z-index: 3;
+        font-weight: 500;
+        text-align: center;
+    }
+
+
     /* ===== Responsive ===== */
     @@media (max-width: 768px) {
 
@@ -420,14 +435,16 @@
 
 <div class="dashboard-top">
     <div class="user-info-card">
-        <p><i class="fas fa-user-circle"></i> <strong>Nombre:</strong> @ViewBag.Nombre</p>
-        <p><i class="fas fa-user-tag"></i> <strong>Rol:</strong> @ViewBag.Rol</p>
-        <p><i class="fas fa-users"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
+        <p><i class="fa-solid fa-user-tie"></i> <strong>Apodo:</strong> @ViewBag.Nombre</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
         <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
     </div>
     <div class="user-welcome-card hide-on-mobile">
         <div class="image-wrapper">
-            <img src="/Content/Images/profer.png" alt="Profesor saludando" />
+            <div class="speech-bubble">
+                @ViewBag.FraseBienvenida
+            </div>
+            <img src="/Content/Images/ProfS.png" alt="Profesor saludando" />
         </div>
     </div>
 </div>
@@ -437,7 +454,7 @@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/ficon.png" alt="Fingermath" />
+                <img src="/Content/Images/ManosF.gif" alt="Fingermath" />
             </div>
             <div class="modulo-text">
                 <h2>Fingermath</h2>
@@ -461,7 +478,7 @@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/abacoicon.png" alt="Soroban" />
+                <img src="/Content/Images/abacoicon.gif" alt="Soroban" />
             </div>
             <div class="modulo-text">
                 <h2>Soroban</h2>
@@ -485,7 +502,7 @@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/SRicon.png" alt="Suma y Resta" />
+                <img src="/Content/Images/SRicon.gif" alt="Suma y Resta" />
             </div>
             <div class="modulo-text">
                 <h2>Suma y Resta</h2>
@@ -501,7 +518,7 @@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/Flashicon.png" alt="Anzan Flash" />
+                <img src="/Content/Images/Flashicon.gif" alt="Anzan Flash" />
             </div>
             <div class="modulo-text">
                 <h2>Números Flash</h2>
@@ -512,9 +529,6 @@
             </a>
         </div>
     </div>
-
-
-
 
 </div>
 
