@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Neuroactividades";
+    ViewBag.Title = "Desafios Rápidos";
     Layout = "_LayoutDashboard";
 }
 <style>
@@ -235,8 +235,8 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
-        align-items:start;
-        padding-top:1rem;
+        align-items: start;
+        padding-top: 1rem;
     }
 
 
@@ -264,8 +264,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        overflow:visible;
-        padding-right:0.1rem;
+        overflow: visible;
+        padding-right: 0.1rem;
     }
 
     .modulo-image {
@@ -275,10 +275,10 @@
         overflow: hidden;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         flex-shrink: 0;
-        background-color:white;
-        display:flex;
-        justify-content:center;
-        align-items:center;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
         .modulo-image img {
@@ -369,44 +369,43 @@
     /* ===== Responsive ===== */
     @@media (max-width: 768px) {
 
-    .modulos-wrapper {
-        grid-template-columns: 1fr;
-        padding:0.5rem;
-    }
+        .modulos-wrapper {
+            grid-template-columns: 1fr;
+            padding: 0.5rem;
+        }
 
-    .user-info-card, .user-welcome-card
-    {
-        width: 100%;
-    }
+        .user-info-card, .user-welcome-card {
+            width: 100%;
+        }
 
-    .containers-wrapper {
-        flex-direction: column;
-    }
+        .containers-wrapper {
+            flex-direction: column;
+        }
 
-    .rounded-container {
-        width: 100%;
-        align-items: center;
-    }
+        .rounded-container {
+            width: 100%;
+            align-items: center;
+        }
 
-    .container-text {
-        align-items: center;
-    }
+        .container-text {
+            align-items: center;
+        }
 
-    .dropdown-menu {
-        top: auto;
-        bottom: -60px;
-        right: auto;
-        left: 50%;
-        transform: translateX(-50%);
-    }
+        .dropdown-menu {
+            top: auto;
+            bottom: -60px;
+            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
 
-    .hide-on-mobile {
-        display: none;
-    }
+        .hide-on-mobile {
+            display: none;
+        }
 
-    .dashboard-top {
-        flex-direction: column;
-    }
+        .dashboard-top {
+            flex-direction: column;
+        }
 
         .modulo-card {
             width: 100%;
@@ -427,7 +426,6 @@
             left: 0;
             transform: none;
         }
-
     }
 </style>
 
@@ -450,81 +448,18 @@
 </div>
 
 <div class="modulos-wrapper">
-    <!-- FINGERMATH -->
+    
+    <!-- Calendario Mental -->
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/ManosF.gif" alt="Fingermath" />
+                <img src="/Content/Images/Calendario.gif" alt="Calendario" />
             </div>
             <div class="modulo-text">
-                <h2>Fingermath</h2>
-                <p>Lectura y escritura</p>
-            </div>
-            <button class="modulo-toggle" data-menu-id="fingermath-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="fingermath-menu" class="modulo-menu">
-            <a href="@Url.Action("LecturaFinger", "Fingermath")">
-                <i class="fas fa-eye"></i> Ejercicios Lectura
-            </a>
-            <a href="@Url.Action("EscrituraFinger", "Fingermath")">
-                <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
-            </a>
-        </div>
-    </div>
-
-    <!-- SOROBAN -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/abacoicon.gif" alt="Soroban" />
-            </div>
-            <div class="modulo-text">
-                <h2>Soroban</h2>
-                <p>Lectura y escritura</p>
-            </div>
-            <button class="modulo-toggle" data-menu-id="soroban-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="soroban-menu" class="modulo-menu">
-            <a href="@Url.Action("LecturaSoroban", "Soroban")">
-                <i class="fas fa-eye"></i> Ejercicios Lectura
-            </a>
-            <a href="@Url.Action("EscrituraSoroban", "Soroban")">
-                <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
-            </a>
-        </div>
-    </div>
-
-    <!-- SUMA Y RESTA -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/SRicon.gif" alt="Suma y Resta" />
-            </div>
-            <div class="modulo-text">
-                <h2>Suma y Resta</h2>
+                <h2>Calendario Mental</h2>
                 <p>Ejercicios</p>
             </div>
-            <a href="@Url.Action("FormularioSR", "SumaResta")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-
-    <!-- NÚMEROS FLASH -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/Flashicon.gif" alt="Anzan Flash" />
-            </div>
-            <div class="modulo-text">
-                <h2>Números Flash</h2>
-                <p>Mentes Flash</p>
-            </div>
-            <a href="@Url.Action("FormularioFlash", "Flash")" class="modulo-link">
+            <a href="#" class="modulo-link">
                 <i class="fas fa-arrow-right"></i>
             </a>
         </div>

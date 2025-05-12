@@ -95,8 +95,7 @@
         .dashboard-sidebar {
             background-color: var(--color-sidebar);
             color: white;
-            width: 15.625rem;
-            padding-top: 3.75rem;
+            width: 15rem;
             position: fixed;
             top: 0;
             left: 0;
@@ -242,7 +241,15 @@
                         </form>
                     </li>
                     <li><a href="#"><i class="fas fa-user"></i> Mi perfil</a></li>
-                    <li><a href="#" id="actividadesAnzanBtn"><i class="fas fa-bolt"></i> Neuroactividades</a></li>
+                    <li>
+                        <a href="@Url.Action("Dashboard","Dashboard")" id="Neuros">
+                            <i class="fas fa-bolt"></i> Neuroactividades
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Desafios","Dashboard")" id="Challenge">
+                            <i class="fa-solid fa-atom"></i> Zona de desafios</a>
+                    </li>
                     <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
                 </ul>
@@ -263,7 +270,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const hamburgerBtn = document.getElementById('hamburger-btn');
             const sidebar = document.querySelector('.dashboard-sidebar');
-            const actividadesAnzanBtn = document.getElementById('actividadesAnzanBtn'); // Obtenemos el botón por su ID
+            const Neuros = document.getElementById('Neuros');
+            const Chal = document.getElementById('Challenge');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -271,14 +279,20 @@
                 });
             }
 
-            // Verificar si estamos en la página del dashboard (Bienvenido)
             const pageTitle = document.title;
-            if (pageTitle.includes('Bienvenido')) {
-                // Si estamos en el dashboard, agregamos la clase 'active' al botón de Actividades Anzan
-                if (actividadesAnzanBtn) {
-                    actividadesAnzanBtn.classList.add('active');
+            if (pageTitle.includes('Neuroactividades')) {
+              
+                if (Neuros) {
+                    Neuros.classList.add('active');
                 }
             }
+            if (pageTitle.includes('Desafios')) {
+
+                if (Chal) {
+                    Chal.classList.add('active');
+                }
+            }
+
         });
     </script>
 
