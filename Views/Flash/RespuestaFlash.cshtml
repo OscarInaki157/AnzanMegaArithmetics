@@ -5,10 +5,11 @@
 
 <div class="respuesta-flash-wrapper">
     <div class="respuesta-left">
-        <h1>🧠 RESPUESTA</h1>
+        <h1 class="titulo-respuesta">🧠 RESPUESTA</h1>
         <form method="post" action="/Flash/ResultadoFlash" class="respuesta-form">
-            <input type="number" name="respuestaUsuario" id="respuestaInput" class="respuesta-input" autofocus />
-            <button type="submit" class="btn-enviar">Enviar</button>
+            <input type="text" inputmode="none" name="respuestaUsuario" id="respuestaInput" class="respuesta-input" readonly />
+
+            <button type="submit" class="btn-enviar">ENVIAR</button>
         </form>
     </div>
 
@@ -43,10 +44,17 @@
         --color-primary-dark: #3737e8;
         --color-light: #d1d1f0;
         --color-text: #d1d1f0;
-        --color-success: #28a745;
-        --color-error: #e53935;
-        --color-secondary: #292c4f;
+        --color-danger: #e53935;
     }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
     .respuesta-flash-wrapper {
         display: flex;
         flex-direction: row;
@@ -55,22 +63,76 @@
         min-height: 100vh;
         padding: 2rem;
         gap: 2rem;
-        background-color: var(--color-bg);
         flex-wrap: wrap;
     }
 
-    .respuesta-left {
-        flex: 1 1 300px;
-        max-width: 50%;
-        text-align: center;
-    }
-
-    .teclado-numerico {
-        flex: 1 1 300px;
-        max-width: 50%;
+    .respuesta-left, .teclado-numerico {
+        flex: 1 1 400px;
+        max-width: 600px;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .titulo-respuesta {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+        text-shadow: 0 0 8px rgba(255,255,255,0.2);
+    }
+
+    .respuesta-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+        width: 100%;
+    }
+
+    .respuesta-input {
+        font-size: 4rem;
+        padding: 1rem 2rem;
+        text-align: center;
+        border-radius: 15px;
+        border: none;
+        width: 100%;
+        max-width: 400px;
+        background-color: var(--color-card-bg);
+        color: white;
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.2);
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+        .respuesta-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(76, 76, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+    .btn-enviar {
+        font-size: 1.8rem;
+        padding: 1rem 3rem;
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-enviar:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(76, 76, 255, 0.5);
+        }
+
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        width: 100%;
+        max-width: 400px;
     }
 
     .fila {
@@ -81,87 +143,66 @@
 
     .tecla {
         flex: 1;
-        font-size: 2rem;
-        padding: 1rem;
+        font-size: 2.2rem;
+        padding: 1.4rem;
         border-radius: 10px;
         border: none;
-        background-color: var(--color-primary); /* azul como el botón */
+        background-color: var(--color-primary);
         color: white;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
-        .tecla:hover {
-            background-color: var(--color-primary-dark);
-            transform: translateY(-2px);
+        .tecla.borrar {
+            background-color: var(--color-danger);
         }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
 
     .mitad {
         flex: 0 0 50%;
     }
 
-    .borrar {
-        background-color: var(--color-danger);
+    .tecla:hover {
+        background-color: #a6a6ff;
     }
 
-    .respuesta-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: center;
+    .tecla.borrar:hover,
+    .tecla.borrar.presionada {
+        background-color: #ff6666 !important;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
     }
 
-    .respuesta-input {
-        font-size: 3rem;
-        padding: 0.5rem 1rem;
-        text-align: center;
-        border-radius: 12px;
-        border: none;
-        width: 250px;
-        background-color: var(--color-card-bg);
-        color: white;
-        box-shadow: 0 0 10px rgba(76, 76, 255, 0.15);
-        transition: box-shadow 0.3s ease, transform 0.2s ease;
-    }
-
-        .respuesta-input:focus {
-            outline: none;
-            box-shadow: 0 0 15px rgba(76, 76, 255, 0.3);
-            transform: scale(1.03);
-        }
-
-    .btn-enviar {
-        background-color: var(--color-primary); /* azul */
-        color: white;
-        padding: 0.8rem 2rem;
-        font-size: 1.2rem;
-        font-weight: bold;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-
-        .btn-enviar:hover {
-            background-color: var(--color-primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(76, 76, 255, 0.5);
-        }
 
     @@media (max-width: 768px) {
         .respuesta-flash-wrapper
 
     {
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
-    .respuesta-left, .teclado-numerico {
-        max-width: 100%;
+    .titulo-respuesta {
+        font-size: 2.4rem;
+    }
+
+    .respuesta-input {
+        font-size: 3rem;
+    }
+
+    .btn-enviar {
+        font-size: 1.5rem;
+    }
+
+    .tecla {
+        font-size: 2rem;
     }
 
     }
@@ -177,18 +218,57 @@
             });
         };
 
-        // Interacción teclado
+        const input = document.getElementById('respuestaInput');
+
+        // Interacción táctil/clic
         document.querySelectorAll('.tecla').forEach(btn => {
             btn.addEventListener('click', () => {
-                const input = document.getElementById('respuestaInput');
                 if (btn.classList.contains('borrar')) {
                     input.value = input.value.slice(0, -1);
                 } else {
                     input.value += btn.textContent.trim();
                 }
+                input.focus();
 
-                input.focus(); // Mantiene el foco
+                // Glow también al clic
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 150);
             });
+        });
+
+        // Interacción con el teclado físico
+        document.addEventListener('keydown', e => {
+            const teclaPresionada = e.key;
+
+            if (teclaPresionada >= '0' && teclaPresionada <= '9') {
+                input.value += teclaPresionada;
+
+                const btn = Array.from(document.querySelectorAll('.tecla'))
+                    .find(b => b.textContent.trim() === teclaPresionada);
+
+                if (btn) {
+                    btn.classList.add('presionada');
+                    setTimeout(() => btn.classList.remove('presionada'), 150);
+                }
+            }
+
+            if (teclaPresionada === 'Backspace') {
+                input.value = input.value.slice(0, -1);
+
+                const btnBorrar = document.querySelector('.tecla.borrar');
+                if (btnBorrar) {
+                    btnBorrar.classList.add('presionada');
+                    setTimeout(() => btnBorrar.classList.remove('presionada'), 150);
+                }
+
+                e.preventDefault();
+            }
+
+            if (teclaPresionada === 'Enter') {
+                e.preventDefault();
+                document.querySelector('.respuesta-form')?.submit();
+            }
         });
     </script>
 }
+

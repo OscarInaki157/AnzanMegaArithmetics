@@ -5,7 +5,6 @@
 
     var correcto = Model.EsCorrecto;
     var total = TempData.Peek("CantidadEjercicios") != null ? Convert.ToInt32(TempData.Peek("CantidadEjercicios")) : 1;
-    var porcentaje = correcto ? 100 : 0;
 
     var historialStr = Context.Session.GetString("HistorialFlash");
     var sesiones = string.IsNullOrEmpty(historialStr)
@@ -14,72 +13,70 @@
 
     int totalSesiones = sesiones.Count;
     int correctas = sesiones.Count(s => s.FueCorrecta);
+    int incorrectas = totalSesiones - correctas;
     int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
 
-
-    var barraColor = correcto ? "#28a745" : "#dc3545";
+    var barraColor = porcentajeGlobal >= 80 ? "#28a745" : porcentajeGlobal >= 50 ? "#ffc107" : "#dc3545";
     var textoResultado = !Model.Respondido ? "❓ No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
 }
 
-<h1>📊 Resultado del Ejercicio</h1>
+<h1>📊 Resumen del Ejercicio</h1>
 <hr />
 
 <div class="botones-centrados">
     <form method="get" asp-action="FormularioFlash">
-        <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="TipoOperacion" value="@TempData.Peek("TipoOperacion")" />
-        <input type="hidden" name="DigitosSuma" value="@TempData.Peek("DigitosSuma")" />
-        <input type="hidden" name="DigitosResta" value="@TempData.Peek("DigitosResta")" />
-        <input type="hidden" name="MinDigitos" value="@TempData.Peek("MinDigitos")" />
-        <input type="hidden" name="MaxDigitos" value="@TempData.Peek("MaxDigitos")" />
         <button type="submit" class="btn-dashboard btn-primary">⚙️ Configuración</button>
     </form>
-
-    <form method="post" asp-action="Concentracion">
-        <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="TipoOperacion" value="@TempData.Peek("TipoOperacion")" />
-        <input type="hidden" name="DigitosSuma" value="@TempData.Peek("DigitosSuma")" />
-        <input type="hidden" name="DigitosResta" value="@TempData.Peek("DigitosResta")" />
-        <input type="hidden" name="MinDigitos" value="@TempData.Peek("MinDigitos")" />
-        <input type="hidden" name="MaxDigitos" value="@TempData.Peek("MaxDigitos")" />
+    <form method="get" asp-action="Concentracion">
         <button type="submit" class="btn-dashboard btn-success">🔁 Repetir</button>
     </form>
-
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
         <button type="submit" class="btn-dashboard btn-secondary">🏠 Dashboard</button>
     </form>
+</div>
+
+<div class="resultado-final" style="color:@barraColor">@textoResultado</div>
+
+<div class="resultado-container">
+    <p><strong>Operación:</strong> @Model.OperacionTexto</p>
+    <p><strong>Tu respuesta:</strong> @(Model.Respondido ? Model.RespuestaUsuario.ToString() : "No respondió")</p>
+    <p><strong>Respuesta correcta:</strong> @Model.RespuestaCorrecta</p>
 </div>
 
 <div class="resultados resultados-con-glow">
     <div class="cont-onl">
         <div class="contenedores-resumen">
             <div class="card-resumen total">
-                <div class="card-titulo">TOTAL</div>
+                <div class="card-titulo">NÚMERO DE EJERCICIOS</div>
                 <div class="card-icono">📄</div>
-                <div class="card-valor">@total</div>
+                <div class="card-valor">@totalSesiones</div>
+            </div>
+            <div class="card-resumen correctos">
+                <div class="card-titulo">CORRECTOS</div>
+                <div class="card-icono">✅</div>
+                <div class="card-valor">@correctas</div>
+            </div>
+            <div class="card-resumen incorrectos">
+                <div class="card-titulo">INCORRECTOS</div>
+                <div class="card-icono">❌</div>
+                <div class="card-valor">@incorrectas</div>
+            </div>
+            <div class="card-resumen experiencia">
+                <div class="card-titulo">XP</div>
+                <div class="card-icono">✨</div>
+                <div class="card-valor">@porcentajeGlobal/100 XP</div>
             </div>
         </div>
     </div>
 
     <div class="container-barrap">
-        <p>🌟 Porcentaje de éxito global: <strong>@porcentajeGlobal% (@totalSesiones sesión)</strong></p>
+        <p>🌟 Porcentaje de éxito: <strong>@porcentajeGlobal%</strong></p>
         <div class="barra-progreso">
-            <div class="barra-progreso-interna" style="width: @porcentajeGlobal%; background-color: #4caf50;"></div>
+            <div class="barra-progreso-interna" style="width: @porcentajeGlobal%; background-color: @barraColor;"></div>
         </div>
-
     </div>
 </div>
 
-<div class="resultado-container">
-    <p><strong>Operación:</strong> @Model.OperacionTexto</p>
-    <p><strong>Tu respuesta:</strong> @(Model.Respondido ? Model.RespuestaUsuario.ToString() : "No respondió")</p>
-    <p><strong>Respuesta correcta:</strong> @Model.RespuestaCorrecta</p>
-    <p class="resultado-final" style="color:@barraColor">@textoResultado</p>
-</div>
 
 <style>
     :root {
@@ -102,6 +99,19 @@
         padding: 0;
     }
 
+    h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin-top: 10px;
+        margin-bottom: 0.5rem;
+    }
+
+    hr {
+        border-color: #4c4cff;
+        width: 80%;
+        margin: 10px auto 30px auto;
+    }
+
     .botones-centrados {
         margin: 2rem auto 1rem auto;
         display: flex;
@@ -109,10 +119,6 @@
         gap: 1.5rem;
         flex-wrap: wrap;
         max-width: 800px;
-    }
-
-    h1{
-        text-align:center;
     }
 
     .btn-dashboard {
@@ -134,7 +140,6 @@
         .btn-primary:hover {
             background-color: var(--color-primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
         }
 
     .btn-success {
@@ -145,7 +150,6 @@
         .btn-success:hover {
             background-color: #218838;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.5);
         }
 
     .btn-secondary {
@@ -156,7 +160,6 @@
         .btn-secondary:hover {
             background-color: #1b1e3c;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
         }
 
     .resultados {
@@ -165,7 +168,7 @@
         align-items: center;
         justify-content: space-between;
         margin: 2rem auto;
-        max-width: 900px;
+        max-width: 1000px;
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
         border-radius: 12px;
@@ -174,7 +177,31 @@
     }
 
     .cont-onl {
-        flex: 1 1 50%;
+        flex: 1 1 60%;
+    }
+
+    .container-barrap {
+        flex: 1 1 40%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .barra-progreso {
+        margin-top: 10px;
+        width: 100%;
+        max-width: 300px;
+        background-color: #292c4f;
+        border-radius: 6px;
+        height: 22px;
+        overflow: hidden;
+    }
+
+    .barra-progreso-interna {
+        height: 100%;
+        transition: width 0.5s ease;
     }
 
     .contenedores-resumen {
@@ -185,9 +212,9 @@
     }
 
     .card-resumen {
-        flex: 1 1 110px;
-        max-width: 130px;
-        min-width: 90px;
+        flex: 1 1 120px;
+        max-width: 150px;
+        min-width: 100px;
         background-color: #292c4f;
         border-radius: 12px;
         padding: 10px;
@@ -221,27 +248,16 @@
         background-color: #00acc1;
     }
 
-    .container-barrap {
-        flex: 1 1 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+    .card-resumen.correctos {
+        background-color: #28a745;
     }
 
-    .barra-progreso {
-        margin: 0 auto;
-        width: 100%;
-        max-width: 300px;
-        background-color: #292c4f;
-        border-radius: 6px;
-        height: 22px;
-        overflow: hidden;
+    .card-resumen.incorrectos {
+        background-color: #dc3545;
     }
 
-    .barra-progreso-interna {
-        height: 100%;
-        transition: width 0.5s ease;
+    .card-resumen.experiencia {
+        background-color: #4c4cff;
     }
 
     .resultado-container {
@@ -250,12 +266,6 @@
         margin: 0 auto;
     }
 
-        .resultado-container h1 {
-            font-size: 2.4rem;
-            margin-bottom: 2rem;
-            color: var(--color-light);
-        }
-
         .resultado-container p {
             font-size: 1.4rem;
             margin: 12px 0;
@@ -263,23 +273,45 @@
 
     .resultado-final {
         font-weight: bold;
-        font-size: 1.6rem;
+        font-size: 2rem;
         margin-top: 2rem;
+        text-align:center;
     }
 
     @@media (max-width: 600px) {
+        .grid-acordeones {
+            grid-template-columns: 1fr;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+        }
+
+        .resultados {
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
         .botones-centrados {
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
+            flex-wrap: inherit;
+            gap: 10px;
+            margin: 30px 5px;
         }
 
-        .btn-dashboard {
-            width: 100%;
-            max-width: 280px;
+            .botones-centrados button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+        .resumen-grid-contenedor p {
+            font-size: 1rem;
         }
 
-        .resultado-container h1 {
-            font-size: 2rem;
+        .card-resumen {
+            flex: 1 1 45%;
+            max-width: 100%;
         }
 
         .card-valor {
@@ -289,5 +321,23 @@
         .card-icono {
             font-size: 1rem;
         }
+
+        .contenedores-resumen {
+            gap: 5px;
+            flex-direction: row;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .container-barrap {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .cont-onl, .container-barrap {
+            flex: 1 1 100%;
+            max-width: 100%;
+        }
+
     }
 </style>

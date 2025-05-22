@@ -1,10 +1,9 @@
 ﻿@{
     ViewBag.Title = "Número Flash";
     Layout = "_LayoutFlash";
-    var numeroActual = ViewBag.NumeroActual ?? "0";
-    var velocidad = ViewBag.Velocidad ?? 2;
-    var ejercicioActual = ViewBag.EjercicioActual ?? 1;
-    var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
+    var velocidad = ViewBag.Velocidad;
+    var totalEjercicios = ViewBag.TotalEjercicios;
+    var secuenciaJson = ViewBag.Secuencia.ToString();
 }
 
 <div class="top-bar">
@@ -14,15 +13,13 @@
         </button>
     </form>
 
-    <div class="info-tiempo">
+@*     <div class="info-tiempo">
         <span>⏱ <span id="temporizador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
-    </div>
+    </div> *@
 </div>
 
 <div class="flash-wrapper">
-    <div class="numero-flash" id="numeroFlash" tabindex="-1">
-        @numeroActual
-    </div>
+    <div class="numero-flash" id="numeroFlash">...</div>
 </div>
 
 
@@ -44,7 +41,6 @@
         font-size: clamp(3rem, 15vw, 12rem);
         font-weight: bold;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-        animation: zoomIn 0.4s ease-in-out;
         color: var(--color-light);
         outline: none;
         word-break: break-word;
@@ -53,19 +49,6 @@
         justify-content: center;
         height: 100%;
         width: 100%;
-    }
-
-
-
-    @@keyframes zoomIn {
-        from { opacity: 0; transform: scale(0.7); }
-        to   { opacity: 1; transform: scale(1); }
-    }
-
-    @@keyframes pulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: 0.7; }
-        100% { transform: scale(1); opacity: 1; }
     }
 
     @@media (max-width: 768px) {
@@ -210,36 +193,52 @@
     }
 </style>
 
-
 @section Scripts {
     <script>
-        const velocidad = parseFloat("@velocidad"); // en segundos
-        const totalEjercicios = parseInt("@totalEjercicios");
-        const ejercicioActual = parseInt("@ejercicioActual");
+        const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
+        const velocidad = parseFloat("@ViewBag.Velocidad"); // segundos
+        const tiempoPorNumero = velocidad * 950; // ms
+
+        const numeroFlash = document.getElementById("numeroFlash");
         const temporizador = document.getElementById("temporizador");
 
-        const tiempoEntre = velocidad * 1000; // en milisegundos
-        const tiempoInicio = performance.now();
+        let tiempoInicio = null;
+        let ultimoIndiceMostrado = -1;
 
-        function siguientePaso() {
-            const ahora = performance.now();
-            const tiempoTranscurrido = ahora - tiempoInicio;
-            const tiempoObjetivo = tiempoEntre;
-
-            if (tiempoTranscurrido >= tiempoObjetivo) {
-                window.location.href = "/Flash/EjercicioFlash";
-            } else {
-                // Actualizar contador visible
-                const restante = (tiempoObjetivo - tiempoTranscurrido) / 1000;
-                temporizador.textContent = restante.toFixed(1);
-
-                // Calcular cuánto falta para el próximo paso
-                const delay = Math.max(0, tiempoObjetivo - tiempoTranscurrido);
-                requestAnimationFrame(siguientePaso);
-            }
+        function mostrarNumero(i) {
+            const numero = numeros[i];
+            numeroFlash.textContent = numero >= 0 ? numero : `-${Math.abs(numero)}`;
+            numeroFlash.classList.remove("zoom");
+            void numeroFlash.offsetWidth; // reinicia animación
+            numeroFlash.classList.add("zoom");
         }
 
-        requestAnimationFrame(siguientePaso);
+        function loop(timestamp) {
+            if (!tiempoInicio) tiempoInicio = timestamp;
+
+            const elapsed = timestamp - tiempoInicio;
+            const index = Math.floor(elapsed / tiempoPorNumero);
+
+            if (index >= numeros.length) {
+                window.location.href = "/Flash/RespuestaFlash";
+                return;
+            }
+
+            if (index !== ultimoIndiceMostrado) {
+                mostrarNumero(index);
+                ultimoIndiceMostrado = index;
+            }
+
+            const tiempoSiguiente = (index + 1) * tiempoPorNumero;
+            const restante = Math.max(0, tiempoSiguiente - elapsed) / 1000;
+            // temporizador.textContent = restante.toFixed(1);
+
+            requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
     </script>
 }
+
+
 
