@@ -9,33 +9,57 @@ namespace AnzanMegaArithmetics.Controllers
     public class FlashController : Controller
     {
         [HttpGet]
-        public IActionResult FormularioFlash(
-            int? CantidadEjercicios,
-            string VelocidadPreguntas,
-            int? TiempoMeditacion,
-            string TipoOperacion,
-            string DigitosSuma,
-            string DigitosResta,
-            int? MinDigitos,
-            int? MaxDigitos)
+        public IActionResult LimpiarFlashYDashboard()
         {
-
+            HttpContext.Session.Remove("ConfFlash");
             HttpContext.Session.Remove("HistorialFlash");
+            HttpContext.Session.Remove("ResultadoFlash");
+            HttpContext.Session.Remove("SecuenciaNumeros");
 
-            var modelo = new ConfFlashModel
+            return RedirectToAction("Dashboard", "Dashboard");
+        }
+
+        [HttpGet]
+        public IActionResult FormularioFlash()
+        {
+            var configStr = HttpContext.Session.GetString("ConfFlash");
+
+            ConfFlashModel modelo;
+
+            if (!string.IsNullOrEmpty(configStr))
             {
-                CantidadEjercicios = CantidadEjercicios ?? 5,
-                VelocidadPreguntas = string.IsNullOrWhiteSpace(VelocidadPreguntas) ? "1.0" : VelocidadPreguntas,
-                TiempoMeditacion = TiempoMeditacion ?? 3,
-                TipoOperacion = TipoOperacion ?? "suma",
-                DigitosSuma = DigitosSuma ?? "1,2,3,4,5,6,7,8,9",
-                DigitosResta = DigitosResta ?? "1,2,3,4,5,6,7,8,9",
-                MinDigitos = MinDigitos ?? 1,
-                MaxDigitos = MaxDigitos ?? 1
-            };
+                try
+                {
+                    modelo = JsonSerializer.Deserialize<ConfFlashModel>(configStr);
+                }
+                catch
+                {
+                    modelo = ObtenerConfiguracionPorDefecto();
+                }
+            }
+            else
+            {
+                modelo = ObtenerConfiguracionPorDefecto();
+            }
 
             return View(modelo);
         }
+
+        private ConfFlashModel ObtenerConfiguracionPorDefecto()
+        {
+            return new ConfFlashModel
+            {
+                CantidadEjercicios = 5,
+                VelocidadPreguntas = "1.0",
+                TiempoMeditacion = 3,
+                TipoOperacion = "suma",
+                DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                DigitosResta = "1,2,3,4,5,6,7,8,9",
+                MinDigitos = 1,
+                MaxDigitos = 1
+            };
+        }
+
 
         [HttpGet]
         public IActionResult Concentracion()
@@ -84,11 +108,16 @@ namespace AnzanMegaArithmetics.Controllers
             var numeros = new List<int>();
             var secuencia = new List<string>();
 
-            // Generar el primer número
-            string primerNumeroTexto = GenerarNumero(digitosValidos, minDig, maxDig);
+            // Detectar si hay restas
+            bool incluyeResta = tipoOperacion == "resta" || tipoOperacion == "ambos";
+
+            // Generar el primer número con más dígitos si hay resta
+            int maxDigPrimerNumero = incluyeResta ? Math.Min(maxDig + 2, 9) : maxDig;
+            string primerNumeroTexto = GenerarNumero(digitosValidos, minDig, maxDigPrimerNumero);
             int acumulado = int.Parse(primerNumeroTexto);
             numeros.Add(acumulado);
             secuencia.Add(acumulado.ToString());
+
 
             // Generar los siguientes con operaciones
             for (int i = 1; i < cantidad; i++)

@@ -17,7 +17,7 @@
     int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
 
     var barraColor = porcentajeGlobal >= 80 ? "#28a745" : porcentajeGlobal >= 50 ? "#ffc107" : "#dc3545";
-    var textoResultado = !Model.Respondido ? "❓ No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
+    var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
 }
 
 <h1>📊 Resumen del Ejercicio</h1>
@@ -30,18 +30,29 @@
     <form method="get" asp-action="Concentracion">
         <button type="submit" class="btn-dashboard btn-success">🔁 Repetir</button>
     </form>
-    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+    <form method="get" asp-controller="Flash" asp-action="LimpiarFlashYDashboard">
         <button type="submit" class="btn-dashboard btn-secondary">🏠 Dashboard</button>
     </form>
 </div>
 
-<div class="resultado-final" style="color:@barraColor">@textoResultado</div>
-
-<div class="resultado-container">
-    <p><strong>Operación:</strong> @Model.OperacionTexto</p>
-    <p><strong>Tu respuesta:</strong> @(Model.Respondido ? Model.RespuestaUsuario.ToString() : "No respondió")</p>
-    <p><strong>Respuesta correcta:</strong> @Model.RespuestaCorrecta</p>
+<div class="resultado-final @( !Model.Respondido ? "resultado-norespondio" : (correcto ? "resultado-correcto" : "resultado-incorrecto") )">
+    @textoResultado
 </div>
+
+
+<div class="contenedor-respuestas">
+    <div class="respuesta-box izquierda">
+        <div class="respuesta-titulo">Tu respuesta</div>
+        <div class="respuesta-valor">
+            @(Model.Respondido? Model.RespuestaUsuario.ToString() : "No respondió")
+        </div>
+    </div>
+    <div class="respuesta-box derecha">
+        <div class="respuesta-titulo">Respuesta correcta</div>
+        <div class="respuesta-valor">@Model.RespuestaCorrecta</div>
+    </div>
+</div>
+
 
 <div class="resultados resultados-con-glow">
     <div class="cont-onl">
@@ -176,9 +187,61 @@
         box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
     }
 
+    .contenedor-respuestas {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin: 2rem auto;
+        flex-wrap: wrap;
+        max-width: 700px;
+    }
+
+    .respuesta-box {
+        background-color: var(--color-card-bg);
+        border: 2px solid var(--color-primary);
+        border-radius: 15px;
+        padding: 1.5rem;
+        flex: 1 1 300px;
+        text-align: center;
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+        .respuesta-box:hover {
+            transform: scale(1.03);
+        }
+
+    .respuesta-titulo {
+        font-size: 1.2rem;
+        color: var(--color-light);
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .respuesta-valor {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+    }
+
+
     .cont-onl {
         flex: 1 1 60%;
     }
+
+    .resultado-correcto {
+        color: #28a745;
+    }
+
+    .resultado-incorrecto {
+        color: #dc3545;
+    }
+
+    .resultado-norespondio {
+        color: #ffc107;
+    }
+
 
     .container-barrap {
         flex: 1 1 40%;
@@ -273,7 +336,7 @@
 
     .resultado-final {
         font-weight: bold;
-        font-size: 2rem;
+        font-size: 3.5rem;
         margin-top: 2rem;
         text-align:center;
     }

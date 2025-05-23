@@ -19,42 +19,11 @@
 </div>
 
 <div class="flash-wrapper">
-    <div class="numero-flash" id="numeroFlash">...</div>
+    <div class="numero-flash color-a" id="numeroFlash">...</div>
 </div>
 
 
 <style>
-
-
-    .flash-wrapper {
-        flex:1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding:1rem;
-        min-height:calc(100vh - 10rem);
-    }
-
-    .numero-flash {
-        font-size: clamp(3rem, 15vw, 12rem);
-        font-weight: bold;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-        color: var(--color-light);
-        outline: none;
-        word-break: break-word;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        width: 100%;
-    }
-
-    @@media (max-width: 768px) {
-        .numero-flash { font-size: 4rem; }
-    }
-
 
     body {
         background-color: #161a36;
@@ -128,6 +97,42 @@
         padding: 1rem;
     }
 
+    .color-a {
+        color: var(--color-light);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+    }
+
+    .color-b {
+        color: #28a745;
+        text-shadow: 0 0 15px rgba(124, 252, 181, 0.4);
+    }
+
+
+
+    .flash-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1rem;
+        min-height: calc(100vh - 10rem);
+    }
+
+    .numero-flash {
+        font-size: clamp(3rem, 15vw, 12rem);
+        font-weight: bold;
+        outline: none;
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+
 
 
     @@keyframes bounce {
@@ -176,9 +181,6 @@
 
     @@media (max-width: 768px) {
 
-       
-
-
         .info-tiempo {
             margin: 0 auto;
         }
@@ -188,6 +190,9 @@
             font-size: 0.9rem;
         }
 
+        .numero-flash {
+            font-size: 4rem;
+        }
         
 
     }
@@ -197,7 +202,7 @@
     <script>
         const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
         const velocidad = parseFloat("@ViewBag.Velocidad"); // segundos
-        const tiempoPorNumero = velocidad * 950; // ms
+        const tiempoPorNumero = velocidad * 999; // ms
 
         const numeroFlash = document.getElementById("numeroFlash");
         const temporizador = document.getElementById("temporizador");
@@ -208,10 +213,17 @@
         function mostrarNumero(i) {
             const numero = numeros[i];
             numeroFlash.textContent = numero >= 0 ? numero : `-${Math.abs(numero)}`;
-            numeroFlash.classList.remove("zoom");
-            void numeroFlash.offsetWidth; // reinicia animación
-            numeroFlash.classList.add("zoom");
+
+            if (i % 2 === 0) {
+                numeroFlash.classList.remove("color-b");
+                numeroFlash.classList.add("color-a");
+            } else {
+                numeroFlash.classList.remove("color-a");
+                numeroFlash.classList.add("color-b");
+            }
+            reproducirBeep();
         }
+
 
         function loop(timestamp) {
             if (!tiempoInicio) tiempoInicio = timestamp;
@@ -237,6 +249,25 @@
         }
 
         requestAnimationFrame(loop);
+
+         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function reproducirBeep() {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // volumen suave
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1); // duración exacta
+        }
+
+
     </script>
 }
 
