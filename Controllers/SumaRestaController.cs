@@ -11,7 +11,11 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult FormularioSR()
         {
-            return View(new ConfSumaRestaModel());
+            return View(new ConfSumaRestaModel
+            {
+                DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                DigitosResta = "1,2,3,4,5,6,7,8,9"
+            });
         }
 
         [HttpPost]

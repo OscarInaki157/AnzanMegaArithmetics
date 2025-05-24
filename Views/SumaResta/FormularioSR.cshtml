@@ -8,15 +8,14 @@
     var velocidad = string.IsNullOrWhiteSpace(Model.VelocidadPreguntas) ? "0" : Model.VelocidadPreguntas.Replace(",", ".");
 }
 
-<div class="dashboard-button-wrapper">
+<div class="top-bar-config">
     <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
         <button type="submit" class="btn-dashboard">
             <i class="fas fa-home"></i> Regresar al Dashboard
         </button>
     </form>
+    <h2>Ajustes Suma y Resta</h2>
 </div>
-
-<h2>Ajustes Suma y Resta</h2>
 
 <form method="post" action="/SumaResta/ConcentracionSR" id="formConfigSR" class="formulario-flash">
 
@@ -221,13 +220,23 @@
         color: var(--color-light);
     }
 
-    h2 {
-        text-align: center;
-        margin-bottom: 1rem;
-        color: var(--color-light);
-        font-weight: 600;
-        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    .top-bar-config {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        max-width: 900px;
+        margin: 2rem auto 1rem auto;
+        padding: 0 1rem;
     }
+
+        .top-bar-config h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: var(--color-light);
+        }
+
 
     form#formConfigSR input[type="range"] {
         background-color: #292c4f;
@@ -325,11 +334,6 @@
         gap: 0.6rem;
     }
 
-    form#formConfigSR {
-        margin-top: 2rem;
-    }
-
-
         .btn-dashboard i {
             font-size: 1.1rem;
         }
@@ -371,7 +375,16 @@
         align-items: center;
         font-size: 0.9rem;
         font-weight: 500;
+        cursor: pointer;
+        transition: all 0.25s ease-in-out;
+        box-shadow: 0 0 0 rgba(76, 76, 255, 0);
     }
+
+        .tag:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.6);
+        }
 
         .tag .remove {
             margin-left: 8px;
