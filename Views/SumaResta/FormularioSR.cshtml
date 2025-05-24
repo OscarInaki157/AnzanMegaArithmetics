@@ -1,15 +1,20 @@
 ﻿@model AnzanMegaArithmetics.Models.ConfSumaRestaModel
 @{
-    ViewBag.Title = "Ejercicios Sumas y restas";
+    ViewBag.Title = "Ejercicios Sumas y Restas";
     Layout = "_LayoutSR";
-    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 1;
-    var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
+
+    var cantidad = Model.CantidadEjercicios;
+    var tiempo = Model.TiempoMeditacion;
     var ambosTrue = Model.DirectaSuma && Model.DirectaResta;
-    var velocidad = string.IsNullOrWhiteSpace(Model.VelocidadPreguntas) ? "0" : Model.VelocidadPreguntas.Replace(",", ".");
+
+    var velocidad = string.IsNullOrWhiteSpace(Model.VelocidadPreguntas)
+        ? "0"
+        : Model.VelocidadPreguntas.Replace(",", ".");
 }
 
+
 <div class="top-bar-config">
-    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+    <form method ="get" asp-action="LimpiarSumaRestaYDashboard">
         <button type="submit" class="btn-dashboard">
             <i class="fas fa-home"></i> Regresar al Dashboard
         </button>
@@ -45,21 +50,21 @@
             </div>
 
             <div>
-                <label>Número máximo de dígitos:</label>
-                <select name="maxDigitos" id="maxDigitosSelect">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
-                    }
-                </select>
-            </div>
-
-            <div>
                 <label>Número mínimo de dígitos:</label>
                 <select name="minDigitos" id="minDigitosSelect">
                     @for (int i = 1; i <= 5; i++)
                     {
                         <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Número máximo de dígitos:</label>
+                <select name="maxDigitos" id="maxDigitosSelect">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
                     }
                 </select>
             </div>
@@ -74,7 +79,7 @@
 
             <div>
                 <label>Valor máximo:</label>
-                <input type="number" name="valorMaximo" min="0" max="9999999999" value="@Model.ValorMaximo" />
+                <input type="number" name="valorMaximo" id="valorMaximoInput" min="0" max="9999999999" value="@(Model.ValorMaximo == 0 ? " " : Model.ValorMaximo.ToString())" placeholder="0" />
             </div>
 
             <div id="usarMaxContainer">

@@ -11,11 +11,25 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult FormularioSR()
         {
+            var configJson = HttpContext.Session.GetString("UltimaConfigSR");
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                var config = JsonSerializer.Deserialize<ConfSumaRestaModel>(configJson);
+                return View(config);
+            }
+
             return View(new ConfSumaRestaModel
             {
                 DigitosSuma = "1,2,3,4,5,6,7,8,9",
                 DigitosResta = "1,2,3,4,5,6,7,8,9"
             });
+        }
+
+        [HttpGet]
+        public IActionResult LimpiarSumaRestaYDashboard()
+        {
+            HttpContext.Session.Remove("UltimaConfigSR");
+            return RedirectToAction("Dashboard", "Dashboard");
         }
 
         [HttpPost]
@@ -53,6 +67,9 @@ namespace AnzanMegaArithmetics.Controllers
 
             ViewBag.TiempoMeditacion = config.TiempoMeditacion;
             ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
+
+            HttpContext.Session.SetString("UltimaConfigSR", JsonSerializer.Serialize(config));
+
 
             return View("ConcentracionSR");
         }
@@ -351,6 +368,37 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoSR");
         }
+
+        [HttpPost]
+        public IActionResult RepetirEjercicioSR()
+        {
+            var configJson = HttpContext.Session.GetString("UltimaConfigSR");
+            if (string.IsNullOrEmpty(configJson))
+            {
+                return RedirectToAction("FormularioSR");
+            }
+
+            var config = JsonSerializer.Deserialize<ConfSumaRestaModel>(configJson);
+
+            TempData["CantidadEjercicios"] = config.CantidadEjercicios;
+            TempData["NumeroOperaciones"] = config.NumeroOperaciones;
+            TempData["MinDigitos"] = config.MinDigitos;
+            TempData["MaxDigitos"] = config.MaxDigitos;
+            TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
+            TempData["ValorMaximo"] = config.ValorMaximo.ToString();
+            TempData["UsarMaximoComoBase"] = config.UsarMaximoComoBase;
+            TempData["TipoOperacion"] = config.TipoOperacion ?? "suma";
+            TempData["TiempoMeditacion"] = config.TiempoMeditacion;
+            TempData["DigitosSuma"] = (config.DigitosSuma ?? "").Replace("\r", "").Replace("\n", "").Trim();
+            TempData["DigitosResta"] = (config.DigitosResta ?? "").Replace("\r", "").Replace("\n", "").Trim();
+            TempData["DirectaSuma"] = config.DirectaSuma;
+            TempData["DirectaResta"] = config.DirectaResta;
+            TempData["EjerciciosRealizados"] = 0;
+            TempData["Resultados"] = JsonSerializer.Serialize(new List<RSumaRestaModel>());
+
+            return RedirectToAction("EjercicioSR");
+        }
+
 
 
     }

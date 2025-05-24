@@ -348,43 +348,20 @@
 <hr />
 
 <div class="botones-centrados">
-    <form method="post" asp-action="FormularioSR">
-        <input type="hidden" name="cantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="numeroOperaciones" value="@TempData.Peek("NumeroOperaciones")" />
-        <input type="hidden" name="minDigitos" value="@TempData.Peek("MinDigitos")" />
-        <input type="hidden" name="maxDigitos" value="@TempData.Peek("MaxDigitos")" />
-        <input type="hidden" name="velocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="valorMaximo" value="@TempData.Peek("ValorMaximo")" />
-        <input type="hidden" name="usarMaximoComoBase" value="@(Convert.ToBoolean(TempData.Peek("UsarMaximoComoBase")) ? "true" : "false")" />
-        <input type="hidden" name="tipoOperacion" value="@TempData.Peek("TipoOperacion")" />
-        <input type="hidden" name="tiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="digitosSuma" value="@TempData.Peek("DigitosSuma")" />
-        <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
-        <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
-        <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
+    <form method="get" asp-action="FormularioSR">
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
-    <form method="post" asp-action="ConcentracionSR">
-        <input type="hidden" name="cantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="numeroOperaciones" value="@TempData.Peek("NumeroOperaciones")" />
-        <input type="hidden" name="minDigitos" value="@TempData.Peek("MinDigitos")" />
-        <input type="hidden" name="maxDigitos" value="@TempData.Peek("MaxDigitos")" />
-        <input type="hidden" name="velocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="valorMaximo" value="@TempData.Peek("ValorMaximo")" />
-        <input type="hidden" name="usarMaximoComoBase" value="@(Convert.ToBoolean(TempData.Peek("UsarMaximoComoBase")) ? "true" : "false")" />
-        <input type="hidden" name="tipoOperacion" value="@TempData.Peek("TipoOperacion")" />
-        <input type="hidden" name="tiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="digitosSuma" value="@TempData.Peek("DigitosSuma")" />
-        <input type="hidden" name="digitosResta" value="@TempData.Peek("DigitosResta")" />
-        <input type="hidden" name="directaSuma" value="@(Convert.ToBoolean(TempData.Peek("DirectaSuma")) ? "true" : "false")" />
-        <input type="hidden" name="directaResta" value="@(Convert.ToBoolean(TempData.Peek("DirectaResta")) ? "true" : "false")" />
+
+    <form method="post" asp-action="RepetirEjercicioSR">
         <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
 
-    <form method="get" asp-controller="Dashboard" asp-action="Dashboard">
+
+    <form method="get" asp-action="LimpiarSumaRestaYDashboard">
         <button type="submit" class="btn-secondary">🏠 Dashboard</button>
     </form>
+
 </div>
 
 <div class="resultados resultados-con-glow">
