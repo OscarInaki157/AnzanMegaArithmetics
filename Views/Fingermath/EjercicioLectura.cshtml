@@ -720,15 +720,26 @@ top: 27%;
         form.submit();
     }
 
-    function validarRespuesta() {
+       function validarRespuesta() {
         if (inputRespuesta.value.trim() === "") {
             respondidoInput.value = "false";
-            inputRespuesta.value = "-1";
+
+    
+            const inputHidden = document.createElement("input");
+            inputHidden.type = "hidden";
+            inputHidden.name = "respuesta";
+            inputHidden.value = "-1";
+            formRespuesta.appendChild(inputHidden);
+
+         
+            inputRespuesta.value = "";
+            inputRespuesta.name = "";
         } else {
             respondidoInput.value = "true";
         }
         return true;
     }
+
 
 </script>
 

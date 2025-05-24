@@ -130,11 +130,16 @@
         width: 2.8rem;
         height: 1.95rem;
         clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-        background: linear-gradient(145deg, #4c4cff, #3737e8);
-        box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(145deg, #5a5a9c, #3d3f6f);
+        box-shadow: 1px 1px 4px #20244a, -1px -1px 4px #2d3160;
         transition: top 0.3s ease;
         z-index: 1;
     }
+
+        .bead.activa {
+            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        }
 
 
     .bead.superior {
@@ -455,7 +460,7 @@
                     contadorElemento.textContent = "0.0";
                     inputRespuesta.focus({ preventScroll: true });
 
-                    // 🔽 Aquí desactivamos las cuentas
+                   
                     document.querySelectorAll(".bead").forEach(bead => {
                         bead.classList.remove("activa");
                         bead.classList.add("inactiva");
@@ -470,12 +475,23 @@
         function validarRespuesta() {
             if (inputRespuesta.value.trim() === "") {
                 respondidoInput.value = "false";
-                inputRespuesta.value = "-1";
+
+
+                const inputHidden = document.createElement("input");
+                inputHidden.type = "hidden";
+                inputHidden.name = "respuesta";
+                inputHidden.value = "-1";
+                document.getElementById("formRespuesta").appendChild(inputHidden);
+
+   
+                inputRespuesta.value = "";
+                inputRespuesta.name = "";
             } else {
                 respondidoInput.value = "true";
             }
             return true;
         }
+
 
         function finalizarConRespuesta() {
             const respuesta = inputRespuesta.value.trim();
