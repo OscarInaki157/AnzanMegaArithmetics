@@ -19,7 +19,7 @@
 </div>
 
 <div class="flash-wrapper">
-    <div class="numero-flash color-a" id="numeroFlash">...</div>
+    <div class="numero-flash color-a" id="numeroFlash"></div>
 </div>
 
 
@@ -201,14 +201,30 @@
 @section Scripts {
     <script>
         const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
-        const velocidad = parseFloat("@ViewBag.Velocidad"); // segundos
-        const tiempoPorNumero = velocidad * 999; // ms
-
-        const numeroFlash = document.getElementById("numeroFlash");
-        const temporizador = document.getElementById("temporizador");
+        const velocidad = parseFloat("@ViewBag.Velocidad");
+        const tiempoPorNumero = velocidad * 800;
 
         let tiempoInicio = null;
         let ultimoIndiceMostrado = -1;
+        let esperaFinalizada = false;
+        const numeroFlash = document.getElementById("numeroFlash");
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function reproducirBeep() {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
 
         function mostrarNumero(i) {
             const numero = numeros[i];
@@ -224,7 +240,6 @@
             reproducirBeep();
         }
 
-
         function loop(timestamp) {
             if (!tiempoInicio) tiempoInicio = timestamp;
 
@@ -232,8 +247,16 @@
             const index = Math.floor(elapsed / tiempoPorNumero);
 
             if (index >= numeros.length) {
-                window.location.href = "/Flash/RespuestaFlash";
-                return;
+                if (!esperaFinalizada) {
+                    // Oculta el número visualmente
+                    numeroFlash.textContent = "";
+                    
+                    esperaFinalizada = true;
+                    setTimeout(() => {
+                        window.location.href = "/Flash/RespuestaFlash";
+                    }, 500);
+                }
+                return; 
             }
 
             if (index !== ultimoIndiceMostrado) {
@@ -241,35 +264,17 @@
                 ultimoIndiceMostrado = index;
             }
 
-            const tiempoSiguiente = (index + 1) * tiempoPorNumero;
-            const restante = Math.max(0, tiempoSiguiente - elapsed) / 1000;
-            // temporizador.textContent = restante.toFixed(1);
-
             requestAnimationFrame(loop);
         }
 
-        requestAnimationFrame(loop);
-
-         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function reproducirBeep() {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // volumen suave
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1); // duración exacta
-        }
-
-
+        window.onload = function () {
+            setTimeout(() => {
+                requestAnimationFrame(loop);
+            }, 500); 
+        };
     </script>
 }
+
 
 
 
