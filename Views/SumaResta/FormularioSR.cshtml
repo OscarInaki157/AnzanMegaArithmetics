@@ -524,10 +524,13 @@
                     const tag = document.createElement("div");
                     tag.className = "tag";
                     tag.innerHTML = `${val}<span class="remove">&times;</span>`;
-                    tag.querySelector(".remove").addEventListener("click", () => {
+
+                    tag.addEventListener("click", () => {
                         tags = tags.filter(t => t !== val);
                         renderTags();
                     });
+
+
                     tagsContainer.appendChild(tag);
                 });
                 hiddenInput.value = tags.join(",");
@@ -768,56 +771,57 @@
                 const restaDigits = digitosResta.split(",").map(d => d.trim()).filter(d => d !== "" && d !== "0");
 
 
-                function posiblesCombinacionesFiltradas(digitos, minDig, maxDig, valorMax) {
-                    let total = 0;
+                function existeAlMenosUnNumeroValido(digitos, minDig, maxDig, valorMax) {
+                    if (!digitos || digitos.length === 0) return false;
+
+                    let encontrado = false;
 
                     function backtrack(actual) {
-                        if (actual.length >= minDig && actual.length <= maxDig) {
-                            if (!actual.startsWith("0")) {
-                                const num = parseInt(actual);
-                                if (valorMax === 0 || num <= valorMax) {
-                                    total++;
-                                }
+                        if (actual.length >= minDig && actual.length <= maxDig && !actual.startsWith("0")) {
+                            const num = parseInt(actual);
+                            if (valorMax === 0 || num <= valorMax) {
+                                encontrado = true;
+                                return;
                             }
                         }
 
-                        if (actual.length >= maxDig) return;
+                        if (actual.length >= maxDig || encontrado) return;
 
                         for (let d of digitos) {
                             backtrack(actual + d);
+                            if (encontrado) return;
                         }
                     }
 
                     for (let d of digitos) {
                         backtrack(d);
+                        if (encontrado) break;
                     }
 
-                    return total;
+                    return encontrado;
                 }
 
+               let combinacionesSuficientes = true;
 
-                let combinacionesSuma = posiblesCombinacionesFiltradas(sumaDigits, minDig, maxDig, valorMaximo);
-                let combinacionesResta = posiblesCombinacionesFiltradas(restaDigits, minDig, maxDig, valorMaximo);
+               if (tipo === "suma" && !existeAlMenosUnNumeroValido(sumaDigits, minDig, maxDig, valorMaximo)) {
+                   combinacionesSuficientes = false;
+               }
 
-                let combinacionesSuficientes = true;
+               if (tipo === "resta" && !existeAlMenosUnNumeroValido(restaDigits, minDig, maxDig, valorMaximo)) {
+                   combinacionesSuficientes = false;
+               }
 
-                if (tipo === "suma" && combinacionesSuma < (numOperaciones - 1)) {
-                    combinacionesSuficientes = false;
-                }
+               if (tipo === "ambos" &&
+                   (!existeAlMenosUnNumeroValido(sumaDigits, minDig, maxDig, valorMaximo) &&
+                    !existeAlMenosUnNumeroValido(restaDigits, minDig, maxDig, valorMaximo))) {
+                   combinacionesSuficientes = false;
+               }
 
-                if (tipo === "resta" && combinacionesResta < (numOperaciones - 1)) {
-                    combinacionesSuficientes = false;
-                }
-
-                if (tipo === "ambos" && (combinacionesSuma + combinacionesResta) < (numOperaciones - 1)) {
-                    combinacionesSuficientes = false;
-                }
-
-                if (!combinacionesSuficientes) {
-                    e.preventDefault();
-                    alert("La configuración no permite generar suficientes combinaciones válidas. Ajusta los dígitos permitidos, el número de dígitos o el valor máximo.");
-                }
-            }
+               if (!combinacionesSuficientes) {
+                   e.preventDefault();
+                   alert("La configuración no permite generar al menos un número válido. Ajusta los dígitos permitidos, el número de dígitos o el valor máximo.");
+               }
+           }
 
         });
 
@@ -833,10 +837,13 @@
                     const tag = document.createElement("div");
                     tag.className = "tag";
                     tag.innerHTML = `${val}<span class="remove">&times;</span>`;
-                    tag.querySelector(".remove").addEventListener("click", () => {
+
+                    tag.addEventListener("click", () => {
                         tags = tags.filter(t => t !== val);
                         renderTags();
                     });
+
+
                     tagsContainer.appendChild(tag);
                 });
                 hiddenInput.value = tags.join(",");
