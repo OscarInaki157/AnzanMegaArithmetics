@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Ejercicio de Lectura Fingermath";
-    Layout = "_LayoutFinger";
+    Layout = "_LayoutGeneral";
 
     var dedosIzquierda = ViewBag.DedosIzquierda as int[] ?? new int[] { };
     var dedosDerecha = ViewBag.DedosDerecha as int[] ?? new int[] { };
@@ -112,9 +112,8 @@
 
 <style>
     body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--color-bg);
+        color: var(--color-tex);
     }
 
     .fin-wrapper {

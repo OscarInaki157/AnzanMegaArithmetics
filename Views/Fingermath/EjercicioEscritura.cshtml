@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Ejercicio de Escritura Fingermath";
-    Layout = "_LayoutFinger";
+    Layout = "_LayoutGeneral";
 
     string tipo = ViewBag.TipoPregunta;
     float velocidad = (ViewBag.VelocidadPreguntas);
@@ -122,9 +122,8 @@
     }
 
     body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--color-bg);
+        color: var(--color-tex);
     }
 
     .fin-wrapper {

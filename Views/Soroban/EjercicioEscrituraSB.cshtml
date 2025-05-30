@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Ejercicio de Escritura Soroban";
-    Layout = "_LayoutSoroban";
+    Layout = "_LayoutGeneral";
 
     long numeroObjetivo = Convert.ToInt64(ViewBag.NumeroObjetivo);
     int ejercicioActual = ViewBag.EjercicioActual;
@@ -66,15 +66,12 @@
 </div>
 
 <style>
- 
-    body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
 
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+ 
     .contador {
         color: #ffffff;
         font-weight: bold;

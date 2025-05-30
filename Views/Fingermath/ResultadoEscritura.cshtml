@@ -1,7 +1,7 @@
 ﻿@using AnzanMegaArithmetics.Models
 @{
     ViewBag.Title = "Resumen de Ejercicios";
-    Layout = "_LayoutFinger";
+    Layout = "_LayoutGeneral";
 
     var resultadosJson = TempData["Resultados"] as string;
     var resultados = string.IsNullOrEmpty(resultadosJson)
@@ -17,9 +17,8 @@
 
 <style>
     body {
-        background-color: #161a36;
-        color: #d1d1f0;
-        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--color-bg);
+        color: var(--color-tex);
     }
 
     h1 {

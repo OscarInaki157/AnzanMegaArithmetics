@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Ejercicio de Lectura Soroban";
-    Layout = "_LayoutSoroban";
+    Layout = "_LayoutGeneral";
 
     long respuestaCorrecta = Convert.ToInt64(ViewBag.RespuestaCorrecta);
     float velocidad = ViewBag.VelocidadPreguntas;
@@ -81,6 +81,12 @@
 </form>
 
 <style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
     .barra-horizontal {
         position: absolute;
         left: 0;

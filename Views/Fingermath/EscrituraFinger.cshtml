@@ -2,26 +2,14 @@
 
 @{
     ViewBag.Title = "Fingermath Escritura";
-    Layout = "_LayoutFinger";
+    Layout = "_LayoutGeneral";
 }
 
 <style>
-    :root {
-        --color-bg: #161a36;
-        --color-card-bg: #1b1e3c;
-        --color-primary: #4c4cff;
-        --color-primary-dark: #3737e8;
-        --color-light: #d1d1f0;
-        --color-text: #d1d1f0;
-    }
 
     body {
         background-color: var(--color-bg);
-        color: var(--color-text);
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
+        color: var(--color-tex);
     }
 
     h2 {
@@ -225,7 +213,7 @@
     <button type="submit">🚀 Iniciar Ejercicios de Escritura</button>
 </form>
 
-@section Scripts {
+@* @section Scripts {
     <script>
         window.addEventListener('load', function () {
             const form = document.getElementById('configuracionEjercicios');
@@ -235,4 +223,4 @@
             }
         });
     </script>
-}
+} *@

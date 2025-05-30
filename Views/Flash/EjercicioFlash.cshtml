@@ -25,14 +25,6 @@
 
 <style>
 
-    body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
     .contador {
         color: #ffffff;
         font-weight: bold;
@@ -202,7 +194,7 @@
     <script>
         const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
         const velocidad = parseFloat("@ViewBag.Velocidad");
-        const tiempoPorNumero = velocidad * 800;
+        const tiempoPorNumero = velocidad * 1000;
 
         let tiempoInicio = null;
         let ultimoIndiceMostrado = -1;

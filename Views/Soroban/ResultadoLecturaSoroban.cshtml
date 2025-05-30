@@ -1,7 +1,7 @@
 ﻿@using AnzanMegaArithmetics.Models
 @{
     ViewBag.Title = "Resumen de Ejercicios Soroban";
-    Layout = "_LayoutSoroban";
+    Layout = "_LayoutGeneral";
 
     var resultadosJson = TempData["Resultados"] as string;
     var resultados = string.IsNullOrEmpty(resultadosJson)
@@ -15,12 +15,12 @@
 }
 
 <style>
-    body {
-        background-color: #161a36;
-        color: #d1d1f0;
-        font-family: 'Segoe UI', sans-serif;
-    }
 
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+ 
     h1 {
         text-align: center;
         font-size: 2rem;
