@@ -412,7 +412,7 @@
 
         <details class="@colorClass">
             <summary>
-                Ejercicio @(i + 1): @(r.RespuestaUsuario == -1 ? "❓ No respondió" : (r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto"))
+                Ejercicio @(i + 1): @(r.RespuestaUsuario == -1 ? "No respondió" : (r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto"))
             </summary>
             <div>
                 <p>🧠 <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
