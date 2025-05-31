@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.ConfFlashModel
 @{
-    ViewBag.Title = "Ejercicios Numeros Flash";
-    Layout = "_LayoutFlash";
+    ViewBag.Title = "Ejercicios Números Flash";
+    Layout = "_LayoutGeneral";
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 3;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
     string velocidad = Model.VelocidadPreguntas;
@@ -132,23 +132,12 @@
 </div>
 
 <style>
-    :root {
-        --color-bg: #161a36;
-        --color-card-bg: #1b1e3c;
-        --color-primary: #4c4cff;
-        --color-primary-dark: #3737e8;
-        --color-light: #d1d1f0;
-        --color-text: #f0f0f0;
-        --color-accent: #6233b8;
-        --color-danger: #df312c;
-    }
 
     body {
         background-color: var(--color-bg);
-        font-family: 'Segoe UI', sans-serif;
-        color: var(--color-light);
+        color: var(--color-tex);
     }
-
+   
     h2 {
         text-align: center;
         color: var(--color-light);
@@ -634,16 +623,16 @@
             });
         });
 
-        window.addEventListener('load', function () {
-            const contenedor = document.getElementById('contenedorConfiguracionFlash');
-            if (contenedor) {
+        // window.addEventListener('load', function () {
+        //     const contenedor = document.getElementById('contenedorConfiguracionFlash');
+        //     if (contenedor) {
               
-                contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        //         contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                window.scrollBy(0, -40); 
+        //         window.scrollBy(0, -40); 
    
-            }
-        });
+        //     }
+        // });
 
         function actualizarEtiquetaNumeroEjercicios() {
             const tipo = document.getElementById("tipoOperacionSelect").value;

@@ -402,7 +402,7 @@
     {
         var r = resultados[i];
         var colorClass = !r.Respondido ? "no-respondio" : r.EsCorrecto ? "correcto" : "incorrecto";
-        var estado = !r.Respondido ? "❓No respondió" : r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto";
+        var estado = !r.Respondido ? "No respondió" : r.EsCorrecto ? "✅ Correcto" : "❌ Incorrecto";
 
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>

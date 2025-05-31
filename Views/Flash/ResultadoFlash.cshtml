@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.RFlashModel
 @{
     ViewBag.Title = "Resultados Flash";
-    Layout = "_LayoutFlash";
+    Layout = "_LayoutGeneral";
 
     var correcto = Model.EsCorrecto;
     var total = TempData.Peek("CantidadEjercicios") != null ? Convert.ToInt32(TempData.Peek("CantidadEjercicios")) : 1;
@@ -90,24 +90,10 @@
 
 
 <style>
-    :root {
-        --color-bg: #161a36;
-        --color-card-bg: #1b1e3c;
-        --color-primary: #4c4cff;
-        --color-primary-dark: #3737e8;
-        --color-light: #d1d1f0;
-        --color-text: #d1d1f0;
-        --color-success: #28a745;
-        --color-error: #e53935;
-        --color-secondary: #292c4f;
-    }
 
     body {
         background-color: var(--color-bg);
-        color: var(--color-text);
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
+        color: var(--color-tex);
     }
 
     h1 {
@@ -154,7 +140,7 @@
         }
 
     .btn-success {
-        background-color: var(--color-success);
+        background-color: #28a745;
         color: white;
     }
 
@@ -164,7 +150,7 @@
         }
 
     .btn-secondary {
-        background-color: var(--color-secondary);
+        background-color: #292c4f;
         color: white;
     }
 

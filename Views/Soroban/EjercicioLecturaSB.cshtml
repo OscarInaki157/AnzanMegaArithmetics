@@ -73,7 +73,7 @@
 </div>
 
 <form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-barra" onsubmit="return validarRespuesta();">
-    <label for="respuesta" class="etiqueta-respuesta">Resultado:</label>
+
     <input type="number" id="respuesta" name="respuesta" autocomplete="off" min="0" />
     <button type="submit">Enviar respuesta</button>
     <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
@@ -321,6 +321,7 @@
         flex-wrap: wrap;
         z-index: 100;
         position: relative;
+        flex-direction:column;
     }
 
     .etiqueta-respuesta {
@@ -334,7 +335,7 @@
         font-size: 1rem;
         border-radius: 8px;
         border: none;
-        width: 120px;
+        width: 150px;
         text-align: center;
         background-color: #292c4f;
         color: white;

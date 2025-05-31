@@ -42,6 +42,18 @@
             overflow-x: hidden;
         }
 
+        /* Eliminar flechas en inputs type="number" en Chrome, Safari, Edge */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        /* Eliminar flechas en Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+
         /* ========== HEADER ========== */
         .page-header {
             display: flex;

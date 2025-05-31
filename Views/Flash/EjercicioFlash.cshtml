@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Número Flash";
-    Layout = "_LayoutFlash";
+    Layout = "_LayoutGeneral";
     var velocidad = ViewBag.Velocidad;
     var totalEjercicios = ViewBag.TotalEjercicios;
     var secuenciaJson = ViewBag.Secuencia.ToString();
@@ -24,6 +24,11 @@
 
 
 <style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
 
     .contador {
         color: #ffffff;
