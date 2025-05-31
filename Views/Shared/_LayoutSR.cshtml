@@ -9,6 +9,7 @@
     <style>
         * {
             box-sizing: border-box;
+            color: var(--text-light);
         }
 
         html, body {
@@ -19,7 +20,16 @@
             --bg-color: #10132f;
             --text-color: white;
             --text-light: #d1d1f0;
+            --color-light: #d1d1f0;
+            --color-bg: #161a36;
+            --color-card-bg: #1b1e3c;
+            --color-primary: #4c4cff;
+            --color-primary-dark: #3737e8;
+            --color-text: #f0f0f0;
+            --color-accent: #6233b8;
+            --color-danger: #df312c;
         }
+
 
         body {
             margin: 0;
@@ -31,6 +41,19 @@
             flex-direction: column;
             min-height: 100vh;
         }
+
+        /* Eliminar flechas en inputs type="number" en Chrome, Safari, Edge */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Eliminar flechas en Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
 
         /* ========== HEADER ========== */
         .page-header {
@@ -184,7 +207,7 @@
 </body>
 </html>
 
-<script>
+@* <script>
     // medio proteger
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
@@ -195,4 +218,4 @@
                              e.preventDefault();
         }
     });
-</script>
+</script> *@

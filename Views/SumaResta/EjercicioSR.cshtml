@@ -11,16 +11,12 @@
 }
 
 <style>
-   
 
     body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
+        background-color: var(--color-bg);
+        color: var(--color-tex);
     }
-
+   
     .contador {
         color: #ffffff;
         font-weight: bold;
@@ -306,6 +302,13 @@
             background-color: #4c4cff;
             box-shadow: 0 0 10px rgba(76, 76, 255, 0.6);
         }
+
+        .tab-btn:hover {
+            background-color: #4c4cff;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        }
+
 
     .tab-content {
         display: none;
