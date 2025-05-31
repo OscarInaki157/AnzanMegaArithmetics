@@ -20,5 +20,8 @@ namespace AnzanMegaArithmetics.Models
         public string DigitosResta { get; set; } = string.Empty;
         [Required]
         public int TiempoMeditacion { get; set; }
+        [Required]
+        public bool ActivarSonido { get; set; } = true;
+
     }
 }

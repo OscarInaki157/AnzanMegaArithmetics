@@ -13,6 +13,11 @@
         </button>
     </form>
 
+    <div id="iconoSonido" class="icono-sonido">
+        🔊
+    </div>
+
+
 @*     <div class="info-tiempo">
         <span>⏱ <span id="temporizador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
     </div> *@
@@ -76,6 +81,19 @@
         flex: 1;
         max-width: 420px;
     }
+
+    .icono-sonido {
+        font-size: 1.6rem;
+        cursor: default;
+        transition: transform 0.3s;
+        user-select: none;
+    }
+
+        .icono-sonido.activo {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
 
    
     .info-tiempo {
@@ -200,6 +218,7 @@
         const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
         const velocidad = parseFloat("@ViewBag.Velocidad");
         const tiempoPorNumero = velocidad * 1000;
+        const activarSonido = @(((bool)ViewBag.ActivarSonido) ? "true" : "false");
 
         let tiempoInicio = null;
         let ultimoIndiceMostrado = -1;
@@ -234,7 +253,9 @@
                 numeroFlash.classList.remove("color-a");
                 numeroFlash.classList.add("color-b");
             }
-            reproducirBeep();
+            if (activarSonido) {
+                reproducirBeep();
+            }
         }
 
         function loop(timestamp) {
@@ -266,9 +287,25 @@
 
         window.onload = function () {
             setTimeout(() => {
+
+                const iconoSonido = document.getElementById("iconoSonido");
+                if (activarSonido && iconoSonido) {
+                    iconoSonido.textContent = "🔊";
+                    iconoSonido.classList.add("activo");
+                } else {
+                    iconoSonido.textContent = "🔇";
+                }
+
                 requestAnimationFrame(loop);
             }, 500); 
         };
+
+        window.addEventListener("click", () => {
+        if (audioCtx.state === "suspended") {
+                audioCtx.resume();
+            }
+        }, { once: true });
+
     </script>
 }
 

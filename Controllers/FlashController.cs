@@ -86,6 +86,8 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["VelocidadPreguntas"] = config.VelocidadPreguntas;
             TempData["TipoOperacion"] = config.TipoOperacion ?? "suma";
             TempData["TiempoMeditacion"] = config.TiempoMeditacion;
+            TempData["ActivarSonido"] = config.ActivarSonido;
+            
 
             var digitosSuma = (config.DigitosSuma ?? "").Replace("\r", "").Replace("\n", "").Trim();
             var digitosResta = (config.DigitosResta ?? "").Replace("\r", "").Replace("\n", "").Trim();
@@ -185,11 +187,17 @@ namespace AnzanMegaArithmetics.Controllers
                 ? new List<int>()
                 : JsonSerializer.Deserialize<List<int>>(numerosJson);
 
+            var configStr = HttpContext.Session.GetString("ConfFlash");
+            var config = string.IsNullOrEmpty(configStr)
+                ? new ConfFlashModel()
+                : JsonSerializer.Deserialize<ConfFlashModel>(configStr);
+
             var velocidad = TempData["VelocidadPreguntas"]?.ToString() ?? "1.0";
             var total = numeros.Count;
 
             ViewBag.Velocidad = float.Parse(velocidad, System.Globalization.CultureInfo.InvariantCulture);
             ViewBag.TotalEjercicios = total;
+            ViewBag.ActivarSonido = config.ActivarSonido;
             ViewBag.Secuencia = JsonSerializer.Serialize(numeros);
 
             return View();
