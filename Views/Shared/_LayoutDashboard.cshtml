@@ -110,7 +110,7 @@
         }
 
         .sidebar-logo {
-            padding: 1.25rem;
+            padding: 0.5rem;
             text-align: center;
         }
 
@@ -213,6 +213,12 @@
             display: flex;
         }
 
+        .sidebar-logo img{
+            margin-top: 3.5rem;
+            margin-bottom: -1.5rem;
+        }
+
+
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -254,6 +260,9 @@
                     <li>
                         <a href="@Url.Action("Desafios","Dashboard")" id="Challenge">
                             <i class="fa-solid fa-atom"></i> Zona de desafios</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li>
                     <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>

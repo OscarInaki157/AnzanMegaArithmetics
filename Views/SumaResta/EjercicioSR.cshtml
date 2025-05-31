@@ -116,6 +116,43 @@
         pointer-events: none;
     }
 
+    .btn-concentracion {
+        background-color: #4c4cff;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
+    }
+
+        .btn-concentracion:hover {
+            background-color: #3737e8;
+            transform: scale(1.05);
+        }
+
+    .modo-concentracion-activo body {
+        overflow: hidden;
+    }
+
+    .modo-concentracion-activo .main-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+
+    }
+
+
+
+
+
     .info-tiempo {
         font-size: 1rem;
         color: #d1d1f0;
@@ -690,6 +727,10 @@
 
     @@media (max-width: 768px) {
 
+        #btnModoConcentracion {
+            display: none;
+        }
+
         .etiqueta-respuesta {
             text-align: center;
         }
@@ -844,6 +885,11 @@
             <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
         </div>
     </div>
+
+    <button id="btnModoConcentracion" type="button" class="btn-finalizar" style="background-color:#4c4cff; box-shadow:none;">
+        🧘‍  Modo concentración
+    </button>
+
 
     <div class="info-tiempo">
         @if (velocidad > 0)
@@ -1110,6 +1156,46 @@
                 });
             });
         });
+
+
+        const btn = document.getElementById("btnModoConcentracion");
+        const header = document.querySelector("header.page-header");
+        const footer = document.querySelector("footer.page-footer");
+        const main = document.querySelector(".main-content");
+
+        function activarModoConcentracion() {
+            document.body.classList.add("modo-concentracion-activo");
+                header.style.display = "none";
+                footer.style.display = "none";
+                main.style.marginTop = "3.25rem";
+                this.innerHTML = "👁️ Salir de concentración";
+            sessionStorage.setItem("modoConcentracion", "activo");
+        }
+
+        function desactivarModoConcentracion() {
+            document.body.classList.remove("modo-concentracion-activo");
+                header.style.display = "flex";
+                footer.style.display = "flex";
+                main.style.marginTop = "6.5rem";
+                this.innerHTML = "🧘‍♂️ Modo concentración";
+            sessionStorage.removeItem("modoConcentracion");
+        }
+
+        btn.addEventListener("click", function () {
+            if (document.body.classList.contains("modo-concentracion-activo")) {
+                desactivarModoConcentracion();
+            } else {
+                activarModoConcentracion();
+            }
+        });
+
+        // Activar automáticamente si ya estaba activado en esta sesión
+        window.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("modoConcentracion") === "activo") {
+                activarModoConcentracion();
+            }
+        });
+
 
 
     </script>
