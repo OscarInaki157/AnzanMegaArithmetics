@@ -329,18 +329,18 @@
     }
 
     .punto {
-        width: 25px;
-        height: 25px;
+        width: 35px;
+        height: 125px;
         background-color: gray;
-        border-radius: 50%;
+        /* border-radius: 50%; */
         position: absolute;
-        opacity: 0.6;
+        opacity: 0;
         transition: all 0.3s ease;
     }
 
         .punto.iluminado {
             background-color: #ff4c4c;
-            opacity: 1;
+            opacity: 0;
             box-shadow: 0 0 10px #ff4c4c;
         }
 
@@ -400,53 +400,61 @@
 
     /* Dedos */
     .dedo1 {
-        top: 17%;
-        left: 3%;
+        top: 22%;
+        left: 6%;
+        transform: rotate(-17deg);
     }
 
     .dedo2 {
-        top: 7%;
-        left: 12%;
+        top: 13%;
+        left: 13%;
+        transform: rotate(-10deg);
     }
 
     .dedo3 {
-        top: 3%;
-        left: 23%;
+        top: 9%;
+        left: 22%;
     }
 
     .dedo4 {
-        top: 6%;
-        left: 34%;
+        top: 12%;
+        left: 32%;
+        transform: rotate(8deg);
     }
 
     .dedo5 {
-        top: 28%;
-        left: 43%;
+        top: 33%;
+        left: 37%;
+        transform: rotate(23deg);
     }
 
     .dedo6 {
-        top: 28%;
-        left: 53%;
+        top: 34%;
+        left: 56%;
+        transform: rotate(-25deg);
     }
 
     .dedo7 {
-        top: 7%;
-        left: 61%;
+        top: 13%;
+        left: 62%;
+        transform: rotate(-8deg);
     }
 
     .dedo8 {
-        top: 3%;
-        left: 73%;
+        top: 9%;
+        left: 72%;
     }
 
     .dedo9 {
-        top: 7%;
-        left: 83%;
+        top: 13%;
+        left: 81%;
+        transform: rotate(7deg);
     }
 
     .dedo10 {
-        top: 17%;
-        left: 93%;
+        top: 23%;
+        left: 88%;
+        transform: rotate(21deg);
     }
 
     @@keyframes pulse {
@@ -486,57 +494,57 @@
 
         .punto {
             width: 30px;
-            height: 30px;
+            height: 130px;
         }
 
         .dedo1 {
-            top: 16%;
-            left: 2%;
+            top: 22%;
+            left: 6%;
         }
 
         .dedo2 {
-            top: 6%;
-            left: 11%;
+            top: 13%;
+            left: 13%;
         }
 
         .dedo3 {
-            top: 2%;
+            top: 9%;
             left: 22%;
         }
 
         .dedo4 {
-            top: 5%;
-            left: 33%;
+            top: 12%;
+            left: 32%;
         }
 
         .dedo5 {
-            top: 27%;
-            left: 42%;
+            top: 34%;
+            left: 37%;
         }
 
         .dedo6 {
-            top: 27%;
-            left: 52%;
+            top: 33%;
+            left: 57%;
         }
 
         .dedo7 {
-            top: 6%;
-            left: 61%;
+            top: 12%;
+            left: 63%;
         }
 
         .dedo8 {
-            top: 2%;
+            top: 9%;
             left: 72%;
         }
 
         .dedo9 {
-            top: 6%;
-            left: 83%;
+            top: 13%;
+            left: 81%;
         }
 
         .dedo10 {
-            top: 15%;
-            left: 93%;
+            top: 22%;
+            left: 88%;
         }
 
         .form-respuesta-barra {
@@ -546,6 +554,11 @@
 
 
     @@media (max-width: 767px) {
+
+        .punto {
+            width: 20px;
+            height: 80px;
+        }
         .ejercicio-wrapper{
             margin:1rem;
         }
@@ -588,53 +601,53 @@
             }
         /* Dedos */
         .dedo1 {
-            top: 11%;
-            left: 1%;
+            top: 20%;
+            left: 6%;
         }
 
         .dedo2 {
-            top: 0%;
-            left: 10%;
+            top: 9%;
+            left: 13%;
         }
 
         .dedo3 {
-            top: -5%;
-            left: 21%;
+            top: 4%;
+            left: 22%;
         }
 
         .dedo4 {
-            top: -2%;
-            left: 33%;
+            top: 7%;
+            left: 32%;
         }
 
         .dedo5 {
-            top: 24%;
-            left: 42%;
+            top: 33%;
+            left: 37%;
         }
 
         .dedo6 {
-            top: 24%;
-            left: 51%;
+            top: 34%;
+            left: 56%;
         }
 
         .dedo7 {
-            top: -1%;
-            left: 59%;
+            top: 8%;
+            left: 62%;
         }
 
         .dedo8 {
-            top: -5%;
-            left: 71%;
+            top: 4%;
+            left: 72%;
         }
 
         .dedo9 {
-            top: -1%;
-            left: 82%;
+            top: 9%;
+            left: 81%;
         }
 
         .dedo10 {
-            top: 11%;
-            left: 92%;
+            top: 20%;
+            left: 88%;
         }
 
         .btn-finalizar {
