@@ -271,11 +271,11 @@
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap:5%;
+        /* gap:5%; */
     }
 
     .Ejercicio{
-        width:45%;
+        width:53%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -288,7 +288,7 @@
     }
 
     .Numeros{
-        font-size: 3rem;
+        font-size: 3.8rem;
         text-align: center;
         line-height: 1.1;
     }
@@ -313,7 +313,7 @@
         padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 45%;
+        width: 47%;
         height: fit-content;
     }
 
@@ -399,17 +399,17 @@
 
     .punto {
         width: 1.5rem;
-        height: 1.5rem;
+        height: 4.5rem;
         background-color: gray;
-        border-radius: 50%;
+        /* border-radius: 50%; */
         position: absolute;
-        opacity: 0.6;
+        opacity: 0;
         transition: all 0.3s ease;
     }
 
         .punto.iluminado {
             background-color: #ff4c4c;
-            opacity: 1;
+            opacity: 0;
             box-shadow: 0 0 10px #ff4c4c;
         }
 
@@ -429,53 +429,61 @@
 
     /* Dedos */
     .dedo1 {
-        top: 26%;
-        left: 1%;
+        top: 32%;
+        left: 5%;
+        transform: rotate(-20deg);
     }
 
     .dedo2 {
-        top: 16%;
-        left: 9%;
+        top: 23%;
+        left: 12%;
+        transform: rotate(-8deg);
     }
 
     .dedo3 {
-        top: 12%;
+        top: 19%;
         left: 21%;
     }
 
     .dedo4 {
-        top: 15%;
-        left: 33%;
+        top: 22%;
+        left: 32%;
+        transform: rotate(8deg);
     }
 
     .dedo5 {
-        top: 37%;
-        left: 41%;
+        top: 44%;
+        left: 37%;
+        transform: rotate(28deg);
     }
 
     .dedo6 {
-        top: 37%;
-        left: 52%;
+        top: 44%;
+        left: 56%;
+        transform: rotate(-24deg);
     }
 
     .dedo7 {
-        top: 16%;
-        left: 60%;
+        top: 22%;
+        left: 62%;
+        transform: rotate(-7deg);
     }
 
     .dedo8 {
-        top: 12%;
+        top: 19%;
         left: 71%;
     }
 
     .dedo9 {
-        top: 16%;
-        left: 82%;
+        top: 23%;
+        left: 81%;
+        transform: rotate(10deg);
     }
 
     .dedo10 {
-        top: 26%;
-        left: 91%;
+        top: 32%;
+        left: 88%;
+        transform: rotate(18deg);
     }
 
 
@@ -596,58 +604,58 @@
         }
 
         .punto {
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 71px;
         }
 
         .dedo1 {
-            top: 16%;
-            left: 2%;
+            top: 31%;
+            left: 4%;
         }
 
         .dedo2 {
-            top: 6%;
-            left: 11%;
+            top: 22%;
+            left: 12%;
         }
 
         .dedo3 {
-            top: 2%;
+            top: 18%;
             left: 22%;
         }
 
         .dedo4 {
-            top: 5%;
-            left: 33%;
+            top: 21%;
+            left: 32%;
         }
 
         .dedo5 {
-            top: 27%;
-            left: 42%;
+            top: 43%;
+            left: 38%;
         }
 
         .dedo6 {
-            top: 27%;
-            left: 52%;
+            top: 44%;
+            left: 54%;
         }
 
         .dedo7 {
-            top: 6%;
+            top: 22%;
             left: 61%;
         }
 
         .dedo8 {
-            top: 2%;
+            top: 19%;
             left: 72%;
         }
 
         .dedo9 {
-            top: 6%;
-            left: 83%;
+            top: 22%;
+            left: 81%;
         }
 
         .dedo10 {
-            top: 15%;
-            left: 93%;
+            top: 32%;
+            left: 88%;
         }
 
     }
@@ -666,61 +674,62 @@
         .manos-wrapper {
             width: 100%;
             height: auto;
+            margin-top: -5rem;
         }
 
         .punto {
             width: 2.5rem;
-            height: 2.5rem;
+            height: 9.5rem;
         }
 
         .dedo1 {
-            top: 26%;
-            left: 3%;
+            top: 31%;
+            left: 6%;
         }
 
         .dedo2 {
-            top: 16%;
-            left: 11%;
+            top: 22%;
+            left: 13%;
         }
 
         .dedo3 {
-            top: 12%;
+            top: 19%;
             left: 22%;
         }
 
         .dedo4 {
-            top: 15%;
-            left: 34%;
+            top: 21%;
+            left: 33%;
         }
 
         .dedo5 {
-            top: 37%;
-            left: 42%;
+            top: 43%;
+            left: 38%;
         }
 
         .dedo6 {
-            top: 37%;
-            left: 53%;
+            top: 43%;
+            left: 56%;
         }
 
         .dedo7 {
-            top: 16%;
-            left: 60%;
+            top: 21%;
+            left: 62%;
         }
 
         .dedo8 {
-            top: 12%;
+            top: 18%;
             left: 72%;
         }
 
         .dedo9 {
-            top: 16%;
-            left: 84%;
+            top: 22%;
+            left: 81%;
         }
 
         .dedo10 {
-            top: 26%;
-            left: 93%;
+            top: 32%;
+            left: 89%;
         }
     }
 
@@ -786,8 +795,8 @@
         .manos-wrapper {
             width: 100%;
             height: auto;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+            /* margin-top: 2rem;
+            margin-bottom: 2rem; */
         }
 
         .mano-container {
@@ -796,53 +805,53 @@
 
         /* Dedos */
         .dedo1 {
-            top: 23%;
-            left: 1%;
+            top: 31%;
+            left: 5%;
         }
 
         .dedo2 {
-            top: 13%;
-            left: 10%;
+            top: 22%;
+            left: 12%;
         }
 
         .dedo3 {
-            top: 9%;
+            top: 18%;
             left: 21%;
         }
 
         .dedo4 {
-            top: 12%;
-            left: 33%;
+            top: 21%;
+            left: 31%;
         }
 
         .dedo5 {
-            top: 34%;
-            left: 40%;
+            top: 42%;
+            left: 37%;
         }
 
         .dedo6 {
-            top: 34%;
-            left: 51%;
+            top: 43%;
+            left: 55%;
         }
 
         .dedo7 {
-            top: 13%;
-            left: 59%;
+            top: 22%;
+            left: 61%;
         }
 
         .dedo8 {
-            top: 9%;
+            top: 18%;
             left: 71%;
         }
 
         .dedo9 {
-            top: 13%;
-            left: 82%;
+            top: 22%;
+            left: 80%;
         }
 
         .dedo10 {
-            top: 23%;
-            left: 92%;
+            top: 32%;
+            left: 87%;
         }
 
         /* soroban */
@@ -1163,29 +1172,29 @@
         const footer = document.querySelector("footer.page-footer");
         const main = document.querySelector(".main-content");
 
-        function activarModoConcentracion() {
+        function activarModoConcentracion(boton) {
             document.body.classList.add("modo-concentracion-activo");
-                header.style.display = "none";
-                footer.style.display = "none";
-                main.style.marginTop = "3.25rem";
-                this.innerHTML = "👁️ Salir de concentración";
+            header.style.display = "none";
+            footer.style.display = "none";
+
+            boton.innerHTML = "👁️ Salir de concentración";
             sessionStorage.setItem("modoConcentracion", "activo");
         }
 
-        function desactivarModoConcentracion() {
+        function desactivarModoConcentracion(boton) {
             document.body.classList.remove("modo-concentracion-activo");
-                header.style.display = "flex";
-                footer.style.display = "flex";
-                main.style.marginTop = "6.5rem";
-                this.innerHTML = "🧘‍♂️ Modo concentración";
+            header.style.display = "flex";
+            footer.style.display = "flex";
+
+            boton.innerHTML = "🧘‍♂️ Modo concentración";
             sessionStorage.removeItem("modoConcentracion");
         }
 
         btn.addEventListener("click", function () {
             if (document.body.classList.contains("modo-concentracion-activo")) {
-                desactivarModoConcentracion();
+                desactivarModoConcentracion(this);
             } else {
-                activarModoConcentracion();
+                activarModoConcentracion(this);
             }
         });
 
