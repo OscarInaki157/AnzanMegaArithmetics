@@ -1,0 +1,706 @@
+﻿@{
+    ViewBag.Title = "Ejercicio de Tablas de Multiplicar";
+    Layout = "_LayoutGeneral";
+
+    int multiplicando = (int)ViewBag.Multiplicando;
+    int multiplicador = (int)ViewBag.Multiplicador;
+    float velocidad = float.Parse(ViewBag.VelocidadPreguntas.ToString());
+    int ejercicioActual = ViewBag.EjercicioActual;
+    int totalEjercicios = ViewBag.TotalEjercicios;
+    int porcentaje = (int)(((float)ejercicioActual / totalEjercicios) * 100);
+}
+
+<div class="top-bar">
+    <form method="post" action="/Multiplicacion/FinalizarDesdeEjercicio" class="form-fin">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
+    </form>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        @if (velocidad > 0)
+        {
+            <span>⏱ <span id="contador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
+        }
+        else
+        {
+            <span class="modo-libre">⏱ <strong>Modo sin límite de tiempo</strong></span>
+        }
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+
+
+    <div class="ejercicio-contenido">
+        <h1 class="multiplicacion">@multiplicando × @multiplicador</h1>
+        <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuestaTablas" id="formRespuesta">
+            <input type="hidden" id="respondido" name="respondido" value="false" />
+
+            <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
+            <input type="number" id="inputRespuesta" autocomplete="off" class="input-respuesta" autofocus />
+
+            <button type="submit" class="btn-enviar-respuesta">Enviar</button>
+        </form>
+    </div>
+
+    <div id="contenedorSoroban">
+
+        <div class="soroban-frame">
+            <div class="barra-horizontal"></div>
+            <div class="soroban-container" id="sorobanSR">
+                @for (int col = 0; col < 10; col++)
+                {
+                    <div class="soroban-column" data-col="@col">
+                        <div class="palito-vertical"></div>
+                        <div class="bead superior" data-superior="true" data-valor="5"></div>
+                        @for (int i = 0; i < 4; i++)
+                        {
+                            <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-tex);
+        }
+
+        .contador {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.6rem;
+            animation: pulse 1s infinite ease-in-out;
+        }
+
+        .btn-enviar-respuesta {
+            padding: 0.6rem 1.2rem;
+            background-color: #4c4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        }
+
+
+            .btn-enviar-respuesta:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+            }
+
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem;
+            background-color: #1b1e3c;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-radius: 25px;
+            margin-top: -2.3rem;
+        }
+
+        .btn-finalizar {
+            background-color: #df312c;
+            color: white;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+            .btn-finalizar:hover {
+                background-color: #b22222;
+                transform: scale(1.05);
+            }
+
+        .barra-progreso-contenedor {
+            flex: 1;
+            max-width: 420px;
+        }
+
+        .barra-progreso {
+            width: 100%;
+            height: 26px;
+            background-color: #e0e0f0;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .progreso-interno {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.4s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .progreso-texto {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1b1e3c;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .btn-concentracion {
+            background-color: #4c4cff;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
+        }
+
+            .btn-concentracion:hover {
+                background-color: #3737e8;
+                transform: scale(1.05);
+            }
+
+        .modo-concentracion-activo body {
+            overflow: hidden;
+        }
+
+        .modo-concentracion-activo .main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+
+    .input-respuesta {
+        padding: 0.6rem 1rem;
+        font-size: 1.5rem;
+        border-radius: 10px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+
+
+        .info-tiempo {
+            font-size: 1rem;
+            color: #d1d1f0;
+            font-weight: 500;
+        }
+
+        .modo-libre {
+            color: #ffffff;
+        }
+
+        .form-fin {
+            margin: 0;
+        }
+
+        .ejercicio-wrapper {
+            margin: 0 auto;
+            text-align: center;
+            padding: 1rem;
+        }
+
+
+        .form-respuesta-barra {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background-color: #1b1e3c;
+            border-radius: 25px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            z-index: 100;
+            position: relative;
+        }
+
+        .etiqueta-respuesta {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #d1d1f0;
+        }
+
+        .form-respuesta-barra input[type="number"] {
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            width: 120px;
+            text-align: center;
+            background-color: #292c4f;
+            color: white;
+        }
+
+        .form-respuesta-barra button {
+            padding: 0.6rem 1.2rem;
+            background-color: #4c4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .form-respuesta-barra button:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+            }
+
+        @@keyframes bounce {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1.15);
+            }
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .areaej {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* gap:5%; */
+        }
+
+        .Ejercicio {
+            width: 53%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .linea {
+            width: 50%;
+        }
+
+        .Numeros {
+            font-size: 3.8rem;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .Resultados {
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            width: 160px;
+            text-align: center;
+            background-color: #292c4f;
+            color: white;
+        }
+
+        .Forms {
+            margin-top: 20px;
+        }
+
+        .ayuda-tabs-container {
+            background-color: #1b1e3c;
+            padding: 1rem;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            width: 47%;
+            height: fit-content;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            background-color: #292c4f;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .tab-btn.active {
+                background-color: #4c4cff;
+                box-shadow: 0 0 10px rgba(76, 76, 255, 0.6);
+            }
+
+            .tab-btn:hover {
+                background-color: #4c4cff;
+                transform: translateY(-2px) scale(1.05);
+                box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+            }
+
+
+        .tab-content {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+
+
+
+        /* soroban */
+        .soroban-frame {
+            background-color: #1b1e3c;
+            padding: 0 1rem;
+            margin: 1rem auto;
+            width: fit-content;
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 0 1rem rgba(76, 76, 255, 0.2);
+            position: relative;
+            border: 0.9rem solid #888888;
+        }
+
+        .barra-horizontal {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 27%;
+            height: 0.9rem;
+            background-color: #888888;
+            z-index: 5;
+        }
+
+        .soroban-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .soroban-column {
+            position: relative;
+            width: 3rem;
+            height: 16rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            cursor: pointer;
+        }
+
+        .palito-vertical {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.25rem;
+            background-color: #888;
+            z-index: 0;
+        }
+
+        .bead {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2.8rem;
+            height: 1.95rem;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            background: linear-gradient(145deg, #5a5a9c, #3d3f6f);
+            box-shadow: 1px 1px 4px #20244a, -1px -1px 4px #2d3160;
+            transition: top 0.3s ease, transform 0.3s ease;
+            z-index: 1;
+        }
+
+            .bead.activa {
+                background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+                box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+            }
+
+            .bead.superior {
+                top: 0%;
+            }
+
+                .bead.superior.activa {
+                    top: 15%;
+                }
+
+        .bead-inferior-0 {
+            top: 52%;
+        }
+
+        .bead-inferior-1 {
+            top: 64%;
+        }
+
+        .bead-inferior-2 {
+            top: 76%;
+        }
+
+        .bead-inferior-3 {
+            top: 88%;
+        }
+
+        .bead-inferior-0.activa {
+            top: 32%;
+        }
+
+        .bead-inferior-1.activa {
+            top: 44%;
+        }
+
+        .bead-inferior-2.activa {
+            top: 56%;
+        }
+
+        .bead-inferior-3.activa {
+            top: 68%;
+        }
+
+       
+
+        @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+            .areaej {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .Ejercicio,
+            .ayuda-tabs-container {
+                width: 100%;
+            }
+
+
+        }
+
+
+        @@media (max-width: 768px) {
+
+            #btnModoConcentracion {
+                display: none;
+            }
+
+            .etiqueta-respuesta {
+                text-align: center;
+            }
+
+
+            .info-tiempo {
+                margin: 0 auto;
+            }
+
+            .btn-finalizar {
+                padding: 7px 7px;
+                font-size: 0.9rem;
+            }
+
+            .form-respuesta-barra {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-respuesta input[type="number"] {
+                width: 50%;
+                margin: 0 auto;
+                max-width: 300px;
+            }
+
+            .form-respuesta-barra input[type="number"] {
+                width: 100%;
+            }
+
+            .form-respuesta-barra button {
+                width: 100%;
+            }
+
+            .progreso-texto {
+                font-size: 0.8rem;
+            }
+
+            .areaej {
+                flex-direction: column;
+            }
+
+            .Ejercicio {
+                width: 100%;
+            }
+
+            .ayuda-tabs-container {
+                width: 100%;
+                margin-top: 3rem;
+            }
+            
+            /* soroban */
+
+            .bead {
+                width: 2rem;
+                height: 1.8rem;
+            }
+
+            .soroban-column {
+                width: 2.2rem;
+                height: 14rem;
+            }
+
+            .soroban-container {
+                gap: 0.5rem;
+            }
+
+            .soroban-frame {
+                padding: 0 0.5rem;
+            }
+        }
+
+    </style>
+
+@section Scripts {
+    <script>
+        const velocidad = parseFloat("@velocidad");
+        const contador = document.getElementById("contador");
+        const form = document.getElementById("formRespuesta");
+        const inputRespuesta = document.getElementById("inputRespuesta");
+
+        const respondidoField = document.getElementById("respondido");
+
+        if (velocidad > 0 && contador) {
+            let tiempo = velocidad;
+            const intervalo = setInterval(() => {
+                tiempo -= 0.1;
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+
+                    if (inputRespuesta.value.trim() !== "") {
+                        respondidoField.value = "true";
+                    } else {
+                        respondidoField.value = "false";
+                    }
+
+                    form.submit();
+                } else {
+                    contador.textContent = tiempo.toFixed(1);
+                }
+            }, 100);
+        }
+
+        form.addEventListener("submit", function (e) {
+            const valor = inputRespuesta.value.trim();
+            document.getElementById("hiddenRespuestaUsuario").value = valor === "" ? -1 : valor;
+        });
+
+
+        function enviarYFinalizar() {
+            if (!inputRespuesta.value.trim()) {
+                respondidoField.value = "false";
+            }
+            form.action = "/Multiplicacion/FinalizarDesdeEjercicio";
+            form.submit();
+            return false;
+        }
+
+        // soroban
+        document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
+            const superior = col.querySelector(".bead.superior");
+            const inferiores = col.querySelectorAll(".bead.inferior");
+
+            superior.addEventListener("click", () => {
+                superior.classList.toggle("activa");
+            });
+
+            inferiores.forEach((bead, i) => {
+                bead.addEventListener("click", () => {
+                    const activar = !bead.classList.contains("activa");
+                    inferiores.forEach((b, j) => {
+                        if ((activar && j <= i) || (!activar && j >= i)) {
+                            b.classList.toggle("activa", activar);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
