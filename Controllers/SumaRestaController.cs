@@ -11,6 +11,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult FormularioSR()
         {
+            TempData.Clear();
             var configJson = HttpContext.Session.GetString("UltimaConfigSR");
             ConfSumaRestaModel config;
             if (!string.IsNullOrEmpty(configJson))
@@ -36,6 +37,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult LimpiarSumaRestaYDashboard()
         {
+            TempData.Clear();
             HttpContext.Session.Remove("UltimaConfigSR");
             return RedirectToAction("Dashboard", "Dashboard");
         }
@@ -208,6 +210,7 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["EjerciciosRealizados"] = realizados;
             TempData["UltimosNumeros"] = JsonSerializer.Serialize(numeros);
             TempData["UltimasOperaciones"] = JsonSerializer.Serialize(operaciones);
+            TempData["StartTime"] = DateTime.UtcNow.ToString("O");
 
             TempData.Keep();
 
@@ -262,6 +265,11 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult ResultadoSR(int respuesta, string respondido)
         {
+
+            var startIso = TempData["StartTime"]?.ToString();
+            DateTime startTime = DateTime.Parse(startIso, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            double tiempoSegundos = (DateTime.UtcNow - startTime).TotalSeconds;
+
             bool respondio = respondido == "true";
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
@@ -295,13 +303,17 @@ namespace AnzanMegaArithmetics.Controllers
                 RespuestaUsuario = respondio ? respuesta : -1,
                 RespuestaCorrecta = resultadoCorrecto,
                 OperacionTexto = operacionTexto,
-                Respondido = respondio
+                Respondido = respondio,
+                TiempoRespuesta = respondio ? tiempoSegundos : 0
             });
 
 
             ejerciciosRealizados++;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             TempData["EjerciciosRealizados"] = ejerciciosRealizados;
+
+            TempData["StartTime"] = DateTime.UtcNow.ToString("O");
+            TempData.Keep("StartTime");
 
             TempData.Keep("CantidadEjercicios");
             TempData.Keep("NumeroOperaciones");
@@ -330,13 +342,23 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoSR()
         {
+
+            var resultadosJson = TempData["Resultados"] as string;
+            var resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<RSumaRestaModel>()
+                : JsonSerializer.Deserialize<List<RSumaRestaModel>>(resultadosJson);
+
             TempData.Keep("Resultados");
-            return View();
+            return View(resultados);
         }
 
         [HttpPost]
         public IActionResult FinalizarSR(int respuesta, string respondido)
         {
+            var startIso = TempData["StartTime"]?.ToString();
+            DateTime startTime = DateTime.Parse(startIso, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            double tiempoSegundos = (DateTime.UtcNow - startTime).TotalSeconds;
+
             bool respondio = respondido == "true";
             var resultadosJson = TempData["Resultados"] as string;
             var resultados = string.IsNullOrEmpty(resultadosJson)
@@ -365,7 +387,8 @@ namespace AnzanMegaArithmetics.Controllers
                 RespuestaUsuario = respondio ? respuesta : -1,
                 RespuestaCorrecta = resultadoCorrecto,
                 OperacionTexto = operacionTexto,
-                Respondido = respondio
+                Respondido = respondio,
+                TiempoRespuesta = respondio ? tiempoSegundos : 0
             });
 
             int ejerciciosRealizados = resultados.Count;
@@ -415,7 +438,6 @@ namespace AnzanMegaArithmetics.Controllers
 
             return RedirectToAction("EjercicioSR");
         }
-
 
 
     }

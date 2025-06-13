@@ -16,7 +16,7 @@
     int incorrectas = totalSesiones - correctas;
     int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
 
-    var barraColor = porcentajeGlobal >= 80 ? "#28a745" : porcentajeGlobal >= 50 ? "#ffc107" : "#dc3545";
+    var barraColor = porcentajeGlobal >= 79 ? "#28a745" : porcentajeGlobal >= 49 ? "#ffc107" : "#dc3545";
     var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
 }
 

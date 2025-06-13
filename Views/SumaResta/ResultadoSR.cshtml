@@ -14,7 +14,10 @@
     var incorrectos = resultados.Count(r => r.Respondido && !r.EsCorrecto);
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
 
-    string barraColor = porcentaje >= 80 ? "#28a745" : porcentaje >= 50 ? "#ffc107" : "#dc3545";
+    var tiempos = resultados.Where(r => r.Respondido).Select(r => r.TiempoRespuesta);
+    double promedio = tiempos.Any() ? tiempos.Average() : 0;
+
+    string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
 }
 
 <style>
@@ -394,6 +397,9 @@
         <div class="barra-progreso">
             <div class="barra-progreso-interna" style="width: @porcentaje%; background-color: @barraColor;"></div>
         </div>
+        <p style="margin-top:10px; color: #d1d1f0;">
+            ⏱ <strong>Tiempo promedio de respuesta:</strong> @promedio.ToString("0.00") s
+        </p>
     </div>
 </div>
 
@@ -410,6 +416,7 @@
                 <p>🧠 <strong>Ejercicio:</strong> @r.OperacionTexto</p>
                 <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
                 <p>✍️ <strong>Tu respuesta:</strong> @(r.Respondido ? r.RespuestaUsuario.ToString() : "No respondió")</p>
+                <p>⏱ <strong>Tiempo de respuesta:</strong> @r.TiempoRespuesta.ToString("0.00") s</p>
             </div>
         </details>
     }

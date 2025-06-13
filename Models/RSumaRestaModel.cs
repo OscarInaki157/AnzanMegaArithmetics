@@ -7,5 +7,6 @@
         public long RespuestaUsuario { get; set; }
         public bool EsCorrecto => RespuestaUsuario == RespuestaCorrecta;
         public bool Respondido { get; set; }
+        public double TiempoRespuesta {  get; set; }
     }
 }

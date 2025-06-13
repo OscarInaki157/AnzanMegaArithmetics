@@ -13,7 +13,7 @@
     var noRespondidos = resultados.Count(r => !r.Respondido);
     var incorrectos = resultados.Count(r => r.Respondido && !r.EsCorrecto);
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
-    string barraColor = porcentaje >= 80 ? "#28a745" : porcentaje >= 50 ? "#ffc107" : "#dc3545";
+    string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
 }
 
 <style>
