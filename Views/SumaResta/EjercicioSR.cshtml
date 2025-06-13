@@ -16,6 +16,30 @@
         background-color: var(--color-bg);
         color: var(--color-tex);
     }
+
+    .cerebro-marca{
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index:-1;
+        pointer-events:none;
+        transition: opacity 0.3s ease;
+    }
+
+    .modo-concentracion-activo .cerebro-marca {
+        opacity: 0;  /* ocultas las marcas en modo concentración */
+    }
+
+    .izquierdo{
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho{
+        right:0;
+        transform:translateX(55%);
+    }
    
     .contador {
         color: #ffffff;
@@ -71,7 +95,7 @@
         align-items: center;
         gap: 0.4rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        /* transition: all 0.3s ease; */
         box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
     }
 
@@ -146,12 +170,7 @@
         height: 100vh;
         width: 100vw;
         overflow: hidden;
-
     }
-
-
-
-
 
     .info-tiempo {
         font-size: 1rem;
@@ -281,6 +300,7 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+        padding-left: 12rem;
     }
 
     .linea{
@@ -289,7 +309,7 @@
 
     .Numeros{
         font-size: 3.8rem;
-        text-align: center;
+        text-align: end;
         line-height: 1.1;
     }
 
@@ -361,8 +381,8 @@
         /* MANOS */
     .manos-wrapper {
         position: relative;
-        width: 20rem;
-        height: 20rem;
+        width: 24rem;
+        height: 24rem;
         margin: 0 auto;
     }
 
@@ -398,8 +418,8 @@
     }
 
     .punto {
-        width: 1.5rem;
-        height: 4.5rem;
+        width: 1.8rem;
+        height: 5rem;
         background-color: gray;
         /* border-radius: 50%; */
         position: absolute;
@@ -603,6 +623,10 @@
             margin-top: 2rem;
         }
 
+        .Ejercicio{
+            padding-left: 10rem;
+        }
+
         .punto {
             width: 25px;
             height: 71px;
@@ -669,6 +693,10 @@
         .Ejercicio,
         .ayuda-tabs-container {
             width: 100%;
+        }
+
+        .Ejercicio {
+            padding-left: 0;
         }
 
         .manos-wrapper {
@@ -744,7 +772,6 @@
             text-align: center;
         }
 
-
         .info-tiempo {
             margin: 0 auto;
         }
@@ -783,6 +810,7 @@
 
         .Ejercicio{
             width:100%;
+            padding-left: 0;
         }
 
         .ayuda-tabs-container{
@@ -913,6 +941,8 @@
 </div>
 
 <div class="ejercicio-wrapper">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo"/>
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
     <div class="areaej">
 
         @* Ejercicio *@
@@ -1009,7 +1039,7 @@
                     <div class="soroban-frame">
                         <div class="barra-horizontal"></div>
                         <div class="soroban-container" id="sorobanSR">
-                            @for (int col = 0; col < 7; col++)
+                            @for (int col = 0; col < 8; col++)
                             {
                                 <div class="soroban-column" data-col="@col">
                                     <div class="palito-vertical"></div>
@@ -1084,11 +1114,14 @@
         }
 
          function mostrarTab(tab) {
+            sessionStorage.setItem("tabSeleccionadoSR", tab);
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
             document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
             document.getElementById(`tab-${tab}`).classList.add('active');
+
+            enfocarInputRespuesta();
         }
 
 
@@ -1142,6 +1175,9 @@
                         for (let i = 7; i <= numDedo; i++) iluminarDedo(i);
                     }
                 }
+
+                enfocarInputRespuesta();
+
             });
         });
 
@@ -1152,6 +1188,8 @@
 
             superior.addEventListener("click", () => {
                 superior.classList.toggle("activa");
+
+                enfocarInputRespuesta();
             });
 
             inferiores.forEach((bead, i) => {
@@ -1162,8 +1200,11 @@
                             b.classList.toggle("activa", activar);
                         }
                     });
+
+                    enfocarInputRespuesta();
                 });
             });
+
         });
 
 
@@ -1177,8 +1218,14 @@
             header.style.display = "none";
             footer.style.display = "none";
 
+            document.getElementById("formFinalizar").style.visibility = "hidden";
+            document.getElementById("formFinalizar").style.pointerEvents = "none";
+
+
             boton.innerHTML = "👁️ Salir de concentración";
             sessionStorage.setItem("modoConcentracion", "activo");
+
+            enfocarInputRespuesta();
         }
 
         function desactivarModoConcentracion(boton) {
@@ -1186,8 +1233,14 @@
             header.style.display = "flex";
             footer.style.display = "flex";
 
+            document.getElementById("formFinalizar").style.visibility = "visible";
+            document.getElementById("formFinalizar").style.pointerEvents = "auto";
+
+
             boton.innerHTML = "🧘‍♂️ Modo concentración";
             sessionStorage.removeItem("modoConcentracion");
+
+            enfocarInputRespuesta();
         }
 
         btn.addEventListener("click", function () {
@@ -1201,11 +1254,22 @@
         // Activar automáticamente si ya estaba activado en esta sesión
         window.addEventListener("DOMContentLoaded", () => {
             if (sessionStorage.getItem("modoConcentracion") === "activo") {
-                activarModoConcentracion();
+                activarModoConcentracion(document.getElementById("btnModoConcentracion"));
+            }
+
+            // Restaurar tab seleccionado
+            const tabGuardado = sessionStorage.getItem("tabSeleccionadoSR");
+            if (tabGuardado === "soroban") {
+                mostrarTab("soroban");
+            } else {
+                mostrarTab("manos");
             }
         });
 
-
+        function enfocarInputRespuesta() {
+            const input = document.querySelector("input[name='respuesta']");
+            if (input) input.focus();
+        }
 
     </script>
 }
