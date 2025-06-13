@@ -21,7 +21,7 @@
     <None Remove="Content\Images\mano-derecha.png" />
     <None Remove="Content\Images\mano-izquierda.png" />
     <None Remove="Content\Images\ManosF.gif" />
-    <None Remove="Content\Images\MMlogo.png" />
+    <None Remove="Content\Images\MMLogo.png" />
     <None Remove="Content\Images\multicon.png" />
     <None Remove="Content\Images\Nosotros1.png" />
     <None Remove="Content\Images\Nosotros2.png" />
@@ -73,7 +73,7 @@
     <EmbeddedResource Include="Content\Images\ManosF.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\MMlogo.png">
+    <EmbeddedResource Include="Content\Images\MMLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\multicon.png">

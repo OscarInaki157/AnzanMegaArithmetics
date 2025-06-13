@@ -345,6 +345,29 @@
         text-align: center;
     }
 
+    .contenedorR {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
+    .R1 {
+        background-color: #4c4cff;
+        width: 30%;
+        height: 6rem;
+        border-radius: 1rem;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+    .txt {
+        color: white;
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
 
     /* ===== Responsive ===== */
     @@media (max-width: 768px) {
@@ -412,17 +435,30 @@
 
 
 <div class="dashboard-top">
-    <div class="user-info-card">
-        <p><i class="fa-solid fa-user-tie"></i> <strong>Apodo:</strong> @ViewBag.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-    </div>
     <div class="user-welcome-card hide-on-mobile">
         <div class="image-wrapper">
             <div class="speech-bubble">
                 @ViewBag.FraseBienvenida
             </div>
             <img src="/Content/Images/ProfS.png" alt="Profesor saludando" />
+            <p class="names" style="color:#ffffff; font-size:1.5rem; position: absolute; top: 22%; left: 30%;"><strong>Jerry</strong></p>
+        </div>
+    </div>
+    <div class="user-info-card">
+        <p><i class="fa-solid fa-user-tie"></i> <strong>Nombre:</strong> @ViewBag.Nombre</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
+        @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> Gamertag</p>
+        <div class="contenedorR">
+            <div class="R1">
+                <p class="txt"><strong>🔥<br />1</strong></p>
+            </div>
+            <div class="R1">
+                <p class="txt"><strong>🎖️<br />Plata</strong></p>
+            </div>
+            <div class="R1">
+                <p class="txt"><strong>✨<br />1872XP</strong></p>
+            </div>
         </div>
     </div>
 </div>

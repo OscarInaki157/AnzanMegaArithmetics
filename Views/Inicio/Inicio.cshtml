@@ -6,8 +6,9 @@
 <section class="hero-section">
     <div class="hero-content">
         <div class="hero-text">
-            <h1>Aprende cálculo mental<br />de una manera interactiva</h1>
-            <p>Descubre técnicas de <strong>memorización</strong>, y técnicas como <strong>FingerMath</strong> o el <strong>ábaco japonés</strong> para resolver operaciones de forma rápida y eficiente.</p>
+            <img src="/Content/Images/MMLogo.png" class="nlogo"/>
+            <h1>Aprende cálculo mental y técnicas de memorización de una manera interactiva</h1>
+            <p>Descubre técnicas de <strong>memoria</strong>, de <strong>FingerMath</strong> y de <strong>ábaco japonés</strong> para resolver operaciones de forma rápida y precisa, además de guardar grandes cantidades de información.</p>
             <a href="/Inicio/Login" class="cta-button">Comienza ahora</a>
         </div>
         <div class="hero-image">
@@ -65,7 +66,7 @@
 
 <style>
     .hero-section {
-        padding: 5rem 2rem;
+        padding: 0 2rem;
         display: flex;
         justify-content: center;
     }
@@ -78,7 +79,7 @@
         max-width: 1200px;
         width: 100%;
         flex-wrap: wrap;
-        gap: 3rem;
+        gap: 1rem;
     }
 
     .hero-text {
@@ -86,17 +87,25 @@
         min-width: 280px;
     }
 
+    .nlogo{
+        display:flex;
+        margin:0 auto;
+        width:14rem;
+        height:auto;
+    }
+
         .hero-text h1 {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             color: white;
             margin-bottom: 1.5rem;
+            margin-top: 0;
+            text-align:justify;
         }
 
         .hero-text p {
             color: #bcbce9;
             font-size: 1.2rem;
             margin-bottom: 2rem;
-            max-width: 500px;
             text-align: justify;
         }
 
@@ -287,6 +296,10 @@
 
         .modules-text p {
             font-size: 1rem;
+        }
+
+        .nlogo{
+            display:none;
         }
 
     }

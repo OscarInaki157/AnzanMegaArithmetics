@@ -314,8 +314,8 @@
     }
 
     .Resultados{
-        padding: 0.6rem 1rem;
-        font-size: 1rem;
+        padding: 0.5rem 0.5rem;
+        font-size: 3rem;
         border-radius: 8px;
         border: none;
         width: 160px;
@@ -956,7 +956,7 @@
             </div>
             <hr class="linea"/>
             <form method="post" asp-action="ResultadoSR" id="formRespuesta" class="Forms">
-                <input type="number" name="respuesta" placeholder="Resultado" autofocus autocomplete="off" class="Resultados"/>
+                <input type="number" name="respuesta" autofocus autocomplete="off" class="Resultados"/>
                 <input type="hidden" id="respondido" name="respondido" value="true" />
                 <br />
                 <button type="submit" class="btn-enviar-respuesta">Enviar respuesta</button>

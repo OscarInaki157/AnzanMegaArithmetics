@@ -44,6 +44,23 @@
             z-index: 100;
         }
 
+        .cta-button2 {
+            background-color: #4c4cff;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+            .cta-button2:hover {
+                background-color: #3737e8;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(76, 76, 255, 0.4);
+            }
+
         .logo-title {
             width: 100%;
             max-width: 1200px;
@@ -71,10 +88,10 @@
 
         nav.nav-desktop {
             display: flex;
-            gap: 5rem;
+            gap: 2rem;
             margin-top: 1rem;
             flex-wrap: wrap;
-            justify-content: center;
+            justify-content: end;
             max-width: 1200px;
             width: 100%;
         }
@@ -83,18 +100,18 @@
                 color: var(--text-color);
                 text-decoration: none;
                 font-weight: 500;
-                font-size: 1.4rem;
+                font-size: 1.2rem;
             }
 
-                nav.nav-desktop a:hover {
+                /* nav.nav-desktop a:hover {
                     border-bottom: 2px solid var(--text-color);
-                }
+                } */
 
         /* Enlace activo */
-        nav a.active {
+/*         nav a.active {
             font-weight: bold;
             border-bottom: 2px solid var(--text-color);
-        }
+        } */
 
         .hamburger {
             display: none;
@@ -227,10 +244,10 @@
     <!-- ========== HEADER ========== -->
     <header class="page-header">
         <div class="logo-title">
-            <div class="logo-group">
+           @*  <div class="logo-group">
                 <img src="/Content/Images/MMlogo.png" alt="Logo Mentes México" />
                 <h1>MENTES MÉXICO</h1>
-            </div>
+            </div> *@
             <div class="hamburger" id="hamburgerBtn">
                 <div></div>
                 <div></div>
@@ -239,9 +256,9 @@
         </div>
 
         <nav class="nav-desktop">
-            <a href="/Inicio/Inicio">Inicio</a>
-            <a href="/Inicio/Nosotros">Nosotros</a>
-            <a href="/Inicio/Login">Iniciar sesión</a>
+            <a href="/Inicio/Inicio" class="cta-button2">Inicio</a>
+            <a href="/Inicio/Nosotros" class="cta-button2">Nosotros</a>
+            <a href="/Inicio/Login" class="cta-button2">Iniciar sesión</a>
         </nav>
 
         <nav class="nav-mobile" id="mobileMenu">
