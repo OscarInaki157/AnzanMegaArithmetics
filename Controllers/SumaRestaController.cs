@@ -12,18 +12,26 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult FormularioSR()
         {
             var configJson = HttpContext.Session.GetString("UltimaConfigSR");
+            ConfSumaRestaModel config;
             if (!string.IsNullOrEmpty(configJson))
             {
-                var config = JsonSerializer.Deserialize<ConfSumaRestaModel>(configJson);
-                return View(config);
+                config = JsonSerializer.Deserialize<ConfSumaRestaModel>(configJson);
+            }
+            else
+            {
+                config = new ConfSumaRestaModel
+                {
+                    DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                    DigitosResta = "1,2,3,4,5,6,7,8,9",
+                    NumeroOperaciones = 3,
+                    TiempoMeditacion = 3 
+                };
             }
 
-            return View(new ConfSumaRestaModel
-            {
-                DigitosSuma = "1,2,3,4,5,6,7,8,9",
-                DigitosResta = "1,2,3,4,5,6,7,8,9"
-            });
+            ModelState.Clear();
+            return View(config);
         }
+
 
         [HttpGet]
         public IActionResult LimpiarSumaRestaYDashboard()
@@ -164,7 +172,16 @@ namespace AnzanMegaArithmetics.Controllers
                     };
 
                     var listaActual = op == "+" ? listaSuma : listaResta;
-                    int valor = listaActual[random.Next(listaActual.Count)];
+
+                    int longitud = random.Next(minDig, maxDig + 1);
+
+                    var sublista = listaActual
+                        .Where(n => n.ToString().Length == longitud)
+                        .ToList();
+
+                    int valor = sublista.Any()
+                        ? sublista[random.Next(sublista.Count)]
+                        : listaActual[random.Next(listaActual.Count)];
 
                     numeros.Add(valor);
                     operaciones.Add(op);

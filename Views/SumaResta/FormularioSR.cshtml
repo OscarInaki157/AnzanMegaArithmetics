@@ -41,10 +41,17 @@
 
             <div>
                 <label id="etiquetaNumeroOperaciones">Número de operaciones:</label>
-                <select name="numeroOperaciones" id="numeroOperacionesSelect">
+                <select name="NumeroOperaciones" id="numeroOperacionesSelect">
                     @for (int i = 2; i <= 10; i++)
                     {
-                        <option value="@i" selected="@(Model.NumeroOperaciones == i)">@i</option>
+                        if (Model.NumeroOperaciones == i)
+                        {
+                            <option value="@i" selected>@i</option>
+                        }
+                        else
+                        {
+                            <option value="@i">@i</option>
+                        }
                     }
                 </select>
             </div>
@@ -71,7 +78,7 @@
 
             <div>
                 <label>Velocidad por ejercicio: <small style="color:#aaa;">(0 = sin límite)</small></label>
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="elslider">
                     <input type="range" id="velocidadSlider" min="0" max="250" step="0.5" value="@velocidad" style="flex: 1;" />
                     <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0" max="250" step="0.5" value="@velocidad" style="width: 70px;" />
                 </div>
@@ -198,6 +205,13 @@
             </div>
 
             <div>
+                <label>Paleta de colores:</label>
+                <select>
+                    <option>Default</option>
+                </select>
+            </div>
+
+            <div>
                 <button type="submit" class="btn btn-primary">➕➖ Iniciar ejercicios</button>
             </div>
 
@@ -219,8 +233,8 @@
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
-        max-width: 900px;
-        margin: 2rem auto 1rem auto;
+        max-width: 85%;
+        margin: -1rem auto 1rem auto;
         padding: 0 1rem;
     }
 
@@ -238,7 +252,7 @@
 
 
     .formulario-flash {
-        max-width: 900px;
+        max-width: 85%;
         margin: 1rem auto 2rem auto;
         padding: 1.3rem;
         border-radius: 1rem;
@@ -259,32 +273,31 @@
     .form-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 2rem;
     }
 
     .form-column {
-        flex: 1 1 48%;
+        flex: 1 1 49%;
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
+        gap: 1rem;
     }
 
     form#formConfigSR label {
         display: block;
         margin-bottom: 0.4rem;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     form#formConfigSR select,
     form#formConfigSR input[type="number"] {
-        width: 70%;
+        width: 60%;
         padding: 0.5rem 0.6rem;
         border: none;
         border-radius: 0.5rem;
         background-color: #292c4f;
         color: white;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     form#formConfigSR input[type="radio"] {
@@ -352,6 +365,7 @@
         position: relative;
         cursor: pointer;
         min-height: 48px;
+        width: 60%;
     }
 
     .tags-container {
@@ -371,7 +385,6 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.25s ease-in-out;
-        box-shadow: 0 0 0 rgba(76, 76, 255, 0);
     }
 
         .tag:hover {
@@ -438,6 +451,13 @@
         border: 2px solid var(--color-danger) !important;
     }
 
+
+    .elslider{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 60%;
+    }
     @@keyframes fadeIn {
         from
 
@@ -476,6 +496,15 @@
 
         .top-bar-config{
             flex-direction:column;
+        }
+
+        .tag-input {
+ 
+            width: 100%;
+        }
+
+        .elslider{
+            width:100%;
         }
 
     }
@@ -600,7 +629,7 @@
         document.getElementById("tipoOperacionSelect").addEventListener("change", actualizarVisibilidadOperaciones);
         actualizarVisibilidadOperaciones();
 
-        let valorPrevioOperaciones = 3;
+        let valorPrevioOperaciones = @Model.NumeroOperaciones;
 
         function actualizarSelectOperacionesDirectas() {
             const chkSuma = document.querySelector('input[name="directaSuma"]:checked');
@@ -682,38 +711,33 @@
         const minDigitosSelect = document.getElementById("minDigitosSelect");
         const maxDigitosSelect = document.getElementById("maxDigitosSelect");
 
-        function actualizarMaximos() {
-            const minValue = parseInt(minDigitosSelect.value);
-            let maxValue = parseInt(maxDigitosSelect.value);
-
+        function syncMaxWithMin() {
+            const minValue = parseInt(minDigitosSelect.value, 10);
+            const maxValue = parseInt(maxDigitosSelect.value, 10);
             if (minValue > maxValue) {
+                // si el mínimo supera al máximo, iguala el máximo al mínimo
                 maxDigitosSelect.value = minValue;
-                maxValue = minValue;
             }
-
-            Array.from(maxDigitosSelect.options).forEach(option => {
-                option.disabled = parseInt(option.value) < minValue;
-            });
         }
 
-        function actualizarMinimos() {
-            const maxValue = parseInt(maxDigitosSelect.value);
-            let minValue = parseInt(minDigitosSelect.value);
-
-            if (minValue > maxValue) {
+        function syncMinWithMax() {
+            const minValue = parseInt(minDigitosSelect.value, 10);
+            const maxValue = parseInt(maxDigitosSelect.value, 10);
+            if (maxValue < minValue) {
+                // si el máximo es menor que el mínimo, iguala el mínimo al máximo
                 minDigitosSelect.value = maxValue;
-                minValue = maxValue;
             }
-
-            Array.from(minDigitosSelect.options).forEach(option => {
-                option.disabled = parseInt(option.value) > maxValue;
-            });
         }
 
-        minDigitosSelect.addEventListener("change", actualizarMaximos);
-        maxDigitosSelect.addEventListener("change", actualizarMinimos);
-        actualizarMaximos();
-        actualizarMinimos();
+        minDigitosSelect.addEventListener("change", syncMaxWithMin);
+        maxDigitosSelect.addEventListener("change", syncMinWithMax);
+
+        // al cargar la página, dejamos ambos selects consistentes
+        document.addEventListener("DOMContentLoaded", () => {
+            syncMaxWithMin();
+            syncMinWithMax();
+        });
+
 
         document.getElementById("formConfigSR").addEventListener("submit", function (e) {
             const tipo = document.getElementById("tipoOperacionSelect").value;
