@@ -37,11 +37,12 @@
 </div>
 
 <div class="ejercicio-wrapper">
-
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
 
     <div class="ejercicio-contenido">
         <h1 class="multiplicacion">@multiplicando × @multiplicador</h1>
-        <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuestaTablas" id="formRespuesta">
+        <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuestaTablas" id="formRespuesta" class="Forms">
             <input type="hidden" id="respondido" name="respondido" value="false" />
 
             <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
@@ -56,7 +57,7 @@
         <div class="soroban-frame">
             <div class="barra-horizontal"></div>
             <div class="soroban-container" id="sorobanSR">
-                @for (int col = 0; col < 10; col++)
+                @for (int col = 0; col < 17; col++)
                 {
                     <div class="soroban-column" data-col="@col">
                         <div class="palito-vertical"></div>
@@ -79,11 +80,43 @@
             color: var(--color-tex);
         }
 
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .modo-concentracion-activo .cerebro-marca {
+        opacity: 0;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
         .contador {
             color: #ffffff;
             font-weight: bold;
             font-size: 1.6rem;
             animation: pulse 1s infinite ease-in-out;
+        }
+
+        .Forms{
+            display: flex;
+            justify-self: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .btn-enviar-respuesta {
@@ -92,7 +125,7 @@
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 1.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 15px;
@@ -213,7 +246,7 @@
 
     .input-respuesta {
         padding: 0.6rem 1rem;
-        font-size: 1.5rem;
+        font-size: 2.8rem;
         border-radius: 10px;
         border: none;
         width: 120px;
@@ -266,6 +299,12 @@
             font-size: 1.1rem;
             font-weight: 600;
             color: #d1d1f0;
+        }
+
+        .multiplicacion{
+            color:#ffffff;
+            text-align:center;
+            font-size:3rem;
         }
 
         .form-respuesta-barra input[type="number"] {

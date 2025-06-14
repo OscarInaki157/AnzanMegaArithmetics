@@ -61,7 +61,7 @@
 
                 <div>
                     <label>Velocidad de las preguntas:</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="elslider">
                         <input type="range" id="velocidadSlider" min="0" max="240" step="0.5" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
                         <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0" max="240" step="0.5" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
                     </div>
@@ -128,7 +128,7 @@
 
 
     .formulario-flash {
-        max-width: 900px;
+        max-width: 85%;
         margin: 1rem auto 2rem auto;
         padding: 1.3rem;
         border-radius: 1rem;
@@ -142,8 +142,8 @@
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
-        max-width: 900px;
-        margin: 2rem auto 1rem auto;
+        max-width: 85%;
+        margin: -1rem auto 1rem auto;
         padding: 0 1rem;
     }
 
@@ -157,32 +157,31 @@
     .form-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 2rem;
     }
 
     .form-column {
-        flex: 1 1 48%;
+        flex: 1 1 49%;
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
+        gap: 1rem;
     }
 
     form#formConfigSR label {
         display: block;
         margin-bottom: 0.4rem;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     form#formConfigSR select,
     form#formConfigSR input[type="number"] {
-        width: 70%;
+        width: 60%;
         padding: 0.5rem 0.6rem;
         border: none;
         border-radius: 0.5rem;
         background-color: #292c4f;
         color: white;
-        font-size: 0.95rem;
+        font-size: 1rem;
     }
 
     form#formConfigSR input[type="radio"] {
@@ -251,6 +250,7 @@
         position: relative;
         cursor: pointer;
         min-height: 48px;
+        width:60%;
     }
 
     .tags-container {
@@ -338,6 +338,13 @@
         border: 2px solid var(--color-danger) !important;
     }
 
+    .elslider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 60%;
+    }
+
     @@keyframes fadeIn {
         from {
             opacity: 0;
@@ -383,6 +390,10 @@
 
         form#formConfigSR select,
         form#formConfigSR input[type="number"] {
+            width: 100%;
+        }
+
+        .elslider {
             width: 100%;
         }
     }

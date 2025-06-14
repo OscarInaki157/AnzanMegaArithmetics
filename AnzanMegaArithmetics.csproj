@@ -10,6 +10,8 @@
     <None Remove="Content\Images\abacoicon.gif" />
     <None Remove="Content\Images\Calendario.gif" />
     <None Remove="Content\Images\contacto.png" />
+    <None Remove="Content\Images\dados.gif" />
+    <None Remove="Content\Images\division.gif" />
     <None Remove="Content\Images\Flashicon.gif" />
     <None Remove="Content\Images\icon-abacus.png" />
     <None Remove="Content\Images\icon-brain.png" />
@@ -23,11 +25,14 @@
     <None Remove="Content\Images\ManosF.gif" />
     <None Remove="Content\Images\MMLogo.png" />
     <None Remove="Content\Images\multicon.png" />
+    <None Remove="Content\Images\multip.gif" />
     <None Remove="Content\Images\Nosotros1.png" />
     <None Remove="Content\Images\Nosotros2.png" />
     <None Remove="Content\Images\Nosotros3.png" />
     <None Remove="Content\Images\ProfS.png" />
+    <None Remove="Content\Images\raices.gif" />
     <None Remove="Content\Images\SRicon.gif" />
+    <None Remove="Content\Images\SRlottie.gif" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +43,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\contacto.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\dados.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\division.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Flashicon.gif">
@@ -79,6 +90,9 @@
     <EmbeddedResource Include="Content\Images\multicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\multip.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Nosotros1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -91,7 +105,13 @@
     <EmbeddedResource Include="Content\Images\ProfS.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\raices.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\SRicon.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\SRlottie.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
