@@ -296,7 +296,207 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("Dashboard", "Dashboard");
         }
 
+        [HttpGet]
+        public IActionResult LimpiarMultiplicacionYDashboard()
+        {
+            HttpContext.Session.Remove("ConfMultiplicacion");
+            HttpContext.Session.Remove("EjercicioActual");
+            HttpContext.Session.Remove("ResMultiplicacion");
+            HttpContext.Session.Remove("UltimaConfigMultiplicacion");
+            HttpContext.Session.Remove("InicioEjercicio");
 
+            return RedirectToAction("Dashboard", "Dashboard");
+        }
+
+
+        [HttpGet]
+        public IActionResult MultiplicacionForm()
+        {
+            var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
+            ConfMultiModel modelo;
+
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                modelo = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+            }
+            else
+            {
+                modelo = new ConfMultiModel
+                {
+                    CantidadEjercicios = 5,
+                    FormatoPregunta = "Horizontal",
+                    DireccionRespuesta = "IzquierdaADerecha",
+                    VelocidadPreguntas = "0.0",
+                    DigitosMultiplicando = "2",
+                    DigitosMultiplicador = "2",
+                    TiempoMeditacion = 3
+                };
+            }
+
+            return View(modelo);
+        }
+
+
+        [HttpPost]
+        public IActionResult RepetirMultiplicacion()
+        {
+            var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
+
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                var config = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+
+                // Reiniciar sesión
+                HttpContext.Session.SetString("ConfMultiplicacion", configJson);
+                HttpContext.Session.SetInt32("EjercicioActual", 1);
+                HttpContext.Session.SetString("ResMultiplicacion", System.Text.Json.JsonSerializer.Serialize(new List<RMultiplicationModel>()));
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                ViewBag.VelocidadPreguntas = float.Parse(config.VelocidadPreguntas.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
+
+                return View("ConcentracionMultiplicacion");
+            }
+
+            return RedirectToAction("MultiplicacionForm");
+        }
+
+
+
+        [HttpPost]
+        public IActionResult ConcentracionMultiplicacion(ConfMultiModel config)
+        {
+            HttpContext.Session.SetString("ConfMultiplicacion", System.Text.Json.JsonSerializer.Serialize(config));
+            HttpContext.Session.SetInt32("EjercicioActual", 1);
+            HttpContext.Session.SetString("ResMultiplicacion", System.Text.Json.JsonSerializer.Serialize(new List<RMultiplicationModel>()));
+            HttpContext.Session.SetString("UltimaConfigMultiplicacion", System.Text.Json.JsonSerializer.Serialize(config));
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+            ViewBag.VelocidadPreguntas = float.Parse(config.VelocidadPreguntas.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
+
+            return View();
+        }
+
+
+        [HttpGet]
+        public IActionResult EjercicioMultiplicacion()
+        {
+            var configJson = HttpContext.Session.GetString("ConfMultiplicacion");
+            var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActual") ?? 1;
+            if (string.IsNullOrEmpty(configJson)) return RedirectToAction("MultiplicacionForm");
+
+            var config = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+
+            // Generar multiplicando y multiplicador basados en los dígitos configurados
+            var rng = new Random();
+            int multiplicando = GenerarNumero(rng, config.DigitosMultiplicando);
+            int multiplicador = GenerarNumero(rng, config.DigitosMultiplicador);
+
+            ViewBag.Multiplicando = multiplicando;
+            ViewBag.Multiplicador = multiplicador;
+            ViewBag.VelocidadPreguntas = float.Parse(config.VelocidadPreguntas.Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture);
+            ViewBag.FormatoPregunta = config.FormatoPregunta;
+            ViewBag.DireccionRespuesta = config.DireccionRespuesta;
+            ViewBag.EjercicioActual = ejercicioActual;
+            ViewBag.TotalEjercicios = config.CantidadEjercicios;
+
+            HttpContext.Session.SetInt32("MultiplicandoActual", multiplicando);
+            HttpContext.Session.SetInt32("MultiplicadorActual", multiplicador);
+
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult EnviarRespuesta(string respuestaUsuario, string respondido)
+        {
+            var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActual") ?? 1;
+            var total = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(
+                HttpContext.Session.GetString("ConfMultiplicacion")
+            ).CantidadEjercicios;
+
+            var resJson = HttpContext.Session.GetString("ResMultiplicacion");
+            var resultados = string.IsNullOrEmpty(resJson)
+                ? new List<RMultiplicationModel>()
+                : System.Text.Json.JsonSerializer.Deserialize<List<RMultiplicationModel>>(resJson);
+
+            int multiplicando = HttpContext.Session.GetInt32("MultiplicandoActual") ?? 0;
+            int multiplicador = HttpContext.Session.GetInt32("MultiplicadorActual") ?? 0;
+            int respuesta = string.IsNullOrWhiteSpace(respuestaUsuario) ? -1 : int.Parse(respuestaUsuario);
+
+            resultados.Add(new RMultiplicationModel
+            {
+                Multiplicando = multiplicando,
+                Multiplicador = multiplicador,
+                RespuestaUsuario = respuesta
+            });
+
+            HttpContext.Session.SetString("ResMultiplicacion", System.Text.Json.JsonSerializer.Serialize(resultados));
+
+            if (ejercicioActual >= total)
+                return RedirectToAction("ResultadosMultiplicacion");
+
+            HttpContext.Session.SetInt32("EjercicioActual", ejercicioActual + 1);
+            return RedirectToAction("EjercicioMultiplicacion");
+        }
+
+
+        [HttpPost]
+        public IActionResult FinalizarMultiplicacion()
+        {
+            var configJson = HttpContext.Session.GetString("ConfMultiplicacion");
+            var resJson = HttpContext.Session.GetString("ResMultiplicacion");
+
+            if (string.IsNullOrEmpty(configJson))
+                return RedirectToAction("MultiplicacionForm");
+
+            var config = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+            var resultados = string.IsNullOrEmpty(resJson)
+                ? new List<RMultiplicationModel>()
+                : System.Text.Json.JsonSerializer.Deserialize<List<RMultiplicationModel>>(resJson);
+
+            var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActual") ?? 1;
+
+            var rng = new Random();
+
+            for (int i = ejercicioActual; i <= config.CantidadEjercicios; i++)
+            {
+                int multiplicando = GenerarNumero(rng, config.DigitosMultiplicando);
+                int multiplicador = GenerarNumero(rng, config.DigitosMultiplicador);
+                int correcta = multiplicando * multiplicador;
+
+                resultados.Add(new RMultiplicationModel
+                {
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
+                    RespuestaUsuario = -1
+                });
+            }
+
+            HttpContext.Session.SetString("ResMultiplicacion", System.Text.Json.JsonSerializer.Serialize(resultados));
+            return RedirectToAction("ResultadosMultiplicacion");
+        }
+
+
+        private int GenerarNumero(Random rng, string digitosPermitidos)
+        {
+            var digitos = digitosPermitidos.Split(',').Select(int.Parse).ToList();
+            int d = digitos[rng.Next(digitos.Count)];
+            int min = (int)Math.Pow(10, d - 1);
+            int max = (int)Math.Pow(10, d) - 1;
+            return rng.Next(min, max + 1);
+        }
+
+        [HttpGet]
+        public IActionResult ResultadosMultiplicacion()
+        {
+            var resJson = HttpContext.Session.GetString("ResMultiplicacion");
+            if (!string.IsNullOrEmpty(resJson))
+            {
+                TempData["Resultados"] = resJson;
+            }
+
+            return View();
+        }
 
     }
 }
