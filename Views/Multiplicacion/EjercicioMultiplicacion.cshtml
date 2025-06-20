@@ -58,12 +58,16 @@
             <input type="hidden" id="respondido" name="respondido" value="false" />
             <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
 
-            <input type="number"
+            <input type="text"
+                   inputmode="numeric"
+                   pattern="[0-9]*"
                    id="inputRespuesta"
                    autocomplete="off"
                    class="input-respuesta"
                    autofocus
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                    @(direccion == "DerechaAIzquierda" ? "dir=\"rtl\"" : "") />
+
 
 
             <button type="submit" class="btn-enviar-respuesta">Enviar</button>
