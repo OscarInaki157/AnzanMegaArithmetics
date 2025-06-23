@@ -1,6 +1,7 @@
 ﻿using AnzanMegaArithmetics.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Controllers
@@ -497,6 +498,100 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
+
+        [HttpGet]
+        public IActionResult FormCompetenciaMulti()
+        {
+            var json = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                var model = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(json);
+                return View(model);
+            }
+
+            return View(new ConfCompetenciaMultiModel
+            {
+                TipoPregunta = "3x3",
+                DireccionRespuesta = "IzquierdaADerecha",
+                FormatoPregunta = "Vertical",
+                MostrarContadorTiempo = true,
+                TiempoMeditacion = 3
+            });
+        }
+
+
+        [HttpPost]
+        public IActionResult ConcentracionCompetencia(ConfCompetenciaMultiModel config)
+        {
+            
+            var jsonConfig = JsonSerializer.Serialize(config);
+            HttpContext.Session.SetString("UltimaConfigCompetenciaMulti", jsonConfig);
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+
+            return View(config);
+        }
+
+        private static readonly Dictionary<string, TimeSpan> TiempoPorTipo = new()
+        {
+            ["3x3"] = TimeSpan.FromMinutes(2),
+            ["4x4"] = TimeSpan.FromMinutes(3.75),
+            ["5x5"] = TimeSpan.FromMinutes(6),
+            ["6x6"] = TimeSpan.FromMinutes(8.5),
+            ["7x7"] = TimeSpan.FromMinutes(11.5),
+            ["8x8"] = TimeSpan.FromMinutes(15),
+            ["9x9"] = TimeSpan.FromMinutes(19),
+            ["10x10"] = TimeSpan.FromMinutes(23.5)
+        };
+
+        private static string GenerarNumeroAleatorio(int digitos, Random rand)
+        {
+            int min = (int)Math.Pow(10, digitos - 1);
+            int max = (int)Math.Pow(10, digitos) - 1;
+            return rand.Next(min, max + 1).ToString();
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioCompetencia()
+        {
+            var jsonConfig = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+
+            if (string.IsNullOrEmpty(jsonConfig))
+                return RedirectToAction("FormCompetenciaMulti");
+
+            var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(jsonConfig);
+
+            var partes = config.TipoPregunta.Split('x');
+            int digitosMultiplicando = int.Parse(partes[0]);
+            int digitosMultiplicador = int.Parse(partes[1]);
+
+            var ejercicios = new List<EjercicioCompetenciaModel>();
+            var rand = new Random();
+            for (int i = 0; i < 10; i++)
+            {
+                var multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand);
+                var multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand);
+
+                ejercicios.Add(new EjercicioCompetenciaModel
+                {
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
+                    FormatoPregunta = config.FormatoPregunta,
+                    DireccionRespuesta = config.DireccionRespuesta
+                });
+            }
+
+            HttpContext.Session.SetString("EjerciciosCompetencia", JsonSerializer.Serialize(ejercicios));
+
+            ViewBag.TiempoLimiteSeg = TiempoPorTipo[config.TipoPregunta].TotalSeconds;
+            ViewBag.MostrarContador = config.MostrarContadorTiempo;
+
+            return View(ejercicios);
+        }
+
+
+
 
     }
 }
