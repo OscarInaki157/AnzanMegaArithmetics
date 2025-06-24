@@ -9,11 +9,17 @@
 }
 
 <div class="top-bar">
-    <form method="post" action="/Multiplicacion/FinalizarDesdeCompetencia" class="form-fin">
+    <form method="post" action="/Multiplicacion/FinalizarCompetencia" class="form-fin" id="FormFinalizar" onsubmit="return copiarRespuestasAlFormulario()">
         <button type="submit" class="btn-finalizar">
             ❌ <span>Finalizar</span>
         </button>
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <input type="hidden" name="RespuestasUsuario[@i]" id="hiddenRespuesta_@i" />
+        }
     </form>
+
 
     <div class="info-tiempo">
         @if (mostrarContador)
@@ -51,9 +57,7 @@
     <div class="controles-ejercicio">
         <button onclick="ejercicioAnterior()" class="btn-control">⬅ Anterior</button>
 
-        <form method="post" action="/Multiplicacion/FinalizarDesdeCompetencia" style="display: inline;">
-            <button type="submit" class="btn-control btn-finalizar-central">❌ Finalizar</button>
-        </form>
+        <button type="submit" form="FormFinalizar" class="btn-control btn-finalizar-central">❌ Finalizar</button>
 
         <button onclick="ejercicioSiguiente()" class="btn-control">Siguiente ➡</button>
     </div>
@@ -356,6 +360,8 @@
     const total = ejercicios.length;
     const direccionRespuesta = "@Model[0].DireccionRespuesta";
     let respuestasUsuario = Array(ejercicios.length).fill("");
+    window.formularioEnviado = false;
+    let timer;
 
 
     function renderEjercicio() {
@@ -601,19 +607,31 @@
     const cronometro = document.getElementById("cronometro");
 
     function actualizarCronometro() {
+        if (tiempo <= 0) {
+            tiempo = 0; // Asegura que no vaya a negativos
+            clearInterval(timer);
+
+            // Solo si aún no se envió
+            if (!window.formularioEnviado) {
+                window.formularioEnviado = true;
+                copiarRespuestasAlFormulario();
+                document.getElementById("FormFinalizar").submit();
+            }
+            return;
+        }
+
         const min = Math.floor(tiempo / 60);
         const seg = Math.floor(tiempo % 60).toString().padStart(2, '0');
         cronometro.textContent = `${min}:${seg}`;
-        if (tiempo <= 0) {
-            clearInterval(timer);
-            alert("¡Tiempo terminado!");
-        }
         tiempo--;
     }
 
+
+
+
     if (cronometro) {
         actualizarCronometro();
-        const timer = setInterval(actualizarCronometro, 1000);
+        timer = setInterval(actualizarCronometro, 1000);
     }
 
     function ejercicioAnterior() {
@@ -644,5 +662,24 @@
             }
         }
     });
+
+    function copiarRespuestasAlFormulario() {
+        respuestasUsuario.forEach((resp, i) => {
+            const input = document.getElementById(`hiddenRespuesta_${i}`);
+            if (input) {
+                input.value = resp;
+                console.log(`Respuesta ${i}:`, resp);
+            }
+        });
+
+        return true;
+    }
+
+    document.getElementById("FormFinalizar").addEventListener("submit", function (e) {
+        copiarRespuestasAlFormulario();
+    });
+
+
+
 
 </script>

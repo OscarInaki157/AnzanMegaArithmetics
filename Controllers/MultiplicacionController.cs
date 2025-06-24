@@ -591,6 +591,61 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
 
+        [HttpPost]
+        public IActionResult FinalizarCompetencia(List<string> RespuestasUsuario)
+        {
+            var ejerciciosJson = HttpContext.Session.GetString("EjerciciosCompetencia");
+
+            if (string.IsNullOrEmpty(ejerciciosJson))
+                return RedirectToAction("FormCompetenciaMulti");
+
+            var ejercicios = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
+            var resultados = new List<RCompetenciaMultiModel>();
+
+            for (int i = 0; i < ejercicios.Count; i++)
+            {
+                var ej = ejercicios[i];
+                ej.RespuestaUsuario = i < RespuestasUsuario.Count ? RespuestasUsuario[i] : null;
+
+                var resultadoEsperado = long.Parse(ej.Multiplicando) * long.Parse(ej.Multiplicador);
+                bool respondido = !string.IsNullOrWhiteSpace(ej.RespuestaUsuario);
+                bool esCorrecto = false;
+                long respuestaUsuario = -1;
+
+                if (respondido && long.TryParse(ej.RespuestaUsuario, out long parsed))
+                {
+                    respuestaUsuario = parsed;
+                    esCorrecto = parsed == resultadoEsperado;
+                }
+
+                resultados.Add(new RCompetenciaMultiModel
+                {
+                    OperacionTexto = $"{ej.Multiplicando} × {ej.Multiplicador}",
+                    RespuestaCorrecta = resultadoEsperado,
+                    RespuestaUsuario = respuestaUsuario,
+                    Respondido = respondido,
+                    EsCorrecto = esCorrecto,
+                    TiempoRespuesta = ej.TiempoRespuesta
+                });
+            }
+
+            TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+            return RedirectToAction("ResultadoCompetencia");
+        }
+
+
+        public IActionResult ResultadoCompetencia()
+        {
+            var resultadosJson = TempData["Resultados"] as string;
+            var resultados = string.IsNullOrEmpty(resultadosJson)
+                ? new List<RCompetenciaMultiModel>()
+                : JsonSerializer.Deserialize<List<RCompetenciaMultiModel>>(resultadosJson);
+
+            return View(resultados);
+        }
+
+
+
 
 
     }
