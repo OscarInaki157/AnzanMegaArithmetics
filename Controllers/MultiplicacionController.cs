@@ -644,8 +644,30 @@ namespace AnzanMegaArithmetics.Controllers
             return View(resultados);
         }
 
+        [HttpGet]
+        public IActionResult LimpiarCompetenciaYDashboard()
+        {
+            HttpContext.Session.Remove("UltimaConfigCompetenciaMulti");
+            HttpContext.Session.Remove("EjerciciosCompetencia");
 
+            return RedirectToAction("Dashboard", "Dashboard");
+        }
 
+        [HttpPost]
+        public IActionResult RepetirCompetencia()
+        {
+            var json = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+
+            if (string.IsNullOrEmpty(json))
+                return RedirectToAction("FormCompetenciaMulti");
+
+            var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(json);
+
+            var tiempo = config.TiempoMeditacion >= 0 ? config.TiempoMeditacion : 3;
+            ViewBag.TiempoMeditacion = tiempo;
+
+            return View("ConcentracionCompetencia", config);
+        }
 
 
     }
