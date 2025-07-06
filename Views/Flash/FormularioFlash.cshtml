@@ -25,15 +25,13 @@
         <div class="form-column">
             <div>
                 <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
-                <select name="cantidadEjercicios" required>
-                    @for (int i = 1; i <= 30; i++)
-                    {
-                        if (i <= 10 || i % 5 == 0)
-                        {
-                            <option value="@i" selected="@(cantidad == i)">@i</option>
-                        }
-                    }
-                </select>
+                <input type="number"
+                           name="cantidadEjercicios"
+                           id="cantidadEjerciciosInput"
+                           min="2"
+                           max="100"
+                           value="@(cantidad >= 2 && cantidad <= 100 ? cantidad : 5)"
+                           required />
             </div>
 
             <div>
@@ -126,6 +124,13 @@
                     {
                         <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
                     }
+                </select>
+            </div>
+
+            <div>
+                <label>Colores:</label>
+                <select>
+                    <option>Default</option>
                 </select>
             </div>
 

@@ -26,10 +26,10 @@
         {
             <span>⏱ <span id="cronometro" class="contador">--:--</span></span>
         }
-        else
+        @* else
         {
-            <span class="modo-libre">⏱ <strong>Modo sin límite de tiempo</strong></span>
-        }
+            <span class="modo-libre">⏱ <strong>♾️</strong></span>
+        } *@
     </div>
 </div>
 
@@ -679,7 +679,16 @@
         copiarRespuestasAlFormulario();
     });
 
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.pushState(null, null, location.href);
+    };
 
-
+    window.addEventListener('keydown', function (e) {
+        // F5 o Ctrl+R
+        if ((e.key === 'F5') || (e.ctrlKey && e.key === 'r')) {
+            e.preventDefault();
+        }
+    });
 
 </script>

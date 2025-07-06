@@ -35,7 +35,7 @@
         /* ========== HEADER ========== */
         .page-header {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             padding: 1rem 2rem;
             background-color: var(--bg-color);
@@ -53,6 +53,9 @@
             font-size: 1.1rem;
             font-weight: 600;
             transition: background-color 0.3s ease;
+            display:flex;
+            align-items:center;
+            justify-content:center;
         }
 
             .cta-button2:hover {
@@ -88,7 +91,7 @@
 
         nav.nav-desktop {
             display: flex;
-            gap: 2rem;
+            gap: 1rem;
             margin-top: 1rem;
             flex-wrap: wrap;
             justify-content: end;
@@ -100,7 +103,6 @@
                 color: var(--text-color);
                 text-decoration: none;
                 font-weight: 500;
-                font-size: 1.2rem;
             }
 
                 /* nav.nav-desktop a:hover {
@@ -210,6 +212,28 @@
             color: var(--text-light);
         }
 
+        .frase-random {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--text-light);
+            overflow: hidden;
+            font-weight: 600;
+        }
+
+        .botonera-desktop {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+            justify-content: end;
+        }
+
+            .botonera-desktop .cta-button2 {
+                flex: 1;
+                text-align: center;
+            }
+
+
         /* ========== RESPONSIVE ========== */
         @@media (max-width: 768px) {
          nav.nav-desktop {
@@ -230,10 +254,15 @@
 
         .logo-group {
             flex-grow: 1;
+                margin-bottom: 1rem;
         }
 
         .logo-group h1{
             font-size:1rem;
+        }
+
+        .page-header{
+            flex-direction:column;
         }
 
         }
@@ -244,10 +273,10 @@
     <!-- ========== HEADER ========== -->
     <header class="page-header">
         <div class="logo-title">
-           @*  <div class="logo-group">
-                <img src="/Content/Images/MMlogo.png" alt="Logo Mentes México" />
-                <h1>MENTES MÉXICO</h1>
-            </div> *@
+           <div class="logo-group">
+                @* <img src="/Content/Images/MMlogo.png" alt="Logo Mentes México" /> *@
+                <span id="frase-random" class="frase-random"></span>
+            </div>
             <div class="hamburger" id="hamburgerBtn">
                 <div></div>
                 <div></div>
@@ -256,10 +285,13 @@
         </div>
 
         <nav class="nav-desktop">
-            <a href="/Inicio/Inicio" class="cta-button2">Inicio</a>
-            <a href="/Inicio/Nosotros" class="cta-button2">Nosotros</a>
-            <a href="/Inicio/Login" class="cta-button2">Iniciar sesión</a>
+            <div class="botonera-desktop">
+                <a href="/Inicio/Inicio" class="cta-button2">Inicio</a>
+                <a href="/Inicio/Nosotros" class="cta-button2">Nosotros</a>
+                <a href="/Inicio/Login" class="cta-button2">Iniciar sesión</a>
+            </div>
         </nav>
+
 
         <nav class="nav-mobile" id="mobileMenu">
             <a href="/Inicio/Inicio">Inicio</a>
@@ -328,6 +360,20 @@
                 }
             });
         });
+
+        //frases
+        const frases = [
+            "Descubre el poder de tu mente.",
+            "Piensa rápido, sueña en grande.",
+            "Aprender es tu superpoder."
+        ];
+
+        const fraseElemento = document.getElementById("frase-random");
+        if (fraseElemento) {
+            const index = Math.floor(Math.random() * frases.length);
+            fraseElemento.textContent = frases[index];
+        }
+
 
         //medio proteger
         document.addEventListener('contextmenu', function (e) {

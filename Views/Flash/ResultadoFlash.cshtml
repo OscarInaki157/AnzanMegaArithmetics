@@ -15,6 +15,14 @@
     int correctas = sesiones.Count(s => s.FueCorrecta);
     int incorrectas = totalSesiones - correctas;
     int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
+    
+    var secuenciaJson = Context.Session.GetString("SecuenciaNumeros");
+    var secuenciaActual = string.IsNullOrEmpty(secuenciaJson)
+        ? new List<int>()
+        : System.Text.Json.JsonSerializer.Deserialize<List<int>>(secuenciaJson);
+
+    int totalEjerciciosReal = secuenciaActual.Count;
+
 
     var barraColor = porcentajeGlobal >= 79 ? "#28a745" : porcentajeGlobal >= 49 ? "#ffc107" : "#dc3545";
     var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
@@ -58,9 +66,9 @@
     <div class="cont-onl">
         <div class="contenedores-resumen">
             <div class="card-resumen total">
-                <div class="card-titulo">NÚMERO DE EJERCICIOS</div>
+                <div class="card-titulo">EJERCICIOS</div>
                 <div class="card-icono">📄</div>
-                <div class="card-valor">@totalSesiones</div>
+                <div class="card-valor">@totalEjerciciosReal</div>
             </div>
             <div class="card-resumen correctos">
                 <div class="card-titulo">CORRECTOS</div>
@@ -99,7 +107,7 @@
     h1 {
         text-align: center;
         font-size: 2rem;
-        margin-top: 10px;
+        margin-top: -1.5rem;
         margin-bottom: 0.5rem;
     }
 

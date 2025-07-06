@@ -24,7 +24,7 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     DigitosSuma = "1,2,3,4,5,6,7,8,9",
                     DigitosResta = "1,2,3,4,5,6,7,8,9",
-                    NumeroOperaciones = 3,
+                    NumeroOperaciones = 4,
                     TiempoMeditacion = 3 
                 };
             }

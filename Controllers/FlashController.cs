@@ -263,7 +263,16 @@ namespace AnzanMegaArithmetics.Controllers
                 : JsonSerializer.Deserialize<List<SesionFlashModel>>(historialStr);
 
             // Agregar esta sesión
-            int cantidad = resultado?.OperacionTexto?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length / 2 + 1 ?? 1;
+            //int cantidad = resultado?.OperacionTexto?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length / 2 + 1 ?? 1;
+
+            var numerosStr = HttpContext.Session.GetString("SecuenciaNumeros");
+            var numerosList = string.IsNullOrEmpty(numerosStr)
+                ? new List<int>()
+                : JsonSerializer.Deserialize<List<int>>(numerosStr);
+
+            int cantidad = numerosList.Count;
+
+
 
             sesiones.Add(new SesionFlashModel
             {
@@ -297,7 +306,15 @@ namespace AnzanMegaArithmetics.Controllers
                 ? new List<SesionFlashModel>()
                 : JsonSerializer.Deserialize<List<SesionFlashModel>>(historialStr);
 
-            int cantidad = resultado?.OperacionTexto?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length / 2 + 1 ?? 1;
+            //int cantidad = resultado?.OperacionTexto?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length / 2 + 1 ?? 1;
+            var numerosStr = HttpContext.Session.GetString("SecuenciaNumeros");
+            var numerosList = string.IsNullOrEmpty(numerosStr)
+                ? new List<int>()
+                : JsonSerializer.Deserialize<List<int>>(numerosStr);
+
+            int cantidad = numerosList.Count;
+
+
 
             sesiones.Add(new SesionFlashModel
             {

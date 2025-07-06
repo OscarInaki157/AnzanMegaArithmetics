@@ -120,18 +120,25 @@ namespace AnzanMegaArithmetics.Controllers
                 : JsonSerializer.Deserialize<List<RMultiplicacionModel>>(resultadosJson);
 
             var random = new Random();
+            int longitudMultiplicando = int.Parse(tipo);
+            int multiplicando = GenerarNumeroAleatorioT(longitudMultiplicando, random);
+
+            // Filtrar multiplicadores válidos
             var digitosPermitidos = digitosStr.Split(',').Select(d => d.Trim()).Where(d => d.Length == 1).ToArray();
+            var posiblesMultiplicadores = Enumerable.Range(1, 9)
+                .Where(m =>
+                    digitosPermitidos.Contains(m.ToString()) &&
+                    (parImpar == "ambos" ||
+                     (parImpar == "par" && m % 2 == 0) ||
+                     (parImpar == "impar" && m % 2 != 0)))
+                .ToList();
 
-            int longitud = int.Parse(tipo);
-            var posibles = GenerarMultiplicandos(digitosPermitidos, longitud, parImpar);
-
-            if (!posibles.Any())
+            if (!posiblesMultiplicadores.Any())
             {
-                posibles = digitosPermitidos.Select(d => int.Parse(d)).ToList();
+                posiblesMultiplicadores = digitosPermitidos.Select(int.Parse).ToList();
             }
 
-            int multiplicando = posibles[random.Next(posibles.Count)];
-            int multiplicador = random.Next(1, 10); // 1 a 9
+            int multiplicador = posiblesMultiplicadores[random.Next(posiblesMultiplicadores.Count)];
 
             int resultado = multiplicando * multiplicador;
 
@@ -150,6 +157,18 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
+
+        private int GenerarNumeroAleatorioT(int longitud, Random random)
+        {
+            string num = "";
+            for (int i = 0; i < longitud; i++)
+            {
+                int digito = i == 0 ? random.Next(1, 10) : random.Next(0, 10); // evitar 0 inicial
+                num += digito.ToString();
+            }
+            return int.Parse(num);
+        }
+
 
         private List<int> GenerarMultiplicandos(string[] digitos, int longitud, string parImpar)
         {
@@ -502,6 +521,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult FormCompetenciaMulti()
         {
+            HttpContext.Session.Remove("EjerciciosCompetencia");
             var json = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
 
             if (!string.IsNullOrEmpty(json))
@@ -555,14 +575,40 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EjercicioCompetencia()
         {
-            var jsonConfig = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+            // 1. SI YA EXISTEN EJERCICIOS EN SESSION, USARLOS
+            var ejerciciosJson = HttpContext.Session.GetString("EjerciciosCompetencia");
+            if (!string.IsNullOrEmpty(ejerciciosJson))
+            {
+                var ejerciciosExistentes = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
 
-            if (string.IsNullOrEmpty(jsonConfig))
+                var configJson = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+                var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson);
+
+                var inicioStr = HttpContext.Session.GetString("InicioCompetencia");
+                DateTime inicio = string.IsNullOrEmpty(inicioStr)
+                    ? DateTime.UtcNow // fallback si no existe
+                    : DateTime.Parse(inicioStr);
+
+                var tiempoTotal = TiempoPorTipo[config.TipoPregunta];
+                var transcurrido = DateTime.UtcNow - inicio;
+                var tiempoRestante = tiempoTotal - transcurrido;
+                if (tiempoRestante < TimeSpan.Zero) tiempoRestante = TimeSpan.Zero;
+
+                ViewBag.TiempoLimiteSeg = tiempoRestante.TotalSeconds;
+                ViewBag.MostrarContador = config.MostrarContadorTiempo;
+
+                return View(ejerciciosExistentes);
+            }
+
+            // 2. SI NO HAY EJERCICIOS
+            var configJsonNuevo = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+
+            if (string.IsNullOrEmpty(configJsonNuevo))
                 return RedirectToAction("FormCompetenciaMulti");
 
-            var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(jsonConfig);
+            var configNuevo = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJsonNuevo);
 
-            var partes = config.TipoPregunta.Split('x');
+            var partes = configNuevo.TipoPregunta.Split('x');
             int digitosMultiplicando = int.Parse(partes[0]);
             int digitosMultiplicador = int.Parse(partes[1]);
 
@@ -570,22 +616,21 @@ namespace AnzanMegaArithmetics.Controllers
             var rand = new Random();
             for (int i = 0; i < 10; i++)
             {
-                var multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand);
-                var multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand);
-
                 ejercicios.Add(new EjercicioCompetenciaModel
                 {
-                    Multiplicando = multiplicando,
-                    Multiplicador = multiplicador,
-                    FormatoPregunta = config.FormatoPregunta,
-                    DireccionRespuesta = config.DireccionRespuesta
+                    Multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand),
+                    Multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand),
+                    FormatoPregunta = configNuevo.FormatoPregunta,
+                    DireccionRespuesta = configNuevo.DireccionRespuesta
                 });
             }
 
             HttpContext.Session.SetString("EjerciciosCompetencia", JsonSerializer.Serialize(ejercicios));
 
-            ViewBag.TiempoLimiteSeg = TiempoPorTipo[config.TipoPregunta].TotalSeconds;
-            ViewBag.MostrarContador = config.MostrarContadorTiempo;
+            HttpContext.Session.SetString("InicioCompetencia", DateTime.UtcNow.ToString("o"));
+
+            ViewBag.TiempoLimiteSeg = TiempoPorTipo[configNuevo.TipoPregunta].TotalSeconds;
+            ViewBag.MostrarContador = configNuevo.MostrarContadorTiempo;
 
             return View(ejercicios);
         }
@@ -629,6 +674,8 @@ namespace AnzanMegaArithmetics.Controllers
                 });
             }
 
+            HttpContext.Session.Remove("InicioCompetencia");
+
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoCompetencia");
         }
@@ -663,11 +710,14 @@ namespace AnzanMegaArithmetics.Controllers
 
             var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(json);
 
+            HttpContext.Session.Remove("EjerciciosCompetencia");
+
             var tiempo = config.TiempoMeditacion >= 0 ? config.TiempoMeditacion : 3;
             ViewBag.TiempoMeditacion = tiempo;
 
             return View("ConcentracionCompetencia", config);
         }
+
 
 
     }
