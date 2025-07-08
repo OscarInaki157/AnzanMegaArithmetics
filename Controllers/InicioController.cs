@@ -46,7 +46,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             if (response.Usuario.Contains("Error al validar") || response.Usuario.Contains("No hay coincidencias"))
             {
-                ViewBag.ErrorMessage = response.Usuario;
+                ViewBag.ErrorMessage = "Verifica tu conexión, señales débiles o inexistentes.";
                 return View("Login");
             }
 
