@@ -1,0 +1,481 @@
+﻿@using System.Text.Json
+@model List<AnzanMegaArithmetics.Models.EjercicioCompetenciaModel>
+@{
+    ViewBag.Title = "Memorización de Multiplicaciones";
+    Layout = "_LayoutGeneral";
+
+    var tiempoMemoria = (double)(ViewBag.TiempoMemoriaSeg ?? 15);
+
+    var mostrarContador = (bool)(ViewBag.MostrarContador ?? true);
+}
+
+<div class="top-bar">
+    <form method="post" action="/Multiplicacion/FinalizarMemorizada" class="form-fin" id="FormFinalizar" onsubmit="return copiarRespuestasAlFormulario()">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <input type="hidden" name="RespuestasUsuario[@i]" id="hiddenRespuesta_@i" />
+        }
+    </form>
+
+    <div class="info-tiempo">
+        @if (mostrarContador)
+        {
+            <span>⏱ <span id="cronometro" class="contador">--:--</span></span>
+        }
+    </div>
+</div>
+
+<div class="grid-ejercicios">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="ejercicio-mini" id="ejMini_@i">
+            <div class="mini-operacion">
+                <div class="linea1" id="linea1_@i">@Model[i].Multiplicando</div>
+                <div class="linea2" id="linea2_@i">× @Model[i].Multiplicador</div>
+                <hr class="linea-operacion" />
+                <input type="text" class="respuesta-mini" id="respuestaMini_@i" readonly />
+            </div>
+        </div>
+    }
+</div>
+
+<div class="alinear">
+    <div class="ejercicio-actual" id="ejercicioActualContainer">
+        <div class="marcadores" id="marcadores" style="visibility: hidden;"></div>
+        <div class="contenido-ejercicio" id="contenidoEjercicio"></div>
+    </div>
+</div>
+
+
+<script>
+    const ejercicios = @Html.Raw(JsonSerializer.Serialize(Model));
+    let actual = 0;
+    let respuestasUsuario = Array(ejercicios.length).fill("");
+    let respondidos = Array(ejercicios.length).fill(false);
+    let tiempoRestante = @tiempoMemoria;
+    let mostrarContador = @(ViewBag.MostrarContador.ToString().ToLower());
+    let cronometro = document.getElementById("cronometro");
+    let modoRespuesta = false;
+
+    function iniciarMemorizacion() {
+            document.getElementById("contenidoEjercicio").innerHTML = "";
+            if (mostrarContador && cronometro) {
+                actualizarCronometro(tiempoRestante);
+            }
+
+
+        const intervalo = setInterval(() => {
+            if (!modoRespuesta) {
+                tiempoRestante--;
+
+                if (mostrarContador && cronometro) {
+                    actualizarCronometro(tiempoRestante);
+                }
+
+
+                if (tiempoRestante <= 0) {
+                    modoRespuesta = true;
+                    clearInterval(intervalo);
+                    ocultarOperaciones();
+                    if (mostrarContador && cronometro) {
+                        cronometro.textContent = "Responde";
+                        cronometro.classList.add("modo-libre");
+                    }
+                    mostrarEjercicio();
+                    habilitarInput();
+
+
+
+                }
+            }
+        }, 1000);
+    }
+
+
+
+    function actualizarCronometro(t) {
+        if (cronometro) {
+            const min = Math.floor(t / 60);
+            const seg = (t % 60).toString().padStart(2, '0');
+            cronometro.textContent = `${min}:${seg}`;
+        }
+    }
+
+        function mostrarEjercicio() {
+        const ej = ejercicios[actual];
+        const contenedor = document.getElementById("contenidoEjercicio");
+        contenedor.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; font-size: 2.5rem; width: 100%;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">Ejercicio ${actual + 1}</div>
+                <input type="text" id="respuestaActual" class="input-respuesta" disabled onkeydown="registrarTecla(event)" autocomplete="off" />
+            </div>
+        `;
+    }
+
+    function ocultarOperaciones() {
+        ejercicios.forEach((ej, i) => {
+            const mul1 = "*".repeat(ej.Multiplicando.length);
+            const mul2 = "*".repeat(ej.Multiplicador.length);
+            document.getElementById(`linea1_${i}`).textContent = mul1;
+            document.getElementById(`linea2_${i}`).textContent = "× " + mul2;
+        });
+    }
+
+
+    function habilitarInput() {
+        const input = document.getElementById("respuestaActual");
+        input.disabled = false;
+        input.focus();
+    }
+
+    function registrarTecla(e) {
+        const input = document.getElementById("respuestaActual");
+        if (respondidos[actual]) {
+            e.preventDefault();
+            return;
+        }
+
+        if (e.key === "Enter") {
+            confirmarRespuesta();
+            return;
+        }
+
+        // Solo permitir números
+        if (!/[0-9]/.test(e.key) && e.key !== "Backspace") {
+            e.preventDefault();
+            return;
+        }
+    }
+
+    function confirmarRespuesta() {
+        const valor = document.getElementById("respuestaActual").value;
+        respuestasUsuario[actual] = valor;
+        respondidos[actual] = true;
+
+        const miniInput = document.getElementById(`respuestaMini_${actual}`);
+        if (miniInput) miniInput.value = valor;
+
+        document.getElementById("respuestaActual").disabled = true;
+        siguienteEjercicio();
+    }
+
+    function siguienteEjercicio() {
+        if (actual < ejercicios.length - 1) {
+            actual++;
+            mostrarEjercicio();
+            if (respondidos[actual]) {
+                const input = document.getElementById("respuestaActual");
+                input.value = respuestasUsuario[actual];
+                input.disabled = true;
+            } else {
+                habilitarInput();
+            }
+        }
+    }
+
+    function copiarRespuestasAlFormulario() {
+        respuestasUsuario.forEach((resp, i) => {
+            const input = document.getElementById(`hiddenRespuesta_${i}`);
+            if (input) input.value = resp;
+        });
+        return true;
+    }
+
+    function finalizar() {
+        copiarRespuestasAlFormulario();
+        document.getElementById("FormFinalizar").submit();
+    }
+
+    document.addEventListener("DOMContentLoaded", iniciarMemorizacion);
+</script>
+
+<style>
+
+    .controles-ejercicio {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 0;
+    }
+
+    .btn-control {
+        background-color: #4c4cff;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 8px rgba(76, 76, 255, 0.5);
+    }
+
+        .btn-control:hover {
+            transform: scale(1.05);
+            background-color: #3a3ac2;
+        }
+
+    .btn-finalizar-central {
+        background-color: #df312c;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar-central:hover {
+            background-color: #b22222;
+        }
+
+    /*ocultar header*/
+    .page-header {
+        display: none;
+    }
+
+    .main-content {
+        margin-top: 0.5rem;
+    }
+
+    .page-footer {
+        display: none;
+    }
+
+    .alinear {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column-reverse;
+    }
+
+    .grid-ejercicios {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem auto auto auto;
+        max-width: 900px;
+    }
+
+    .ejercicio-mini {
+        background-color: #2c2f50;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.4);
+        min-height: 9rem;
+    }
+
+        .ejercicio-mini.activo {
+            background-color: var(--color-primary);
+            font-weight: bold;
+            transform: scale(1.1);
+        }
+
+    .ejercicio-actual {
+        margin: -1rem auto;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+        flex-direction: column;
+        text-align: center;
+    }
+
+
+    .contenido-ejercicio {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        letter-spacing: 0.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1.2;
+        margin-top:2rem;
+    }
+
+
+    .marcadores {
+        display: flex;
+        justify-content: end;
+        align-items: end;
+        gap: 0.2rem;
+        margin-bottom: 0;
+        flex-wrap: nowrap;
+    }
+
+
+    .marcador {
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 2px solid white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .marcador.checked {
+            background-color: var(--color-primary);
+        }
+
+    .controles-ejercicio {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .barra-tiempo {
+        text-align: center;
+        font-size: 1.2rem;
+        color: var(--color-light);
+        margin-top: 1rem;
+    }
+
+    .mini-operacion {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        font-family: monospace;
+    }
+
+    .linea1,
+    .linea2 {
+        width: 100%;
+        text-align: right;
+    }
+
+    .linea-operacion {
+        width: 100%;
+        border: none;
+        border-top: 2px solid white;
+        margin-top: 0.3rem;
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        border-radius: 25px;
+        margin-top: -2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .separator {
+        display: inline-block;
+    }
+
+
+    .input-respuesta {
+        padding: 0.6rem 0.1rem;
+        font-size: 2rem;
+        border-radius: 10px;
+        border: none;
+        width: 100%;
+        text-align: right;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+    .respuesta-mini {
+        margin-top: 0;
+        font-size: 1.1rem;
+        padding: 0.3rem;
+        text-align: center;
+        border-radius: 6px;
+        border: none;
+        background-color: #444a77;
+        color: white;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .horizontal-contenedor {
+        display: flex;
+        gap: 0.4rem;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .digito-con-marcador {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        font-family: monospace;
+    }
+
+        .digito-con-marcador .marcador {
+            margin-bottom: 0.3rem;
+        }
+
+    .digito.iluminado {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+
+    @@media (max-width: 768px) {
+
+        .grid-ejercicios {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+</style>

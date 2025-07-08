@@ -608,7 +608,7 @@
 
     function actualizarCronometro() {
         if (tiempo <= 0) {
-            tiempo = 0; // Asegura que no vaya a negativos
+            tiempo = 0;
             clearInterval(timer);
 
             // Solo si aún no se envió
@@ -620,19 +620,22 @@
             return;
         }
 
-        const min = Math.floor(tiempo / 60);
-        const seg = Math.floor(tiempo % 60).toString().padStart(2, '0');
-        cronometro.textContent = `${min}:${seg}`;
+        if(cronometro){
+            const min = Math.floor(tiempo / 60);
+            const seg = Math.floor(tiempo % 60).toString().padStart(2, '0');
+            cronometro.textContent = `${min}:${seg}`;
+        }
+
         tiempo--;
     }
 
 
 
 
-    if (cronometro) {
-        actualizarCronometro();
-        timer = setInterval(actualizarCronometro, 1000);
-    }
+    
+    actualizarCronometro();
+    timer = setInterval(actualizarCronometro, 1000);
+    
 
     function ejercicioAnterior() {
         if (actual > 0) {

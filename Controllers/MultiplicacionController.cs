@@ -555,6 +555,8 @@ namespace AnzanMegaArithmetics.Controllers
 
         private static readonly Dictionary<string, TimeSpan> TiempoPorTipo = new()
         {
+            ["2x1"] = TimeSpan.FromMinutes(1),
+            ["2x2"] = TimeSpan.FromMinutes(1.25),
             ["3x3"] = TimeSpan.FromMinutes(2),
             ["4x4"] = TimeSpan.FromMinutes(3.75),
             ["5x5"] = TimeSpan.FromMinutes(6),
@@ -575,7 +577,6 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EjercicioCompetencia()
         {
-            // 1. SI YA EXISTEN EJERCICIOS EN SESSION, USARLOS
             var ejerciciosJson = HttpContext.Session.GetString("EjerciciosCompetencia");
             if (!string.IsNullOrEmpty(ejerciciosJson))
             {
@@ -600,7 +601,6 @@ namespace AnzanMegaArithmetics.Controllers
                 return View(ejerciciosExistentes);
             }
 
-            // 2. SI NO HAY EJERCICIOS
             var configJsonNuevo = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
 
             if (string.IsNullOrEmpty(configJsonNuevo))
@@ -716,6 +716,182 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.TiempoMeditacion = tiempo;
 
             return View("ConcentracionCompetencia", config);
+        }
+
+        //3ra conf competencia
+        [HttpPost]
+        public IActionResult ConcentracionMemorizada(ConfCompetenciaMultiModel config)
+        {
+            var jsonConfig = JsonSerializer.Serialize(config);
+            HttpContext.Session.SetString("UltimaConfigMemorizada", jsonConfig);
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+
+            return View(config);
+        }
+
+        private static readonly Dictionary<string, TimeSpan> TiempoPorTipoTercera = new()
+        {
+            ["2x2"] = TimeSpan.FromMinutes(1.25).Add(TimeSpan.FromSeconds(30)),
+            ["3x3"] = TimeSpan.FromMinutes(2).Add(TimeSpan.FromSeconds(30)),
+            ["4x4"] = TimeSpan.FromMinutes(3.75).Add(TimeSpan.FromSeconds(30))
+        };
+
+
+        [HttpGet]
+        public IActionResult EjercicioMemorizado()
+        {
+            if (HttpContext.Session.GetString("YaCargoMemorizada") == "true")
+            {
+                var json = HttpContext.Session.GetString("EjerciciosMemorizada");
+
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var ejerciciosCargados = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(json);
+
+                    var resultados = ejerciciosCargados.Select(ej => new RCompetenciaMultiModel
+                    {
+                        OperacionTexto = $"{ej.Multiplicando} × {ej.Multiplicador}",
+                        RespuestaCorrecta = long.Parse(ej.Multiplicando) * long.Parse(ej.Multiplicador),
+                        RespuestaUsuario = -1,
+                        Respondido = false
+                    }).ToList();
+
+                    HttpContext.Session.SetString("ResultadosMemorizada", JsonSerializer.Serialize(resultados));
+                }
+
+                return RedirectToAction("ResultadoMemorizada");
+            }
+
+            // Marca que ya cargó
+            HttpContext.Session.SetString("YaCargoMemorizada", "true");
+
+            // Si ya existen ejercicios, los reutilizamos
+            var ejerciciosExistentesJson = HttpContext.Session.GetString("EjerciciosMemorizada");
+            if (!string.IsNullOrEmpty(ejerciciosExistentesJson))
+            {
+                var ejerciciosExistentes = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosExistentesJson);
+                var configJson = HttpContext.Session.GetString("UltimaConfigMemorizada");
+                var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson);
+
+                ViewBag.MostrarContador = config.MostrarContadorTiempo;
+                ViewBag.TiempoMemoriaSeg = TiempoPorTipoTercera[config.TipoPregunta].TotalSeconds;
+
+                return View(ejerciciosExistentes);
+            }
+
+            // Si no hay ejercicios, generarlos
+            var configNuevoJson = HttpContext.Session.GetString("UltimaConfigMemorizada");
+            if (string.IsNullOrEmpty(configNuevoJson))
+                return RedirectToAction("FormCompetenciaMulti", "Multiplicacion");
+
+            var configNuevo = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configNuevoJson);
+            var partes = configNuevo.TipoPregunta.Split('x');
+            int digitosMultiplicando = int.Parse(partes[0]);
+            int digitosMultiplicador = int.Parse(partes[1]);
+
+            var ejercicios = new List<EjercicioCompetenciaModel>();
+            var rand = new Random();
+            for (int i = 0; i < 10; i++)
+            {
+                ejercicios.Add(new EjercicioCompetenciaModel
+                {
+                    Multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand),
+                    Multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand),
+                    FormatoPregunta = configNuevo.FormatoPregunta,
+                    DireccionRespuesta = configNuevo.DireccionRespuesta
+                });
+            }
+
+            HttpContext.Session.SetString("EjerciciosMemorizada", JsonSerializer.Serialize(ejercicios));
+            ViewBag.MostrarContador = configNuevo.MostrarContadorTiempo;
+            ViewBag.TiempoMemoriaSeg = TiempoPorTipoTercera[configNuevo.TipoPregunta].TotalSeconds;
+
+            return View(ejercicios);
+        }
+
+
+
+        [HttpPost]
+        public IActionResult FinalizarMemorizada(List<string> RespuestasUsuario)
+        {
+            var ejerciciosJson = HttpContext.Session.GetString("EjerciciosMemorizada");
+            if (string.IsNullOrEmpty(ejerciciosJson))
+                return RedirectToAction("FormCompetenciaMulti", "Multiplicacion");
+
+            var ejercicios = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
+            var resultados = new List<RCompetenciaMultiModel>();
+
+            for (int i = 0; i < ejercicios.Count; i++)
+            {
+                var ej = ejercicios[i];
+                ej.RespuestaUsuario = i < RespuestasUsuario.Count ? RespuestasUsuario[i] : null;
+
+                var resultadoEsperado = long.Parse(ej.Multiplicando) * long.Parse(ej.Multiplicador);
+                bool respondido = !string.IsNullOrWhiteSpace(ej.RespuestaUsuario);
+                bool esCorrecto = false;
+                long respuestaUsuario = -1;
+
+                if (respondido && long.TryParse(ej.RespuestaUsuario, out long parsed))
+                {
+                    respuestaUsuario = parsed;
+                    esCorrecto = parsed == resultadoEsperado;
+                }
+
+                resultados.Add(new RCompetenciaMultiModel
+                {
+                    OperacionTexto = $"{ej.Multiplicando} × {ej.Multiplicador}",
+                    RespuestaCorrecta = resultadoEsperado,
+                    RespuestaUsuario = respuestaUsuario,
+                    Respondido = respondido
+                });
+            }
+
+            HttpContext.Session.Remove("YaCargoMemorizada");
+            HttpContext.Session.SetString("ResultadosMemorizada", JsonSerializer.Serialize(resultados));
+            return RedirectToAction("ResultadoMemorizada");
+        }
+
+        [HttpGet]
+        public IActionResult ResultadoMemorizada()
+        {
+            var resultadosJson = HttpContext.Session.GetString("ResultadosMemorizada");
+            if (string.IsNullOrEmpty(resultadosJson))
+                return RedirectToAction("Dashboard", "Dashboard");
+
+            var resultados = JsonSerializer.Deserialize<List<RCompetenciaMultiModel>>(resultadosJson);
+
+            HttpContext.Session.Remove("YaCargoMemorizada");
+            HttpContext.Session.Remove("ResultadosMemorizada");
+            HttpContext.Session.Remove("EjerciciosMemorizada");
+            HttpContext.Session.Remove("UltimaConfigMemorizada");
+
+            return View(resultados);
+        }
+
+        [HttpPost]
+        public IActionResult RepetirMemorizada()
+        {
+            var configJson = HttpContext.Session.GetString("UltimaConfigMemorizada");
+
+            if (string.IsNullOrEmpty(configJson))
+                return RedirectToAction("FormCompetenciaMulti", "Multiplicacion");
+
+            var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson);
+
+            return View("ConcentracionMemorizada", config);
+        }
+
+
+        [HttpGet]
+        public IActionResult LimpiarMemorizadaYDashboard()
+        {
+            HttpContext.Session.Remove("YaCargoMemorizada");
+            HttpContext.Session.Remove("ResultadosMemorizada");
+            HttpContext.Session.Remove("EjerciciosMemorizada");
+            HttpContext.Session.Remove("UltimaConfigMemorizada");
+
+            return RedirectToAction("Dashboard", "Dashboard");
         }
 
 
