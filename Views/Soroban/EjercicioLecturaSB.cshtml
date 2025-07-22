@@ -39,6 +39,10 @@
 </div>
 
 <div class="ejercicio-wrapper">
+
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
     <div class="soroban-frame">
         <div class="barra-horizontal"></div>
         <div class="soroban-container">
@@ -85,6 +89,26 @@
     body {
         background-color: var(--color-bg);
         color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
     }
 
     .barra-horizontal {

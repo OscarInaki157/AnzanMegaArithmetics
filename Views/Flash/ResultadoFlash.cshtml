@@ -66,33 +66,35 @@
     <div class="cont-onl">
         <div class="contenedores-resumen">
             <div class="card-resumen total">
-                <div class="card-titulo">EJERCICIOS</div>
+                <div class="card-titulo">TOTAL</div>
                 <div class="card-icono">📄</div>
-                <div class="card-valor">@totalEjerciciosReal</div>
+                <div class="card-valor" id="contadorTotal">@totalEjerciciosReal</div>
             </div>
             <div class="card-resumen correctos">
                 <div class="card-titulo">CORRECTOS</div>
                 <div class="card-icono">✅</div>
-                <div class="card-valor">@correctas</div>
+                <div class="card-valor" id="contadorCorrectos">@correctas</div>
             </div>
             <div class="card-resumen incorrectos">
                 <div class="card-titulo">INCORRECTOS</div>
                 <div class="card-icono">❌</div>
-                <div class="card-valor">@incorrectas</div>
+                <div class="card-valor" id="contadorIncorrectos">@incorrectas</div>
             </div>
             <div class="card-resumen experiencia">
                 <div class="card-titulo">XP</div>
                 <div class="card-icono">✨</div>
-                <div class="card-valor">@porcentajeGlobal/100 XP</div>
+                <div class="card-valor" id="contadorXP">@porcentajeGlobal/100 XP</div>
             </div>
         </div>
     </div>
 
     <div class="container-barrap">
-        <p>🌟 Porcentaje de éxito: <strong>@porcentajeGlobal%</strong></p>
-        <div class="barra-progreso">
-            <div class="barra-progreso-interna" style="width: @porcentajeGlobal%; background-color: @barraColor;"></div>
+        <p>🎯 Porcentaje de éxito: <strong>@porcentajeGlobal%</strong></p>
+
+        <div class="barra-progreso" style="width: 100%; max-width: 300px;">
+            <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
+        <div id="estrellas" class="estrellas-container"></div>
     </div>
 </div>
 
@@ -258,8 +260,10 @@
 
     .barra-progreso-interna {
         height: 100%;
-        transition: width 0.5s ease;
+        width: 0%;
+        position: relative;
     }
+
 
     .contenedores-resumen {
         display: flex;
@@ -335,6 +339,69 @@
         text-align:center;
     }
 
+
+    .shimmer::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -50%;
+        height: 100%;
+        width: 50%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+
+    @@keyframes shimmer {
+        0% {
+            left: -50%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    .parpadeo {
+        animation: parpadeo 1s infinite;
+    }
+
+    @@keyframes parpadeo {
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.3;
+        }
+    }
+
+    .estrellas-container {
+        position: relative;
+        height: 0;
+        margin-top: 10px;
+        overflow: visible;
+    }
+
+    .estrella {
+        position: absolute;
+        font-size: 18px;
+        color: #fcd703;
+        animation: volar 1s ease-out forwards;
+    }
+
+    @@keyframes volar {
+        0% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        100% {
+            transform: translateY(-60px) scale(1.5);
+            opacity: 0;
+        }
+    }
+
+
     @@media (max-width: 600px) {
         .grid-acordeones {
             grid-template-columns: 1fr;
@@ -398,3 +465,70 @@
 
     }
 </style>
+
+
+@section Scripts {
+    <script>
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const porcentaje = @porcentajeGlobal;
+            const barra = document.getElementById("barraProgreso");
+            const estrellasContainer = document.getElementById("estrellas");
+
+            let progreso = 0;
+            const velocidad = 200;
+            const incremento = Math.max(1, porcentaje / (1000 / velocidad));
+
+            const animarBarra = setInterval(() => {
+                if (progreso >= porcentaje) {
+                    clearInterval(animarBarra);
+                    barra.classList.add("parpadeo");
+                    lanzarEstrellitas();
+                    return;
+                }
+                progreso += incremento;
+                barra.style.width = `${Math.min(progreso, porcentaje)}%`;
+            }, velocidad);
+
+            function lanzarEstrellitas() {
+                for (let i = 0; i < 15; i++) {
+                    const estrella = document.createElement("div");
+                    estrella.classList.add("estrella");
+                    estrella.innerText = "✨";
+                    estrella.style.left = `${Math.random() * 80 + 10}%`;
+                    estrellasContainer.appendChild(estrella);
+
+                    setTimeout(() => estrella.remove(), 1000);
+                }
+            }
+        });
+
+        function animateCount(element, endValue, duration = 2000) {
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = Math.floor(progress * endValue);
+                element.textContent = value;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = endValue;
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            animateCount(document.getElementById('contadorTotal'), @total);
+            animateCount(document.getElementById('contadorCorrectos'), @correctas);
+            animateCount(document.getElementById('contadorIncorrectos'), @incorrectas);
+            animateCount(document.getElementById('contadorXP'), @porcentajeGlobal);
+        });
+    </script>
+}
