@@ -22,14 +22,19 @@
 
     #configuracionEjercicios {
         width: 90%;
-        max-width: 520px;
+        max-width: 80%;
         margin: 0 auto 2rem auto;
         padding: 1.4rem;
         border-radius: 1rem;
-        background-color: var(--color-card-bg);
+        background-color: var(--bg-color);
         box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
         color: var(--color-light);
         animation: fadeIn 0.4s ease;
+        flex-direction: row;
+        display: flex;
+        gap: 20%;
+        justify-content: space-around;
+        align-items: flex-start;
     }
 
         #configuracionEjercicios div {
@@ -86,6 +91,8 @@
         justify-content: center;
         margin: 1.2rem 0 1.5rem;
         padding: 0 1rem;
+        align-items: center;
+        gap: 1.5rem;
     }
 
     .btn-dashboard {
@@ -110,6 +117,10 @@
             box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
         }
 
+    .main-content {
+        margin-top: 3.5rem;
+    }
+
     @@keyframes fadeIn {
         from {
             opacity: 0;
@@ -125,10 +136,14 @@
     @@media (max-width: 480px) {
         #configuracionEjercicios {
             padding: 1.2rem;
+            flex-direction: column;
+            max-width: 90%;
         }
 
         .dashboard-button-wrapper {
             padding: 0 0.6rem;
+            flex-direction: column;
+            gap: 0;
         }
 
         #configuracionEjercicios button,
@@ -148,69 +163,80 @@
             <i class="fas fa-home"></i> Regresar al Dashboard
         </button>
     </form>
+    <h2>Ajustes Escritura FingerMath</h2>
 </div>
 
-<h2>Ajustes Escritura FingerMath</h2>
-
 <form id="configuracionEjercicios" method="post" asp-controller="Fingermath" asp-action="ConcentracionEscritura">
+    
     <div>
-        <label asp-for="CantidadEjercicios"></label>
-        <input asp-for="CantidadEjercicios" type="number" min="1" />
-        <span asp-validation-for="CantidadEjercicios" class="text-danger"></span>
-        <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
+
+        <div>
+            <label asp-for="CantidadEjercicios"></label>
+            <input asp-for="CantidadEjercicios" type="number" min="1" />
+            <span asp-validation-for="CantidadEjercicios" class="text-danger"></span>
+            <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
+        </div>
+
+        <div>
+            <label asp-for="TipoPregunta"></label>
+            <select asp-for="TipoPregunta">
+                <option value="derecha">Ejercicios con mano derecha</option>
+                <option value="ambas">Ejercicios con ambas manos</option>
+            </select>
+            <span asp-validation-for="TipoPregunta" class="text-danger"></span>
+        </div>
+
     </div>
 
     <div>
-        <label asp-for="TipoPregunta"></label>
-        <select asp-for="TipoPregunta">
-            <option value="derecha">Ejercicios con mano derecha</option>
-            <option value="ambas">Ejercicios con ambas manos</option>
-        </select>
-        <span asp-validation-for="TipoPregunta" class="text-danger"></span>
-    </div>
 
-    <div>
-        <label asp-for="VelocidadPreguntas"></label>
-        <select asp-for="VelocidadPreguntas">
-            <option value="0">0 (sin límite)</option>
-            <option value="0.5">0.5</option>
-            <option value="0.6">0.6</option>
-            <option value="0.7">0.7</option>
-            <option value="0.8">0.8</option>
-            <option value="0.9">0.9</option>
-            <option value="1">1</option>
-            <option value="1.5">1.5</option>
-            <option value="2">2</option>
-            <option value="2.5">2.5</option>
-            <option value="3">3</option>
-            <option value="3.5">3.5</option>
-            <option value="4">4</option>
-            <option value="4.5">4.5</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-        </select>
-        <span asp-validation-for="VelocidadPreguntas" class="text-danger"></span>
-        <small>Selecciona el tiempo que se mostrará cada ejercicio. 0 = sin límite.</small>
-    </div>
+        <div>
+            <label asp-for="VelocidadPreguntas"></label>
+            <select asp-for="VelocidadPreguntas">
+                <option value="0">0 (sin límite)</option>
+                <option value="0.5">0.5</option>
+                <option value="0.6">0.6</option>
+                <option value="0.7">0.7</option>
+                <option value="0.8">0.8</option>
+                <option value="0.9">0.9</option>
+                <option value="1">1</option>
+                <option value="1.5">1.5</option>
+                <option value="2">2</option>
+                <option value="2.5">2.5</option>
+                <option value="3">3</option>
+                <option value="3.5">3.5</option>
+                <option value="4">4</option>
+                <option value="4.5">4.5</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+            <span asp-validation-for="VelocidadPreguntas" class="text-danger"></span>
+            <small>Selecciona el tiempo que se mostrará cada ejercicio. 0 = sin límite.</small>
+        </div>
 
-    <div>
-        <label asp-for="TiempoMeditacion"></label>
-        <select asp-for="TiempoMeditacion">
-            <option value="0" selected="@(Model.TiempoMeditacion == 0 ? "selected" : null)">0 (sin concentración)</option>
-            <option value="2" selected="@(Model.TiempoMeditacion == 2 ? "selected" : null)">2</option>
-            <option value="3" selected="@(Model.TiempoMeditacion == 3 ? "selected" : null)">3</option>
-            <option value="5" selected="@(Model.TiempoMeditacion == 5 ? "selected" : null)">5</option>
-            <option value="8" selected="@(Model.TiempoMeditacion == 8 ? "selected" : null)">8</option>
-            <option value="10" selected="@(Model.TiempoMeditacion == 10 ? "selected" : null)">10</option>
-        </select>
-        <span asp-validation-for="TiempoMeditacion" class="text-danger"></span>
-    </div>
+        <div>
+            <label asp-for="TiempoMeditacion"></label>
+            <select asp-for="TiempoMeditacion">
+                <option value="0" selected="@(Model.TiempoMeditacion == 0 ? "selected" : null)">0 (sin concentración)</option>
+                <option value="2" selected="@(Model.TiempoMeditacion == 2 ? "selected" : null)">2</option>
+                <option value="3" selected="@(Model.TiempoMeditacion == 3 ? "selected" : null)">3</option>
+                <option value="5" selected="@(Model.TiempoMeditacion == 5 ? "selected" : null)">5</option>
+                <option value="8" selected="@(Model.TiempoMeditacion == 8 ? "selected" : null)">8</option>
+                <option value="10" selected="@(Model.TiempoMeditacion == 10 ? "selected" : null)">10</option>
+            </select>
+            <span asp-validation-for="TiempoMeditacion" class="text-danger"></span>
+        </div>
 
-    <button type="submit">🚀 Iniciar Ejercicios de Escritura</button>
+        <button type="submit">🚀 Iniciar Ejercicios de Escritura</button>
+
+    </div>
+    
+
+    
 </form>
 
 @* @section Scripts {

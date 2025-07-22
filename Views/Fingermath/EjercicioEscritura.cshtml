@@ -46,7 +46,7 @@
     <form id="formulario" method="post" asp-action="ResultadoEscritura" class="form-respuesta">
         <input type="hidden" id="respuesta" name="respuesta" />
         <input type="hidden" id="respondido" name="respondido" value="true" />
-        <input type="text" id="tecladoInvisible" style="position: absolute; opacity: 0;" />
+        <div id="tecladoInvisible" tabindex="-1" style="position: absolute; width: 0; height: 0; overflow: hidden;"></div>
 
         <div class="manos-wrapper">
             <div class="svg-wrapper">
@@ -139,7 +139,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.7rem;
-        background-color: #1b1e3c;
+        background-color: var(--bg-color);
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
         flex-wrap: wrap;
         gap: 1rem;
@@ -227,7 +227,7 @@
         justify-content: center;
         gap: 1rem;
         padding: 1rem 1.5rem;
-        background-color: #1b1e3c;
+        background-color: var(--bg-color);
         border-radius: 25px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
         flex-wrap: wrap;
@@ -804,14 +804,14 @@
 
     window.onload = enfocarInputInvisible;
 
-        tecladoInvisible.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            formRespuesta.submit();
-        }
+    tecladoInvisible.addEventListener("keydown", function (e) {
+         if (e.key === "Enter") {
+             e.preventDefault();
+             formRespuesta.submit();
+         }
     });
 
-        function finalizarEscrituraConRespuesta() {
+    function finalizarEscrituraConRespuesta() {
         const respondido = document.querySelectorAll(".punto.iluminado").length > 0;
         const sumaFinal = document.getElementById("respuesta").value.trim();
 

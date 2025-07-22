@@ -344,8 +344,8 @@ namespace AnzanMegaArithmetics.Controllers
                 modelo = new ConfMultiModel
                 {
                     CantidadEjercicios = 5,
-                    FormatoPregunta = "Horizontal",
-                    DireccionRespuesta = "IzquierdaADerecha",
+                    FormatoPregunta = "Vertical",
+                    DireccionRespuesta = "DerechaAIzquierda",
                     VelocidadPreguntas = "0.0",
                     DigitosMultiplicando = "2",
                     DigitosMultiplicador = "2",

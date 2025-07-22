@@ -12,8 +12,8 @@
             --color-hover: #3b3c8f;
             --color-light: #d1d1f0;
             --color-text: #10132f;
-            --color-bg: #161a36;
-            --color-card-bg: #1b1e3c;
+            --color-bg: #1b1e3c;
+            --color-card-bg: #010f36;
             --color-primary: #4c4cff;
             --color-primary-dark: #3737e8;
             --color-accent: #6233b8;
@@ -310,19 +310,19 @@
         });
 
         // medio proteger
-         document.addEventListener('contextmenu', function (e) {
-                 e.preventDefault();
-         });
+         // document.addEventListener('contextmenu', function (e) {
+         //         e.preventDefault();
+         // });
 
-         document.addEventListener('keydown', function (e) {
-              if (
-                  e.key === 'F12' ||
-                  (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                  (e.ctrlKey && e.key === 'U')
-              ) {
-                  e.preventDefault();
-              }
-         });
+         // document.addEventListener('keydown', function (e) {
+         //      if (
+         //          e.key === 'F12' ||
+         //          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+         //          (e.ctrlKey && e.key === 'U')
+         //      ) {
+         //          e.preventDefault();
+         //      }
+         // });
     </script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
