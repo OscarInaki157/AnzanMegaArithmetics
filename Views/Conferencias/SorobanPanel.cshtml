@@ -1,0 +1,452 @@
+﻿@{
+    ViewBag.Title = "Panel de conferencias Soroban";
+    Layout = "_LayoutGeneral";
+    int colorBrillo = Context.Session.GetInt32("ColorBrillo") ?? 0;
+}
+
+<div class="top-bar">
+    <form id="formFinalizar" class="form-fin" asp-controller="Conferencias" asp-action="PanelFormSoroban">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
+    </form>
+
+</div>
+
+<div class="ejercicio-wrapper">
+
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+
+    <div class="soroban-frame">
+        <div class="barra-horizontal"></div>
+        <div class="soroban-container" id="soroban">
+            @for (int col = 0; col < 15; col++)
+            {
+                <div class="soroban-column" data-col="@col">
+                    <div class="palito-vertical"></div>
+                    <div class="bead superior" data-superior="true" data-valor="5"></div>
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="text"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
+    .soroban-frame {
+        background-color: #1b1e3c;
+        padding: 0 1rem;
+        margin: 1rem auto;
+        width: fit-content;
+        max-width: 100%;
+        border-radius: 20px;
+        box-shadow: 0 0 1rem rgba(76, 76, 255, 0.2);
+        position: relative;
+        border: 0.9rem solid #888888;
+    }
+
+    .barra-horizontal {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 27%;
+        height: 0.9rem;
+        background-color: #888888;
+        z-index: 5;
+    }
+
+    .soroban-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+    }
+
+    .soroban-column {
+        position: relative;
+        width: 3rem;
+        height: 16rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        cursor: pointer;
+    }
+
+    .bead {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2.8rem;
+        height: 1.95rem;
+        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        background: linear-gradient(145deg, #5a5a9c, #3d3f6f);
+        box-shadow: 1px 1px 4px #20244a, -1px -1px 4px #2d3160;
+        transition: top 0.3s ease, transform 0.3s ease;
+        z-index: 1;
+    }
+
+        .bead.activa {
+            background: radial-gradient(circle, #4c4cff 30%, #3737e8 100%);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+        }
+
+        .bead.superior {
+            top: 0%;
+        }
+
+            .bead.superior.activa {
+                top: 15%;
+            }
+
+    .bead-inferior-0 {
+        top: 52%;
+    }
+
+    .bead-inferior-1 {
+        top: 64%;
+    }
+
+    .bead-inferior-2 {
+        top: 76%;
+    }
+
+    .bead-inferior-3 {
+        top: 88%;
+    }
+
+    .bead-inferior-0.activa {
+        top: 32%;
+    }
+
+    .bead-inferior-1.activa {
+        top: 44%;
+    }
+
+    .bead-inferior-2.activa {
+        top: 56%;
+    }
+
+    .bead-inferior-3.activa {
+        top: 68%;
+    }
+
+    .palito-vertical {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0.25rem;
+        background-color: #888;
+        z-index: 0;
+    }
+
+    @@keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1.15);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+        .etiqueta-respuesta {
+            text-align: center;
+        }
+
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .form-respuesta-barra {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-respuesta input[type="number"] {
+            width: 50%;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .form-respuesta-barra input[type="number"] {
+            width: 100%;
+        }
+
+        .form-respuesta-barra button {
+            width: 100%;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
+        .bead {
+            width: 2rem;
+            height: 1.96rem;
+        }
+    }
+</style>
+
+@if (colorBrillo == 1)
+{
+    <style>
+        .bead.activa {
+            background: #28a745 !important;
+            box-shadow: 0 0 15px #28a745;
+        }
+    </style>
+}
+
+
+@section Scripts {
+    <script>
+        const columnas = document.querySelectorAll(".soroban-column");
+        
+       
+        columnas.forEach(col => {
+            const superior = col.querySelector(".bead.superior");
+            const inferiores = col.querySelectorAll(".bead.inferior");
+
+            superior.addEventListener("click", () => {
+                superior.classList.toggle("activa");
+                
+            });
+
+            inferiores.forEach((bead, i) => {
+                bead.addEventListener("click", () => {
+                    const activar = !bead.classList.contains("activa");
+                    inferiores.forEach((b, j) => {
+                        if ((activar && j <= i) || (!activar && j >= i)) {
+                            b.classList.toggle("activa", activar);
+                        }
+                    });
+                    
+                });
+            });
+        });
+
+        
+
+   
+    </script>
+}

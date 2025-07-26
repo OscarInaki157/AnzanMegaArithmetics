@@ -264,6 +264,11 @@
                     <li>
                         <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li>
+                    <li>
+                        <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
+                            <i class="fa fa-graduation-cap"></i> Panel de conferencias
+                        </a>
+                    </li>
                     <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
                 </ul>
@@ -286,6 +291,7 @@
             const sidebar = document.querySelector('.dashboard-sidebar');
             const Neuros = document.getElementById('Neuros');
             const Chal = document.getElementById('Challenge');
+            const panel = document.getElementById('Conf');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -304,6 +310,12 @@
 
                 if (Chal) {
                     Chal.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('Panel')) {
+
+                if (panel) {
+                    panel.classList.add('active');
                 }
             }
 

@@ -50,7 +50,7 @@
                     <label class="switch">
 
                         <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" checked />
+                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
 
                         <span class="slider"></span>
                     </label>
@@ -99,7 +99,7 @@
                     <label class="switch">
 
                         <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" checked />
+                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
 
                         <span class="slider"></span>
                     </label>
@@ -149,7 +149,7 @@
                     <label class="switch">
 
                         <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" checked />
+                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
 
                         <span class="slider"></span>
                     </label>
@@ -197,7 +197,7 @@
         margin: 1rem auto 2rem auto;
         padding: 1.3rem;
         border-radius: 1rem;
-        background-color: var(--color-card-bg);
+        background-color: var(--bg-color);
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
         animation: fadeIn 0.4s ease;
     }
@@ -491,7 +491,7 @@
         display: flex;
         gap: 1rem;
         margin-bottom: 1rem;
-        border-bottom: 3px solid var(--color-primary);
+        border-bottom: 3px solid var(--bg-color);
     }
 
     .tab-btn {
@@ -507,9 +507,14 @@
         background-color: #292c4f;
     }
 
+    .tab-btn:hover{
+            background-color: var(--bg-color);
+            box-shadow: 0 -2px 0 var(--bg-color);
+    }
+
         .tab-btn.active {
-            background-color: var(--color-primary);
-            box-shadow: 0 -2px 0 var(--color-card-bg);
+            background-color: var(--bg-color);
+            box-shadow: 0 -2px 0 var(--bg-color);
         }
 
     .tab-content {
