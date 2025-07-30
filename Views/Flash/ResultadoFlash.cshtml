@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.RFlashModel
 @{
     ViewBag.Title = "Resultados Flash";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutFlash";
 
     var correcto = Model.EsCorrecto;
     var total = TempData.Peek("CantidadEjercicios") != null ? Convert.ToInt32(TempData.Peek("CantidadEjercicios")) : 1;

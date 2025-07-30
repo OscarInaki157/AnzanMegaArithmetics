@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Tu respuesta";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutFlash";
 }
 
 <div class="respuesta-flash-wrapper">
@@ -31,8 +31,8 @@
         </div>
         <div class="fila">
             <button type="button" class="tecla">0</button>
-            <button type="button" class="tecla borrar"><i class="fas fa-backspace"></i></button>
-            <button type="button" class="tecla enter"><i class="fas fa-check"></i></button>
+            <button type="button" class="tecla borrar">🗑️</button>
+            <button type="button" class="tecla enter">✅</button>
         </div>
 
     </div>
@@ -156,6 +156,8 @@
 
         .tecla.borrar {
             background-color: var(--color-danger);
+            font-size: 2.5rem;
+            padding: 1rem;
         }
 
         .tecla:hover,
@@ -167,6 +169,8 @@
 
         .tecla.enter {
             background-color: #28a745;
+            font-size: 2.5rem;
+            padding: 1rem;
         }
 
             .tecla.enter:hover,

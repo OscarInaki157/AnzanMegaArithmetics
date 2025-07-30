@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.ConfFlashModel
 @{
     ViewBag.Title = "Ejercicios Números Flash";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutFlash";
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 3;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
     string velocidad = Model.VelocidadPreguntas;
@@ -154,7 +154,7 @@
    
     h2 {
         text-align: center;
-        color: var(--color-light);
+        /* color: var(--color-light); */
         font-weight: 600;
         font-size: clamp(1.4rem, 2vw, 1.7rem);
     }
@@ -188,7 +188,7 @@
             margin: 0;
             font-size: clamp(1.4rem, 2vw, 1.7rem);
             font-weight: 600;
-            color: var(--color-light);
+            /* color: var(--color-light); */
         }
 
     .checks {

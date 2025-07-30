@@ -17,20 +17,18 @@
         }
 
         :root {
-            --bg-color: #10132f;
+            --bg-color: #010f36;
             --text-color: white;
             --text-light: #d1d1f0;
-            --color-light: #d1d1f0;
-            /* --color-bg: #161a36; */
-            --color-bg: #6c84a3;
+            --color-bg: #472f55;
             --color-card-bg: #1b1e3c;
             --color-primary: #4c4cff;
             --color-primary-dark: #3737e8;
-            --color-text: #f0f0f0;
+            --color-light: #d1d1f0;
+            --color-text: #d1d1f0;
             --color-accent: #6233b8;
             --color-danger: #df312c;
         }
-
 
         body {
             margin: 0;
@@ -41,13 +39,13 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Eliminar flechas en inputs type="number" en Chrome, Safari, Edge */
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button {
             -webkit-appearance: none;
-            margin: 0;
         }
 
         /* Eliminar flechas en Firefox */
@@ -148,23 +146,20 @@
 
         /* ========== RESPONSIVE ========== */
         @@media (max-width: 768px) {
-            .logo-title
-
-        {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .logo-group {
-            flex-grow: 1;
-        }
-
-            .logo-group h1 {
-                font-size: 1rem;
+            .logo-title {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
             }
 
+            .logo-group {
+                flex-grow: 1;
+            }
+
+                .logo-group h1 {
+                    font-size: 1rem;
+                }
         }
     </style>
 </head>
@@ -209,14 +204,15 @@
 </html>
 
 <script>
-// medio proteger
- //  document.addEventListener('contextmenu', function (e) {
- //      e.preventDefault();
- //  });
+    // medio proteger
+    // document.addEventListener('contextmenu', function (e) {
+    //     e.preventDefault();
+    // });
 
- //  document.addEventListener('keydown', function (e) {
- //      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
- //                           e.preventDefault();
- //      }
- // });
+    // document.addEventListener('keydown', function (e) {
+    //     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+    //                          e.preventDefault();
+    //     }
+    // });
 </script>
+

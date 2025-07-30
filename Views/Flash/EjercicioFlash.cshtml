@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Número Flash";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutFlash";
     var velocidad = ViewBag.Velocidad;
     var totalEjercicios = ViewBag.TotalEjercicios;
     var secuenciaJson = ViewBag.Secuencia.ToString();
@@ -54,6 +54,8 @@
         gap: 1rem;
         border-radius: 25px;
         margin-top: -2.3rem;
+        position:relative;
+        z-index:10;
     }
 
     .btn-finalizar {
@@ -131,11 +133,11 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        min-height: calc(100vh - 10rem);
+        height: calc(100vh - 7rem);
     }
 
     .numero-flash {
-        font-size: clamp(9rem, 17rem, 23rem);
+        font-size: clamp(12rem, 23rem, 30rem);
         font-weight: bold;
         outline: none;
         word-break: break-word;
@@ -144,9 +146,8 @@
         justify-content: center;
         height: 100%;
         width: 100%;
+        margin-top: -8rem;
     }
-
-
 
 
     @@keyframes bounce {
@@ -205,7 +206,7 @@
         }
 
          .numero-flash {
-            font-size: 7rem;
+            font-size: 7.5rem;
         }
         
 
@@ -285,6 +286,17 @@
         }
 
         window.onload = function () {
+
+            //toque falso
+            window.addEventListener("pointerdown", () => {
+                if (audioCtx.state === "suspended") {
+                    audioCtx.resume().then(() => {
+                        reproducirBeep(); // beep inicial fantasma
+                    });
+                }
+            }, { once: true });
+
+
             setTimeout(() => {
 
                 const iconoSonido = document.getElementById("iconoSonido");

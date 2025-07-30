@@ -323,6 +323,7 @@
         text-align: center;
         background-color: #292c4f;
         color: white;
+        caret-color: transparent;
     }
 
     .Forms{
@@ -334,8 +335,9 @@
         padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 47%;
+        width: 45%;
         height: fit-content;
+        min-height:30rem;
     }
 
     .tabs {
@@ -343,6 +345,8 @@
         justify-content: center;
         margin-bottom: 1rem;
         gap: 1rem;
+        z-index:100;
+        position:relative;
     }
 
     .tab-btn {
@@ -385,6 +389,7 @@
         width: 24rem;
         height: 24rem;
         margin: 0 auto;
+        transform: scale(1.3);
     }
 
     .svg-wrapper {
@@ -564,7 +569,7 @@
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-        width: 2.8rem;
+        width: 3rem;
         height: 1.95rem;
         clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
         background: linear-gradient(145deg, #5a5a9c, #3d3f6f);
@@ -683,6 +688,10 @@
             left: 88%;
         }
 
+        .manos-wrapper{
+            transform: scale(1.1);
+        }
+
     }
 
     @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
@@ -704,6 +713,7 @@
             width: 100%;
             height: auto;
             margin-top: -5rem;
+            transform: scale(1.1);
         }
 
         .punto {
@@ -817,6 +827,7 @@
         .ayuda-tabs-container{
             width:100%;
             margin-top:3rem;
+            min-height: max-content;
         }
 
         /* manos */
@@ -826,6 +837,7 @@
             height: auto;
             /* margin-top: 2rem;
             margin-bottom: 2rem; */
+            transform: scale(1.1);
         }
 
         .mano-container {
