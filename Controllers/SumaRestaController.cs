@@ -136,32 +136,50 @@ namespace AnzanMegaArithmetics.Controllers
             if (listaResta.Count == 0 && tipoOperacion != "suma")
                 listaResta = restaPermitidos.Select(d => int.Parse(d)).ToList();
 
+            bool operacionesDirectas = directaSuma || directaResta || (tipoOperacion == "ambos" && directaSuma && directaResta);
+
             for (int intento = 0; intento < 100; intento++)
             {
                 numeros.Clear();
                 operaciones.Clear();
 
-                long primerValor, minValor, maxValor, maxRand, minRand;
-                if (usarMax && valorMaximo > 0)
+                // 1. Generación del primer número
+                long primerValor;
+                bool esSoloResta = tipoOperacion == "resta";
+
+                if (esSoloResta)
                 {
-                    maxRand = Math.Min(valorMaximo, long.MaxValue);
-                    minRand = Math.Max(0, maxRand * (long)0.8);
-                    primerValor = RandomLong(random, minRand, maxRand + 1);
+                    
+                    int digitosPrimerNumero = random.Next(
+                        Math.Min(minDig + 1, maxDig),
+                        maxDig + 1);                    
+
+                    long minValor = (long)Math.Pow(10, digitosPrimerNumero - 1);
+                    long maxValor = (long)Math.Pow(10, digitosPrimerNumero) - 1;
+
+                    if (valorMaximo > 0)
+                    {
+                        maxValor = Math.Min(maxValor, valorMaximo);
+                        minValor = Math.Min(minValor, maxValor);
+                    }
+
+                    primerValor = RandomLong(random, minValor, maxValor); // Sin el +1
+                }
+                else if (usarMax && valorMaximo > 0)
+                {
+                    // Usar valor máximo como base
+                    primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo, minDig, maxDig, random);
                 }
                 else
                 {
-                    int digitos = random.Next(minDig, maxDig + 1);
-                    minValor = (long)Math.Pow(10, digitos - 1);
-                    maxValor = (long)Math.Pow(10, digitos) - 1;
-
-                    if (valorMaximo > 0)
-                        maxValor = Math.Min(maxValor, valorMaximo);
-
-                    primerValor = RandomLong(random, minValor, maxValor + 1);
+                    // Generación normal
+                    primerValor = GenerarNumeroNormal(minDig, maxDig, valorMaximo,
+                                                   tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos,
+                                                   random);
                 }
 
                 numeros.Add(primerValor);
-                operaciones.Add("+"); 
+                operaciones.Add("+");
 
                 for (int i = 1; i < numOperaciones; i++)
                 {
@@ -173,30 +191,34 @@ namespace AnzanMegaArithmetics.Controllers
                         _ => "+"
                     };
 
-                    var listaActual = op == "+" ? listaSuma : listaResta;
+                    long nuevoNumero;
+                    if (operacionesDirectas)
+                    {
+                        nuevoNumero = GenerarNumeroParaOperacionDirecta(
+                            op == "+" ? sumaPermitidos : restaPermitidos,
+                            minDig, maxDig, valorMaximo,
+                            numeros, operaciones, op, random);
+                    }
+                    else
+                    {
+                        nuevoNumero = GenerarNumeroNormal(minDig, maxDig, valorMaximo,
+                                                          op == "+" ? sumaPermitidos : restaPermitidos,
+                                                          random);
+                    }
 
-                    int longitud = random.Next(minDig, maxDig + 1);
-
-                    var sublista = listaActual
-                        .Where(n => n.ToString().Length == longitud)
-                        .ToList();
-
-                    int valor = sublista.Any()
-                        ? sublista[random.Next(sublista.Count)]
-                        : listaActual[random.Next(listaActual.Count)];
-
-                    numeros.Add(valor);
+                    numeros.Add(nuevoNumero);
                     operaciones.Add(op);
                 }
 
-                long resultado = 0;
-                for (int i = 0; i < numeros.Count; i++)
-                {
-                    resultado += operaciones[i] == "-" ? -numeros[i] : numeros[i];
-                }
 
-                if (resultado >= 0)
-                    break; 
+                long resultado = CalcularResultado(numeros, operaciones);
+                if (resultado >= 0 && (!esSoloResta || resultado > 0))
+                {
+                    if (!operacionesDirectas || OperacionDirectaEsValida(numeros, operaciones))
+                    {
+                        break;
+                    }
+                }
             }
 
 
@@ -217,13 +239,117 @@ namespace AnzanMegaArithmetics.Controllers
             return View();
         }
 
+
+        private long GenerarPrimerNumeroCercanoAlMaximo(long valorMaximo, int minDig, int maxDig, Random random)
+        {
+            if (minDig == 1 && maxDig == 1)
+            {
+                return Math.Min(9, valorMaximo);
+            }
+
+            long minValor = Math.Max((long)(valorMaximo * 0.8), (long)Math.Pow(10, minDig - 1));
+            
+            minValor = Math.Min(minValor, valorMaximo - 1);
+            return RandomLong(random, minValor, valorMaximo);
+        }
+
+        private long GenerarNumeroNormal(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos, Random random)
+        {
+            if (minDig == 1 && maxDig == 1)
+            {
+                var digitosValidos = digitosPermitidos
+                    .Where(d => d.Length == 1 && d != "0")
+                    .Select(int.Parse)
+                    .Where(n => valorMaximo <= 0 || n <= valorMaximo)
+                    .ToList();
+
+                return digitosValidos.Any() ? digitosValidos[random.Next(digitosValidos.Count)] : 1;
+            }
+
+            // Asegurar que los dígitos no excedan el máximo permitido
+            int digitos = random.Next(minDig, maxDig + 1);
+            long minValor = (long)Math.Pow(10, digitos - 1);
+            long maxValor = (long)Math.Pow(10, digitos) - 1;
+
+            // Ajustar según valor máximo si está configurado
+            if (valorMaximo > 0)
+            {
+                maxValor = Math.Min(maxValor, valorMaximo);
+                // Asegurar que minValor no sea mayor que maxValor
+                minValor = Math.Min(minValor, maxValor);
+            }
+
+            // Si después de los ajustes min == max, devolver ese valor
+            if (minValor == maxValor) return minValor;
+
+            return RandomLong(random, minValor, maxValor);
+        }
+
+        private long GenerarNumeroParaOperacionDirecta(string[] digitosPermitidos, int minDig, int maxDig, long valorMaximo, List<long> numerosExist, List<string> operacionesExist, string nuevaOperacion, Random random)
+        {
+            // Primero generamos un número normal
+            long numero = GenerarNumeroNormal(minDig, maxDig, valorMaximo, digitosPermitidos, random);
+
+            // Luego verificamos si cumple con las reglas de operación directa
+            if (OperacionDirectaEsValida(numerosExist.Concat(new[] { numero }).ToList(),
+                                        operacionesExist.Concat(new[] { nuevaOperacion }).ToList()))
+            {
+                return numero;
+            }
+
+            // Si no cumple, generamos uno más pequeño
+            return GenerarNumeroNormal(minDig, Math.Min(maxDig, numerosExist.Last().ToString().Length),
+                                      valorMaximo, digitosPermitidos, random);
+        }
+
+        private bool OperacionDirectaEsValida(List<long> numeros, List<string> operaciones)
+        {
+            // Convertimos todos los números a strings de igual longitud
+            int maxLength = numeros.Max(n => n.ToString().Length);
+            var numerosStr = numeros.Select(n => n.ToString().PadLeft(maxLength, '0')).ToList();
+
+            // Verificamos cada columna
+            for (int i = 0; i < maxLength; i++)
+            {
+                int sumaColumna = 0;
+                for (int j = 0; j < numerosStr.Count; j++)
+                {
+                    int digito = int.Parse(numerosStr[j][i].ToString());
+                    sumaColumna += operaciones[j] == "+" ? digito : -digito;
+                }
+
+                if (sumaColumna < 0 || sumaColumna > 9)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private long CalcularResultado(List<long> numeros, List<string> operaciones)
+        {
+            long resultado = 0;
+            for (int i = 0; i < numeros.Count; i++)
+            {
+                resultado += operaciones[i] == "-" ? -numeros[i] : numeros[i];
+            }
+            return resultado;
+        }
+
+
         private long RandomLong(Random rng, long min, long max)
         {
             if (min >= max) return min;
+
+            long range = max - min;
+            if (range == 0) return min;
+
             byte[] buf = new byte[8];
             rng.NextBytes(buf);
             long longRand = Math.Abs(BitConverter.ToInt64(buf, 0));
-            return min + (longRand % (max - min + 1));
+
+            return min + (longRand % range);
         }
 
         private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, long valorMax)
