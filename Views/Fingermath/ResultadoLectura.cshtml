@@ -506,8 +506,8 @@
             </summary>
 
             <div>
-                <p>🧠 <strong>Tu respuesta:</strong> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
-                <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
+                <p>🧠 <strong>Tu respuesta:</strong><br /> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
+                <p>✔️ <strong>Respuesta correcta:</strong><br /> @r.RespuestaCorrecta</p>
             </div>
         </details>
     }
@@ -570,9 +570,9 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            animateCount(document.getElementById('contadorTotal'), @total);
-            animateCount(document.getElementById('contadorCorrectos'), @correctos);
-            animateCount(document.getElementById('contadorIncorrectos'), @(total - correctos));
+            // animateCount(document.getElementById('contadorTotal'), @total);
+            // animateCount(document.getElementById('contadorCorrectos'), @correctos);
+            // animateCount(document.getElementById('contadorIncorrectos'), @(total - correctos));
             animateCount(document.getElementById('contadorXP'), @porcentaje);
         });
     </script>

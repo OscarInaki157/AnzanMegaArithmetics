@@ -15,14 +15,13 @@
     int correctas = sesiones.Count(s => s.FueCorrecta);
     int incorrectas = totalSesiones - correctas;
     int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
-    
+
+    int totalIntentos = correctas + incorrectas;
+
     var secuenciaJson = Context.Session.GetString("SecuenciaNumeros");
     var secuenciaActual = string.IsNullOrEmpty(secuenciaJson)
         ? new List<int>()
         : System.Text.Json.JsonSerializer.Deserialize<List<int>>(secuenciaJson);
-
-    int totalEjerciciosReal = secuenciaActual.Count;
-
 
     var barraColor = porcentajeGlobal >= 79 ? "#28a745" : porcentajeGlobal >= 49 ? "#ffc107" : "#dc3545";
     var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
@@ -66,9 +65,9 @@
     <div class="cont-onl">
         <div class="contenedores-resumen">
             <div class="card-resumen total">
-                <div class="card-titulo">TOTAL</div>
+                <div class="card-titulo">Intentos</div>
                 <div class="card-icono">📄</div>
-                <div class="card-valor" id="contadorTotal">@totalEjerciciosReal</div>
+                <div class="card-valor" id="contadorTotal">@totalIntentos</div>
             </div>
             <div class="card-resumen correctos">
                 <div class="card-titulo">CORRECTOS</div>
@@ -525,9 +524,9 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            animateCount(document.getElementById('contadorTotal'), @total);
-            animateCount(document.getElementById('contadorCorrectos'), @correctas);
-            animateCount(document.getElementById('contadorIncorrectos'), @incorrectas);
+            // animateCount(document.getElementById('contadorTotal'), @total);
+            // animateCount(document.getElementById('contadorCorrectos'), @correctas);
+            // animateCount(document.getElementById('contadorIncorrectos'), @incorrectas);
             animateCount(document.getElementById('contadorXP'), @porcentajeGlobal);
         });
     </script>

@@ -69,7 +69,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("FormularioFlash");
 
             var config = JsonSerializer.Deserialize<ConfFlashModel>(configStr);
-            return Concentracion(config); // reutiliza lógica POST
+            return Concentracion(config);
         }
 
 

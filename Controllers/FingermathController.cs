@@ -91,11 +91,39 @@ namespace AnzanMegaArithmetics.Controllers
             List<int> dedosIzquierda = new();
             List<int> dedosDerecha = new();
 
-            if (tipoPregunta == "izquierda" || tipoPregunta == "ambas")
-                dedosIzquierda = combinacionesManoIzquierda[rnd.Next(combinacionesManoIzquierda.Length)].ToList();
+            if (tipoPregunta == "ambas")
+            {
+                int opcion = rnd.Next(3);
 
-            if (tipoPregunta == "derecha" || tipoPregunta == "ambas")
+                if (opcion == 0)
+                {
+                    dedosIzquierda = combinacionesManoIzquierda[rnd.Next(combinacionesManoIzquierda.Length)].ToList();
+                }
+                else if (opcion == 1)
+                {
+                    dedosDerecha = combinacionesManoDerecha[rnd.Next(combinacionesManoDerecha.Length)].ToList();
+                }
+                else
+                {
+                    dedosIzquierda = combinacionesManoIzquierda[rnd.Next(combinacionesManoIzquierda.Length)].ToList();
+                    dedosDerecha = combinacionesManoDerecha[rnd.Next(combinacionesManoDerecha.Length)].ToList();
+                }
+            }
+            else if (tipoPregunta == "izquierda")
+            {
+                dedosIzquierda = combinacionesManoIzquierda[rnd.Next(combinacionesManoIzquierda.Length)].ToList();
+            }
+            else if (tipoPregunta == "derecha")
+            {
                 dedosDerecha = combinacionesManoDerecha[rnd.Next(combinacionesManoDerecha.Length)].ToList();
+            }
+
+
+            //if (tipoPregunta == "izquierda" || tipoPregunta == "ambas")
+            //    dedosIzquierda = combinacionesManoIzquierda[rnd.Next(combinacionesManoIzquierda.Length)].ToList();
+
+            //if (tipoPregunta == "derecha" || tipoPregunta == "ambas")
+            //    dedosDerecha = combinacionesManoDerecha[rnd.Next(combinacionesManoDerecha.Length)].ToList();
 
             ViewBag.DedosIzquierda = dedosIzquierda;
             ViewBag.DedosDerecha = dedosDerecha;
@@ -274,7 +302,13 @@ namespace AnzanMegaArithmetics.Controllers
                     numeroObjetivo = rnd.Next(0, 10); // 0 a 9
                     break;
                 case "ambas":
-                    numeroObjetivo = rnd.Next(0, 100); // 0 a 99
+                    int opcion = rnd.Next(3);
+                    if (opcion == 0)
+                        numeroObjetivo = rnd.Next(1, 10) * 10; // 10, 20, ..., 90
+                    else if (opcion == 1)
+                        numeroObjetivo = rnd.Next(1, 10); // 1 a 9
+                    else
+                        numeroObjetivo = rnd.Next(1, 100); // 1 a 99 (ambas manos)
                     break;
                 default:
                     numeroObjetivo = 0;

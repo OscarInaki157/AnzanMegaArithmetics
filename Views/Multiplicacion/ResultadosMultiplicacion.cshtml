@@ -475,9 +475,9 @@
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>
             <div>
-                <p>🧠 <strong>Ejercicio:</strong> @r.OperacionTexto</p>
-                <p>✔️ <strong>Respuesta correcta:</strong> @r.RespuestaCorrecta</p>
-                <p>✍️ <strong>Tu respuesta:</strong> @(r.Respondido? r.RespuestaUsuario.ToString() : "No respondió")</p>
+                <p>🧠 <strong>Ejercicio:</strong><br /> @r.OperacionTexto</p>
+                <p>✔️ <strong>Respuesta correcta:</strong><br /> @r.RespuestaCorrecta</p>
+                <p>✍️ <strong>Tu respuesta:</strong><br /> @(r.Respondido? r.RespuestaUsuario.ToString() : "No respondió")</p>
             </div>
         </details>
     }
@@ -541,9 +541,9 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            animateCount(document.getElementById('contadorTotal'), @total);
-            animateCount(document.getElementById('contadorCorrectos'), @correctos);
-            animateCount(document.getElementById('contadorIncorrectos'), @(total - correctos));
+            // animateCount(document.getElementById('contadorTotal'), @total);
+            // animateCount(document.getElementById('contadorCorrectos'), @correctos);
+            // animateCount(document.getElementById('contadorIncorrectos'), @(total - correctos));
             animateCount(document.getElementById('contadorXP'), @porcentaje);
         });
     </script>
