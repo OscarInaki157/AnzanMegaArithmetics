@@ -14,6 +14,10 @@
 
 <style>
 
+    .elhr {
+        width: 95%;
+    }
+
     .multiplicacion {
         font-size: 4.5rem;
         margin: 1rem 0;
@@ -312,6 +316,7 @@
         justify-content: center;
         flex-wrap: wrap;
         /* gap:5%; */
+        gap:1rem;
     }
 
     .Ejercicio {
@@ -597,6 +602,8 @@
         <!-- Columna izquierda: Operación -->
         <div class="Ejercicio">
             <h1 class="multiplicacion">@multiplicando × @multiplicador</h1>
+
+            <hr  class="elhr" />
 
             <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuestaTablas" id="formRespuesta" class="Forms">
                 @Html.AntiForgeryToken()

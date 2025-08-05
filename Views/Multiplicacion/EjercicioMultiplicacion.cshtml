@@ -13,7 +13,8 @@
 }
 
 <div class="top-bar">
-    <form method="post" action="/Multiplicacion/FinalizarMultiplicacion" class="form-fin">
+
+    <form method="post" action="/Multiplicacion/FinalizarMultiplicacion" class="form-fin" id="formFinalizar">
         <button type="submit" class="btn-finalizar">
             ❌ <span>Finalizar</span>
         </button>
@@ -38,64 +39,96 @@
     </div>
 </div>
 
+
+
 <div class="ejercicio-wrapper">
     <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
     <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
 
-    <div class="ejercicio-contenido">
-        @if (formato == "Vertical")
-        {
-            <h1 class="multiplicacion">@multiplicando<br />× @multiplicador</h1>
-        }
-        else
-        {
-            <h1 class="multiplicacion">@multiplicando × @multiplicador</h1>
-        }
 
-        <hr class="elhr"/>
+    <div class="areaej">
 
-        <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuesta" id="formRespuesta" class="Forms">
-            <input type="hidden" id="respondido" name="respondido" value="false" />
-            <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
+        <div class="Ejercicio">
+            @if (formato == "Vertical")
+            {
+                <h1 class="multiplicacion">@multiplicando<br />× @multiplicador</h1>
+            }
+            else
+            {
+                <h1 class="multiplicacion">@multiplicando × @multiplicador</h1>
+            }
 
-            <input type="text"
-                   inputmode="numeric"
-                   pattern="[0-9]*"
-                   id="inputRespuesta"
-                   autocomplete="off"
-                   class="input-respuesta"
-                   autofocus
-                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                   @(direccion == "DerechaAIzquierda" ? "dir=\"rtl\"" : "") />
+            <hr class="elhr" />
+
+            <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuesta" id="formRespuesta" class="Forms">
+                <input type="hidden" id="respondido" name="respondido" value="false" />
+                <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
+
+                <input type="text"
+                       inputmode="numeric"
+                       pattern="[0-9]*"
+                       id="inputRespuesta"
+                       autocomplete="off"
+                       class="input-respuesta"
+                       autofocus
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       @(direccion == "DerechaAIzquierda" ? "dir=\"rtl\"" : "") />
 
 
 
-            <button type="submit" class="btn-enviar-respuesta">Enviar</button>
-        </form>
+                <button type="submit" class="btn-enviar-respuesta">Enviar</button>
+            </form>
+
+        </div>
+
     </div>
 
-    <div id="contenedorSoroban">
-
+    <div class="ayuda-tabs-container">
         <div class="soroban-frame">
             <div class="barra-horizontal"></div>
             <div class="soroban-container" id="sorobanSR">
-                @for (int col = 0; col < 17; col++)
+                @for (int col = 0; col < 14; col++)
                 {
                     <div class="soroban-column" data-col="@col">
                         <div class="palito-vertical"></div>
-                        <div class="bead superior" data-superior="true" data-valor="5"></div>
+                        <div class="bead superior" data-valor="5"></div>
                         @for (int i = 0; i < 4; i++)
                         {
-                            <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
+                            <div class="bead inferior bead-inferior-@i" data-valor="1"></div>
                         }
                     </div>
                 }
             </div>
         </div>
     </div>
+
 </div>
 
+
 <style>
+
+    .elhr{
+        width:100%;
+    }
+
+    .multiplicacion {
+        font-size: 3rem;
+        margin: 1rem 0;
+        text-align: right;
+    }
+
+    .input-respuesta {
+        width: 95%;
+        padding: 0.6rem 1rem;
+        font-size: 2.8rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        caret-color: transparent;
+    }
 
     body {
         background-color: var(--color-bg);
@@ -111,11 +144,6 @@
         pointer-events: none;
         transition: opacity 0.3s ease;
     }
-
-    .input-respuesta[dir="rtl"] {
-        text-align: right;
-    }
-
 
     .modo-concentracion-activo .cerebro-marca {
         opacity: 0;
@@ -138,32 +166,18 @@
         animation: pulse 1s infinite ease-in-out;
     }
 
-    .elhr{
-        background-color: #ffffff;
-        height:0.1rem;
-        width:50%;
-    }
-
-    .Forms {
-        display: flex;
-        justify-self: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
     .btn-enviar-respuesta {
         padding: 0.6rem 1.2rem;
         background-color: #4c4cff;
         color: white;
         border: none;
         border-radius: 10px;
-        font-size: 1.8rem;
+        font-size: 1.2rem;
         cursor: pointer;
         transition: all 0.3s ease;
         margin-top: 15px;
         box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
-        width:15rem;
+        width: 50%;
     }
 
 
@@ -200,7 +214,7 @@
         align-items: center;
         gap: 0.4rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        /* transition: all 0.3s ease; */
         box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
     }
 
@@ -277,21 +291,6 @@
         overflow: hidden;
     }
 
-
-    .input-respuesta {
-        padding: 0.6rem 1rem;
-        font-size: 2.8rem;
-        border-radius: 10px;
-        border: none;
-        width: 90%;
-        text-align: right;
-        background-color: #ffffff;
-        color: #000000;
-        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
-    }
-
-
-
     .info-tiempo {
         font-size: 1rem;
         color: #d1d1f0;
@@ -310,6 +309,11 @@
         margin: 0 auto;
         text-align: center;
         padding: 1rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap:2rem;
     }
 
 
@@ -333,15 +337,6 @@
         font-size: 1.1rem;
         font-weight: 600;
         color: #d1d1f0;
-    }
-
-    .multiplicacion {
-        color: #ffffff;
-        text-align: end;
-        font-size: 3rem;
-        justify-content: center;
-        align-items:center;
-        display:flex;
     }
 
     .form-respuesta-barra input[type="number"] {
@@ -423,7 +418,7 @@
     }
 
     .Ejercicio {
-        width: 53%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -437,19 +432,20 @@
 
     .Numeros {
         font-size: 3.8rem;
-        text-align: center;
+        text-align: end;
         line-height: 1.1;
     }
 
     .Resultados {
-        padding: 0.6rem 1rem;
-        font-size: 1rem;
+        padding: 0.5rem 0.5rem;
+        font-size: 3rem;
         border-radius: 8px;
         border: none;
-        width: 160px;
+        width: 80%;
         text-align: center;
         background-color: #292c4f;
         color: white;
+        caret-color: transparent;
     }
 
     .Forms {
@@ -457,12 +453,16 @@
     }
 
     .ayuda-tabs-container {
-        background-color: #1b1e3c;
+        background-color: var(--bg-color);
         padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 47%;
+        width: 45%;
         height: fit-content;
+        min-height: 30rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .tabs {
@@ -470,42 +470,9 @@
         justify-content: center;
         margin-bottom: 1rem;
         gap: 1rem;
+        z-index: 100;
+        position: relative;
     }
-
-    .tab-btn {
-        background-color: #292c4f;
-        color: white;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-        .tab-btn.active {
-            background-color: #4c4cff;
-            box-shadow: 0 0 10px rgba(76, 76, 255, 0.6);
-        }
-
-        .tab-btn:hover {
-            background-color: #4c4cff;
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
-        }
-
-
-    .tab-content {
-        display: none;
-        text-align: center;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-        .tab-content.active {
-            display: block;
-        }
-
-
 
 
     /* soroban */
@@ -564,7 +531,7 @@
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-        width: 2.8rem;
+        width: 3rem;
         height: 1.95rem;
         clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
         background: linear-gradient(145deg, #5a5a9c, #3d3f6f);
@@ -619,20 +586,6 @@
     }
 
 
-
-    @@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-        .areaej {
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .Ejercicio,
-        .ayuda-tabs-container {
-            width: 100%;
-        }
-    }
-
-
     @@media (max-width: 768px) {
 
         #btnModoConcentracion {
@@ -642,7 +595,6 @@
         .etiqueta-respuesta {
             text-align: center;
         }
-
 
         .info-tiempo {
             margin: 0 auto;
@@ -684,9 +636,14 @@
             width: 100%;
         }
 
+        .ejercicio-wrapper{
+            flex-direction: column;
+        }
+
         .ayuda-tabs-container {
             width: 100%;
             margin-top: 3rem;
+            min-height: max-content;
         }
         /* soroban */
 
@@ -717,9 +674,39 @@
         const velocidad = parseFloat("@velocidad");
         const contador = document.getElementById("contador");
         const form = document.getElementById("formRespuesta");
+        const formFinalizar = document.getElementById("formFinalizar");
         const inputRespuesta = document.getElementById("inputRespuesta");
         const respondidoField = document.getElementById("respondido");
+        const hiddenRespuesta = document.getElementById("hiddenRespuestaUsuario");
         const direccionRespuesta = "@direccion";
+
+        // Función para actualizar los campos ocultos antes de enviar
+        function actualizarCamposOcultos() {
+            const valor = inputRespuesta.value.trim();
+            hiddenRespuesta.value = valor === "" ? "-1" : valor;
+            respondidoField.value = valor !== "" ? "true" : "false";
+            return valor;
+        }
+
+        // Función para enviar la respuesta actual via AJAX
+        async function enviarRespuestaActual() {
+            const respuestaActual = inputRespuesta.value.trim();
+            if (respuestaActual === "") return false;
+
+            try {
+                const response = await fetch('/Multiplicacion/EnviarRespuesta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `respuestaUsuario=${respuestaActual}&respondido=true`
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Error al enviar respuesta:', error);
+                return false;
+            }
+        }
 
         if (velocidad > 0 && contador) {
             let tiempo = velocidad;
@@ -727,7 +714,7 @@
                 tiempo -= 0.1;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
-                    respondidoField.value = inputRespuesta.value.trim() !== "" ? "true" : "false";
+                    actualizarCamposOcultos();
                     form.submit();
                 } else {
                     contador.textContent = tiempo.toFixed(1);
@@ -735,13 +722,36 @@
             }, 100);
         }
 
-        form.addEventListener("submit", function (e) {
-            const valor = inputRespuesta.value.trim();
-            document.getElementById("hiddenRespuestaUsuario").value = valor === "" ? -1 : valor;
+        // Manejar el envío del formulario normal
+        form.addEventListener("submit", function(e) {
+            actualizarCamposOcultos();
+        });
+
+        // Manejar el envío del formulario de finalización
+        formFinalizar.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            // Enviar la respuesta actual si existe
+            const respuestaActual = actualizarCamposOcultos();
+            if (respuestaActual !== "") {
+                await enviarRespuestaActual();
+            }
+
+            // Proceder con la finalización
+            this.submit();
+        });
+
+        // Manejar Enter en el input
+        inputRespuesta.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                actualizarCamposOcultos();
+                form.submit();
+            }
         });
 
         if (direccionRespuesta === "DerechaAIzquierda") {
-            inputRespuesta.addEventListener("beforeinput", function (e) {
+            inputRespuesta.addEventListener("beforeinput", function(e) {
                 if (e.inputType === "insertText" && /^\d$/.test(e.data)) {
                     e.preventDefault();
                     const actual = inputRespuesta.value;
@@ -750,8 +760,7 @@
             });
         }
 
-
-        // soroban
+        // Código del soroban...
         document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
