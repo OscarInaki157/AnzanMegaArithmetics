@@ -239,7 +239,7 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         [HttpPost]
-        public IActionResult FinalizarDesdeEjercicio()
+        public IActionResult FinalizarDesdeEjercicio(int? respuestaUsuario = null)
         {
             int total = Convert.ToInt32(TempData["CantidadEjercicios"]);
             int actual = TempData.ContainsKey("EjerciciosRealizados") ? Convert.ToInt32(TempData["EjerciciosRealizados"]) : 0;
@@ -249,8 +249,23 @@ namespace AnzanMegaArithmetics.Controllers
                 ? new List<RMultiplicacionModel>()
                 : JsonSerializer.Deserialize<List<RMultiplicacionModel>>(resultadosJson);
 
+            // Guardar el ejercicio actual si hay respuesta
+            if (respuestaUsuario.HasValue)
+            {
+                int multiplicando = Convert.ToInt32(TempData["Multiplicando"]);
+                int multiplicador = Convert.ToInt32(TempData["Multiplicador"]);
+
+                resultados.Add(new RMultiplicacionModel
+                {
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
+                    RespuestaUsuario = respuestaUsuario.Value
+                });
+                actual++; // Incrementar el contador
+            }
+
             // Rellenar los ejercicios faltantes con "no respondido"
-            for (int i = actual; i < total; i++)
+            for (int i = resultados.Count; i < total; i++)
             {
                 resultados.Add(new RMultiplicacionModel
                 {
