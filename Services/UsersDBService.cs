@@ -16,8 +16,13 @@ namespace AnzanMegaArithmetics.Services
             LoginResponseModel response = new LoginResponseModel();
             try
             {
+                // Normalizamos el input: quitamos espacios y pasamos a minúsculas
+                string userNormalized = user.Replace(" ", "").ToLower();
+
                 UsuariosDB userDB = _context.Usuarios.FirstOrDefault(x =>
-    (x.Usuario.ToLower().Equals(user.ToLower()) || x.Nombre.ToLower().Equals(user.ToLower())) && x.Pass.Equals(pass));
+                    (x.Usuario.Replace(" ", "").ToLower() == userNormalized ||
+                     x.Nombre.Replace(" ", "").ToLower() == userNormalized) &&
+                    x.Pass == pass);
 
                 if (userDB != null)
                 {
