@@ -27,6 +27,10 @@
             <span>⏱ <span id="cronometro" class="contador">--:--</span></span>
         }
     </div>
+    
+    <button id="btnSaltarMemorizacion" type="button" class="btn-finalizar" style="background-color:#4c4cff; box-shadow:none;">
+        ▶️ <span class="btn-text">Finalizar Tiempo</span>
+    </button>
 </div>
 
 <div class="grid-ejercicios">
@@ -62,37 +66,46 @@
     let modoRespuesta = false;
 
     function iniciarMemorizacion() {
+
+            document.querySelectorAll('.ejercicio-mini').forEach(el => {
+                el.classList.remove('activo', 'resuelto');
+            });
+
             document.getElementById("contenidoEjercicio").innerHTML = "";
+
             if (mostrarContador && cronometro) {
                 actualizarCronometro(tiempoRestante);
             }
 
 
-        const intervalo = setInterval(() => {
-            if (!modoRespuesta) {
-                tiempoRestante--;
+            const intervalo = setInterval(() => {
+                if (!modoRespuesta) {
+                    tiempoRestante--;
 
-                if (mostrarContador && cronometro) {
-                    actualizarCronometro(tiempoRestante);
-                }
-
-
-                if (tiempoRestante <= 0) {
-                    modoRespuesta = true;
-                    clearInterval(intervalo);
-                    ocultarOperaciones();
                     if (mostrarContador && cronometro) {
-                        cronometro.textContent = "Responde";
-                        cronometro.classList.add("modo-libre");
+                        actualizarCronometro(tiempoRestante);
                     }
-                    mostrarEjercicio();
-                    habilitarInput();
 
+                    if (tiempoRestante <= 0) {
+                        modoRespuesta = true;
+                        clearInterval(intervalo);
 
+                        // Deshabilitar el botón cuando el tiempo termine
+                        const btn = document.getElementById("btnSaltarMemorizacion");
+                        btn.disabled = true;
+                        btn.style.opacity = "0.7";
+                        btn.style.cursor = "not-allowed";
 
+                        ocultarOperaciones();
+                        if (mostrarContador && cronometro) {
+                            cronometro.textContent = "Responde";
+                            cronometro.classList.add("modo-libre");
+                        }
+                        mostrarEjercicio();
+                        habilitarInput();
+                    }
                 }
-            }
-        }, 1000);
+            }, 1000);
     }
 
 
@@ -105,7 +118,7 @@
         }
     }
 
-        function mostrarEjercicio() {
+    function mostrarEjercicio() {
         const ej = ejercicios[actual];
         const contenedor = document.getElementById("contenidoEjercicio");
         contenedor.innerHTML = `
@@ -114,6 +127,14 @@
                 <input type="text" id="respuestaActual" class="input-respuesta" disabled onkeydown="registrarTecla(event)" autocomplete="off" />
             </div>
         `;
+
+        // Resaltar el ejercicio actual en el grid
+        document.querySelectorAll('.ejercicio-mini').forEach((el, index) => {
+            el.classList.remove('activo');
+            if (index === actual) {
+                el.classList.add('activo');
+            }
+        });
     }
 
     function ocultarOperaciones() {
@@ -159,6 +180,10 @@
         const miniInput = document.getElementById(`respuestaMini_${actual}`);
         if (miniInput) miniInput.value = valor;
 
+        // Marcar como resuelto
+        document.getElementById(`ejMini_${actual}`).classList.add('resuelto');
+        document.getElementById(`ejMini_${actual}`).classList.remove('activo');
+
         document.getElementById("respuestaActual").disabled = true;
         siguienteEjercicio();
     }
@@ -174,6 +199,11 @@
             } else {
                 habilitarInput();
             }
+        } else {
+            // Cuando terminamos todos los ejercicios, quitamos el resaltado
+            document.querySelectorAll('.ejercicio-mini').forEach(el => {
+                el.classList.remove('activo');
+            });
         }
     }
 
@@ -191,9 +221,82 @@
     }
 
     document.addEventListener("DOMContentLoaded", iniciarMemorizacion);
+
+     function saltarMemorizacion() {
+        if (modoRespuesta) return;
+
+        // Forzar el fin del tiempo de memorización
+        tiempoRestante = 0;
+
+        // Actualizar UI
+        if (mostrarContador && cronometro) {
+            cronometro.textContent = "Responde";
+            cronometro.classList.add("modo-libre");
+        }
+
+        // Deshabilitar el botón
+        const btn = document.getElementById("btnSaltarMemorizacion");
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+        btn.style.cursor = "not-allowed";
+
+        ocultarOperaciones();
+        mostrarEjercicio();
+        habilitarInput();
+    }
+
+    document.getElementById("btnSaltarMemorizacion").addEventListener("click", saltarMemorizacion);
 </script>
 
 <style>
+
+    .ejercicio-mini.activo {
+        background-color: var(--color-primary);
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.6);
+        transition: all 0.3s ease;
+    }
+
+    .ejercicio-mini.resuelto {
+        background-color: #28a745;
+        opacity: 0.8;
+    }
+
+    #btnSaltarMemorizacion:disabled {
+        background-color: #6c6cff !important;
+        transform: none !important;
+        box-shadow: none !important;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Estilo para el texto del botón */
+    #btnSaltarMemorizacion .btn-text {
+        margin-left: 0.3rem;
+    }
+
+    #btnSaltarMemorizacion {
+        background-color: #4c4cff;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+        #btnSaltarMemorizacion:hover {
+            background-color: #3737e8;
+            transform: scale(1.05);
+        }
+
 
     .controles-ejercicio {
         display: flex;
@@ -476,6 +579,19 @@
         .grid-ejercicios {
             grid-template-columns: 1fr 1fr;
         }
+
+        #btnSaltarMemorizacion {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+            #btnSaltarMemorizacion span {
+                display: none;
+            }
+
+            #btnSaltarMemorizacion .btn-text {
+                display: none;
+            }
     }
 
 </style>

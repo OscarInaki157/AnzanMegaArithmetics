@@ -45,16 +45,23 @@
                 </div>
             </div>
             <div class="form-column">
+
                 <div class="toggle-container">
                     <label>¿Mostrar contador de tiempo?</label>
                     <label class="switch">
-
-                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
-
+                        <input type="checkbox" name="MostrarContadorTiempo"
+                               id="MostrarContadorTiempo"
+                               value="true"
+                               @(Model.MostrarContadorTiempo ? "checked" : "") />
                         <span class="slider"></span>
                     </label>
+                    <!-- Campo oculto solo si el modelo es false -->
+                    @if (!Model.MostrarContadorTiempo)
+                    {
+                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
+                    }
                 </div>
+
                 <div>
                     <label>Tiempo de concentración:</label>
                     <select name="TiempoMeditacion" required>
@@ -94,16 +101,23 @@
                 </div>
             </div>
             <div class="form-column">
+
                 <div class="toggle-container">
                     <label>¿Mostrar contador de tiempo?</label>
                     <label class="switch">
-
-                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
-
+                        <input type="checkbox" name="MostrarContadorTiempo"
+                               id="MostrarContadorTiempo"
+                               value="true"
+                               @(Model.MostrarContadorTiempo ? "checked" : "") />
                         <span class="slider"></span>
                     </label>
+                    <!-- Campo oculto solo si el modelo es false -->
+                    @if (!Model.MostrarContadorTiempo)
+                    {
+                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
+                    }
                 </div>
+
                 <div>
                     <label>Tiempo de concentración:</label>
                     <select name="TiempoMeditacion" required>
@@ -134,26 +148,27 @@
                         }
                     </select>
                 </div>
-                @* <div>
-                    <label>Formato de la pregunta:</label>
-                    <select name="FormatoPregunta" required>
-                        <option value="Horizontal">Horizontal</option>
-                        <option value="Vertical" selected>Vertical</option>
-                    </select>
-                </div> *@
+                
                 <input type="hidden" name="FormatoPregunta" value="Vertical" />
             </div>
             <div class="form-column">
+
                 <div class="toggle-container">
                     <label>¿Mostrar contador de tiempo?</label>
                     <label class="switch">
-
-                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
-                        <input type="checkbox" name="MostrarContadorTiempo" value="true" />
-
+                        <input type="checkbox" name="MostrarContadorTiempo"
+                               id="MostrarContadorTiempo"
+                               value="true"
+                               @(Model.MostrarContadorTiempo ? "checked" : "") />
                         <span class="slider"></span>
                     </label>
+                    <!-- Campo oculto solo si el modelo es false -->
+                    @if (!Model.MostrarContadorTiempo)
+                    {
+                        <input type="hidden" name="MostrarContadorTiempo" value="false" />
+                    }
                 </div>
+
                 <div>
                     <label>Tiempo de concentración:</label>
                     <select name="TiempoMeditacion" required>
@@ -441,7 +456,16 @@
             opacity: 0;
             width: 0;
             height: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
+
+            .switch input[type="checkbox"] {
+                z-index: 1;
+                width: 100%;
+                height: 100%;
+            }
 
     .slider {
         position: absolute;
@@ -606,5 +630,30 @@
 
             if (match) mostrarTab(lastTab, match);
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejar el cambio en los switches
+        document.querySelectorAll('.switch input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Si está marcado, eliminar cualquier hidden field existente
+                if(this.checked) {
+                    const hiddenField = this.parentElement.querySelector('input[type="hidden"][name="MostrarContadorTiempo"]');
+                    if(hiddenField) {
+                        hiddenField.remove();
+                    }
+                }
+                // Si no está marcado, asegurarse de que exista el hidden field
+                else {
+                    if(!this.parentElement.querySelector('input[type="hidden"][name="MostrarContadorTiempo"]')) {
+                        const hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = 'MostrarContadorTiempo';
+                        hiddenField.value = 'false';
+                        this.parentElement.appendChild(hiddenField);
+                    }
+                }
+            });
+        });
     });
 </script>
