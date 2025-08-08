@@ -25,7 +25,7 @@ namespace AnzanMegaArithmetics.Controllers
                     DigitosSuma = "1,2,3,4,5,6,7,8,9",
                     DigitosResta = "1,2,3,4,5,6,7,8,9",
                     NumeroOperaciones = 4,
-                    TiempoMeditacion = 3 
+                    TiempoMeditacion = 3
                 };
             }
 
@@ -147,15 +147,21 @@ namespace AnzanMegaArithmetics.Controllers
                 long primerValor;
                 bool esSoloResta = tipoOperacion == "resta";
 
+                // En el método EjercicioSR, modificar la generación del primer número para restas:
                 if (esSoloResta)
                 {
-                    // Reemplazar RandomLong con GenerarNumeroNormal para restas
                     primerValor = GenerarNumeroNormal(
                         Math.Min(minDig + 1, maxDig),
                         maxDig,
                         valorMaximo,
                         restaPermitidos,
                         random);
+
+                    // Asegurar que sea suficientemente grande para las restas
+                    if (primerValor < 5 && numOperaciones > 1)
+                    {
+                        primerValor += 5; // Asegurar que tenga al menos el valor del pulgar
+                    }
                 }
                 else if (usarMax && valorMaximo > 0)
                 {
@@ -233,7 +239,7 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         private long GenerarPrimerNumeroCercanoAlMaximo(long valorMaximo, int minDig, int maxDig,
-                                               string[] digitosPermitidos, Random random)
+                                       string[] digitosPermitidos, Random random)
         {
             if (minDig == 1 && maxDig == 1)
             {
@@ -246,13 +252,15 @@ namespace AnzanMegaArithmetics.Controllers
                 return digitosValidos.Any() ? digitosValidos[random.Next(digitosValidos.Count)] : 1;
             }
 
-            // Generar número con dígitos permitidos cercano al máximo
             string maxStr = valorMaximo.ToString();
             string numeroStr = "";
 
-            for (int i = 0; i < maxStr.Length; i++)
+            // Asegurar que tenga al menos minDig dígitos
+            int digitosGenerados = 0;
+
+            for (int i = 0; i < Math.Max(minDig, maxStr.Length); i++)
             {
-                char maxDigito = maxStr[i];
+                char maxDigito = i < maxStr.Length ? maxStr[i] : '9';
                 var permitidos = digitosPermitidos.Select(d => d[0])
                                        .Where(d => d <= maxDigito)
                                        .ToArray();
@@ -261,42 +269,42 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     char digito = permitidos[random.Next(permitidos.Length)];
                     numeroStr += digito;
+                    digitosGenerados++;
                 }
                 else
                 {
-                    // Si no hay dígitos permitidos menores, usar el máximo permitido menor que el actual
                     var maxPermitido = digitosPermitidos.Select(d => d[0])
                                             .Where(d => d < maxDigito)
                                             .DefaultIfEmpty('0')
                                             .Max();
                     numeroStr += maxPermitido;
-                    // Completar con los mayores dígitos permitidos
-                    for (int j = i + 1; j < maxStr.Length; j++)
-                    {
-                        numeroStr += digitosPermitidos.Select(d => d[0]).Max();
-                    }
+                    digitosGenerados++;
+                }
+
+                // Si ya tenemos minDig dígitos y hemos alcanzado la longitud máxima, salir
+                if (digitosGenerados >= minDig && (i >= maxStr.Length - 1 || digitosGenerados >= maxDig))
                     break;
-                }
             }
 
-            long numero = long.Parse(numeroStr);
-
-            // Asegurar que tenga al menos minDig dígitos
-            if (numeroStr.Length < minDig)
+            // Si aún no tenemos suficientes dígitos, completar
+            while (digitosGenerados < minDig)
             {
-                string extra = "";
-                for (int i = 0; i < minDig - numeroStr.Length; i++)
-                {
-                    extra += digitosPermitidos[random.Next(digitosPermitidos.Length)];
-                }
-                numero = long.Parse(numeroStr + extra);
+                numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
+                digitosGenerados++;
             }
 
-            return numero;
+            // Si tenemos más dígitos que el máximo, truncar
+            if (numeroStr.Length > maxDig)
+            {
+                numeroStr = numeroStr.Substring(0, maxDig);
+            }
+
+            return long.Parse(numeroStr);
         }
 
         private long GenerarNumeroNormal(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos, Random random)
         {
+            // Si minDig y maxDig son 1, manejamos como caso especial
             if (minDig == 1 && maxDig == 1)
             {
                 var digitosValidos = digitosPermitidos
@@ -308,17 +316,23 @@ namespace AnzanMegaArithmetics.Controllers
                 return digitosValidos.Any() ? digitosValidos[random.Next(digitosValidos.Count)] : 1;
             }
 
-            // Generar número asegurando que todos sus dígitos estén permitidos
+            // Para otros casos, aseguramos que el número tenga exactamente minDig dígitos
             string numeroStr = "";
-            int digitos = random.Next(minDig, maxDig + 1);
 
             // Primer dígito no puede ser cero
             var primerosDigitos = digitosPermitidos.Where(d => d != "0").ToArray();
             if (!primerosDigitos.Any()) primerosDigitos = new[] { "1" };
             numeroStr += primerosDigitos[random.Next(primerosDigitos.Length)];
 
-            // Resto de dígitos
-            for (int i = 1; i < digitos; i++)
+            // Resto de dígitos (aseguramos que tenga exactamente minDig dígitos)
+            for (int i = 1; i < minDig; i++)
+            {
+                numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
+            }
+
+            // Si maxDig > minDig, podemos agregar dígitos adicionales al azar
+            int digitosAdicionales = random.Next(0, maxDig - minDig + 1);
+            for (int i = 0; i < digitosAdicionales; i++)
             {
                 numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
             }
@@ -328,7 +342,6 @@ namespace AnzanMegaArithmetics.Controllers
             // Ajustar según valor máximo si está configurado
             if (valorMaximo > 0 && numero > valorMaximo)
             {
-                // Si excede, generar uno más pequeño
                 return GenerarNumeroNormal(minDig, Math.Min(maxDig, valorMaximo.ToString().Length),
                        valorMaximo, digitosPermitidos, random);
             }
@@ -336,42 +349,280 @@ namespace AnzanMegaArithmetics.Controllers
             return numero;
         }
 
-        private long GenerarNumeroParaOperacionDirecta(string[] digitosPermitidos, int minDig, int maxDig, long valorMaximo, List<long> numerosExist, List<string> operacionesExist, string nuevaOperacion, Random random)
+        private long GenerarNumeroParaOperacionDirecta(string[] digitosPermitidos, int minDig, int maxDig, long valorMaximo,
+                                     List<long> numerosExist, List<string> operacionesExist,
+                                     string nuevaOperacion, Random random)
         {
-            // Primero generamos un número normal
-            long numero = GenerarNumeroNormal(minDig, maxDig, valorMaximo, digitosPermitidos, random);
-
-            // Luego verificamos si cumple con las reglas de operación directa
-            if (OperacionDirectaEsValida(numerosExist.Concat(new[] { numero }).ToList(),
-                                        operacionesExist.Concat(new[] { nuevaOperacion }).ToList()))
+            // Primero intentar con el nuevo método FingerMath
+            for (int intento = 0; intento < 50; intento++)
             {
-                return numero;
+                long numero = GenerarNumeroFingerMath(minDig, maxDig, valorMaximo, digitosPermitidos,
+                                                    numerosExist, operacionesExist, nuevaOperacion, random);
+
+                var nuevosNumeros = new List<long>(numerosExist) { numero };
+                var nuevasOperaciones = new List<string>(operacionesExist) { nuevaOperacion };
+
+                if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones))
+                {
+                    return numero;
+                }
             }
 
-            // Si no cumple, generamos uno más pequeño
-            return GenerarNumeroNormal(minDig, Math.Min(maxDig, numerosExist.Last().ToString().Length),
-                                      valorMaximo, digitosPermitidos, random);
+            // Si falla, intentar con el método normal (pero asegurando minDig)
+            for (int intento = 0; intento < 50; intento++)
+            {
+                long numero = GenerarNumeroNormal(minDig, maxDig, valorMaximo, digitosPermitidos, random);
+
+                var nuevosNumeros = new List<long>(numerosExist) { numero };
+                var nuevasOperaciones = new List<string>(operacionesExist) { nuevaOperacion };
+
+                if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones))
+                {
+                    return numero;
+                }
+            }
+
+            // Como último recurso, usar números seguros
+            if (nuevaOperacion == "+")
+            {
+                return GenerarNumeroSeguroSuma(digitosPermitidos, minDig, random);
+            }
+            else
+            {
+                return GenerarNumeroSeguroResta(numerosExist.Last(), minDig, random);
+            }
+        }
+
+        private long GenerarNumeroSeguroSuma(string[] digitosPermitidos, int minDig, Random random)
+        {
+            // Generar número con exactamente minDig dígitos, todos entre 1-4
+            string numeroStr = "";
+
+            // Primer dígito (1-4)
+            numeroStr += random.Next(1, 5).ToString();
+
+            // Resto de dígitos (0-4)
+            for (int i = 1; i < minDig; i++)
+            {
+                numeroStr += random.Next(0, 5).ToString();
+            }
+
+            return long.Parse(numeroStr);
+        }
+
+        private long GenerarNumeroSeguroResta(long ultimoNumero, int minDig, Random random)
+        {
+            // Asegurarnos de no restar más de lo posible
+            long maxResta = Math.Min(ultimoNumero - 1, (long)Math.Pow(10, minDig) - 1);
+
+            if (maxResta <= 0) return 1;
+
+            // Generar número con exactamente minDig dígitos
+            long numero = (long)Math.Pow(10, minDig - 1) + random.Next(0, (int)Math.Pow(10, minDig - 1));
+            return Math.Min(numero, maxResta);
+        }
+
+        private long GenerarNumeroConLongitud(string[] digitosPermitidos, int longitudDeseada, int maxDig, long valorMaximo, Random random)
+        {
+            int longitud = Math.Min(longitudDeseada, maxDig);
+            string numeroStr = "";
+
+            // Primer dígito no puede ser cero y priorizamos dígitos que funcionen con FingerMath
+            var primerosDigitos = digitosPermitidos.Where(d => d != "0")
+                                                  .OrderBy(d => Math.Abs(int.Parse(d) - 3)) // Prioriza dígitos cercanos a 3
+                                                  .ToArray();
+
+            if (!primerosDigitos.Any()) primerosDigitos = new[] { "1" };
+            numeroStr += primerosDigitos[random.Next(Math.Min(3, primerosDigitos.Length))]; // Elige entre los 3 más cercanos a 3
+
+            // Resto de dígitos - priorizando valores que no compliquen FingerMath
+            for (int i = 1; i < longitud; i++)
+            {
+                var digitosPosibles = digitosPermitidos.OrderBy(d =>
+                   Math.Abs(int.Parse(d) - 2)).ToArray(); // Prioriza dígitos cercanos a 2
+                numeroStr += digitosPosibles[random.Next(Math.Min(3, digitosPosibles.Length))];
+            }
+
+            long numero = long.Parse(numeroStr);
+
+            // Ajustar según valor máximo
+            if (valorMaximo > 0 && numero > valorMaximo)
+            {
+                string maxStr = valorMaximo.ToString();
+                if (numeroStr.Length > maxStr.Length)
+                {
+                    numeroStr = numeroStr.Substring(0, maxStr.Length);
+                    numero = long.Parse(numeroStr);
+                }
+            }
+
+            return numero;
+        }
+
+        private long GenerarNumeroFingerMath(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos,
+                                   List<long> numerosExist, List<string> operacionesExist,
+                                   string nuevaOperacion, Random random)
+        {
+            int columnas = maxDig;
+            string numeroStr = "";
+            bool[] pulgarUsadoPorColumna = new bool[columnas];
+            int[] acumuladoPorColumna = new int[columnas];
+
+            // Calcular estado actual de cada columna
+            for (int col = 0; col < columnas; col++)
+            {
+                foreach (var (num, op) in numerosExist.Zip(operacionesExist, (n, o) => (n, o)))
+                {
+                    string numStr = num.ToString().PadLeft(columnas, '0');
+                    int digito = int.Parse(numStr[numStr.Length - 1 - col].ToString());
+
+                    if (op == "+")
+                    {
+                        if (digito >= 5)
+                        {
+                            pulgarUsadoPorColumna[col] = true;
+                            digito -= 5;
+                        }
+                        acumuladoPorColumna[col] += digito;
+                    }
+                    else
+                    {
+                        if (digito >= 5)
+                        {
+                            pulgarUsadoPorColumna[col] = false;
+                            digito -= 5;
+                        }
+                        acumuladoPorColumna[col] -= digito;
+                    }
+                }
+            }
+
+            // Generar cada dígito considerando las restricciones de su columna
+            for (int col = 0; col < columnas; col++)
+            {
+                var digitosPosibles = digitosPermitidos.Select(d => int.Parse(d))
+                    .Where(d => {
+                        bool usarPulgar = d >= 5;
+                        int valorDigito = usarPulgar ? d - 5 : d;
+
+                        if (nuevaOperacion == "+")
+                        {
+                            if (usarPulgar && pulgarUsadoPorColumna[col]) return false;
+
+                            int nuevoAcumulado = acumuladoPorColumna[col] + valorDigito;
+                            bool nuevoPulgar = pulgarUsadoPorColumna[col] || usarPulgar;
+
+                            if (nuevoPulgar)
+                                return nuevoAcumulado <= 4; // Máximo 9 (5+4)
+                            else
+                                return nuevoAcumulado <= 4; // Máximo 4
+                        }
+                        else
+                        {
+                            if (usarPulgar && !pulgarUsadoPorColumna[col]) return false;
+
+                            int nuevoAcumulado = acumuladoPorColumna[col] - valorDigito;
+                            bool nuevoPulgar = pulgarUsadoPorColumna[col] && !usarPulgar;
+
+                            return nuevoAcumulado >= 0; // No puede quedar negativo
+                        }
+                    })
+                    .ToList();
+
+                if (!digitosPosibles.Any())
+                {
+                    // Si no hay dígitos posibles, usar el más seguro posible
+                    if (nuevaOperacion == "+")
+                        digitosPosibles = new List<int> { 1, 2, 3, 4 };
+                    else
+                        digitosPosibles = new List<int> { 1, 2, 3, 4 };
+                }
+
+                int digitoSeleccionado = digitosPosibles[random.Next(digitosPosibles.Count)];
+                numeroStr = digitoSeleccionado.ToString() + numeroStr;
+            }
+
+            // Asegurar mínimo de dígitos y valor máximo
+            while (numeroStr.Length < minDig)
+                numeroStr = "1" + numeroStr; // No puede empezar con cero
+
+            if (numeroStr.Length > maxDig)
+                numeroStr = numeroStr.Substring(0, maxDig);
+
+            long numero = long.Parse(numeroStr);
+
+            if (valorMaximo > 0 && numero > valorMaximo)
+                return GenerarNumeroFingerMath(minDig, maxDig, valorMaximo, digitosPermitidos,
+                                             numerosExist, operacionesExist, nuevaOperacion, random);
+
+            return numero;
         }
 
         private bool OperacionDirectaEsValida(List<long> numeros, List<string> operaciones)
         {
-            // Convertimos todos los números a strings de igual longitud
             int maxLength = numeros.Max(n => n.ToString().Length);
             var numerosStr = numeros.Select(n => n.ToString().PadLeft(maxLength, '0')).ToList();
 
-            // Verificamos cada columna
-            for (int i = 0; i < maxLength; i++)
-            {
-                int sumaColumna = 0;
-                for (int j = 0; j < numerosStr.Count; j++)
-                {
-                    int digito = int.Parse(numerosStr[j][i].ToString());
-                    sumaColumna += operaciones[j] == "+" ? digito : -digito;
-                }
+            // Primero verificar que el resultado total no sea negativo (para restas)
+            long resultadoTotal = CalcularResultado(numeros, operaciones);
+            if (resultadoTotal < 0) return false;
 
-                if (sumaColumna < 0 || sumaColumna > 9)
+            // Validar cada columna individualmente
+            for (int columna = 0; columna < maxLength; columna++)
+            {
+                int acumulado = 0;
+                bool pulgarAbajo = false;
+
+                for (int i = 0; i < numerosStr.Count; i++)
                 {
-                    return false;
+                    int digito = int.Parse(numerosStr[i][columna].ToString());
+                    bool esSuma = operaciones[i] == "+";
+
+                    if (esSuma)
+                    {
+                        // Reglas para suma
+                        if (digito >= 5)
+                        {
+                            if (pulgarAbajo) return false; // No se puede sumar otro pulgar
+                            pulgarAbajo = true;
+                            digito -= 5;
+                        }
+
+                        acumulado += digito;
+
+                        // Validar límites
+                        if (pulgarAbajo)
+                        {
+                            if (acumulado > 4) return false; // Máximo 9 (5+4)
+                        }
+                        else
+                        {
+                            if (acumulado > 4) return false; // Máximo 4 dedos
+                        }
+                    }
+                    else
+                    {
+                        // Reglas para resta
+                        if (digito >= 5)
+                        {
+                            if (!pulgarAbajo) return false; // No se puede restar pulgar si no está
+                            pulgarAbajo = false;
+                            digito -= 5;
+                        }
+
+                        acumulado -= digito;
+                        if (acumulado < 0) return false; // No puede quedar negativo
+
+                        // Validar límites después de restar
+                        if (pulgarAbajo)
+                        {
+                            if (acumulado > 4) return false;
+                        }
+                        else
+                        {
+                            if (acumulado > 4) return false;
+                        }
+                    }
                 }
             }
 
@@ -386,21 +637,6 @@ namespace AnzanMegaArithmetics.Controllers
                 resultado += operaciones[i] == "-" ? -numeros[i] : numeros[i];
             }
             return resultado;
-        }
-
-
-        private long RandomLong(Random rng, long min, long max)
-        {
-            if (min >= max) return min;
-
-            long range = max - min;
-            if (range == 0) return min;
-
-            byte[] buf = new byte[8];
-            rng.NextBytes(buf);
-            long longRand = Math.Abs(BitConverter.ToInt64(buf, 0));
-
-            return min + (longRand % range);
         }
 
         private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, long valorMax)
