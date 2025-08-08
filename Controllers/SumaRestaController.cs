@@ -150,17 +150,20 @@ namespace AnzanMegaArithmetics.Controllers
                 // En el método EjercicioSR, modificar la generación del primer número para restas:
                 if (esSoloResta)
                 {
+                    // Para restas, asegurar que el primer número sea suficientemente grande
+                    int digitosPrimerNumero = Math.Min(maxDig + 1, 10); // No más de 10 dígitos
                     primerValor = GenerarNumeroNormal(
-                        Math.Min(minDig + 1, maxDig),
-                        maxDig,
+                        digitosPrimerNumero, // Usar más dígitos que el máximo permitido
+                        digitosPrimerNumero,
                         valorMaximo,
                         restaPermitidos,
                         random);
 
-                    // Asegurar que sea suficientemente grande para las restas
-                    if (primerValor < 5 && numOperaciones > 1)
+                    // Asegurar adicionalmente que sea mayor que cualquier posible resta posterior
+                    long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
+                    if (primerValor <= maxPosibleResta)
                     {
-                        primerValor += 5; // Asegurar que tenga al menos el valor del pulgar
+                        primerValor += maxPosibleResta;
                     }
                 }
                 else if (usarMax && valorMaximo > 0)
@@ -460,8 +463,8 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         private long GenerarNumeroFingerMath(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos,
-                                   List<long> numerosExist, List<string> operacionesExist,
-                                   string nuevaOperacion, Random random)
+                           List<long> numerosExist, List<string> operacionesExist,
+                           string nuevaOperacion, Random random)
         {
             int columnas = maxDig;
             string numeroStr = "";
@@ -500,6 +503,7 @@ namespace AnzanMegaArithmetics.Controllers
             // Generar cada dígito considerando las restricciones de su columna
             for (int col = 0; col < columnas; col++)
             {
+                // Obtener dígitos posibles ordenados de menor a mayor (priorizando dígitos bajos)
                 var digitosPosibles = digitosPermitidos.Select(d => int.Parse(d))
                     .Where(d => {
                         bool usarPulgar = d >= 5;
@@ -527,6 +531,7 @@ namespace AnzanMegaArithmetics.Controllers
                             return nuevoAcumulado >= 0; // No puede quedar negativo
                         }
                     })
+                    .OrderBy(d => d) // Priorizar dígitos más pequeños
                     .ToList();
 
                 if (!digitosPosibles.Any())
@@ -538,13 +543,26 @@ namespace AnzanMegaArithmetics.Controllers
                         digitosPosibles = new List<int> { 1, 2, 3, 4 };
                 }
 
-                int digitoSeleccionado = digitosPosibles[random.Next(digitosPosibles.Count)];
+                // Elegir aleatoriamente, pero con mayor probabilidad para dígitos bajos
+                int index;
+                if (digitosPosibles.Count > 3)
+                {
+                    // Usar distribución triangular para favorecer números bajos
+                    double r = random.NextDouble();
+                    index = (int)Math.Floor(digitosPosibles.Count * (1 - Math.Sqrt(1 - r)));
+                }
+                else
+                {
+                    index = random.Next(digitosPosibles.Count);
+                }
+
+                int digitoSeleccionado = digitosPosibles[index];
                 numeroStr = digitoSeleccionado.ToString() + numeroStr;
             }
 
             // Asegurar mínimo de dígitos y valor máximo
             while (numeroStr.Length < minDig)
-                numeroStr = "1" + numeroStr; // No puede empezar con cero
+                numeroStr = "1" + numeroStr;
 
             if (numeroStr.Length > maxDig)
                 numeroStr = numeroStr.Substring(0, maxDig);
