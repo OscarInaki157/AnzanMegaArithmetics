@@ -75,7 +75,6 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult Concentracion(ConfFlashModel config)
         {
-            
             config.CantidadEjercicios = Math.Max(1, config.CantidadEjercicios);
             config.TiempoMeditacion = Math.Max(0, config.TiempoMeditacion);
 
@@ -104,8 +103,8 @@ namespace AnzanMegaArithmetics.Controllers
             if (tipoOperacion == "resta" || tipoOperacion == "ambos")
                 digitosValidos.AddRange(digitosResta.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)));
 
-            // Determinar si es un caso de un solo dígito permitido
-            bool esUnSoloDigito = digitosValidos.Distinct().Count() == 1 && minDig == 1;
+            // Determinar si es un caso de un solo dígito permitido (sin importar minDig y maxDig)
+            bool esUnSoloDigito = digitosValidos.Distinct().Count() == 1;
             char? digitoUnico = esUnSoloDigito ? digitosValidos[0][0] : null;
 
             var rand = new Random();
@@ -115,7 +114,6 @@ namespace AnzanMegaArithmetics.Controllers
             // Detectar si hay restas
             bool incluyeResta = tipoOperacion == "resta" || tipoOperacion == "ambos";
 
-            // Generar el primer número - COMPORTAMIENTO ESPECIAL
             string primerNumeroTexto;
             if (esUnSoloDigito)
             {
@@ -211,8 +209,8 @@ namespace AnzanMegaArithmetics.Controllers
                 for (int i = 0; i < longitud; i++)
                 {
                     numero[i] = (i == 0) ?
-                        random.Next(1, 10).ToString()[0] :
-                        random.Next(0, 10).ToString()[0];
+                        random.Next(1, 10).ToString()[0] : // Primer dígito 1-9
+                        random.Next(0, 10).ToString()[0];  // Dígitos siguientes 0-9
                 }
 
                 string numeroStr = new string(numero);
