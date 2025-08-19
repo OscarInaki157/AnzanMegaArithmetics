@@ -138,6 +138,16 @@ namespace AnzanMegaArithmetics.Controllers
 
             bool operacionesDirectas = directaSuma || directaResta || (tipoOperacion == "ambos" && directaSuma && directaResta);
 
+            // Verificar si solo hay un dígito permitido para el tipo de operación
+            bool soloUnDigitoPermitido = false;
+            string digitoPermitidoOriginal = "";
+            string[] digitosRelevantes = tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos;
+            if (digitosRelevantes.Length == 1 && digitosRelevantes[0].Length == 1)
+            {
+                soloUnDigitoPermitido = true;
+                digitoPermitidoOriginal = digitosRelevantes[0];
+            }
+
             for (int intento = 0; intento < 100; intento++)
             {
                 numeros.Clear();
@@ -147,11 +157,73 @@ namespace AnzanMegaArithmetics.Controllers
                 long primerValor;
                 bool esSoloResta = tipoOperacion == "resta";
 
-                // En el método EjercicioSR, modificar la generación del primer número para restas:
-                if (esSoloResta)
+                // Caso especial: si solo hay un dígito permitido, generar primer número con dígitos aleatorios
+                if (soloUnDigitoPermitido)
+                {
+                    // Para el primer número, usar TODOS los dígitos permitidos (1-9) para crear variedad
+                    string[] todosDigitos = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+
+                    if (esSoloResta)
+                    {
+                        // Para restas, asegurar que el primer número sea suficientemente grande
+                        int digitosPrimerNumero = Math.Min(maxDig + 2, 10); // Un poco más de dígitos
+                        primerValor = GenerarNumeroNormal(
+                            digitosPrimerNumero,
+                            digitosPrimerNumero,
+                            valorMaximo,
+                            todosDigitos, // Usar todos los dígitos para variedad
+                            random);
+
+                        // Asegurar adicionalmente que sea mayor que cualquier posible resta posterior
+                        long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
+                        long restaTotalEstimada = maxPosibleResta * (numOperaciones - 1);
+                        if (primerValor <= restaTotalEstimada)
+                        {
+                            primerValor = restaTotalEstimada + random.Next(1, 10000);
+                        }
+                    }
+                    else if (tipoOperacion == "ambos")
+                    {
+                        
+                        int digitosExtra = Math.Min(maxDig + 2, 10); // Máximo 10 dígitos
+                        primerValor = GenerarNumeroNormal(
+                            digitosExtra,
+                            digitosExtra,
+                            valorMaximo,
+                            todosDigitos, // Usar todos los dígitos
+                            random);
+
+                        long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
+                        long restaTotalEstimada = maxPosibleResta * (numOperaciones / 2); // Estimación conservadora
+                        if (primerValor <= restaTotalEstimada)
+                        {
+                            primerValor = restaTotalEstimada + random.Next(1, 10000);
+                        }
+                    }
+
+                    else if (usarMax && valorMaximo > 0)
+                    {
+                        // Usar valor máximo como base con todos los dígitos
+                        primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo,
+                            minDig,
+                            maxDig,
+                            todosDigitos, random);
+                    }
+                    else
+                    {
+                        // Generación normal con todos los dígitos para variedad
+                        primerValor = GenerarNumeroNormal(
+                            minDig,
+                            maxDig,
+                            valorMaximo,
+                            todosDigitos, // Usar todos los dígitos
+                            random);
+                    }
+                }
+                else if (esSoloResta)
                 {
                     // Para restas, asegurar que el primer número sea suficientemente grande
-                    int digitosPrimerNumero = Math.Min(maxDig + 1, 10); // No más de 10 dígitos
+                    int digitosPrimerNumero = Math.Min(maxDig + 2, 10); // No más de 10 dígitos
                     primerValor = GenerarNumeroNormal(
                         digitosPrimerNumero, // Usar más dígitos que el máximo permitido
                         digitosPrimerNumero,
@@ -169,7 +241,9 @@ namespace AnzanMegaArithmetics.Controllers
                 else if (usarMax && valorMaximo > 0)
                 {
                     // Usar valor máximo como base
-                    primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo, minDig, maxDig, tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos, random);
+                    primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo, minDig, maxDig,
+                                                   tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos,
+                                                   random);
                 }
                 else
                 {
@@ -195,22 +269,35 @@ namespace AnzanMegaArithmetics.Controllers
                     long nuevoNumero;
                     if (operacionesDirectas)
                     {
+                        // Para números siguientes, usar el dígito permitido original si aplica
+                        string[] digitosParaOperacion = op == "+" ? sumaPermitidos : restaPermitidos;
+                        if (soloUnDigitoPermitido)
+                        {
+                            digitosParaOperacion = new[] { digitoPermitidoOriginal };
+                        }
+
                         nuevoNumero = GenerarNumeroParaOperacionDirecta(
-                            op == "+" ? sumaPermitidos : restaPermitidos,
+                            digitosParaOperacion,
                             minDig, maxDig, valorMaximo,
                             numeros, operaciones, op, random);
                     }
                     else
                     {
+                        // Para números siguientes, usar el dígito permitido original si aplica
+                        string[] digitosParaOperacion = op == "+" ? sumaPermitidos : restaPermitidos;
+                        if (soloUnDigitoPermitido)
+                        {
+                            digitosParaOperacion = new[] { digitoPermitidoOriginal };
+                        }
+
                         nuevoNumero = GenerarNumeroNormal(minDig, maxDig, valorMaximo,
-                                                          op == "+" ? sumaPermitidos : restaPermitidos,
+                                                          digitosParaOperacion,
                                                           random);
                     }
 
                     numeros.Add(nuevoNumero);
                     operaciones.Add(op);
                 }
-
 
                 long resultado = CalcularResultado(numeros, operaciones);
                 if (resultado >= 0 && (!esSoloResta || resultado > 0))
@@ -221,7 +308,6 @@ namespace AnzanMegaArithmetics.Controllers
                     }
                 }
             }
-
 
             ViewBag.Numeros = numeros;
             ViewBag.Operaciones = operaciones;
