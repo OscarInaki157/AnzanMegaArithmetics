@@ -858,6 +858,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="@Url.Action("Memorizacion", "Dashboard")" id="Memos">
+                            <i class="fa-solid fa-brain"></i> Memorización
+                        </a>
+                    </li>
+                    <li>
                         <a href="@Url.Action("Desafios","Dashboard")" id="Challenge">
                             <i class="fa-solid fa-atom"></i> Zona de desafios</a>
                     </li>
@@ -931,6 +936,7 @@
             const Neuros = document.getElementById('Neuros');
             const Chal = document.getElementById('Challenge');
             const panel = document.getElementById('Conf');
+            const memos = document.getElementById('Memos');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -953,6 +959,11 @@
             if (pageTitle.includes('Panel')) {
                 if (panel) {
                     panel.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('rizaci')) {
+                if (memos) {
+                    memos.classList.add('active');
                 }
             }
 

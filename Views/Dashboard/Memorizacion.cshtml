@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "Memorización";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="dashboard-top">
+    <div class="user-welcome-card hide-on-mobile">
+        <div class="image-wrapper">
+            <div class="speech-bubble">
+                @ViewBag.FraseBienvenida
+            </div>
+            <img src="/Content/Images/ProfS.png" alt="Profesor saludando" />
+            <p class="names" style="color:#ffffff; font-size:1.5rem; position: absolute; top: 25%; left: 30%;"><strong>Jerry</strong></p>
+        </div>
+    </div>
+    <div class="user-info-card">
+        <p><i class="fa-solid fa-user-tie"></i> <strong>Nombre:</strong> @ViewBag.Nombre</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
+        @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> Gamertag</p>
+        <div class="contenedorR">
+            <div class="R3">
+                <p class="txt"><strong>🔥<br />1</strong></p>
+            </div>
+            <div class="R2">
+                <p class="txt"><strong>🎖️<br />Plata</strong></p>
+            </div>
+            <div class="R1">
+                <p class="txt"><strong>✨<br /><span id="xp-counter">0</span>XP</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modulos-wrapper">
+
+
+    @* Asociacion nf *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/brain.gif" alt="Asociacion" />
+            </div>
+            <div class="modulo-text">
+                <h2>Asociación Número - Figura</h2>
+                <p>Ejercicios de memoria asociativa</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    @* parejas *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/parejas.gif" alt="Parejas" />
+            </div>
+            <div class="modulo-text">
+                <h2>Parejas de memoria</h2>
+                <p>Ejercicios de memorización</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+
+
+</div>

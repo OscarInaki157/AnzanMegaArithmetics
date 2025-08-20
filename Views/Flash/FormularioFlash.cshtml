@@ -10,7 +10,7 @@
 
 <div id="contenedorConfiguracionFlash">
 
-<div class="top-bar-config">
+@* <div class="top-bar-config">
     <form method="get" asp-controller="Flash" asp-action="LimpiarFlashYDashboard">
         <button type="submit" class="btn-dashboard">
             <i class="fas fa-home"></i> Regresar al Dashboard
@@ -18,10 +18,18 @@
     </form>
     <h2>Ajustes Números Flash</h2>
 </div>
-
+ *@
 
 <form method="post" action="/Flash/Concentracion" id="formConfigSR" class="formulario-flash">
-    <div class="form-grid">
+
+    <div class="form-header">
+            <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+                <i class="fas fa-home"></i> Regresar al Dashboard
+            </button>
+            <h2>Ajustes Números Flash</h2>
+    </div>
+
+        <div class="form-grid-three-columns">
         <div class="form-column">
             <div>
                 <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
@@ -62,60 +70,65 @@
                 </div>
             </div>
 
-             <div>
-                 <label>Activar sonido:</label>
-                 <div class="checks">
-                     <label><input type="radio" name="activarSonido" value="true" @(Model.ActivarSonido ? "checked" : "") /> Sí</label>
-                     <label><input type="radio" name="activarSonido" value="false" @(!Model.ActivarSonido ? "checked" : "") /> No</label>
-                 </div>
-             </div>
+        </div>
+        
+        <div class="form-column">
 
+                <div>
+                    <label>Tipo de operación:</label>
+                    <select name="tipoOperacion" id="tipoOperacionSelect">
+                        <option value="suma" selected="@(Model.TipoOperacion == "suma")">Suma</option>
+                        <option value="resta" selected="@(Model.TipoOperacion == "resta")">Resta</option>
+                        <option value="ambos" selected="@(Model.TipoOperacion == "ambos")">Suma y Resta</option>
+                    </select>
+                </div>
+
+                <div id="containerSuma">
+                    <label class="label-operacion">Dígitos permitidos en SUMA:</label>
+                    <div class="tag-input" id="tagInputSuma">
+                        <div class="tags-container" id="tagsContainerSuma"></div>
+                        <div class="dropdown-toggle">▾</div>
+                        <div class="dropdown-options" id="dropdownSuma">
+                            <div class="option special" data-action="add-all">➕ Agregar todos</div>
+                            <div class="option special" data-action="remove-all">➖ Quitar todos</div>
+                            @for (int i = 1; i <= 9; i++)
+                            {
+                                <div class="option" data-value="@i">@i</div>
+                            }
+                        </div>
+                        <input type="hidden" name="digitosSuma" id="inputHiddenSuma" value="@Model.DigitosSuma" />
+                    </div>
+                </div>
+
+                <div id="containerResta">
+                    <label class="label-operacion">Dígitos permitidos en RESTA:</label>
+                    <div class="tag-input" id="tagInputResta">
+                        <div class="tags-container" id="tagsContainerResta"></div>
+                        <div class="dropdown-toggle">▾</div>
+                        <div class="dropdown-options" id="dropdownResta">
+                            <div class="option special" data-action="add-all">➕ Agregar todos</div>
+                            <div class="option special" data-action="remove-all">➖ Quitar todos</div>
+                            @for (int i = 1; i <= 9; i++)
+                            {
+                                <div class="option" data-value="@i">@i</div>
+                            }
+                        </div>
+                        <input type="hidden" name="digitosResta" id="inputHiddenResta" value="@Model.DigitosResta" />
+                    </div>
+                </div>
 
         </div>
 
         <div class="form-column">
-            <div>
-                <label>Tipo de operación:</label>
-                <select name="tipoOperacion" id="tipoOperacionSelect">
-                    <option value="suma" selected="@(Model.TipoOperacion == "suma")">Suma</option>
-                    <option value="resta" selected="@(Model.TipoOperacion == "resta")">Resta</option>
-                    <option value="ambos" selected="@(Model.TipoOperacion == "ambos")">Suma y Resta</option>
-                </select>
-            </div>
 
-            <div id="containerSuma">
-                <label class="label-operacion">Dígitos permitidos en SUMA:</label>
-                <div class="tag-input" id="tagInputSuma">
-                    <div class="tags-container" id="tagsContainerSuma"></div>
-                    <div class="dropdown-toggle">▾</div>
-                    <div class="dropdown-options" id="dropdownSuma">
-                        <div class="option special" data-action="add-all">➕ Agregar todos</div>
-                        <div class="option special" data-action="remove-all">➖ Quitar todos</div>
-                        @for (int i = 1; i <= 9; i++)
-                        {
-                            <div class="option" data-value="@i">@i</div>
-                        }
+                <div>
+                    <label>Activar sonido:</label>
+                    <div class="checks">
+                        <label><input type="radio" name="activarSonido" value="true" @(Model.ActivarSonido ? "checked" : "") /> Sí</label>
+                        <label><input type="radio" name="activarSonido" value="false" @(!Model.ActivarSonido ? "checked" : "") /> No</label>
                     </div>
-                    <input type="hidden" name="digitosSuma" id="inputHiddenSuma" value="@Model.DigitosSuma" />
                 </div>
-            </div>
-
-            <div id="containerResta">
-                <label class="label-operacion">Dígitos permitidos en RESTA:</label>
-                <div class="tag-input" id="tagInputResta">
-                    <div class="tags-container" id="tagsContainerResta"></div>
-                    <div class="dropdown-toggle">▾</div>
-                    <div class="dropdown-options" id="dropdownResta">
-                        <div class="option special" data-action="add-all">➕ Agregar todos</div>
-                        <div class="option special" data-action="remove-all">➖ Quitar todos</div>
-                        @for (int i = 1; i <= 9; i++)
-                        {
-                            <div class="option" data-value="@i">@i</div>
-                        }
-                    </div>
-                    <input type="hidden" name="digitosResta" id="inputHiddenResta" value="@Model.DigitosResta" />
-                </div>
-            </div>
+           
 
             <div>
                 <label>Tiempo de concentración:</label>
@@ -145,33 +158,12 @@
 
 </div>
 
+
 <style>
 
     body {
         background-color: var(--color-bg);
         color: var(--color-tex);
-    }
-   
-    h2 {
-        text-align: center;
-        /* color: var(--color-light); */
-        font-weight: 600;
-        font-size: clamp(1.4rem, 2vw, 1.7rem);
-    }
-
-    form#formConfigSR input[type="range"] {
-        background-color: #292c4f;
-    }
-
-
-    .formulario-flash {
-        max-width: 85%;
-        margin: 1rem auto 2rem auto;
-        padding: 1.3rem;
-        border-radius: 1rem;
-        background-color: var(--bg-color);
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-        animation: fadeIn 0.4s ease;
     }
 
     .top-bar-config {
@@ -191,12 +183,50 @@
             /* color: var(--color-light); */
         }
 
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+        }
+
+
+    form#formConfigSR input[type="range"] {
+        background-color: #292c4f;
+    }
+
+
+    .formulario-flash {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 1.3rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
+        margin-top: -1.5rem;
+    }
+
     .checks {
         flex-direction: row;
         display: flex;
         gap: 2rem;
         padding: 0.5rem;
         align-items: center;
+    }
+
+    .form-grid-three-columns {
+        display: flex;
+        gap: 2rem;
+        justify-content: space-between;
     }
 
 
@@ -206,7 +236,8 @@
     }
 
     .form-column {
-        flex: 1 1 49%;
+        flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -221,7 +252,7 @@
 
     form#formConfigSR select,
     form#formConfigSR input[type="number"] {
-        width: 60%;
+        width: 70%;
         padding: 0.5rem 0.6rem;
         border: none;
         border-radius: 0.5rem;
@@ -236,7 +267,7 @@
     }
 
     .btn.btn-primary {
-        background-color: var(--color-primary);
+        background: #28a745;
         color: white;
         padding: 0.9rem 1.5rem;
         font-size: 1.1rem;
@@ -244,16 +275,19 @@
         border: none;
         border-radius: 0.6rem;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
     }
 
         .btn.btn-primary:hover {
-            background-color: var(--color-primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
         }
+
 
     .btn-dashboard {
         background-color: var(--color-primary);
@@ -271,10 +305,9 @@
         gap: 0.6rem;
     }
 
-
-    .btn-dashboard i {
-        font-size: 1.1rem;
-    }
+        .btn-dashboard i {
+            font-size: 1.1rem;
+        }
 
     .dashboard-button-wrapper {
         display: flex;
@@ -296,7 +329,7 @@
         position: relative;
         cursor: pointer;
         min-height: 48px;
-        width:60%;
+        width: 70%;
     }
 
     .tags-container {
@@ -314,17 +347,15 @@
         align-items: center;
         font-size: 0.9rem;
         font-weight: 500;
-        transition: all 0.2s ease;
         cursor: pointer;
+        transition: all 0.25s ease-in-out;
     }
 
         .tag:hover {
             background-color: var(--color-primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
-            transition: all 0.2s ease;
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.6);
         }
-
 
         .tag .remove {
             margin-left: 8px;
@@ -384,11 +415,12 @@
         border: 2px solid var(--color-danger) !important;
     }
 
+
     .elslider {
         display: flex;
         align-items: center;
         gap: 10px;
-        width: 60%;
+        width: 70%;
     }
 
     @@keyframes fadeIn {
@@ -403,11 +435,15 @@
         }
     }
 
-
-
     @@media (max-width: 768px) {
-        .form-grid {
+        .form-grid-three-columns {
             flex-direction: column;
+        }
+
+        .form-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
         }
 
         .btn-dashboard {
@@ -419,35 +455,25 @@
             font-size: 1rem;
         }
 
-        .top-bar-config {
-            flex-direction: column-reverse;
-            align-items: center;
-            text-align: center;
-        }
-
-            .top-bar-config h2 {
-                width: 100%;
-            }
-
-            .top-bar-config .btn-dashboard {
-                width: auto;
-                margin: 0 auto;
-            }
-
         form#formConfigSR select,
         form#formConfigSR input[type="number"] {
+            width: 100%;
+        }
+
+        .top-bar-config {
+            flex-direction: column;
+        }
+
+        .tag-input {
             width: 100%;
         }
 
         .elslider {
             width: 100%;
         }
-
-        .tag-input {
-            width:100%;
-        }
     }
 </style>
+
 
 
 @section Scripts {
@@ -682,6 +708,9 @@
         document.getElementById("tipoOperacionSelect").addEventListener("change", actualizarEtiquetaNumeroEjercicios);
         document.addEventListener("DOMContentLoaded", actualizarEtiquetaNumeroEjercicios);
 
+        function regresarAlDashboard() {
+            window.location.href = '@Url.Action("LimpiarFlashYDashboard", "Flash")';
+        }
 
     </script>
 }

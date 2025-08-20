@@ -980,10 +980,32 @@
 
         <div class="ayuda-tabs-container">
             <div class="tabs">
-                <button class="tab-btn active" onclick="mostrarTab('manos')">✋ Manos</button>
-                <button class="tab-btn" onclick="mostrarTab('soroban')">🧮 Soroban</button>
+                <button class="tab-btn active" onclick="mostrarTab('soroban')">🧮 Soroban</button>
+                <button class="tab-btn" onclick="mostrarTab('manos')">✋ Manos</button>
             </div>
-            <div class="tab-content active" id="tab-manos">
+            <div class="tab-content active" id="tab-soroban">
+                <div id="contenedorSoroban">
+
+                    <div class="soroban-frame">
+                        <div class="barra-horizontal"></div>
+                        <div class="soroban-container" id="sorobanSR">
+                            @for (int col = 0; col < 9; col++)
+                            {
+                                <div class="soroban-column" data-col="@col">
+                                    <div class="palito-vertical"></div>
+                                    <div class="bead superior" data-superior="true" data-valor="5"></div>
+                                    @for (int i = 0; i < 4; i++)
+                                    {
+                                        <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="tab-content" id="tab-manos">
                 
                 <div id="contenedorManos">
 
@@ -1046,28 +1068,7 @@
                     
                 </div>
             </div>
-            <div class="tab-content" id="tab-soroban">          
-                <div id="contenedorSoroban">
-
-                    <div class="soroban-frame">
-                        <div class="barra-horizontal"></div>
-                        <div class="soroban-container" id="sorobanSR">
-                            @for (int col = 0; col < 9; col++)
-                            {
-                                <div class="soroban-column" data-col="@col">
-                                    <div class="palito-vertical"></div>
-                                    <div class="bead superior" data-superior="true" data-valor="5"></div>
-                                    @for (int i = 0; i < 4; i++)
-                                    {
-                                        <div class="bead inferior bead-inferior-@i" data-superior="false" data-valor="1"></div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+            
         </div>
 
     </div>
