@@ -41,9 +41,9 @@
     <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
     <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
 
-    <h2 style="font-size: 3rem; text-align: center; margin: 20px 0; color: white; text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);">
-        @numeroObjetivo
-    </h2>
+    <div class="numero-objetivo">
+        <h2>@numeroObjetivo</h2>
+    </div>
 
     <div class="soroban-frame">
         <div class="barra-horizontal"></div>
@@ -84,6 +84,15 @@
         z-index: -1;
         pointer-events: none;
         transition: opacity 0.3s ease;
+    }
+
+    .numero-objetivo h2 {
+        font-size: 6rem;
+        color: #ffffff;
+        text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff;
+        font-weight: bold;
+        margin-bottom: 30px;
+        margin-top: -1rem;
     }
 
     .izquierdo {

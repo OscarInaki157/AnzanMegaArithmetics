@@ -67,32 +67,34 @@
         }
 
         #configuracionEjercicios button[type="submit"] {
-            background-color: var(--color-primary);
             color: white;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
+            padding: 1.2rem 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             border: none;
             border-radius: 0.5rem;
             cursor: pointer;
             transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+            background: #28a745;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
         }
 
             #configuracionEjercicios button[type="submit"]:hover {
-                background-color: var(--color-primary-dark);
+                background: #2ecc71;
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+                box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
             }
 
     .dashboard-button-wrapper {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         margin: 1.2rem 0 1.5rem;
         padding: 0 1rem;
         align-items: center;
         gap: 1.5rem;
+        justify-self: center;
+        width: 80%;
     }
 
     .btn-dashboard {
