@@ -27,8 +27,8 @@
     var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
 }
 
-<h1>📊 Resumen del Ejercicio</h1>
-<hr />
+@* <h1>📊 Resumen del Ejercicio</h1>
+<hr /> *@
 
 <div class="botones-centrados">
     <form method="get" asp-action="FormularioFlash">
@@ -65,7 +65,7 @@
     <div class="cont-onl">
         <div class="contenedores-resumen">
             <div class="card-resumen total">
-                <div class="card-titulo">Intentos</div>
+                <div class="card-titulo">TOTAL</div>
                 <div class="card-icono">📄</div>
                 <div class="card-valor" id="contadorTotal">@totalIntentos</div>
             </div>
@@ -119,12 +119,15 @@
     }
 
     .botones-centrados {
-        margin: 2rem auto 1rem auto;
+        /* margin: 2rem auto 1rem auto; */
         display: flex;
         justify-content: center;
         gap: 1.5rem;
         flex-wrap: wrap;
         max-width: 800px;
+        margin-bottom: 30px;
+        margin-top: -1.5rem;
+        justify-self: center;
     }
 
     .btn-dashboard {
@@ -173,7 +176,7 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        margin: 2rem auto;
+        margin: 1rem auto;
         max-width: 1000px;
         background-color: #1b1e3c;
         border: 2px solid #4c4cff;
@@ -185,10 +188,10 @@
     .contenedor-respuestas {
         display: flex;
         justify-content: center;
-        gap: 2rem;
-        margin: 2rem auto;
+        gap: 1rem;
+        margin: 1rem auto;
         flex-wrap: wrap;
-        max-width: 700px;
+        max-width: 1000PX;
     }
 
     .respuesta-box {
@@ -334,7 +337,6 @@
     .resultado-final {
         font-weight: bold;
         font-size: 3.5rem;
-        margin-top: 2rem;
         text-align:center;
     }
 
@@ -420,7 +422,8 @@
             align-items: center;
             flex-wrap: inherit;
             gap: 10px;
-            margin: 30px 5px;
+            margin-bottom: 30px;
+            margin-top: -1.5rem;
         }
 
             .botones-centrados button {
