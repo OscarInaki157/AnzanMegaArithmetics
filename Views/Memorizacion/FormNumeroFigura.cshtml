@@ -1,0 +1,267 @@
+﻿@model AnzanMegaArithmetics.Models.ConfNumeroFigura
+
+@{
+    ViewBag.Title = "Asociación Número - Figura";
+    Layout = "_LayoutMemoria";
+}
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    }
+
+    #configuracionEjercicios {
+        width: 90%;
+        max-width: 80%;
+        margin: 0 auto 2rem auto;
+        padding: 1.4rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+        color: var(--color-light);
+        animation: fadeIn 0.4s ease;
+        flex-direction: row;
+        display: flex;
+        gap: 20%;
+        justify-content: space-around;
+        align-items: flex-start;
+    }
+
+        #configuracionEjercicios div {
+            margin-bottom: 1rem;
+        }
+
+        #configuracionEjercicios label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        #configuracionEjercicios input[type="number"],
+        #configuracionEjercicios select {
+            width: 100%;
+            padding: 0.5rem 0.6rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #292c4f;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        #configuracionEjercicios small {
+            display: block;
+            margin-top: 0.3rem;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        #configuracionEjercicios button[type="submit"] {
+            color: white;
+            padding: 1.2rem 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            background: #28a745;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+            #configuracionEjercicios button[type="submit"]:hover {
+                background: #2ecc71;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
+            }
+
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin: 1.2rem 0 1.5rem;
+        padding: 0 1rem;
+        align-items: center;
+        gap: 1.5rem;
+        justify-self: center;
+        width: 80%;
+    }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+        .btn-dashboard:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+        }
+
+    .main-content {
+        margin-top: 3.5rem;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 480px) {
+        #configuracionEjercicios {
+            padding: 1.2rem;
+            flex-direction: column;
+            max-width: 90%;
+        }
+
+        .dashboard-button-wrapper {
+            padding: 0 0.6rem;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        #configuracionEjercicios button,
+        .btn-dashboard {
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+
+<div class="dashboard-button-wrapper">
+    <form method="get" asp-controller="Dashboard" asp-action="Memorizacion">
+        <button type="submit" class="btn-dashboard">
+            <i class="fas fa-home"></i> Regresar al dashboard
+        </button>
+    </form>
+    <h2>Ajustes Asociación Número - Figura</h2>
+</div>
+
+<form id="configuracionEjercicios" method="post" asp-controller="Memorizacion" asp-action="ConcentracionNumeroFigura">
+
+    <div>
+
+        <div>
+            <label asp-for="CantidadEjercicios"></label>
+            <input asp-for="CantidadEjercicios" type="number" min="1" max="100"/>
+            @* <span asp-validation-for="CantidadEjercicios" class="text-danger"></span> *@
+            <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
+        </div>
+
+        <div>
+            <label asp-for="TipoPregunta"></label>
+            <select asp-for="TipoPregunta">
+                <option value="NumFig" selected>Número - Figura</option>
+                <option value="FigNum">Figura - Número</option>
+            </select>
+            @* <span asp-validation-for="TipoPregunta" class="text-danger"></span> *@
+        </div>
+
+        <div>
+            <label asp-for="NumeroDigitos"></label>
+
+            <select asp-for="NumeroDigitos">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+
+            @* <span asp-validation-for="NumeroDigitos" class="text-danger"></span> *@
+            <small>Selecciona el número de dígitos que se asociarán por pantalla</small>
+        </div>
+
+    </div>
+
+
+
+    <div>
+
+        <div>
+            <label asp-for="VelocidadPreguntas"></label>
+
+            <select asp-for="VelocidadPreguntas">
+                <option value="0" selected>0 (sin límite)</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+            </select>
+
+            @* <span asp-validation-for="VelocidadPreguntas" class="text-danger"></span> *@
+            <small>Selecciona el tiempo que se mostrará cada ejercicio. 0 = sin límite.</small>
+        </div>
+
+        <div>
+            <label asp-for="TiempoMeditacion"></label>
+            <select asp-for="TiempoMeditacion">
+                <option value="0" selected>0 (sin concentración)</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+            </select>
+            @* <span asp-validation-for="TiempoMeditacion" class="text-danger"></span> *@
+        </div>
+
+        <button type="submit">🤖 Iniciar Ejercicios de Memorización</button>
+    </div>
+
+</form>
+
+@* @section Scripts {
+    <script>
+        window.addEventListener('load', function () {
+            const form = document.getElementById('configuracionEjercicios');
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
+} 
+ *@

@@ -1,0 +1,724 @@
+﻿@model AnzanMegaArithmetics.Models.EjercicioNFViewModel
+@{
+    ViewBag.Title = "Ejercicio de Asociación Número - Figura";
+    Layout = "_LayoutMemoria";
+
+    //tal cual el ejercicio a responder
+    var ejercicioActual = Model.EjercicioActual;
+    //config
+    var configuracion = Model.Configuracion;
+    //numero del ejercicio actual
+    var numeroEjercicio = Model.NumeroEjercicio;
+    var totalEjercicios = Model.TotalEjercicios;
+    var velocidad = Model.VelocidadPregunta;
+
+    var porcentaje = (numeroEjercicio * 100) / totalEjercicios;
+
+}
+
+<div class="top-bar">
+    <form id="formFinalizar" class="form-fin" onsubmit="return false;">
+        <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
+            ❌ <span>Finalizar</span>
+        </button>
+    </form>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@Model.NumeroEjercicio / @Model.TotalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        @if (velocidad > 0)
+        {
+            <span>⏱ <span id="contador" class="contador">@velocidad.ToString("0.0")</span> s</span>
+        }
+        else
+        {
+            <span class="modo-libre">⏱ <strong>♾️</strong></span>
+        }
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <div class="pantalla-dividida">
+        @* pregunta *@
+        <div class="izquierda">
+            <div class="contenedor-pregunta">
+                @foreach (var elemento in ejercicioActual.ElementosPregunta)
+                {
+                    <div class="elemento-pregunta" data-elemento="@elemento">
+                        @if (configuracion.TipoPregunta == "NumFig")
+                        {
+                            <span class="numero-pregunta">@elemento</span>
+                        }
+                        else
+                        {
+                            <img src="/Content/Images/@(elemento).png" alt="Figura @elemento" class="figura-pregunta" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        @* respuesta *@
+        <div class="derecha">
+            <h2 class="titulo-seccion">Selecciona la respuesta</h2>
+            <div class="contenedor-respuestas">
+                @if (configuracion.TipoPregunta == "NumFig")
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        <div class="opcion-respuesta" data-valor="@i" onclick="seleccionarRespuesta(@i)">
+                            <img src="/Content/Images/@(i).png" alt="Figura @i" class="figura-respuesta">
+                        </div>
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        <div class="opcion-respuesta" data-valor="@i" onclick="seleccionarRespuesta(@i)">
+                            <span class="numero-respuesta">@i</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <form class="form-respuesta-barra" asp-action="EjercicioNumeroFigura" method="post">
+        <input type="hidden"  name="RespuestaUsuario" id="respuestaUsuario" value="[]" style="color:#000000;" readonly/>
+        <input type="hidden"  name="TiempoRespuesta" id="tiempoRespuesta" value="0" style="color:#000000;" readonly />
+        <button type="submit">Enviar respuesta</button>
+    </form>
+
+
+</div>
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .titulo-seccion {
+        text-align: center;
+        color: var(--color-light);
+        margin:0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: var(--bg-color);
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+        flex-direction: row;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="number"] {
+        padding: 0.6rem 1rem;
+        font-size: 2rem;
+        border-radius: 8px;
+        border: none;
+        width: 150px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 1.2rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .pantalla-dividida {
+        display: flex;
+        width: 100%;
+        gap: 1rem;
+        margin: 1rem 0;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+    }
+   
+    .izquierda, .derecha {
+        flex: 1;
+        display: flex;
+        width: 50%;
+    }
+
+    .izquierda {
+        justify-content: center;
+        align-items: center;
+    }
+
+    .derecha {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contenedor-pregunta
+    {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        place-items: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .elemento-pregunta
+    {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+        border-radius: 1.2rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+        min-height: 140px;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .elemento-pregunta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            opacity: 0.7;
+        }
+
+        .elemento-pregunta.activa {
+            animation: brillo 2s infinite ease-in-out;
+            border: 3px solid var(--color-primary);
+            box-shadow: 0 0 25px rgba(76, 76, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .elemento-pregunta.completada {
+            border: 3px solid #28a745;
+            background: rgba(40, 167, 69, 0.1);
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+        }
+
+    @@keyframes brillo {
+        0%
+
+    {
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(76, 76, 255, 0.8);
+    }
+
+    100% {
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
+    }
+
+    }
+
+
+    /* NÚMEROS - TAMAÑO UNIFORME */
+    .numero-pregunta {
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.1);
+        font-family: 'Arial', sans-serif;
+        line-height: 1;
+    }
+
+    /* FIGURAS - TAMAÑO UNIFORME */
+    .figura-pregunta {
+        width: 7rem;
+        height: 7rem;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)) brightness(1.1) contrast(1.1);
+        transition: transform 0.3s ease;
+    }
+
+        .figura-pregunta:hover {
+            transform: scale(1.1);
+        }
+
+    .contenedor-respuestas {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+        width: 100%;
+ /*        max-width: 700px; */
+        margin: 0 auto;
+    }
+
+    .opcion-respuesta {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 110px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        position: relative;
+        overflow: hidden;
+        background-color: #4c4cff;
+    }
+
+        .opcion-respuesta:hover {
+            transform: translateY(-3px);
+            border-color: var(--color-primary);
+            box-shadow: 0 10px 30px rgba(76, 76, 255, 0.3);
+        }
+
+        .opcion-respuesta.seleccionada {
+            background: linear-gradient(145deg, rgba(40, 167, 69, 0.25), rgba(40, 167, 69, 0.15));
+            border-color: #28a745;
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+    .figura-respuesta {
+        width: 8rem;
+        height: 4rem;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+        transition: transform 0.3s ease;
+    }
+
+    .opcion-respuesta:hover .figura-respuesta {
+        transform: scale(1.15);
+    }
+
+    .numero-respuesta {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease;
+    }
+
+    .opcion-respuesta:hover .numero-respuesta {
+        transform: scale(1.1);
+    }
+
+    .respuesta-seleccionada {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745 !important;
+        animation: aparecer 0.5s ease;
+    }
+
+    @@keyframes aparecer {
+        from
+
+    {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    }
+
+
+
+    @@media (max-width: 768px) {
+
+   
+
+        .form-respuesta-barra {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .form-respuesta-barra button {
+                width: 100%;
+            }
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
+        .pantalla-dividida{
+            flex-direction:column;
+        }
+
+        .izquierda, .derecha{
+            width:100%;
+        }
+
+        .contenedor-pregunta{
+            padding:0;
+        }
+
+        .contenedor-respuestas{
+            padding:0;
+            gap:0.5rem;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+    }
+</style>
+
+
+@section Scripts {
+    <script>
+        const velocidad = @velocidad;
+        const contadorElemento = document.getElementById("contador");
+        let tiempoInicio = new Date();
+        let respuestasSeleccionadas = [];
+        const elementosPregunta = @Html.Raw(Json.Serialize(Model.EjercicioActual.ElementosPregunta));
+        let indicePreguntaActual = 0;
+        let temporizadorInterval = null;
+        let tiempoAgotado = false;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarTemporizador();
+            resaltarPreguntaActual();
+        });
+
+        // Inicializar temporizador
+        function inicializarTemporizador() {
+            if (velocidad > 0) {
+                let tiempoRestante = velocidad;
+                contadorElemento.textContent = tiempoRestante.toFixed(1);
+
+                temporizadorInterval = setInterval(() => {
+                    tiempoRestante -= 0.1;
+
+                    if (tiempoRestante <= 0) {
+                        clearInterval(temporizadorInterval);
+                        contadorElemento.textContent = "0.0";
+                        tiempoAgotado = true;
+                        completarEjercicioAutomaticamente();
+                    } else {
+                        contadorElemento.textContent = tiempoRestante.toFixed(1);
+                    }
+                }, 100);
+            }
+        }
+
+        // Resaltar la pregunta actual
+        function resaltarPreguntaActual() {
+            // Quitar resaltado de todas las preguntas
+            document.querySelectorAll('.elemento-pregunta').forEach((elemento, index) => {
+                elemento.classList.remove('activa', 'completada');
+
+                // Resaltar la pregunta actual
+                if (index === indicePreguntaActual) {
+                    elemento.classList.add('activa');
+                }
+                // Marcar como completadas las anteriores
+                else if (index < indicePreguntaActual) {
+                    elemento.classList.add('completada');
+                }
+            });
+        }
+
+        // Seleccionar respuesta para la pregunta actual
+        function seleccionarRespuesta(valor) {
+            if (tiempoAgotado || indicePreguntaActual >= elementosPregunta.length) return;
+
+            // Guardar respuesta para la pregunta actual
+            respuestasSeleccionadas[indicePreguntaActual] = valor;
+
+            // Marcar la pregunta como completada (solo verde, sin mostrar número)
+            const preguntaActual = document.querySelectorAll('.elemento-pregunta')[indicePreguntaActual];
+            preguntaActual.classList.remove('activa');
+            preguntaActual.classList.add('completada');
+
+            // Avanzar a la siguiente pregunta o completar ejercicio
+            indicePreguntaActual++;
+
+            if (indicePreguntaActual < elementosPregunta.length) {
+                // Hay más preguntas, resaltar la siguiente
+                resaltarPreguntaActual();
+            } else {
+                // Todas las preguntas respondidas, enviar automáticamente
+                setTimeout(() => {
+                    completarEjercicio();
+                }, 500);
+            }
+
+            document.getElementById('respuestaUsuario').value = JSON.stringify(respuestasSeleccionadas);
+            console.log('Respuestas:', respuestasSeleccionadas); // Para debug
+        }
+
+        // Completar ejercicio normalmente
+        function completarEjercicio() {
+            clearInterval(temporizadorInterval);
+
+            const tiempoFin = new Date();
+            const tiempoRespuesta = (tiempoFin - tiempoInicio) / 1000;
+
+            document.getElementById('tiempoRespuesta').value = tiempoRespuesta.toFixed(2);
+
+            // Asegurarse de que el array tenga la longitud correcta
+            while (respuestasSeleccionadas.length < elementosPregunta.length) {
+                respuestasSeleccionadas.push(-1);
+            }
+
+            document.getElementById('respuestaUsuario').value = JSON.stringify(respuestasSeleccionadas);
+            document.querySelector('.form-respuesta-barra').submit();
+        }
+
+        // Completar automáticamente cuando se acaba el tiempo
+        function completarEjercicioAutomaticamente() {
+            const tiempoFin = new Date();
+            const tiempoRespuesta = (tiempoFin - tiempoInicio) / 1000;
+
+            document.getElementById('tiempoRespuesta').value = tiempoRespuesta.toFixed(2);
+
+            // Rellenar con -1 las preguntas no respondidas
+            for (let i = indicePreguntaActual; i < elementosPregunta.length; i++) {
+                respuestasSeleccionadas[i] = -1;
+            }
+
+            document.getElementById('respuestaUsuario').value = JSON.stringify(respuestasSeleccionadas);
+
+            // Deshabilitar interacción
+            document.querySelectorAll('.opcion-respuesta').forEach(opcion => {
+                opcion.style.pointerEvents = 'none';
+                opcion.style.opacity = '0.5';
+            });
+
+           
+            document.querySelector('.form-respuesta-barra').submit();
+            
+        }
+
+        function finalizarConRespuesta() {
+            
+
+                // Guardar la respuesta actual si hay una seleccionada
+                if (respuestasSeleccionadas.length > 0) {
+                    const tiempoFin = new Date();
+                    const tiempoRespuesta = (tiempoFin - tiempoInicio) / 1000;
+
+                    document.getElementById('respuestaUsuario').value = JSON.stringify(respuestasSeleccionadas);
+                    document.getElementById('tiempoRespuesta').value = tiempoRespuesta.toFixed(2);
+                }
+
+                // Crear un formulario temporal para enviar
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '@Url.Action("FinalizarEjercicio", "Memorizacion")';
+
+                const respuestaInput = document.createElement('input');
+                respuestaInput.type = 'hidden';
+                respuestaInput.name = 'RespuestaUsuario';
+                respuestaInput.value = document.getElementById('respuestaUsuario').value;
+
+                const tiempoInput = document.createElement('input');
+                tiempoInput.type = 'hidden';
+                tiempoInput.name = 'TiempoRespuesta';
+                tiempoInput.value = document.getElementById('tiempoRespuesta').value;
+
+                form.appendChild(respuestaInput);
+                form.appendChild(tiempoInput);
+                document.body.appendChild(form);
+
+                form.submit();
+            
+        }
+
+        // Hacer inputs invisibles pero funcionales
+        document.addEventListener('DOMContentLoaded', function() {
+            // const inputs = document.querySelectorAll('input[type="text"], input[type="hidden"]');
+            // inputs.forEach(input => {
+            //     input.style.position = 'absolute';
+            //     input.style.opacity = '0';
+            //     input.style.pointerEvents = 'none';
+            // });
+
+            // Inicializar array de respuestas
+            respuestasSeleccionadas = new Array(elementosPregunta.length).fill(-1);
+            document.getElementById('respuestaUsuario').value = JSON.stringify(respuestasSeleccionadas);
+        });
+    </script>
+}

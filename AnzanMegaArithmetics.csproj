@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Content\Images\0.png" />
+    <None Remove="Content\Images\1.png" />
+    <None Remove="Content\Images\2.png" />
+    <None Remove="Content\Images\3.png" />
+    <None Remove="Content\Images\4.png" />
+    <None Remove="Content\Images\5.png" />
+    <None Remove="Content\Images\6.png" />
+    <None Remove="Content\Images\7.png" />
+    <None Remove="Content\Images\8.png" />
+    <None Remove="Content\Images\9.png" />
     <None Remove="Content\Images\abacoicon.gif" />
     <None Remove="Content\Images\brain.gif" />
     <None Remove="Content\Images\Calendario.gif" />
@@ -36,6 +46,36 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Content\Images\0.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\5.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\6.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\7.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\8.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\9.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\abacoicon.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
