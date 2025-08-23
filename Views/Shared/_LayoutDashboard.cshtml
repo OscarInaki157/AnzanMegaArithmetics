@@ -23,6 +23,7 @@
         *, html, body, *::before, *::after{
             box-sizing:border-box;
             overflow-x:hidden;
+            user-select: none;
         }
 
         body {
@@ -876,9 +877,6 @@
                     </li>
                     <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
-                    <li>
-                        <a href="#" id="versionLink"><i class="fa-solid fa-note-sticky"></i> Versión</a>
-                    </li>
                 </ul>
 
             </nav>
@@ -890,39 +888,6 @@
         </div>
     </div>
 
-    <div id="versionModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Últimas Actualizaciones</h2>
-            <div class="update-notes">
-                <div class="update">
-                    <h3>Versión 1.1.0 - Agosto 2025</h3>
-                    <ul>
-                        <li>Nuevo sistema de notas de versión</li>
-                        <li>Corrección colores</li>
-                        <li>Arreglo de bugs modulo Suma y Resta</li>
-                        <li>Arreglo apariencia pantalla de resultados</li>
-                        <li>Mejora dashboard</li>
-                        <li>Arreglo funcionamiento números Flash.</li>
-                        <li>Aumento de tamaño de números Flash</li>
-                        <li>Mejora apariencia general</li>
-                        <li>Corrección sonido Flash</li>
-                        <li>Corrección generación números en FingerMath ambas manos</li>
-                        <li>Actualización de seguridad</li>
-                        <li>Operaciones directas arregladas</li>
-                        <li>Valor máximo arreglado</li>
-                        <li>Arreglo generacion de números suma y resta (no sobrepasa max. digitos)</li>
-                        <li>Arreglo bugs digitos suma y resta</li>
-                        <li>Arreglo diseño multiplicacion y tablas de multiplicar</li>
-                        <li>Arreglo bug contador competencia</li>
-                        <li>Función nueva, detener contador en competencia memorizada</li>
-                        <li>Cambios estéticos modulos de competencia multiplicación</li>
-                    </ul>
-                </div>
-                
-            </div>
-        </div>
-    </div>
 
     <footer class="page-footer">
         
@@ -1030,30 +995,6 @@
                     }
                 }, 1000 / frameRate);
             }
-
-            // Manejo del modal de versión
-            const versionLink = document.getElementById('versionLink');
-            const modal = document.getElementById('versionModal');
-            const closeModal = document.querySelector('.close-modal');
-
-            if (versionLink && modal) {
-                versionLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    modal.style.display = 'flex';
-                });
-            }
-
-            if (closeModal) {
-                closeModal.addEventListener('click', function() {
-                    modal.style.display = 'none';
-                });
-            }
-
-            window.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
 
             // Protección (opcional)
             
