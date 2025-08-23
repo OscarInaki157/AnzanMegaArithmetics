@@ -9,10 +9,9 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class MemorizacionController : Controller
     {
+        //asociacion numero figura
         [HttpGet]
-        public IActionResult FormNumeroFigura(int? CantidadEjercicios, int? NumeroDigitos,
-                                           string TipoPregunta, string VelocidadPreguntas,
-                                           int? TiempoMeditacion)
+        public IActionResult FormNumeroFigura(int? CantidadEjercicios, int? NumeroDigitos, string TipoPregunta, string VelocidadPreguntas, int? TiempoMeditacion)
         {
             ConfNumeroFigura modelo = new ConfNumeroFigura
             {
@@ -158,7 +157,6 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("EjercicioNumeroFigura");
         }
 
-
         [HttpGet]
         public IActionResult ResultadoNF()
         {
@@ -233,7 +231,7 @@ namespace AnzanMegaArithmetics.Controllers
                 sesionejercicios.Realizados++;
             }
 
-            // Marcar los ejercicios restantes como no respondidos (-1)
+    
             for (int i = sesionejercicios.Realizados; i < sesionejercicios.ejerciciosLista.Count; i++)
             {
                 sesionejercicios.ejerciciosLista[i].RespuestaUsuario = new List<int> { -1 };
@@ -248,7 +246,16 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
 
+        //parejas de memoria
+        public IActionResult FormParejasMemoria() 
+        {
+            return View();
+        }
 
+        public IActionResult EjercicioParejasMemoria()
+        {
+            return View();
+        }
 
     }
 }
