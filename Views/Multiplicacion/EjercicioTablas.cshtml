@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Ejercicio de Tablas de Multiplicar";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutMultiplicacion";
 
     int multiplicando = (int)ViewBag.Multiplicando;
     int multiplicador = (int)ViewBag.Multiplicador;
@@ -15,19 +15,20 @@
 <style>
 
     .elhr {
-        width: 95%;
+        width: 85%;
     }
 
     .multiplicacion {
-        font-size: 4.5rem;
+        font-size: 4rem;
         margin: 1rem 0;
+        text-align: center;
     }
 
     .input-respuesta {
-        width:95%;
-
+        width:85%;
+        caret-color: white;
         padding: 0.6rem 1rem;
-        font-size: 2.8rem;
+        font-size: 3.5rem;
         border-radius: 10px;
         border: none;
         text-align: center;
@@ -73,15 +74,15 @@
     }
 
     .btn-enviar-respuesta {
-        padding: 0.6rem 1.2rem;
+        padding: 0.6rem 2rem;
         background-color: #4c4cff;
         color: white;
         border: none;
         border-radius: 10px;
-        font-size: 1.2rem;
+        font-size: 2.2rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 15px;
+        margin-top: 20px;
         box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
         width: 50%;
     }
@@ -361,7 +362,7 @@
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
         width: 45%;
         height: fit-content;
-        min-height: 30rem;
+        min-height: 23rem;
         display:flex;
         justify-content:center;
         align-items:center;
@@ -661,7 +662,6 @@
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
 
-                    // Verificar si hay algo escrito en el input
                     if (inputRespuesta.value.trim() !== "") {
                         // Si hay contenido, enviar la respuesta
                         document.getElementById("hiddenRespuestaUsuario").value = inputRespuesta.value.trim();
@@ -720,18 +720,22 @@
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
 
-            superior.addEventListener("click", () => {
+            superior.addEventListener("click", (e) => {
+                e.preventDefault();
                 superior.classList.toggle("activa");
+                inputRespuesta.focus();
             });
 
             inferiores.forEach((bead, i) => {
-                bead.addEventListener("click", () => {
+                bead.addEventListener("click", (e) => {
+                    e.preventDefault();
                     const activar = !bead.classList.contains("activa");
                     inferiores.forEach((b, j) => {
                         if ((activar && j <= i) || (!activar && j >= i)) {
                             b.classList.toggle("activa", activar);
                         }
                     });
+                    inputRespuesta.focus();
                 });
             });
         });

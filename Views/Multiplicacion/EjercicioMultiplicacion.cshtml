@@ -765,13 +765,15 @@
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
 
-            superior.addEventListener("click", () => {
+            superior.addEventListener("click", (e) => {
+                e.preventDefault();
                 superior.classList.toggle("activa");
                 inputRespuesta.focus();
             });
 
             inferiores.forEach((bead, i) => {
-                bead.addEventListener("click", () => {
+                bead.addEventListener("click", (e) => {
+                    e.preventDefault();
                     const activar = !bead.classList.contains("activa");
                     inferiores.forEach((b, j) => {
                         if ((activar && j <= i) || (!activar && j >= i)) {
