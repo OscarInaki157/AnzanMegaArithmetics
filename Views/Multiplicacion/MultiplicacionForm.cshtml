@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.ConfMultiModel
 @{
     ViewBag.Title = "Multiplicación";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutMultiplicacion";
 
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
@@ -66,14 +66,14 @@
                 <label>Tipo de pregunta (dígitos):</label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <select name="DigitosMultiplicando" required>
-                        @for (int i = 2; i <= 8; i++)
+                        @for (int i = 1; i <= 8; i++)
                         {
                             <option value="@i" selected="@(Model.DigitosMultiplicando == i.ToString())">@i</option>
                         }
                     </select>
                     <span>X</span>
                     <select name="DigitosMultiplicador" required>
-                        @for (int i = 2; i <= 8; i++)
+                        @for (int i = 1; i <= 8; i++)
                         {
                             <option value="@i" selected="@(Model.DigitosMultiplicador == i.ToString())">@i</option>
                         }
