@@ -77,14 +77,22 @@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
-                <img src="/Content/Images/Flashicon.gif" alt="Division" />
+                <img src="/Content/Images/Flashicon.gif" alt="Cuadros" />
             </div>
             <div class="modulo-text">
                 <h2>Cuadros de velocidad</h2>
                 <p>Ejercicios de cálculo veloces</p>
             </div>
-            <a href="#" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
+            <button class="modulo-toggle" data-menu-id="Cuadros-menu">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div id="Cuadros-menu" class="modulo-menu">
+            <a href="#">
+                <i class="fa-solid fa-trophy"></i> Modo Competencia
+            </a>
+            <a href="@Url.Action("CuadrosForm","Cuadros")">
+                <i class="fas fa-pencil-alt"></i> Modo Práctica
             </a>
         </div>
     </div>

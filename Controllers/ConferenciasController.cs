@@ -1,8 +1,10 @@
 ﻿using AnzanMegaArithmetics.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnzanMegaArithmetics.Controllers
 {
+    [Authorize]
     public class ConferenciasController : Controller
     {
         public IActionResult PanelFormFinger()
