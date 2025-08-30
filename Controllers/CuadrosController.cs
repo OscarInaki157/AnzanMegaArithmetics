@@ -380,6 +380,52 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("CuadrosForm");
             }
         }
-       
+
+        [HttpPost]
+        public IActionResult FinalizarDesdeEjercicio()
+        {
+            try
+            {
+                var ejerciciosJson = HttpContext.Session.GetString("Ejercicios");
+                var resultadosJson = HttpContext.Session.GetString("Respuestas");
+                var configuracionJson = HttpContext.Session.GetString("ConfiguracionPractica");
+
+                if (string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(resultadosJson) || string.IsNullOrEmpty(configuracionJson))
+                {
+                    return RedirectToAction("CuadrosForm");
+                }
+
+                SesionCuadrosModel actuales = JsonSerializer.Deserialize<SesionCuadrosModel>(ejerciciosJson);
+                List<RCuadrosModel> respuestas = JsonSerializer.Deserialize<List<RCuadrosModel>>(resultadosJson);
+                ConfCuadrosModel configuracion = JsonSerializer.Deserialize<ConfCuadrosModel>(configuracionJson);
+
+                // Marcar los ejercicios restantes como no respondidos
+                int ejerciciosRestantes = actuales.ejerciciosCuadros.Count - actuales.Realizados;
+
+                for (int i = 0; i < ejerciciosRestantes; i++)
+                {
+                    respuestas.Add(new RCuadrosModel
+                    {
+                        RespuestaUsuario = -1,
+                        RespuestaCorrecta = actuales.ejerciciosCuadros[actuales.Realizados + i].RCorrecta,
+                        Respondido = false,
+                        TiempoRespuesta = 0
+                    });
+                }
+
+                actuales.Realizados = actuales.ejerciciosCuadros.Count;
+
+                HttpContext.Session.SetString("Ejercicios", JsonSerializer.Serialize(actuales));
+                HttpContext.Session.SetString("Respuestas", JsonSerializer.Serialize(respuestas));
+
+                // Redirigir a resultados
+                return RedirectToAction("ResultadosCuadrosPractica");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("CuadrosForm");
+            }
+        }
+
     }
 }

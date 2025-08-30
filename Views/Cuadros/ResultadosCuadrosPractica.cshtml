@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.ResultadosCuadrosPruebaModel
 @{
     ViewBag.Title = "Resumen de Ejercicios cuadros de velocidad";
-    Layout = "_LayoutMemoria";
+    Layout = "_LayoutCuadros";
 
     var total = Model.ejercicios.Count;
     var correctos = Model.respuestas.Count(r => r.EsCorrecto);
@@ -20,6 +20,11 @@
         font-size: 2rem;
         margin-top: 10px;
         margin-bottom: 0.5rem;
+    }
+
+    .main-content
+    {
+        margin-top:4rem;
     }
 
     hr {
@@ -505,22 +510,22 @@
                     <span class="resultado">Operación: </span>
                     @{
                         string operacion = "";
-                        for (int i = 0; i < ejercicio.Rejilla.Count; i++)
+                        for (int a = 0; a < ejercicio.Rejilla.Count; a++)
                         {
-                            if (i == 0)
+                            if (a == 0)
                             {
                                
-                                operacion += ejercicio.Rejilla[i].ToString();
+                                operacion += ejercicio.Rejilla[a].ToString();
                             }
                             else
                             {
-                                if (ejercicio.Rejilla[i] >= 0)
+                                if (ejercicio.Rejilla[a] >= 0)
                                 {
-                                    operacion += "+" + ejercicio.Rejilla[i].ToString();
+                                    operacion += "+" + ejercicio.Rejilla[a].ToString();
                                 }
                                 else
                                 {
-                                    operacion += ejercicio.Rejilla[i].ToString();
+                                    operacion += ejercicio.Rejilla[a].ToString();
                                 }
                             }
                         }

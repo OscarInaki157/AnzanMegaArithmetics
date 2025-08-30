@@ -48,7 +48,7 @@
 
 <div class="top-bar">
     <form id="formFinalizar" class="form-fin" onsubmit="return false;">
-        <button type="button" class="btn-finalizar" onclick="finalizarConRespuesta()">
+        <button type="button" class="btn-finalizar" onclick="finalizarPractica()">
             ❌ <span>Finalizar</span>
         </button>
     </form>
@@ -516,24 +516,22 @@
         }
 
         // Función para finalizar
-        function finalizarConRespuesta() {
-            if (confirm('¿Estás seguro de que quieres finalizar?')) {
-                const respuestaFinal = respuestaInput.value === '' ? -1 : parseInt(respuestaInput.value);
+        function finalizarPractica() {
+            confirmarFinalizacion(); 
+        }
 
-                if (!tiempoDetenido) {
-                    tiempoFinal = (Date.now() - startTime) / 1000;
-                    clearInterval(intervalo);
-                    celdasNumeros.forEach(celda => {
-                        celda.textContent = '-';
-                        celda.style.color = '#888';
-                        celda.style.background = 'linear-gradient(145deg, #3a3c5f, #2a2c4f)';
-                    });
-                }
+      
 
-                document.getElementById('respuestaUsuarioInput').value = respuestaFinal;
-                document.getElementById('tiempoRespuestaInput').value = tiempoFinal.toFixed(3);
-                formulario.submit();
-            }
+        function confirmarFinalizacion() {
+           
+                // Crear formulario para finalizar
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("FinalizarDesdeEjercicio", "Cuadros")';
+
+                document.body.appendChild(form);
+                form.submit();
+            
         }
 
         // Enviar con Enter
