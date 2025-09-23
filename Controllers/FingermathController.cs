@@ -409,5 +409,10 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("ResultadoEscritura");
         }
 
+        public IActionResult RegresarDashboard()
+        {
+            return RedirectToAction("Dashboard", "Dashboard");
+        }
+
     }
 }
