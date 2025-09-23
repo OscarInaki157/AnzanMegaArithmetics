@@ -1,7 +1,7 @@
 ﻿@model List<AnzanMegaArithmetics.Models.RCompetenciaMultiModel>
 @{
     ViewBag.Title = "Resumen de Memorización de Multiplicaciones";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutCompetencia";
 
     var total = Model.Count;
     var correctos = Model.Count(r => r.EsCorrecto && r.Respondido);
@@ -85,6 +85,11 @@
 
 
 <style>
+
+    .main-content {
+        margin-top: 4.5rem;
+    }
+
 
     body {
         background-color: var(--color-bg);

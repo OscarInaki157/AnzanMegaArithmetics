@@ -2,7 +2,7 @@
 @model List<AnzanMegaArithmetics.Models.EjercicioCompetenciaModel>
 @{
     ViewBag.Title = "Memorización de Multiplicaciones";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutCompetencia";
 
     var tiempoMemoria = (double)(ViewBag.TiempoMemoriaSeg ?? 15);
 
@@ -359,8 +359,8 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
         gap: 1rem;
-        margin: 1rem auto auto auto;
-        max-width: 900px;
+        margin: 1.5rem auto auto auto;
+        max-width: 95%;
     }
 
     .ejercicio-mini {
@@ -381,7 +381,7 @@
         }
 
     .ejercicio-actual {
-        margin: -1rem auto;
+        margin: 0 auto;
         display: flex;
         justify-content: center;
         align-items: end;
@@ -531,6 +531,7 @@
         background-color: #ffffff;
         color: #000000;
         box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        caret-color:transparent;
     }
 
     .respuesta-mini {

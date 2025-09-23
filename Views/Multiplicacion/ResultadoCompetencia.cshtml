@@ -1,7 +1,7 @@
 ﻿@model List<AnzanMegaArithmetics.Models.RCompetenciaMultiModel>
 @{
     ViewBag.Title = "Resumen de Competencia de Multiplicación";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutCompetencia";
 
     var total = Model.Count;
     var correctos = Model.Count(r => r.EsCorrecto && r.Respondido);
@@ -86,6 +86,10 @@
 
 
 <style>
+
+    .main-content{
+        margin-top:4.5rem;
+    }
 
     body {
         background-color: var(--color-bg);

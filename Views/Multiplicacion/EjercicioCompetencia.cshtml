@@ -2,7 +2,7 @@
 @model List<AnzanMegaArithmetics.Models.EjercicioCompetenciaModel>
 @{
     ViewBag.Title = "Competencia de Multiplicación";
-    Layout = "_LayoutGeneral";
+    Layout = "_LayoutCompetencia";
 
     var tiempoLimiteSeg = (double)(ViewBag.TiempoLimiteSeg ?? 900);
     var mostrarContador = (bool)(ViewBag.MostrarContador ?? true);
@@ -49,19 +49,20 @@
 
 
 <div class="alinear">
+
+    <div class="controles-ejercicio">
+        <button onclick="ejercicioAnterior()" class="btn-control">⬅ Anterior</button>
+    </div>
+
+    @* ejercicio *@
     <div class="ejercicio-actual" id="ejercicioActualContainer">
         <div class="marcadores" id="marcadores"></div>
         <div class="contenido-ejercicio" id="contenidoEjercicio"></div>
     </div>
 
     <div class="controles-ejercicio">
-        <button onclick="ejercicioAnterior()" class="btn-control">⬅ Anterior</button>
-
-        <button type="submit" form="FormFinalizar" class="btn-control btn-finalizar-central">❌ Finalizar</button>
-
         <button onclick="ejercicioSiguiente()" class="btn-control">Siguiente ➡</button>
     </div>
-
 </div>
 
 
@@ -90,6 +91,7 @@
         font-weight: bold;
         transition: all 0.3s ease;
         box-shadow: 0 0 8px rgba(76, 76, 255, 0.5);
+        margin:3rem;
     }
 
         .btn-control:hover {
@@ -123,15 +125,18 @@
     display:flex;
     justify-content:center;
     align-items:center;
-    flex-direction:column-reverse;
+    flex-direction:row;
+    margin-top:1.5rem;
+    max-width:100%;
+    justify-self:center;
 }
 
 .grid-ejercicios {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 1rem;
-    margin: 0.5rem auto auto auto;
-    max-width: 900px;
+    margin: 1.5rem auto auto auto;
+    max-width: 95%;
 }
 
 .ejercicio-mini {
@@ -139,7 +144,7 @@
     padding: 0.5rem;
     border-radius: 1rem;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
@@ -151,7 +156,7 @@
 }
 
     .ejercicio-actual {
-        margin: -1rem auto;
+        margin: 0 auto;
         display: flex;
         justify-content: center;
         align-items: end;
@@ -198,8 +203,6 @@
 .controles-ejercicio {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin-bottom: 2rem;
 }
 
 .barra-tiempo {
@@ -300,6 +303,7 @@
         background-color: #ffffff;
         color: #000000;
         box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        caret-color:transparent;
     }
 
     .respuesta-mini {
@@ -349,6 +353,10 @@
 
     .grid-ejercicios {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .alinear{
+        flex-direction:column;
     }
     
     }
@@ -451,7 +459,8 @@
 
             // Asignar evento a todos los marcadores para iluminar columnas
             Array.from(document.querySelectorAll('.marcador')).forEach(m => {
-                m.onclick = () => {
+                m.onclick = (e) => {
+                    e.preventDefault();
                     m.classList.toggle("checked");
                     const col = m.dataset.col;
                     const digitos = document.querySelectorAll(`.digito[data-col='${col}']`);
@@ -557,7 +566,9 @@
             const m = document.createElement("div");
             m.className = "marcador";
             m.dataset.col = `v-${i}`;
-            m.onclick = () => {
+
+            m.onclick = (e) => {
+                e.preventDefault();
                 m.classList.toggle("checked");
                 const digitos = document.querySelectorAll(`.digito[data-col='v-${i}']`);
                 digitos.forEach(d => d.classList.toggle("iluminado"));
