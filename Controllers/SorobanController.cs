@@ -345,12 +345,16 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
 
-
         [HttpGet]
         public IActionResult ResultadoEscrituraSoroban()
         {
             TempData.Keep("Resultados");
             return View();
+        }
+
+        public IActionResult RegresarDashboard()
+        {
+            return RedirectToAction("Dashboard", "Dashboard");
         }
 
     }
