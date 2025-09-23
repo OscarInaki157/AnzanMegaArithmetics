@@ -202,6 +202,14 @@
             align-items: stretch;
         }
 
+        .names{
+            color: #ffffff;
+            font-size: 2rem;
+            position: absolute;
+            top: 25%;
+            left: 30%;
+        }
+
         .user-info-card,
         .user-welcome-card {
             width: calc(50% - 0.5rem);
@@ -249,7 +257,7 @@
         }
 
             .image-wrapper img {
-                max-width: 200px;
+                max-width: 15.5rem;
                 height: auto;
                 object-fit: contain;
                 z-index: 2;
@@ -529,7 +537,7 @@
             color: white;
             padding: 0.5rem;
             border-radius: 1.2rem;
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             max-width: 10rem;
             z-index: 3;
             font-weight: 500;
@@ -998,19 +1006,19 @@
 
             // Protección (opcional)
             
-            document.addEventListener('contextmenu', function(e) {
-               e.preventDefault();
-            });
+             document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+             });
 
-            document.addEventListener('keydown', function(e) {
-                if (
-                    e.key === 'F12' ||
-                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                    (e.ctrlKey && e.key === 'U')
-                ) {
-                    e.preventDefault();
-                }
-            });
+             document.addEventListener('keydown', function(e) {
+                 if (
+                     e.key === 'F12' ||
+                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                     (e.ctrlKey && e.key === 'U')
+                 ) {
+                     e.preventDefault();
+                 }
+             });
             
         });
     </script>
