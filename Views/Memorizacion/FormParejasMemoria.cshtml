@@ -20,17 +20,34 @@
         font-size: clamp(1.4rem, 2vw, 1.7rem);
     }
 
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+        width: 100%;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: white;
+        }
+
     #configuracionEjercicios {
         width: 90%;
         max-width: 80%;
-        margin: 0 auto 2rem auto;
+        margin: 2rem auto 2rem auto;
         padding: 1.4rem;
         border-radius: 1rem;
         background-color: var(--bg-color);
         box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
         color: var(--color-light);
         animation: fadeIn 0.4s ease;
-        flex-direction: row;
+        flex-direction: column;
         display: flex;
         gap: 20%;
         justify-content: space-around;
@@ -66,7 +83,7 @@
             font-size: 0.8rem;
         }
 
-        #configuracionEjercicios button[type="submit"], .btn-iniciar-ejercicios {
+    .btn-iniciar-ejercicios {
             color: white;
             padding: 1.2rem 1rem;
             font-size: 1.1rem;
@@ -80,7 +97,7 @@
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
         }
 
-            #configuracionEjercicios button[type="submit"]:hover, .btn-iniciar-ejercicios {
+    .btn-iniciar-ejercicios {
                 background: #2ecc71;
                 transform: translateY(-2px);
                 box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
@@ -95,6 +112,15 @@
         gap: 1.5rem;
         justify-self: center;
         width: 80%;
+    }
+
+    .campos {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 20%;
+        justify-content: center;
+        align-items: flex-start;
     }
 
     .btn-dashboard {
@@ -148,29 +174,38 @@
             gap: 0;
         }
 
-        #configuracionEjercicios button,
-        .btn-dashboard, .btn-iniciar-ejercicios {
+        .btn-iniciar-ejercicios,
+        .btn-dashboard {
             font-size: 0.9rem;
         }
 
         h2 {
             font-size: 1.4rem;
         }
+
+        .form-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .campos {
+            flex-direction: column;
+        }
     }
 </style>
 
-<div class="dashboard-button-wrapper">
-    <form method="get" asp-controller="Dashboard" asp-action="Memorizacion">
-        <button type="submit" class="btn-dashboard">
-            <i class="fas fa-home"></i> Regresar al dashboard
-        </button>
-    </form>
-    <h2>Ajustes parejas de memoria</h2>
-</div>
 
 <form id="configuracionEjercicios" @* method="post" asp-controller="Memorizacion" asp-action="ConcentracionNumeroFigura" *@>
 
-    <div>
+
+    <div class="form-header">
+        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+        <h2>Ajustes Parejas de Memoria</h2>
+    </div>
+
+    <div class="campos">
 
         <div>
             <label asp-for="CantidadEjercicios"></label>
@@ -258,14 +293,10 @@
  *@
 </form>
 
-@* @section Scripts {
+@section Scripts {
     <script>
-        window.addEventListener('load', function () {
-            const form = document.getElementById('configuracionEjercicios');
-            if (form) {
-                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
+        function regresarAlDashboard() {
+              window.location.href = '@Url.Action("Memorizacion", "Dashboard")';
+          }
     </script>
-} 
- *@
+}

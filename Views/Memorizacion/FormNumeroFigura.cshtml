@@ -20,17 +20,34 @@
         font-size: clamp(1.4rem, 2vw, 1.7rem);
     }
 
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+        width: 100%;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: white;
+        }
+
     #configuracionEjercicios {
         width: 90%;
         max-width: 80%;
-        margin: 0 auto 2rem auto;
+        margin: 2rem auto 2rem auto;
         padding: 1.4rem;
         border-radius: 1rem;
         background-color: var(--bg-color);
         box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
         color: var(--color-light);
         animation: fadeIn 0.4s ease;
-        flex-direction: row;
+        flex-direction: column;
         display: flex;
         gap: 20%;
         justify-content: space-around;
@@ -97,6 +114,15 @@
         width: 80%;
     }
 
+    .campos {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 20%;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
     .btn-dashboard {
         background-color: var(--color-primary);
         color: white;
@@ -156,112 +182,118 @@
         h2 {
             font-size: 1.4rem;
         }
+
+        .form-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .campos {
+            flex-direction: column;
+        }
     }
 </style>
 
-<div class="dashboard-button-wrapper">
-    <form method="get" asp-controller="Dashboard" asp-action="Memorizacion">
-        <button type="submit" class="btn-dashboard">
-            <i class="fas fa-home"></i> Regresar al dashboard
-        </button>
-    </form>
-    <h2>Ajustes Asociación Número - Figura</h2>
-</div>
 
 <form id="configuracionEjercicios" method="post" asp-controller="Memorizacion" asp-action="ConcentracionNumeroFigura">
 
-    <div>
-
-        <div>
-            <label asp-for="CantidadEjercicios"></label>
-            <input asp-for="CantidadEjercicios" type="number" min="1" max="100"/>
-            @* <span asp-validation-for="CantidadEjercicios" class="text-danger"></span> *@
-            <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
-        </div>
-
-        <div>
-            <label asp-for="TipoPregunta"></label>
-            <select asp-for="TipoPregunta">
-                <option value="NumFig" selected>Número - Figura</option>
-                <option value="FigNum">Figura - Número</option>
-            </select>
-            @* <span asp-validation-for="TipoPregunta" class="text-danger"></span> *@
-        </div>
-
-        <div>
-            <label asp-for="NumeroDigitos"></label>
-
-            <select asp-for="NumeroDigitos">
-                <option value="1" selected>1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-
-            @* <span asp-validation-for="NumeroDigitos" class="text-danger"></span> *@
-            <small>Selecciona el número de dígitos que se asociarán por pantalla</small>
-        </div>
-
+    <div class="form-header">
+        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+        <h2>Ajustes Asociación Número - Figura</h2>
     </div>
 
-
-
-    <div>
-
+    <div class="campos">
         <div>
-            <label asp-for="VelocidadPreguntas"></label>
 
-            <select asp-for="VelocidadPreguntas">
-                <option value="0" selected>0 (sin límite)</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-            </select>
+            <div>
+                <label asp-for="CantidadEjercicios"></label>
+                <input asp-for="CantidadEjercicios" type="number" min="1" max="100" />
+                @* <span asp-validation-for="CantidadEjercicios" class="text-danger"></span> *@
+                <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
+            </div>
 
-            @* <span asp-validation-for="VelocidadPreguntas" class="text-danger"></span> *@
-            <small>Selecciona el tiempo que se mostrará cada ejercicio. 0 = sin límite.</small>
+            <div>
+                <label asp-for="TipoPregunta"></label>
+                <select asp-for="TipoPregunta">
+                    <option value="NumFig" selected>Número - Figura</option>
+                    <option value="FigNum">Figura - Número</option>
+                </select>
+                @* <span asp-validation-for="TipoPregunta" class="text-danger"></span> *@
+            </div>
+
+            <div>
+                <label asp-for="NumeroDigitos"></label>
+
+                <select asp-for="NumeroDigitos">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+
+                @* <span asp-validation-for="NumeroDigitos" class="text-danger"></span> *@
+                <small>Selecciona el número de dígitos que se asociarán por pantalla</small>
+            </div>
+
         </div>
 
-        <div>
-            <label asp-for="TiempoMeditacion"></label>
-            <select asp-for="TiempoMeditacion">
-                <option value="0" selected>0 (sin concentración)</option>
-                <option value="3">3</option>
-                <option value="5">5</option>
-                <option value="8">8</option>
-                <option value="10">10</option>
-            </select>
-            @* <span asp-validation-for="TiempoMeditacion" class="text-danger"></span> *@
-        </div>
 
-        <button type="submit">🤖 Iniciar Ejercicios de Memorización</button>
+
+        <div>
+
+            <div>
+                <label asp-for="VelocidadPreguntas"></label>
+
+                <select asp-for="VelocidadPreguntas">
+                    <option value="0" selected>0 (sin límite)</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                </select>
+
+                @* <span asp-validation-for="VelocidadPreguntas" class="text-danger"></span> *@
+                <small>Selecciona el tiempo que se mostrará cada ejercicio. 0 = sin límite.</small>
+            </div>
+
+            <div>
+                <label asp-for="TiempoMeditacion"></label>
+                <select asp-for="TiempoMeditacion">
+                    <option value="0" selected>0 (sin concentración)</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                </select>
+                @* <span asp-validation-for="TiempoMeditacion" class="text-danger"></span> *@
+            </div>
+
+            <button type="submit">🤖 Iniciar Ejercicios de Memorización</button>
+        </div>
     </div>
 
 </form>
 
-@* @section Scripts {
+@section Scripts {
     <script>
-        window.addEventListener('load', function () {
-            const form = document.getElementById('configuracionEjercicios');
-            if (form) {
-                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
+       function regresarAlDashboard() {
+             window.location.href = '@Url.Action("Memorizacion", "Dashboard")';
+         }
     </script>
 } 
- *@
