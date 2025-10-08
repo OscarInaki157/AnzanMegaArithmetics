@@ -10,23 +10,25 @@
                 @ViewBag.FraseBienvenida
             </div>
             <img src="/Content/Images/ProfS.png" alt="Profesor saludando" />
-            <p class="names" style="color:#ffffff; font-size:1.5rem; position: absolute; top: 25%; left: 30%;"><strong>Jerry</strong></p>
+            <p class="names"><strong>Jerry</strong></p>
         </div>
     </div>
     <div class="user-info-card">
+        <p><strong>Licencia @ViewBag.Licencia</strong></p>
+        <p>Última conexión: @ViewBag.UltimaCnx</p>
         <p><i class="fa-solid fa-user-tie"></i>@ViewBag.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Clase:</strong> @ViewBag.Clase</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", ViewBag.Clases)</p>
         @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> Gamertag</p>
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @ViewBag.Gamer_Tag</p>
         <div class="contenedorR">
             <div class="R3">
-                <p class="txt"><strong>🔥<br />1</strong></p>
+                <p class="txt"><strong>🔥<br />@ViewBag.Racha</strong></p>
             </div>
             <div class="R2">
-                <p class="txt"><strong>🎖️<br />Plata</strong></p>
+                <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
             </div>
             <div class="R1">
-                <p class="txt"><strong>✨<br /><span id="xp-counter">0</span>XP</strong></p>
+                <p class="txt"><strong>✨<br /><span id="xp-counter">@ViewBag.Exp</span>XP</strong></p>
             </div>
         </div>
     </div>

@@ -206,7 +206,7 @@
             color: #ffffff;
             font-size: 2rem;
             position: absolute;
-            top: 25%;
+            top: 33%;
             left: 30%;
         }
 
@@ -878,13 +878,17 @@
                     <li>
                         <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li>
-                    <li>
-                        <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
-                            <i class="fa fa-graduation-cap"></i> Panel de conferencias
-                        </a>
-                    </li>
-                    <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
-                    <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
+
+                    @if (ViewBag.Rol != "Alumno")
+                    {
+                        <li>
+                            <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
+                                <i class="fa fa-graduation-cap"></i> Panel de conferencias
+                            </a>
+                        </li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
+                    }
                 </ul>
 
             </nav>
@@ -902,7 +906,7 @@
     </footer>
 
     <script>
-                document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {
             // Manejo del sidebar
             const hamburgerBtn = document.getElementById('hamburger-btn');
             const sidebar = document.querySelector('.dashboard-sidebar');
@@ -984,7 +988,7 @@
             // Contador de XP
             const xpElement = document.getElementById("xp-counter");
             if (xpElement) {
-                const targetXP = 1872;
+                const targetXP = @ViewBag.Exp;
                 const duration = 2000;
                 const frameRate = 60;
                 const totalFrames = Math.round((duration / 1000) * frameRate);
@@ -1006,19 +1010,19 @@
 
             // Protección (opcional)
             
-             document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-             });
+             // document.addEventListener('contextmenu', function(e) {
+             //    e.preventDefault();
+             // });
 
-             document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-             });
+             // document.addEventListener('keydown', function(e) {
+             //     if (
+             //         e.key === 'F12' ||
+             //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+             //         (e.ctrlKey && e.key === 'U')
+             //     ) {
+             //         e.preventDefault();
+             //     }
+             // });
             
         });
     </script>

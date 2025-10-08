@@ -4,15 +4,17 @@ namespace AnzanMegaArithmetics.Models
 {
     public class LoginResponseModel
     {
-        [Required]
         public int Id_Usuario { get; set; }
-        [Required]
-        public string Clase { get; set; } = string.Empty;
-        [Required]
-        public string Nombre { get; set; } = string.Empty;
-        [Required]
-        public string Usuario { get; set; } = string.Empty;
-        [Required]
-        public string Rol { get; set; } = string.Empty;
+        public string Id_Rol {  get; set; }
+        public string Nombre { get; set; }
+        public string Correo { get; set; }
+        public string Gamer_Tag { get; set; }
+        public List<string> Clases { get; set; } = new List<string>();
+
+        //campos para la vista
+        public int Racha { get; set; }
+        public int Exp {  get; set; }
+        public DateTime Ultima_Cnx { get; set; }
+        public string Licencia { get; set; }
     }
 }

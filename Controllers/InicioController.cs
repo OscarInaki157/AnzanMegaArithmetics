@@ -44,20 +44,37 @@ namespace AnzanMegaArithmetics.Controllers
 
             LoginResponseModel response = _usersDBService.ValidateLogin(user, pass);
 
-            if (response.Usuario.Contains("Error al validar") || response.Usuario.Contains("No hay coincidencias"))
+            if (response.Gamer_Tag.Contains("Error al validar") || response.Gamer_Tag.Contains("No hay coincidencias") || 
+                response.Licencia.Contains("Vencida") || response.Licencia.Contains("Sin Licencia"))
             {
-                ViewBag.ErrorMessage = "Verifica tu conexión, señales débiles o inexistentes.";
+
+                string mensajeError = response.Gamer_Tag.Contains("Error al validar") || response.Gamer_Tag.Contains("No hay coincidencias")
+           ? "Error al validar, usuario no encontrado."
+           : "Tu licencia no está activa. Contacta al administrador.";
+
+                ViewBag.ErrorMessage = mensajeError;
+
                 return View("Login");
             }
+
+            //actualizar ultima conexion del chabon
+
+            bool cnx = _usersDBService.UltimaConexion(response);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, response.Id_Usuario.ToString()),
                 new Claim(ClaimTypes.Name, response.Nombre),
-                new Claim(ClaimTypes.Role, response.Rol),
-                new Claim("Clase", response.Clase),
-                new Claim("Usuario", response.Usuario)
+                new Claim(ClaimTypes.Role, response.Id_Rol),
+                new Claim("Usuario", response.Gamer_Tag),
+                new Claim("Correo", response.Correo),
+                new Claim("Racha", response.Racha.ToString()),
+                new Claim("Exp", response.Exp.ToString()),
+                new Claim("UltimaCnx", response.Ultima_Cnx.ToString("yyyy-MM-dd HH:mm:ss")),
+                new Claim("Licencia", response.Licencia)
             };
+
+            claims.Add(new Claim("Clases", string.Join(",", response.Clases)));
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
