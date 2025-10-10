@@ -12,6 +12,20 @@ namespace AnzanMegaArithmetics.Controllers
         {
         }
 
+        public IActionResult MiPerfil() 
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            SetViewBag(userInfo);
+            SetFraseBienvenida(userInfo.Nombre);
+
+            return View();
+        }
+
         public IActionResult Dashboard()
         {
             var userInfo = GetUserInfo();

@@ -1,0 +1,924 @@
+﻿@{
+    ViewBag.Title = "Mi perfil";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="dashboard-top">
+    <!-- Nueva sección de bienvenida -->
+    <div class="user-welcome-card">
+        <div class="welcome-container">
+            <div class="profile-circle">
+                <img src="/Content/Images/ProfS.png" alt="Foto de perfil" />
+            </div>
+            <h2 class="welcome-message">¡Hola @ViewBag.Nombre!</h2>
+            <p><i class="fas fa-envelope"></i> @ViewBag.Correo</p>
+            <p class="welcome-subtitle">Bienvenido a tu perfil</p>
+        </div>
+    </div>
+
+    <!-- Contenedor existente de información del usuario -->
+    <div class="user-info-card">
+        <p><strong>Licencia @ViewBag.Licencia</strong></p>
+        <p>Última conexión: @ViewBag.UltimaCnx</p>
+        <p><i class="fa-solid fa-user-tie"></i>@ViewBag.Nombre</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", ViewBag.Clases)</p>
+        @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @ViewBag.Gamer_Tag</p>
+        <div class="contenedorR">
+            <div class="R3">
+                <p class="txt"><strong>🔥<br />@ViewBag.Racha</strong></p>
+            </div>
+            <div class="R2">
+                <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
+            </div>
+            <div class="R1">
+                <p class="txt"><strong>✨<br /><span id="xp-counter">@ViewBag.Exp</span>XP</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Segunda fila: Avatares y Top Globales -->
+<div class="dashboard-bottom">
+    <!-- Contenedor de Avatares -->
+    <div class="avatars-container">
+        <h2 class="avatars-title">Mis Avatares</h2>
+        <div class="avatars-grid">
+
+            <div class="avatar-item unlocked">
+                <div class="avatar-icon">
+                    <img src="/Content/Images/ProfS.png" alt="Avatar Jerry" />
+                </div>
+                <p class="avatar-name">Jerry</p>
+            </div>
+
+            <div class="avatar-item locked">
+                <div class="avatar-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <p class="avatar-name">???</p>
+            </div>
+
+            <div class="avatar-item locked">
+                <div class="avatar-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <p class="avatar-name">???</p>
+            </div>
+
+        </div>
+
+        <!-- Nueva sección de Eventos -->
+        <div class="events-section">
+            <h3 class="events-title">📅 Eventos</h3>
+            <div class="event-card locked">
+                <div class="event-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="event-content">
+                    <h4 class="event-name">Próximamente</h4>
+                    <p class="event-description">Nuevos eventos emocionantes se avecinan</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla Top Globales -->
+    <div class="global-ranking-container">
+        <div class="ranking-header">
+            <h2 class="ranking-title">🏆 Top Globales</h2>
+            <div class="ranking-subtitle">Los jugadores con más experiencia en la plataforma</div>
+        </div>
+
+        <div class="ranking-table">
+            <div class="table-header">
+                <div class="rank-col">#</div>
+                <div class="player-col">Jugador</div>
+                <div class="xp-col">Experiencia</div>
+                <div class="badge-col">Nivel</div>
+            </div>
+
+            <div class="table-body">
+                <!-- Jugador 1 -->
+                <div class="table-row top-1">
+                    <div class="rank-col">
+                        <span class="rank-badge gold">1</span>
+                    </div>
+                    <div class="player-col">
+                        <div class="player-info">
+
+                            <div class="player-details">
+                                <div class="player-name">Luis Fernando Herrera Aparicio</div>
+                                <div class="player-tag">PsyDestroyer69</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xp-col">
+                        <div class="xp-amount">999,999 XP</div>
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="badge-col">
+                        <div class="level-badge dark-matter">☄️ Materia Oscura</div>
+                    </div>
+                </div>
+
+                <!-- Jugador 2 -->
+                <div class="table-row top-2">
+                    <div class="rank-col">
+                        <span class="rank-badge silver">2</span>
+                    </div>
+                    <div class="player-col">
+                        <div class="player-info">
+
+                            <div class="player-details">
+                                <div class="player-name">Oscar Iñaki Gómez</div>
+                                <div class="player-tag">OscarInaki157</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xp-col">
+                        <div class="xp-amount">149,403 XP</div>
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="badge-col">
+                        <div class="level-badge diamond">💎 Diamante I</div>
+                    </div>
+                </div>
+
+                <!-- Jugador 3 -->
+                <div class="table-row top-3">
+                    <div class="rank-col">
+                        <span class="rank-badge bronze">3</span>
+                    </div>
+                    <div class="player-col">
+                        <div class="player-info">
+
+                            <div class="player-details">
+                                <div class="player-name">MathWizard</div>
+                                <div class="player-tag">MathWizard</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xp-col">
+                        <div class="xp-amount">132,831 XP</div>
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="badge-col">
+                        <div class="level-badge gold">🥇 Oro II</div>
+                    </div>
+                </div>
+
+                <!-- Jugador 4 -->
+                <div class="table-row">
+                    <div class="rank-col">
+                        <span class="rank-number">4</span>
+                    </div>
+                    <div class="player-col">
+                        <div class="player-info">
+
+                            <div class="player-details">
+                                <div class="player-name">CodeNinja</div>
+                                <div class="player-tag">CodeNinja</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xp-col">
+                        <div class="xp-amount">50,000 XP</div>
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 55%"></div>
+                        </div>
+                    </div>
+                    <div class="badge-col">
+                        <div class="level-badge silver">🥈 Plata I</div>
+                    </div>
+                </div>
+
+                <!-- Jugador 5 (Tú) -->
+                <div class="table-row current-user">
+                    <div class="rank-col">
+                        <span class="rank-number">147</span>
+                    </div>
+                    <div class="player-col">
+                        <div class="player-info">
+
+                            <div class="player-details">
+                                <div class="player-name">@ViewBag.Nombre</div>
+                                <div class="player-tag">@ViewBag.Gamer_Tag</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xp-col">
+                        <div class="xp-amount">@ViewBag.Exp XP</div>
+                        <div class="xp-bar">
+                            <div class="xp-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="badge-col">
+                        <div class="level-badge bronze">🥉 Bronce I</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ranking-footer">
+            <button class="view-all-btn">
+                <i class="fas fa-trophy"></i>
+                Ver ranking completo
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .dashboard-bottom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    /* Nuevo contenedor de bienvenida */
+    .user-welcome-card {
+        width: calc(50% - 0.5rem);
+        background-color: var(--color-card-bg);
+        color: var(--color-light);
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .welcome-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .profile-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--color-primary);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .profile-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .welcome-message {
+        font-size: 1.8rem;
+        margin: 0;
+        color: var(--color-light);
+        font-weight: 600;
+    }
+
+    .welcome-subtitle {
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    /* Contenedor existente de información del usuario */
+    .user-info-card {
+        width: calc(50% - 0.5rem);
+        background-color: var(--color-card-bg);
+        color: var(--color-light);
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border-radius: 1rem;
+        gap: 1rem;
+        font-size: 1.1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    /* ===== CONTENEDOR DE AVATARES ===== */
+    .avatars-container {
+        width: calc(50% - 0.5rem);
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: var(--color-light);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    /* Nueva sección de Eventos */
+    .events-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+    }
+
+    .events-title {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        color: var(--color-light);
+    }
+
+    .event-card {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem;
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        gap: 1rem;
+    }
+
+        .event-card.locked {
+            background-color: rgba(59, 60, 143, 0.3);
+            border: 2px dashed var(--color-hover);
+        }
+
+    .event-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .event-card.locked .event-icon {
+        background-color: var(--color-sidebar);
+        color: var(--color-light);
+        font-size: 1.5rem;
+    }
+
+    .event-content {
+        flex-grow: 1;
+    }
+
+    .event-name {
+        font-size: 1.1rem;
+        margin: 0 0 0.3rem 0;
+        font-weight: 600;
+    }
+
+    .event-description {
+        font-size: 0.9rem;
+        margin: 0;
+        color: #a0a0c0;
+    }
+
+    .event-card.locked .event-name {
+        color: #a0a0c0;
+    }
+
+    .global-ranking-container {
+        width: calc(50% - 0.5rem);
+        margin-top: 0;
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: var(--color-light);
+    }
+
+    /* Responsive para móviles */
+    @@media (max-width: 768px) {
+        .dashboard-top {
+            flex-direction: column;
+        }
+
+        .dashboard-bottom {
+            flex-direction: column;
+        }
+
+        .user-welcome-card,
+        .user-info-card,
+        .avatars-container,
+        .global-ranking-container {
+            width: 100%;
+        }
+
+        .welcome-message {
+            font-size: 1.5rem;
+        }
+
+        .profile-circle {
+            width: 100px;
+            height: 100px;
+        }
+
+        .events-section {
+            margin-top: 1.5rem;
+            padding-top: 1.2rem;
+        }
+
+        .event-card {
+            padding: 1rem;
+        }
+
+        .event-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.3rem;
+        }
+    }
+
+    /* Resto de estilos existentes se mantienen igual */
+    .avatars-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .avatars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .avatar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .avatar-item.locked {
+            background-color: rgba(59, 60, 143, 0.3);
+            border: 2px dashed var(--color-hover);
+        }
+
+        .avatar-item.unlocked {
+            background-color: rgba(76, 76, 255, 0.2);
+            border: 2px solid var(--color-primary);
+        }
+
+    .avatar-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        overflow: hidden;
+    }
+
+    .avatar-item.locked .avatar-icon {
+        background-color: var(--color-sidebar);
+        color: var(--color-light);
+        font-size: 2rem;
+    }
+
+    .avatar-item.unlocked .avatar-icon {
+        background-color: white;
+    }
+
+    .avatar-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-name {
+        margin: 0;
+        font-size: 1rem;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .avatar-item.locked .avatar-name {
+        color: #a0a0c0;
+    }
+
+    .avatar-item.unlocked .avatar-name {
+        color: var(--color-light);
+    }
+
+    .ranking-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ranking-title {
+        font-size: 1.8rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .ranking-subtitle {
+        font-size: 0.9rem;
+        color: #a0a0c0;
+        font-weight: 500;
+    }
+
+    .ranking-table {
+        width: 100%;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 60px 1fr 120px 100px;
+        gap: 1rem;
+        padding: 0.8rem 1rem;
+        background-color: rgba(59, 60, 143, 0.3);
+        border-radius: 0.8rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-primary);
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 60px 1fr 120px 100px;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 0.8rem;
+        background-color: rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+        .table-row:hover {
+            background-color: rgba(76, 76, 255, 0.1);
+            border-color: rgba(76, 76, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .table-row.top-1 {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .table-row.top-2 {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
+            border: 1px solid rgba(192, 192, 192, 0.3);
+        }
+
+        .table-row.top-3 {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.05));
+            border: 1px solid rgba(205, 127, 50, 0.3);
+        }
+
+        .table-row.current-user {
+            background: linear-gradient(135deg, rgba(76, 76, 255, 0.2), rgba(76, 76, 255, 0.1));
+            border: 2px solid var(--color-primary);
+            position: relative;
+        }
+
+            .table-row.current-user::before {
+                content: "Tú";
+                position: absolute;
+                background: var(--color-primary);
+                color: white;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 0.7rem;
+                font-weight: 600;
+            }
+
+    .rank-col {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+        .rank-badge.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            color: #000;
+            box-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+        }
+
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #CD7F32, #A56C2C);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+        }
+
+    .rank-number {
+        font-weight: 600;
+        color: var(--color-light);
+    }
+
+    .player-col {
+        display: flex;
+        align-items: center;
+    }
+
+    .player-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+        border: 2px solid rgba(76, 76, 255, 0.5);
+    }
+
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .user-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: var(--color-primary);
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+    }
+
+    .player-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .player-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+
+    .player-tag {
+        font-size: 0.8rem;
+        color: #a0a0c0;
+    }
+
+    .xp-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.3rem;
+    }
+
+    .xp-amount {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-primary);
+    }
+
+    .xp-bar {
+        width: 100%;
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .xp-progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), #6233b8);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .badge-col {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .level-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        min-width: 80px;
+    }
+
+        .level-badge.dark-matter {
+            background: linear-gradient(135deg, #2d1b69, #1a1033, #000000);
+            color: #00ffea;
+            border: 1px solid #6a0dad;
+            box-shadow: 0 0 15px rgba(106, 13, 173, 0.6), inset 0 0 10px rgba(0, 255, 234, 0.2);
+            text-shadow: 0 0 10px #00ffea;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .level-badge.dark-matter::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 234, 0.1) 50%, transparent 70%);
+                animation: dark-matter-shine 3s infinite linear;
+            }
+
+    @@keyframes dark-matter-shine {
+        0% {
+            transform: rotate(0deg) translateX(-50%);
+        }
+
+        100% {
+            transform: rotate(360deg) translateX(-50%);
+        }
+    }
+
+    .level-badge.diamond {
+        background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+        color: #0066cc;
+    }
+
+    .level-badge.platinum {
+        background: linear-gradient(135deg, #e5e4e2, #b6b6b4);
+        color: #555555;
+    }
+
+    .level-badge.gold {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #8b6508;
+    }
+
+    .level-badge.silver {
+        background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+        color: #4a4a4a;
+    }
+
+    .level-badge.bronze {
+        background: linear-gradient(135deg, #cd7f32, #a56c2c);
+        color: #fff;
+    }
+
+    .ranking-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .view-all-btn {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .view-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 76, 255, 0.4);
+        }
+
+    /* Responsive para tablets y móviles */
+    @@media (max-width: 1024px) {
+        .avatars-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .table-header,
+        .table-row {
+            grid-template-columns: 50px 1fr 100px 90px;
+            gap: 0.8rem;
+            padding: 0.8rem;
+        }
+
+        .player-avatar {
+            width: 35px;
+            height: 35px;
+        }
+
+        .player-name {
+            font-size: 0.9rem;
+        }
+
+        .level-badge {
+            font-size: 0.7rem;
+            min-width: 70px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .avatars-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+        }
+
+        .avatar-icon {
+            width: 70px;
+            height: 70px;
+        }
+
+        .avatar-item.locked .avatar-icon {
+            font-size: 1.7rem;
+        }
+
+        .table-header,
+        .table-row {
+            grid-template-columns: 45px 1fr 90px 80px;
+            gap: 0.6rem;
+            padding: 0.7rem;
+        }
+
+        .ranking-title {
+            font-size: 1.6rem;
+        }
+
+        .player-info {
+            gap: 0.6rem;
+        }
+
+        .player-avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .player-name {
+            font-size: 0.85rem;
+        }
+
+        .player-tag {
+            font-size: 0.75rem;
+        }
+
+        .xp-amount {
+            font-size: 0.8rem;
+        }
+
+        .level-badge {
+            font-size: 0.65rem;
+            min-width: 65px;
+            padding: 0.2rem 0.4rem;
+        }
+    }
+</style>
