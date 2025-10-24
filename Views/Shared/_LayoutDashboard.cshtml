@@ -894,7 +894,11 @@
                     }
                     @if (ViewBag.Rol == "Admin" || ViewBag.Rol == "Master")
                     {
-                        <li><a href="#"><i class="fas fa-chart-line"></i> Panel Admin</a></li>
+                        <li>
+                            <a href="@Url.Action("PanelAdministrador", "Dashboard")" id="admini">
+                                <i class="fas fa-chart-line"></i> Panel Admin
+                            </a>
+                        </li>
                     }
                 </ul>
 
@@ -922,6 +926,7 @@
             const panel = document.getElementById('Conf');
             const memos = document.getElementById('Memos');
             const perf = document.getElementById('Perfil');
+            const admin = document.getElementById('admini');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -941,7 +946,7 @@
                     Chal.classList.add('active');
                 }
             }
-            if (pageTitle.includes('Panel')) {
+            if (pageTitle.includes('onfere')) {
                 if (panel) {
                     panel.classList.add('active');
                 }
@@ -954,6 +959,11 @@
             if (pageTitle.includes('erfil')) {
                 if (perf) {
                     perf.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('dmin')) {
+                if (admin) {
+                    admin.classList.add('active');
                 }
             }
 
@@ -1023,19 +1033,19 @@
 
             // Protección (opcional)
             
-             document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-             });
+             // document.addEventListener('contextmenu', function(e) {
+             //    e.preventDefault();
+             // });
 
-             document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-             });
+             // document.addEventListener('keydown', function(e) {
+             //     if (
+             //         e.key === 'F12' ||
+             //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+             //         (e.ctrlKey && e.key === 'U')
+             //     ) {
+             //         e.preventDefault();
+             //     }
+             // });
             
         });
     </script>

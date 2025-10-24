@@ -7,15 +7,39 @@ using System.Security.Claims;
 namespace AnzanMegaArithmetics.Controllers
 {
     [Authorize]
-    public class DashboardController : Controller
+    public class AdminController : Controller
     {
-        private readonly IUsersDBService usersDBService;
-        public DashboardController(IUsersDBService usersDBService)
+        //instanciar clase de users service
+        private readonly IUsersDBService _usersDBService;
+
+        public AdminController(IUsersDBService usersDBService)
         {
-            this.usersDBService = usersDBService;
+            _usersDBService = usersDBService;
         }
 
-        public IActionResult MiPerfil() 
+        public IActionResult AdminUsers()
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            //recuperar todos los usuarios
+            ListUsersModel usuarios;
+            try 
+            {
+                usuarios = _usersDBService.ObtenerUsuarios();
+            } catch (Exception ex) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            SetViewBag(userInfo);
+            return View(usuarios);
+        }
+
+        public IActionResult AdminClases()
         {
             var userInfo = GetUserInfo();
             if (userInfo.Id_Usuario == 0)
@@ -24,82 +48,7 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
             return View();
-        }
-
-        public IActionResult Dashboard()
-        {
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
-        }
-
-        public IActionResult Desafios()
-        {
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
-        }
-
-        public IActionResult Conferencias()
-        {
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
-        }
-
-        public IActionResult Memorizacion()
-        {
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
-        }
-
-        public IActionResult PanelAdministrador()
-        {
-            int usersCount = usersDBService.ListarUsersTotales();
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            ViewBag.UsersCount = usersCount;
-
-            return View(usersCount);
         }
 
         private LoginResponseModel GetUserInfo()
@@ -125,7 +74,7 @@ namespace AnzanMegaArithmetics.Controllers
                 Racha = racha,
                 Exp = exp,
                 Ultima_Cnx = ultimaCnx,
-                Licencia= User.FindFirst("Licencia")?.Value
+                Licencia = User.FindFirst("Licencia")?.Value
             };
         }
 
@@ -138,29 +87,12 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.Correo = userInfo.Correo;
             ViewBag.Clases = userInfo.Clases;
             ViewBag.PrimeraClase = userInfo.Clases.FirstOrDefault() ?? "Sin clase asignada";
-
             ViewBag.Racha = userInfo.Racha;
             ViewBag.Exp = userInfo.Exp;
             ViewBag.UltimaCnx = userInfo.Ultima_Cnx.ToString("dd/MM/yyyy HH:mm");
-
             ViewBag.Licencia = userInfo.Licencia;
         }
 
-        private void SetFraseBienvenida(string nombre)
-        {
-            var frases = new List<string>
-            {
-                $"¡Hola {nombre}, bienvenido a Mentes México!",
-                $"¡{nombre}, hoy es un gran día para aprender!",
-                $"¡Tu mente es poderosa, {nombre}!",
-                $"¡Listo para un nuevo desafío, {nombre}!",
-                $"¡Vamos a hacer magia con los números, {nombre}!",
-                $"¡Cada clic te acerca a la maestría, {nombre}!"
-            };
 
-            var random = new Random();
-            int index = random.Next(frases.Count);
-            ViewBag.FraseBienvenida = frases[index];
-        }
     }
 }

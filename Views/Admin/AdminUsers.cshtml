@@ -1,0 +1,1607 @@
+﻿@model AnzanMegaArithmetics.Models.ListUsersModel
+@{
+    ViewBag.Title = "Panel Administrador";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <a href="@Url.Action("PanelAdministrador", "Dashboard")" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Regresar
+        </a>
+    </div>
+
+  
+    <div class="filter-section">
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="clase-filter">Filtrar por clase:</label>
+                <select id="clase-filter" class="filter-select">
+                    <option value="">Todas las clases</option>
+                    @foreach (var clase in Model.Clases)
+                    {
+                       
+                        <option value="@clase.Nombre">@clase.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="rol-filter">Filtrar por rol:</label>
+                <select id="rol-filter" class="filter-select">
+                    <option value="">Todos los roles</option>
+                    @foreach (var rol in Model.Roles)
+                    {
+                        <option value="@rol.Rol">@rol.Rol</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="experiencia-filter">Filtrar por experiencia:</label>
+                <select id="experiencia-filter" class="filter-select">
+                    <option value="">Toda la experiencia</option>
+                    <option value="0-1000">0 - 1,000 XP</option>
+                    <option value="1001-5000">1,001 - 5,000 XP</option>
+                    <option value="5001-10000">5,001 - 10,000 XP</option>
+                    <option value="10001+">Más de 10,000 XP</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <button id="clear-filters" class="clear-filters-button">
+                    <i class="fas fa-times"></i>
+                    Limpiar Filtros
+                </button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="user-search" placeholder="Buscar usuario..." class="search-input">
+                <button class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-section">
+        <button class="add-user-button">
+            <i class="fas fa-plus"></i>
+            Agregar Nuevo Usuario
+        </button>
+    </div>
+
+    
+    <div class="users-table-container">
+        <div class="table-header">
+            <div class="col-id">ID</div>
+            <div class="col-rol">Rol</div>
+            <div class="col-name">Nombre</div>
+            <div class="col-email">Correo</div>
+            <div class="col-gamertag">Gamertag</div>
+            <div class="col-password">Contraseña</div>
+            <div class="col-activo">Activo</div>
+            <div class="col-racha">Racha</div>
+            <div class="col-exp">Exp</div>
+            <div class="col-ultimacnx">Última Conexión</div>
+            <div class="col-licencia">Licencia</div>
+            <div class="col-clases">Clases</div>
+            <div class="col-actions">Acciones</div>
+        </div>
+
+        <div class="table-body">
+            @foreach (var usuario in Model.UsuariosFinales)
+            {
+                <div class="table-row">
+                    <div class="col-id">@usuario.Id_Usuario.ToString("D3")</div>
+
+                    <div class="col-rol">
+                        <span class="rol-badge">@usuario.Id_Rol</span>
+                    </div>
+
+                    <div class="col-name">
+                        <div class="user-info">
+                            <div class="user-details">
+                                <div class="user-fullname">@usuario.Nombre</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-email">@usuario.Correo</div>
+
+                    <div class="col-gamertag">
+                        <span class="gamertag-badge">@usuario.Gamer_Tag</span>
+                    </div>
+
+                    <div class="col-password">
+                        <div class="password-field" data-password="@usuario.Pass">
+                            <i class="fas fa-eye toggle-password"></i>
+                            <span class="password-text">••••••••</span>
+                        </div>
+                    </div>
+
+                    <div class="col-activo">
+                        <span class="status-badge @(usuario.Activo ? "activo" : "inactivo")">
+                            @(usuario.Activo ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+
+                    <div class="col-racha">
+                        <span class="racha-badge">@usuario.Racha</span>
+                    </div>
+
+                    <div class="col-exp">
+                        <div class="xp-display">@usuario.Exp</div>
+                        <div class="xp-bar">
+                            @{
+                                var porcentaje = Math.Min((usuario.Exp / 100000.0) * 100, 100);
+                            }
+                            <div class="xp-progress" style="width: @porcentaje%"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-ultimacnx">
+                        <span class="fecha-text">@usuario.Ultima_Cnx.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+
+                    <div class="col-licencia">
+                        <div class="licencia-fecha">
+                            @usuario.Fecha_Asignacion_Licencia.Value.ToString("dd/MM/yyyy")
+                        </div>
+                        <span class="licencia-badge">@usuario.Licencia</span>
+                        <div class="licencia-fecha">
+                            @usuario.Fecha_Vencimiento_Licencia.Value.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+
+                    <div class="col-clases">
+                        <div class="clases-container">
+                            @foreach (var clase in usuario.Clases)
+                            {
+                                <span class="clase-badge @clase.ToLower().Replace(" ", "")">@clase</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-actions">
+                        <button class="btn-edit"
+                                data-userid="@usuario.Id_Usuario"
+                                data-nombre="@usuario.Nombre"
+                                data-correo="@usuario.Correo"
+                                data-gamertag="@usuario.Gamer_Tag"
+                                data-password="@usuario.Pass"
+                                data-rol="@usuario.Id_Rol"
+                                data-activo="@usuario.Activo"
+                                data-exp="@usuario.Exp"
+                                data-racha="@usuario.Racha"
+                                data-licencia="@usuario.Licencia"
+                                data-fechavencimiento="@usuario.Fecha_Vencimiento_Licencia?.ToString("yyyy-MM-dd")"
+                                data-clases="@string.Join(",", usuario.Clases)">
+                            <i class="fas fa-edit"></i>
+                            Modificar
+                        </button>
+                        <button class="btn-delete" data-userid="@usuario.Id_Usuario">
+                            <i class="fas fa-trash"></i>
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* modificar modal *@
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Modificar Usuario</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editUserForm" class="edit-user-form">
+                <input type="hidden" id="editUserId" name="Id_Usuario">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editNombre">Nombre completo:</label>
+                        <input type="text" id="editNombre" name="Nombre" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCorreo">Correo electrónico:</label>
+                        <input type="email" id="editCorreo" name="Correo" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editGamerTag">Gamertag:</label>
+                        <input type="text" id="editGamerTag" name="Gamer_Tag" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPassword">Contraseña:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="editPassword" name="Pass" class="form-input">
+                            <i class="fas fa-eye toggle-password-input"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editRol">Rol:</label>
+                        <select id="editRol" name="Id_Rol" class="form-select" required>
+                            @foreach (var rol in Model.Roles)
+                            {
+                                <option value="@rol.Id_Rol">@rol.Rol</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editActivo">Estado:</label>
+                        <select id="editActivo" name="Activo" class="form-select" required>
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editExp">Experiencia (XP):</label>
+                        <input type="number" id="editExp" name="Exp" class="form-input" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editRacha">Racha:</label>
+                        <input type="number" id="editRacha" name="Racha" class="form-input" min="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editLicencia">Licencia:</label>
+                        <select id="editLicencia" name="Licencia" class="form-select" required>
+                            @foreach (var lic in Model.Licencias)
+                            {
+                                <option value="@lic.Nombre">@lic.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editFechaVencimiento">Fecha Vencimiento Licencia:</label>
+                        <input type="date" id="editFechaVencimiento" name="Fecha_Vencimiento_Licencia" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Clases asignadas:</label>
+                    <div class="clases-checkbox-container">
+                        @foreach (var clase in Model.Clases)
+                        {
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="Clases" value="@clase.Id_Clase" class="clase-checkbox">
+                                <span class="checkmark"></span>
+                                @clase.Nombre
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">Cancelar</button>
+                    <button type="submit" class="btn-update">
+                        <i class="fas fa-save"></i>
+                        Actualizar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    /* Estilos para la modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: var(--color-card-bg);
+        margin: 2% auto;
+        padding: 0;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @@keyframes modalSlideIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .modal-header {
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 1rem 1rem 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+    .close {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .close:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    /* Estilos del formulario */
+    .edit-user-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+
+    .form-input, .form-select {
+        background-color: var(--color-sidebar);
+        color: var(--color-light);
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(76, 76, 255, 0.2);
+        }
+
+    /* Contenedor para input de contraseña */
+    .password-input-container {
+        position: relative;
+    }
+
+        .password-input-container .form-input {
+            padding-right: 3rem;
+        }
+
+    .toggle-password-input {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-primary);
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    /* Checkboxes para clases */
+    .clases-checkbox-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--color-light);
+    }
+
+    .clase-checkbox {
+        display: none;
+    }
+
+    .checkmark {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(76, 76, 255, 0.5);
+        border-radius: 0.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .checkmark::-webkit-scrollbar{
+        display:none;
+    }
+
+        .checkmark:after {
+            content: "✓";
+            color: white;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+    .clase-checkbox:checked + .checkmark {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        border-color: var(--color-primary);
+    }
+
+        .clase-checkbox:checked + .checkmark:after {
+            opacity: 1;
+        }
+
+    /* Botones del formulario */
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel, .btn-update {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-cancel {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--color-light);
+    }
+
+        .btn-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+    .btn-update {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+    }
+
+        .btn-update:hover {
+            background: linear-gradient(135deg, #00b359, #00994d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+
+    .no-results-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--color-light);
+    }
+
+    .no-results-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .no-results-content i {
+            font-size: 3rem;
+            color: var(--color-primary);
+            opacity: 0.7;
+        }
+
+        .no-results-content h3 {
+            font-size: 1.5rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .no-results-content p {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+    .clear-filters-button {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        margin-top: 1.5rem;
+    }
+
+        .clear-filters-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+    .admin-container {
+        padding: 2rem;
+        color: var(--color-light);
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+   
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+
+    .back-button {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        text-decoration:none;
+    }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 76, 255, 0.4);
+        }
+
+   
+    .filter-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        background-color: var(--color-card-bg);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+    .filter-select {
+        background-color: var(--color-sidebar);
+        color: var(--color-light);
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+        min-width: 150px;
+        transition: all 0.3s ease;
+    }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(76, 76, 255, 0.2);
+        }
+
+    .search-section {
+        flex-shrink: 0;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        background-color: var(--color-sidebar);
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        border-radius: 2rem;
+        padding: 0.3rem;
+        transition: all 0.3s ease;
+    }
+
+        .search-box:focus-within {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(76, 76, 255, 0.2);
+        }
+
+    .search-input {
+        background: transparent;
+        border: none;
+        color: var(--color-light);
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        flex: 1;
+        min-width: 250px;
+    }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: #a0a0c0;
+        }
+
+    .search-button {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .search-button:hover {
+            transform: scale(1.1);
+        }
+
+    .action-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .add-user-button {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .add-user-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+    /* Tabla de usuarios */
+    .users-table-container {
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        overflow-x: auto;
+        min-width: 100%;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 
+        minmax(50px, 60px) /* ID */
+        minmax(70px, 80px) /* Rol */
+        minmax(150px, 1fr) /* Nombre */
+        minmax(170px, 1fr) /* Correo */
+        minmax(130px, 140px) /* Gamertag */
+        minmax(130px, 140px) /* Contraseña */
+        minmax(70px, 80px) /* Activo */
+        minmax(60px, 70px) /* Racha */
+        minmax(80px, 100px) /* Exp */
+        minmax(120px, 140px) /* Última Conexión */
+        minmax(100px, 120px) /* Licencia */
+        minmax(130px, 150px) /* Clases */
+        minmax(200px, 200px); /* Acciones */
+        gap: 0.8rem;
+        padding: 1rem;
+        background-color: rgba(59, 60, 143, 0.3);
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: var(--color-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        min-width: fit-content;
+        text-align:center;
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 
+        minmax(50px, 60px) /* ID */
+        minmax(70px, 80px) /* Rol */
+        minmax(150px, 1fr) /* Nombre */
+        minmax(170px, 1fr) /* Correo */
+        minmax(130px, 140px) /* Gamertag */
+        minmax(130px, 140px) /* Contraseña */
+        minmax(70px, 80px) /* Activo */
+        minmax(60px, 70px) /* Racha */
+        minmax(80px, 100px) /* Exp */
+        minmax(120px, 140px) /* Última Conexión */
+        minmax(100px, 120px) /* Licencia */
+        minmax(130px, 150px) /* Clases */
+        minmax(200px, 200px); /* Acciones */
+        gap: 0.8rem;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        align-items: center;
+        font-size: 0.85rem;
+        min-width: fit-content;
+        z-index:100;
+        justify-content: center;
+        align-items: center;
+        text-align:center;
+    }
+
+        .table-row:hover {
+            background-color: rgba(76, 76, 255, 0.1);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+    .col-id {
+        font-weight: 600;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(76, 76, 255, 0.5);
+    }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-fullname {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+
+    .user-tag {
+        font-size: 0.8rem;
+        color: #a0a0c0;
+    }
+
+    .col-email {
+        font-size: 0.9rem;
+        color: var(--color-light);
+    }
+
+    .clase-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+    }
+
+        .clase-badge.matematicas {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .clase-badge.ciencias {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .clase-badge.programacion {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+            color: white;
+        }
+
+    .gamertag-badge {
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+        display: inline-block;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+    }
+
+        .status-badge.activo {
+            background: linear-gradient(135deg, #00cc66, #00b359);
+            color: white;
+        }
+
+        .status-badge.inactivo {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+        }
+
+    .racha-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #ff9f43, #ff7f00);
+        color: white;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .rol-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+    }
+
+    .fecha-text {
+        font-size: 0.8rem;
+        color: var(--color-light);
+    }
+
+    .password-field {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        font-family: 'Courier New', monospace;
+    }
+
+    .toggle-password {
+        color: var(--color-primary);
+        font-size: 0.8rem;
+    }
+
+    .clases-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        max-height: 100px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .clases-container::-webkit-scrollbar {
+        display: none;
+        }
+
+    .clase-badge {
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .licencia-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+    }
+
+    .licencia-fecha {
+        font-size: 0.7rem;
+        color: #a0a0c0;
+        margin-top: 0.2rem;
+    }
+
+    .rango-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        min-width: 80px;
+    }
+
+        .rango-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32, #a56c2c);
+            color: #fff;
+        }
+
+        .rango-badge.oro {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #8b6508;
+        }
+
+        .rango-badge.diamante {
+            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+            color: #0066cc;
+        }
+
+    .col-experiencia {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .xp-display {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-primary);
+    }
+
+    .xp-bar {
+        width: 100%;
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .xp-progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), #6233b8);
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .col-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-edit, .btn-delete {
+        border: none;
+        padding: 0.5rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #ff8c00, #ff7700);
+            transform: translateY(-1px);
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #ff3742, #ff2e2e);
+            transform: translateY(-1px);
+        }
+
+
+    @@media (max-width: 768px) {
+        .users-table-container {
+            overflow-x: auto;
+        }
+
+        .table-header,
+        .table-row {
+            min-width: 1800px;
+        }
+        .admin-container {
+            padding: 1rem;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .filter-select {
+            min-width: auto;
+            width: 100%;
+        }
+
+        .table-header {
+            display: none;
+        }
+
+        .table-row {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            padding: 1.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+            .table-row::before {
+                content: "Usuario #" attr(data-id);
+                font-weight: 600;
+                color: var(--color-primary);
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+                grid-column: 1;
+            }
+
+        .col-id {
+            display: none;
+        }
+
+        .user-info {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .col-actions {
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .users-table-container {
+            overflow-x: auto;
+        }
+
+        .table-header,
+        .table-row {
+            min-width: 1800px;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 5% auto;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .clases-checkbox-container {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+       // Funcionalidad para filtros y búsqueda
+    document.addEventListener('DOMContentLoaded', function() {
+        const claseFilter = document.getElementById('clase-filter');
+        const rolFilter = document.getElementById('rol-filter');
+        const experienciaFilter = document.getElementById('experiencia-filter');
+        const userSearch = document.getElementById('user-search');
+        const searchButton = document.querySelector('.search-button');
+        const tableRows = document.querySelectorAll('.table-row');
+
+        // Función principal de filtrado
+        function filterUsers() {
+            const claseValue = claseFilter.value;
+            const rolValue = rolFilter.value;
+            const experienciaValue = experienciaFilter.value;
+            const searchValue = userSearch.value.toLowerCase().trim();
+
+            tableRows.forEach(row => {
+                let showRow = true;
+
+                // Filtro por clase
+                if (claseValue && showRow) {
+                    const clasesContainer = row.querySelector('.clases-container');
+                    const hasClase = Array.from(clasesContainer.querySelectorAll('.clase-badge'))
+                        .some(badge => {
+                            const claseId = badge.textContent.trim();
+                            return claseId === claseValue;
+                        });
+                    if (!hasClase) showRow = false;
+                }
+
+                // Filtro por rol
+                if (rolValue && showRow) {
+                    const rolBadge = row.querySelector('.rol-badge');
+                    const userRol = rolBadge.textContent.trim();
+                    if (userRol !== rolValue) showRow = false;
+                }
+
+                // Filtro por experiencia
+                if (experienciaValue && showRow) {
+                    const xpDisplay = row.querySelector('.xp-display');
+                    const userXP = parseInt(xpDisplay.textContent.replace(/,/g, ''));
+
+                    switch(experienciaValue) {
+                        case '0-1000':
+                            if (userXP > 1000) showRow = false;
+                            break;
+                        case '1001-5000':
+                            if (userXP < 1001 || userXP > 5000) showRow = false;
+                            break;
+                        case '5001-10000':
+                            if (userXP < 5001 || userXP > 10000) showRow = false;
+                            break;
+                        case '10001+':
+                            if (userXP < 10001) showRow = false;
+                            break;
+                    }
+                }
+
+                // Filtro por búsqueda
+                if (searchValue && showRow) {
+                    const userName = row.querySelector('.user-fullname').textContent.toLowerCase();
+                    const userEmail = row.querySelector('.col-email').textContent.toLowerCase();
+                    const userGamertag = row.querySelector('.gamertag-badge').textContent.toLowerCase();
+                    const userId = row.querySelector('.col-id').textContent.toLowerCase();
+
+                    const matchesSearch = userName.includes(searchValue) ||
+                                        userEmail.includes(searchValue) ||
+                                        userGamertag.includes(searchValue) ||
+                                        userId.includes(searchValue);
+
+                    if (!matchesSearch) showRow = false;
+                }
+
+                // Mostrar u ocultar la fila
+                row.style.display = showRow ? 'grid' : 'none';
+            });
+
+            // Mostrar mensaje si no hay resultados
+            showNoResultsMessage();
+        }
+
+        // Función para mostrar mensaje cuando no hay resultados
+        function showNoResultsMessage() {
+            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+            const tableBody = document.querySelector('.table-body');
+
+            // Remover mensaje anterior si existe
+            const existingMessage = document.querySelector('.no-results-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            if (visibleRows.length === 0) {
+                const message = document.createElement('div');
+                message.className = 'no-results-message';
+                message.innerHTML = `
+                    <div class="no-results-content">
+                        <i class="fas fa-search"></i>
+                        <h3>No se encontraron usuarios</h3>
+                        <p>Intenta ajustar los filtros o términos de búsqueda</p>
+                    </div>
+                `;
+                tableBody.appendChild(message);
+            }
+        }
+
+        // Event listeners para los filtros
+        claseFilter.addEventListener('change', filterUsers);
+        rolFilter.addEventListener('change', filterUsers);
+        experienciaFilter.addEventListener('change', filterUsers);
+
+        // Event listeners para la búsqueda
+        searchButton.addEventListener('click', filterUsers);
+        userSearch.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterUsers();
+            }
+        });
+
+        // Búsqueda en tiempo real
+        userSearch.addEventListener('input', filterUsers);
+
+        // Función para limpiar filtros
+        function clearFilters() {
+            claseFilter.value = '';
+            rolFilter.value = '';
+            experienciaFilter.value = '';
+            userSearch.value = '';
+            filterUsers();
+        }
+
+        // Botón de limpiar filtros (si existe)
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', clearFilters);
+        }
+
+        // Inicializar filtros al cargar la página
+        filterUsers();
+
+        // Tu código existente para drag scroll y contraseñas...
+        const tableContainer = document.querySelector('.users-table-container');
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+
+        tableContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            tableContainer.classList.add('dragging');
+            startX = e.pageX - tableContainer.offsetLeft;
+            scrollLeft = tableContainer.scrollLeft;
+        });
+
+        tableContainer.addEventListener('mouseleave', () => {
+            isDragging = false;
+            tableContainer.classList.remove('dragging');
+        });
+
+        tableContainer.addEventListener('mouseup', () => {
+            isDragging = false;
+            tableContainer.classList.remove('dragging');
+        });
+
+        tableContainer.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - tableContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            tableContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        tableContainer.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            tableContainer.classList.add('dragging');
+            startX = e.touches[0].pageX - tableContainer.offsetLeft;
+            scrollLeft = tableContainer.scrollLeft;
+        });
+
+        tableContainer.addEventListener('touchend', () => {
+            isDragging = false;
+            tableContainer.classList.remove('dragging');
+        });
+
+        tableContainer.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const x = e.touches[0].pageX - tableContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            tableContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        tableContainer.addEventListener('selectstart', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+            }
+        });
+
+        document.querySelectorAll('.toggle-password').forEach(function(icon) {
+            icon.addEventListener('click', function() {
+                const passwordField = this.parentElement;
+                const isVisible = passwordField.classList.contains('visible');
+                const realPassword = passwordField.getAttribute('data-password');
+                const textElement = passwordField.querySelector('.password-text') ||
+                                   document.createElement('span');
+
+                if (!passwordField.querySelector('.password-text')) {
+                    textElement.className = 'password-text';
+                    passwordField.appendChild(textElement);
+                }
+
+                if (isVisible) {
+                    this.className = 'fas fa-eye toggle-password';
+                    textElement.textContent = ' ••••••••';
+                    passwordField.classList.remove('visible');
+                } else {
+                    this.className = 'fas fa-eye-slash toggle-password';
+                    textElement.textContent = ` ${realPassword}`;
+                    passwordField.classList.add('visible');
+                }
+            });
+        });
+
+        const rows = document.querySelectorAll('.table-row');
+        rows.forEach((row, index) => {
+            row.setAttribute('data-id', (index + 1).toString().padStart(3, '0'));
+        });
+    });
+
+
+
+        // Funcionalidad para la modal de modificar usuario
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('editUserModal');
+        const closeBtn = document.querySelector('.close');
+        const cancelBtn = document.querySelector('.btn-cancel');
+        const editForm = document.getElementById('editUserForm');
+
+            
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-edit') ||
+            e.target.parentElement.classList.contains('btn-edit')) {
+
+            const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.parentElement;
+            const userId = btn.getAttribute('data-userid');
+
+            loadUserData(btn, userId);
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
+        // Cerrar modal
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Cerrar modal al hacer click fuera del contenido
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Cerrar modal con ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'block') {
+                closeModal();
+            }
+        });
+
+        // Toggle para mostrar/ocultar contraseña en el formulario
+        document.querySelectorAll('.toggle-password-input').forEach(function(icon) {
+            icon.addEventListener('click', function() {
+                const passwordInput = this.previousElementSibling;
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.className = 'fas fa-eye-slash toggle-password-input';
+                } else {
+                    passwordInput.type = 'password';
+                    this.className = 'fas fa-eye toggle-password-input';
+                }
+            });
+        });
+
+       
+    function loadUserData(btn, userId) {
+        // Obtener todos los datos de los atributos data del botón
+        const nombre = btn.getAttribute('data-nombre');
+        const correo = btn.getAttribute('data-correo');
+        const gamertag = btn.getAttribute('data-gamertag');
+        const password = btn.getAttribute('data-password');
+        const activo = btn.getAttribute('data-activo');
+        const exp = btn.getAttribute('data-exp');
+        const racha = btn.getAttribute('data-racha');
+        const licencia = btn.getAttribute('data-licencia');
+        const fechaVencimiento = btn.getAttribute('data-fechavencimiento');
+        const clasesString = btn.getAttribute('data-clases');
+
+        const userRow = btn.closest('.table-row');
+        const rolTexto = userRow.querySelector('.rol-badge').textContent.trim();
+
+
+        // Convertir string de clases a array
+        const userClases = clasesString ? clasesString.split(',') : [];
+
+        // Llenar el formulario
+        document.getElementById('editUserId').value = userId;
+        document.getElementById('editNombre').value = nombre || '';
+        document.getElementById('editCorreo').value = correo || '';
+        document.getElementById('editGamerTag').value = gamertag || '';
+        document.getElementById('editPassword').value = password || '';
+
+        const rolSelect = document.getElementById('editRol');
+        rolSelect.selectedIndex = -1;
+        let rolEncontrado = false;
+        for (let i = 0; i < rolSelect.options.length; i++) {
+            const option = rolSelect.options[i];
+
+            // Comparar tanto el valor como el texto de la opción
+            if (option.value === rolTexto || option.text === rolTexto) {
+                option.selected = true;
+                rolEncontrado = true;
+                break;
+            }
+        }
+
+        if (!rolEncontrado && rolSelect.options.length > 0) {
+        rolSelect.options[0].selected = true;
+    }
+       
+
+        document.getElementById('editActivo').value = activo === 'True' ? 'true' : 'false';
+        document.getElementById('editExp').value = exp || '0';
+        document.getElementById('editRacha').value = racha || '0';
+        document.getElementById('editLicencia').value = licencia || 'Básica';
+        document.getElementById('editFechaVencimiento').value = fechaVencimiento || '';
+
+        // Limpiar y marcar checkboxes de clases
+        document.querySelectorAll('.clase-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // Marcar las clases del usuario
+        userClases.forEach(claseNombre => {
+            const checkboxLabel = Array.from(document.querySelectorAll('.checkbox-label'))
+                .find(label => {
+                    const labelText = label.textContent.trim();
+                    return labelText === claseNombre;
+                });
+
+            if (checkboxLabel) {
+                const checkbox = checkboxLabel.querySelector('.clase-checkbox');
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            }
+        });
+
+        console.log('Datos cargados:', {
+            userId, nombre, correo, gamertag, password, rolTexto, activo, exp, racha, licencia, fechaVencimiento, userClases
+        });
+    }
+
+        // Manejar envío del formulario
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Aquí iría la lógica para enviar los datos al servidor
+            const formData = new FormData(this);
+            const userData = Object.fromEntries(formData.entries());
+
+            console.log('Datos a actualizar:', userData);
+
+            // Simular actualización (reemplazar con llamada AJAX real)
+            alert('Usuario actualizado correctamente (esto es una simulación)');
+            closeModal();
+
+            // En una implementación real, aquí harías:
+            // fetch('/api/usuarios/actualizar', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(userData)
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     if (data.success) {
+            //         alert('Usuario actualizado correctamente');
+            //         closeModal();
+            //         // Recargar la página o actualizar la tabla
+            //         location.reload();
+            //     }
+            // });
+        });
+    });
+</script>

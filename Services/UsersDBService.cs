@@ -113,5 +113,98 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        //CRUD de usuarios para el panel de administración
+
+        public int ListarUsersTotales()
+        {
+            int contador = 0;
+            try
+            {
+                contador = _context.Usuarios.Count();
+                return contador;
+            }
+            catch (Exception ex)
+            {
+                return contador;
+            }
+        }
+        public ListUsersModel ObtenerUsuarios() 
+        {
+            ListUsersModel model = new ListUsersModel();
+
+            try 
+            {
+                //recuperar todas las clases en lista
+                model.Clases = _context.Clases
+                    .Select(c => new ClaseBDModel 
+                    {
+                        Id_Clase = c.Id_Clase,
+                        Nombre = c.Nombre
+                    }).ToList();
+
+                //recuperar todas las licencias en lista
+                model.Licencias = _context.Licencias
+                    .Select(l => new LicenciaBDModel 
+                    {
+                        Id_Licencia = l.Id_Licencia,
+                        Nombre = l.Nombre,
+                        Vigencia = l.Vigencia
+                    }).ToList();
+
+                //recuperar todos los roles en lista
+                model.Roles = _context.Roles
+                    .Select(r => new RolBDModel 
+                    {
+                        Id_Rol = r.Id_Rol,
+                        Rol = r.Rol,
+                        Nivel = r.Nivel
+                    }).ToList();
+
+                //recuperar todos los usuarios finales en lista
+                model.UsuariosFinales = _context.Usuarios
+                    .Include(u => u.Rol)
+                    .Include(u => u.Usuario_Clase)
+                    .ThenInclude(uc => uc.Clase)
+                    .Include(u => u.UsuarioLicencias)
+                    .ThenInclude(ul => ul.Licencia)
+                    .Select(u => new UsuarioBDModel 
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Id_Rol = u.Rol.Rol,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Pass = u.Pass,
+                        Activo = u.Activo,
+                        Clases = u.Usuario_Clase
+                            .Where(uc => uc.Clase != null)
+                            .Select(uc => uc.Clase.Nombre)
+                            .ToList(),
+                        Racha = u.Racha,
+                        Exp = u.Experiencia_Total,
+                        Ultima_Cnx = u.Ultima_Actividad,
+
+                        Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Licencia.Nombre)
+                            .FirstOrDefault() ?? "Sin licencia",
+                        Fecha_Asignacion_Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Fecha_Asignacion)
+                            .FirstOrDefault(),
+                        Fecha_Vencimiento_Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Fecha_Vencimiento)
+                            .FirstOrDefault()
+                    }).ToList();
+            }
+            catch (Exception ex) 
+            {
+                return new ListUsersModel();
+            }
+
+            return model;
+        }
+
     }
 }
