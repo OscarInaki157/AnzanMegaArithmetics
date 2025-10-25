@@ -13,6 +13,7 @@ builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();
 
 builder.Services.AddScoped<IUsersDBService, UsersDBService>();
+builder.Services.AddScoped<IClasesDBService, ClasesDBService>();
 
 builder.Services.AddDbContext<AnzanMegaContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AnzanConnection")).EnableSensitiveDataLogging()

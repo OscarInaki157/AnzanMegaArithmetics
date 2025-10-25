@@ -129,20 +129,6 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
-        public int ListarClasesTotales() 
-        {
-            int contador = 0;
-            try
-            {
-                contador = _context.Clases.Count();
-                return contador;
-            }
-            catch (Exception ex)
-            {
-                return contador;
-            }
-        }
-
         public ListUsersModel ObtenerUsuarios() 
         {
             ListUsersModel model = new ListUsersModel();

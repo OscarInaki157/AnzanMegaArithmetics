@@ -11,10 +11,12 @@ namespace AnzanMegaArithmetics.Controllers
     {
         //instanciar clase de users service
         private readonly IUsersDBService _usersDBService;
+        private readonly IClasesDBService _clasesDBService;
 
-        public AdminController(IUsersDBService usersDBService)
+        public AdminController(IUsersDBService usersDBService, IClasesDBService clasesDBService)
         {
-            _usersDBService = usersDBService;
+            this._usersDBService = usersDBService;
+            this._clasesDBService = clasesDBService;
         }
 
         public IActionResult AdminUsers()
@@ -47,8 +49,19 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
+            //recuperar todas las clases
+            List<ClaseBDModel> clases = new List<ClaseBDModel>();
+            try 
+            {
+                clases = _clasesDBService.ObtenerClases();
+            } catch (Exception ex) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+
             SetViewBag(userInfo);
-            return View();
+            return View(clases);
         }
 
         private LoginResponseModel GetUserInfo()
@@ -179,6 +192,36 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 TempData["ErrorMessage"] = "Error al eliminar el usuario: " + ex.Message;
                 return RedirectToAction("AdminUsers");
+            }
+        }
+
+        //crud de clases
+        [HttpPost]
+        public ActionResult ActualizarClase(ActualizarClaseModel model)
+        {
+            if (model == null || model.Id_Clase == 0)
+            {
+                TempData["ErrorMessage"] = "Datos de clase inválidos.";
+                return RedirectToAction("AdminClases");
+            }
+
+            string mensaje = string.Empty;
+
+            try
+            {
+                mensaje = _clasesDBService.ActualizarClase(model);
+                if (mensaje.Contains("Error") || mensaje.StartsWith("Error"))
+                {
+                    TempData["ErrorMessage"] = mensaje;
+                    return RedirectToAction("AdminClases");
+                }
+                TempData["SuccessMessage"] = mensaje;
+                return RedirectToAction("AdminClases");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al actualizar la clase: " + ex.Message;
+                return RedirectToAction("AdminClases");
             }
         }
 

@@ -1,0 +1,547 @@
+﻿@model List<AnzanMegaArithmetics.Models.ClaseBDModel>
+@{
+    ViewBag.Title = "Administrar Clases";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="admin-container">
+    <div class="admin-header">
+        <a href="@Url.Action("PanelAdministrador", "Dashboard")" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Regresar
+        </a>
+    </div>
+
+    <!-- Botón para agregar nueva clase -->
+    <div class="action-section">
+        <button class="add-class-button" id="btnAddClass">
+            <i class="fas fa-plus"></i>
+            Agregar Nueva Clase
+        </button>
+    </div>
+
+    <!-- Tabla de clases -->
+    <div class="classes-table-container">
+        <div class="table-header">
+            <div class="col-id">ID</div>
+            <div class="col-name">Nombre de la Clase</div>
+            <div class="col-actions">Acciones</div>
+        </div>
+
+        <div class="table-body">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var clase in Model)
+                {
+                    <div class="table-row">
+                        <div class="col-id">@clase.Id_Clase.ToString("D3")</div>
+
+                        <div class="col-name">
+                            <div class="class-info">
+                                <div class="class-name">@clase.Nombre</div>
+                            </div>
+                        </div>
+
+                        <div class="col-actions">
+                            <button class="btn-edit"
+                                    data-classid="@clase.Id_Clase"
+                                    data-nombre="@clase.Nombre">
+                                <i class="fas fa-edit"></i>
+                                Modificar
+                            </button>
+                            <button class="btn-delete" data-classid="@clase.Id_Clase">
+                                <i class="fas fa-trash"></i>
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-results-message">
+                    <div class="no-results-content">
+                        <i class="fas fa-book"></i>
+                        <h3>No hay clases registradas</h3>
+                        <p>Comienza agregando una nueva clase</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para crear/editar clase -->
+<div id="editClassModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalClassTitle">Modificar Clase</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editClassForm" method="post" action="@Url.Action("ActualizarClase", "Admin")">
+                <input type="hidden" id="editClassId" name="Id_Clase">
+
+                <div class="form-group">
+                    <label for="editClassName">Nombre de la clase:</label>
+                    <input type="text" id="editClassName" name="Nombre" class="form-input" required
+                           placeholder="Ejemplo: ESCUELA221099PUE">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">Cancelar</button>
+                    <button type="submit" class="btn-update">
+                        <i class="fas fa-save"></i>
+                        <span id="btnSubmitText">Actualizar Clase</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        padding: 2rem;
+        color: var(--color-light);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+        .admin-header h1 {
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+    .back-button {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 76, 255, 0.4);
+        }
+
+    .action-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .add-class-button {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .add-class-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+    .classes-table-container {
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        overflow-x: auto;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 80px 1fr 200px;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: rgba(59, 60, 143, 0.3);
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: var(--color-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 200px;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        align-items: center;
+    }
+
+        .table-row:hover {
+            background-color: rgba(76, 76, 255, 0.1);
+        }
+
+    .col-id {
+        font-weight: 600;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+    }
+
+    .class-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .class-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--color-light);
+    }
+
+    .col-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-edit, .btn-delete {
+        border: none;
+        padding: 0.5rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #ff8c00, #ff7700);
+            transform: translateY(-1px);
+        }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #ff3742, #ff2e2e);
+            transform: translateY(-1px);
+        }
+
+    .no-results-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--color-light);
+    }
+
+    .no-results-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .no-results-content i {
+            font-size: 3rem;
+            color: var(--color-primary);
+            opacity: 0.7;
+        }
+
+        .no-results-content h3 {
+            font-size: 1.5rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .no-results-content p {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+    /* Estilos del modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background-color: var(--color-card-bg);
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @@keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-header {
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 1rem 1rem 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+    .close {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .close:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+
+    .form-input {
+        background-color: var(--color-sidebar);
+        color: var(--color-light);
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(76, 76, 255, 0.2);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel, .btn-update {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-cancel {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--color-light);
+    }
+
+        .btn-cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+    .btn-update {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+    }
+
+        .btn-update:hover {
+            background: linear-gradient(135deg, #00b359, #00994d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+    @@media (max-width: 768px) {
+        .admin-container {
+            padding: 1rem;
+        }
+
+        .admin-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .table-header,
+        .table-row {
+            grid-template-columns: 60px 1fr 150px;
+            min-width: 400px;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 10% auto;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('editClassModal');
+        const closeBtn = document.querySelector('.close');
+        const cancelBtn = document.querySelector('.btn-cancel');
+        const editForm = document.getElementById('editClassForm');
+        const addClassBtn = document.getElementById('btnAddClass');
+        const modalTitle = document.getElementById('modalClassTitle');
+        const btnSubmitText = document.getElementById('btnSubmitText');
+
+        // Abrir modal para editar
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-edit') ||
+                e.target.parentElement.classList.contains('btn-edit')) {
+
+                const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.parentElement;
+
+                const classId = btn.getAttribute('data-classid');
+                const nombre = btn.getAttribute('data-nombre');
+
+                // Llenar el formulario
+                document.getElementById('editClassId').value = classId;
+                document.getElementById('editClassName').value = nombre;
+
+                modalTitle.textContent = 'Modificar Clase';
+                btnSubmitText.textContent = 'Actualizar Clase';
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+
+        // Abrir modal para crear nueva clase
+        if (addClassBtn) {
+            addClassBtn.addEventListener('click', function() {
+                // Limpiar formulario
+                document.getElementById('editClassId').value = '';
+                document.getElementById('editClassName').value = '';
+
+                modalTitle.textContent = 'Crear Nueva Clase';
+                btnSubmitText.textContent = 'Crear Clase';
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        // Cerrar modal al hacer click fuera
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Cerrar con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'block') {
+                closeModal();
+            }
+        });
+
+        // Validación del formulario
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                const className = document.getElementById('editClassName').value.trim();
+
+                if (!className) {
+                    e.preventDefault();
+                    alert('El nombre de la clase es requerido');
+                    return false;
+                }
+
+                if (className.length < 2) {
+                    e.preventDefault();
+                    alert('El nombre debe tener al menos 2 caracteres');
+                    return false;
+                }
+
+                return true;
+            });
+        }
+    });
+</script>

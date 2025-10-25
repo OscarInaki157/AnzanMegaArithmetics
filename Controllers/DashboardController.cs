@@ -10,9 +10,11 @@ namespace AnzanMegaArithmetics.Controllers
     public class DashboardController : Controller
     {
         private readonly IUsersDBService usersDBService;
-        public DashboardController(IUsersDBService usersDBService)
+        private readonly IClasesDBService clasesDBService;
+        public DashboardController(IUsersDBService usersDBService, IClasesDBService clasesDBService)
         {
             this.usersDBService = usersDBService;
+            this.clasesDBService = clasesDBService;
         }
 
         public IActionResult MiPerfil() 
@@ -88,7 +90,7 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult PanelAdministrador()
         {
             int usersCount = usersDBService.ListarUsersTotales();
-            int clasesCount = usersDBService.ListarClasesTotales();
+            int clasesCount = clasesDBService.ListarClasesTotales();
 
             var userInfo = GetUserInfo();
             if (userInfo.Id_Usuario == 0)
