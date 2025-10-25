@@ -71,12 +71,39 @@
     </div>
 </div>
 
-<!-- Modal para crear/editar clase -->
+<!-- MODAL 1: PARA CREAR NUEVA CLASE -->
+<div id="createClassModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Crear Nueva Clase</h2>
+            <span class="close-create">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="createClassForm" method="post" action="@Url.Action("CrearClase", "Admin")">
+                <div class="form-group">
+                    <label for="createClassName">Nombre de la clase:</label>
+                    <input type="text" id="createClassName" name="Nombre" class="form-input" required
+                           placeholder="Ejemplo: ESCUELA221099PUE">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel-create">Cancelar</button>
+                    <button type="submit" class="btn-create">
+                        <i class="fas fa-plus"></i>
+                        Crear Clase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: PARA EDITAR CLASE EXISTENTE -->
 <div id="editClassModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="modalClassTitle">Modificar Clase</h2>
-            <span class="close">&times;</span>
+            <h2>Modificar Clase</h2>
+            <span class="close-edit">&times;</span>
         </div>
         <div class="modal-body">
             <form id="editClassForm" method="post" action="@Url.Action("ActualizarClase", "Admin")">
@@ -89,10 +116,10 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-cancel">Cancelar</button>
+                    <button type="button" class="btn-cancel-edit">Cancelar</button>
                     <button type="submit" class="btn-update">
                         <i class="fas fa-save"></i>
-                        <span id="btnSubmitText">Actualizar Clase</span>
+                        Actualizar Clase
                     </button>
                 </div>
             </form>
@@ -101,6 +128,59 @@
 </div>
 
 <style>
+    .btn-create {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-create:hover {
+            background: linear-gradient(135deg, #00b359, #00994d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+    .btn-cancel-create, .btn-cancel-edit {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--color-light);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-cancel-create:hover, .btn-cancel-edit:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+    .close-create, .close-edit {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .close-create:hover, .close-edit:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
     .admin-container {
         padding: 2rem;
         color: var(--color-light);
@@ -341,7 +421,7 @@
             font-size: 1.5rem;
         }
 
-    .close {
+    .close-create, .close-edit {
         color: white;
         font-size: 2rem;
         font-weight: bold;
@@ -349,7 +429,7 @@
         transition: all 0.3s ease;
     }
 
-        .close:hover {
+        .close-create:hover, .close-edit:hover {
             transform: scale(1.1);
             opacity: 0.8;
         }
@@ -457,13 +537,37 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('editClassModal');
-        const closeBtn = document.querySelector('.close');
-        const cancelBtn = document.querySelector('.btn-cancel');
-        const editForm = document.getElementById('editClassForm');
+        // ===== MODAL PARA CREAR CLASE =====
+        const createModal = document.getElementById('createClassModal');
+        const closeCreateBtn = document.querySelector('.close-create');
+        const cancelCreateBtn = document.querySelector('.btn-cancel-create');
+        const createForm = document.getElementById('createClassForm');
         const addClassBtn = document.getElementById('btnAddClass');
-        const modalTitle = document.getElementById('modalClassTitle');
-        const btnSubmitText = document.getElementById('btnSubmitText');
+
+        // Abrir modal para crear
+        if (addClassBtn) {
+            addClassBtn.addEventListener('click', function() {
+                createModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                // Limpiar formulario
+                document.getElementById('createClassName').value = '';
+            });
+        }
+
+        // Cerrar modal crear
+        function closeCreateModal() {
+            createModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        if (closeCreateBtn) closeCreateBtn.addEventListener('click', closeCreateModal);
+        if (cancelCreateBtn) cancelCreateBtn.addEventListener('click', closeCreateModal);
+
+        // ===== MODAL PARA EDITAR CLASE =====
+        const editModal = document.getElementById('editClassModal');
+        const closeEditBtn = document.querySelector('.close-edit');
+        const cancelEditBtn = document.querySelector('.btn-cancel-edit');
+        const editForm = document.getElementById('editClassForm');
 
         // Abrir modal para editar
         document.addEventListener('click', function(e) {
@@ -475,55 +579,61 @@
                 const classId = btn.getAttribute('data-classid');
                 const nombre = btn.getAttribute('data-nombre');
 
-                // Llenar el formulario
+                // Llenar el formulario de edición
                 document.getElementById('editClassId').value = classId;
                 document.getElementById('editClassName').value = nombre;
 
-                modalTitle.textContent = 'Modificar Clase';
-                btnSubmitText.textContent = 'Actualizar Clase';
-                modal.style.display = 'block';
+                editModal.style.display = 'block';
                 document.body.style.overflow = 'hidden';
             }
         });
 
-        // Abrir modal para crear nueva clase
-        if (addClassBtn) {
-            addClassBtn.addEventListener('click', function() {
-                // Limpiar formulario
-                document.getElementById('editClassId').value = '';
-                document.getElementById('editClassName').value = '';
-
-                modalTitle.textContent = 'Crear Nueva Clase';
-                btnSubmitText.textContent = 'Crear Clase';
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-            });
-        }
-
-        // Cerrar modal
-        function closeModal() {
-            modal.style.display = 'none';
+        // Cerrar modal editar
+        function closeEditModal() {
+            editModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+        if (closeEditBtn) closeEditBtn.addEventListener('click', closeEditModal);
+        if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
 
-        // Cerrar modal al hacer click fuera
+        // ===== CERRAR MODALES AL HACER CLICK FUERA =====
         window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
+            if (e.target === createModal) closeCreateModal();
+            if (e.target === editModal) closeEditModal();
         });
 
-        // Cerrar con ESC
+        // ===== CERRAR CON ESC =====
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.style.display === 'block') {
-                closeModal();
+            if (e.key === 'Escape') {
+                if (createModal.style.display === 'block') closeCreateModal();
+                if (editModal.style.display === 'block') closeEditModal();
             }
         });
 
-        // Validación del formulario
+        // ===== VALIDACIÓN DE FORMULARIOS =====
+        // Validación para crear
+        if (createForm) {
+            createForm.addEventListener('submit', function(e) {
+                const className = document.getElementById('createClassName').value.trim();
+
+                if (!className) {
+                    e.preventDefault();
+                    alert('El nombre de la clase es requerido');
+                    return false;
+                }
+
+                if (className.length < 5) {
+                    e.preventDefault();
+                    alert('El nombre debe tener al menos 5 caracteres');
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        // Validación para editar
         if (editForm) {
             editForm.addEventListener('submit', function(e) {
                 const className = document.getElementById('editClassName').value.trim();
@@ -534,9 +644,9 @@
                     return false;
                 }
 
-                if (className.length < 2) {
+                if (className.length < 5) {
                     e.preventDefault();
-                    alert('El nombre debe tener al menos 2 caracteres');
+                    alert('El nombre debe tener al menos 5 caracteres');
                     return false;
                 }
 

@@ -46,7 +46,7 @@
             </div>
             <div class="action-content">
                 <h3>Gestión de Usuarios</h3>
-                <span class="action-badge">Crear, editar y administrar usuarios</span>
+                <span class="action-badge">Administrar usuarios</span>
             </div>
             <div class="action-arrow">
                 <i class="fas fa-chevron-right"></i>
@@ -60,6 +60,19 @@
             <div class="action-content">
                 <h3>Gestión de Clases</h3>
                 <span class="action-badge">Administrar clases</span>
+            </div>
+            <div class="action-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </a>
+
+        <a href="@Url.Action("AdminPruebas", "Admin")" class="action-card pruebas-card">
+            <div class="action-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="action-content">
+                <h3>Gestión de Pruebas</h3>
+                <span class="action-badge">Administrar pruebas</span>
             </div>
             <div class="action-arrow">
                 <i class="fas fa-chevron-right"></i>
@@ -142,6 +155,11 @@
         color: white;
     }
 
+    .stat-card:nth-child(4) .stat-icon {
+        background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+        color: white;
+    }
+
     .stat-content h3 {
         font-size: 2rem;
         margin: 0;
@@ -157,7 +175,7 @@
     /* Botones Principales */
     .actions-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: 1fr 1fr;
         gap: 2rem;
         padding-top:1rem;
     }
@@ -228,6 +246,11 @@
         color: white;
     }
 
+    .pruebas-card .action-icon {
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: white;
+    }
+
     .action-content {
         display: flex;
         flex-direction: column;
@@ -252,6 +275,11 @@
         border-radius: 1rem;
         font-size: 0.8rem;
         font-weight: 600;
+    }
+
+    .pruebas-card .action-badge {
+        background: rgba(245, 158, 11, 0.2);
+        color: #F59E0B;
     }
 
     .action-arrow {

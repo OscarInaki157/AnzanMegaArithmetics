@@ -1,5 +1,6 @@
 ﻿using AnzanMegaArithmetics.Models;
 using AnzanMegaArithmetics.Services;
+using DataBase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,11 +13,13 @@ namespace AnzanMegaArithmetics.Controllers
         //instanciar clase de users service
         private readonly IUsersDBService _usersDBService;
         private readonly IClasesDBService _clasesDBService;
+        private readonly IPruebasDBService _pruebasDBService;
 
-        public AdminController(IUsersDBService usersDBService, IClasesDBService clasesDBService)
+        public AdminController(IUsersDBService usersDBService, IClasesDBService clasesDBService, IPruebasDBService pruebasDBService)
         {
             this._usersDBService = usersDBService;
             this._clasesDBService = clasesDBService;
+            this._pruebasDBService = pruebasDBService;
         }
 
         public IActionResult AdminUsers()
@@ -62,6 +65,29 @@ namespace AnzanMegaArithmetics.Controllers
 
             SetViewBag(userInfo);
             return View(clases);
+        }
+
+        public IActionResult AdminPruebas() 
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            //recuperar todas las pruebas
+            List<PruebasDBModel> pruebas = new List<PruebasDBModel>();
+            try 
+            {
+                pruebas = _pruebasDBService.ObtenerPruebas();
+
+            } catch (Exception ex) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            SetViewBag(userInfo);
+            return View(pruebas);
         }
 
         private LoginResponseModel GetUserInfo()
@@ -221,6 +247,35 @@ namespace AnzanMegaArithmetics.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = "Error al actualizar la clase: " + ex.Message;
+                return RedirectToAction("AdminClases");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CrearClase(string Nombre)
+        {
+            if (string.IsNullOrEmpty(Nombre))
+            {
+                TempData["ErrorMessage"] = "El nombre de la clase no puede estar vacío.";
+                return RedirectToAction("AdminClases");
+            }
+
+            string mensaje = string.Empty;
+
+            try
+            {
+                mensaje = _clasesDBService.CrearNuevaClase(Nombre);
+                if (mensaje.Contains("Error") || mensaje.StartsWith("Error"))
+                {
+                    TempData["ErrorMessage"] = mensaje;
+                    return RedirectToAction("AdminClases");
+                }
+                TempData["SuccessMessage"] = mensaje;
+                return RedirectToAction("AdminClases");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al crear la clase: " + ex.Message;
                 return RedirectToAction("AdminClases");
             }
         }

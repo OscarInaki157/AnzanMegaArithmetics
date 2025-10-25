@@ -892,7 +892,7 @@
                         </li>
                         <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     }
-                    @if (ViewBag.Rol == "Admin" || ViewBag.Rol == "Master")
+                    @if (ViewBag.Rol == "Master")
                     {
                         <li>
                             <a href="@Url.Action("PanelAdministrador", "Dashboard")" id="admini">
@@ -1033,19 +1033,19 @@
 
             // Protección (opcional)
             
-             // document.addEventListener('contextmenu', function(e) {
-             //    e.preventDefault();
-             // });
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-             // document.addEventListener('keydown', function(e) {
-             //     if (
-             //         e.key === 'F12' ||
-             //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-             //         (e.ctrlKey && e.key === 'U')
-             //     ) {
-             //         e.preventDefault();
-             //     }
-             // });
+             document.addEventListener('keydown', function(e) {
+                 if (
+                     e.key === 'F12' ||
+                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                     (e.ctrlKey && e.key === 'U')
+                 ) {
+                     e.preventDefault();
+                 }
+             });
             
         });
     </script>

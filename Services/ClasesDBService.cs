@@ -70,5 +70,24 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public string CrearNuevaClase(string Nombre)
+        {
+            try
+            {
+                //crear nueva clase
+                ClaseDB nuevaClase = new ClaseDB
+                {
+                    Nombre = Nombre
+                };
+                _context.Clases.Add(nuevaClase);
+                _context.SaveChanges();
+                return "Clase creada correctamente";
+            }
+            catch (Exception ex)
+            {
+                return "Error al crear la clase: " + ex.Message;
+            }
+        }
+
     }
 }

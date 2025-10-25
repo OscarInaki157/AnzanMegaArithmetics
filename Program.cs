@@ -14,6 +14,7 @@ builder.Services.AddControllersWithViews()
 
 builder.Services.AddScoped<IUsersDBService, UsersDBService>();
 builder.Services.AddScoped<IClasesDBService, ClasesDBService>();
+builder.Services.AddScoped<IPruebasDBService, PruebasDBService>();
 
 builder.Services.AddDbContext<AnzanMegaContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AnzanConnection")).EnableSensitiveDataLogging()
