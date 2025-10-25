@@ -93,6 +93,94 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.Licencia = userInfo.Licencia;
         }
 
+        //crud de users
+        [HttpPost]
+        public ActionResult ActualizarUsuario(ActualizarUsuarioModel user)
+        {
+            if (user == null || user.Id_Usuario == 0)
+            {
+                TempData["ErrorMessage"] = "Datos de usuario inválidos.";
+                return RedirectToAction("AdminUsers");
+            }
+
+            string mensaje = string.Empty;
+            try
+            {
+                mensaje = _usersDBService.ActualizarUser(user);
+                if (mensaje.Contains("Error") || mensaje.StartsWith("Error")) 
+                {
+                    TempData["ErrorMessage"] = mensaje;
+                    return RedirectToAction("AdminUsers");
+                }
+
+                TempData["SuccessMessage"] = mensaje;
+                return RedirectToAction("AdminUsers");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al actualizar el usuario: " + ex.Message;
+                return RedirectToAction("AdminUsers");
+            }
+            
+        }
+
+        [HttpPost]
+        public ActionResult CrearUsuario(ActualizarUsuarioModel model)
+        {
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "Datos de usuario inválidos.";
+                return RedirectToAction("AdminUsers");
+            }
+
+            string mensaje = string.Empty;
+            try
+            {
+                mensaje = _usersDBService.CrearNuevoUsuario(model);
+                if (mensaje.Contains("Error") || mensaje.StartsWith("Error"))
+                {
+                    TempData["ErrorMessage"] = mensaje;
+                    return RedirectToAction("AdminUsers");
+                }
+
+                TempData["SuccessMessage"] = mensaje;
+                return RedirectToAction("AdminUsers");
+            }
+            catch (Exception ex) 
+            {
+                TempData["ErrorMessage"] = "Error al agregar el usuario: " + ex.Message;
+                return RedirectToAction("AdminUsers");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult EliminarUsuario(ActualizarUsuarioModel model) 
+        {
+            if (model == null || model.Id_Usuario == 0)
+            {
+                TempData["ErrorMessage"] = "Datos de usuario inválidos.";
+                return RedirectToAction("AdminUsers");
+            }
+
+            string mensaje = string.Empty;
+            try
+            {
+                mensaje = _usersDBService.EliminarUsuario(model);
+                if (mensaje.Contains("Error") || mensaje.StartsWith("Error"))
+                {
+                    TempData["ErrorMessage"] = mensaje;
+                    return RedirectToAction("AdminUsers");
+                }
+
+                TempData["SuccessMessage"] = mensaje;
+                return RedirectToAction("AdminUsers");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al eliminar el usuario: " + ex.Message;
+                return RedirectToAction("AdminUsers");
+            }
+        }
 
     }
 }

@@ -88,6 +88,8 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult PanelAdministrador()
         {
             int usersCount = usersDBService.ListarUsersTotales();
+            int clasesCount = usersDBService.ListarClasesTotales();
+
             var userInfo = GetUserInfo();
             if (userInfo.Id_Usuario == 0)
             {
@@ -98,8 +100,9 @@ namespace AnzanMegaArithmetics.Controllers
             SetFraseBienvenida(userInfo.Nombre);
 
             ViewBag.UsersCount = usersCount;
+            ViewBag.ClasesCount = clasesCount;
 
-            return View(usersCount);
+            return View();
         }
 
         private LoginResponseModel GetUserInfo()

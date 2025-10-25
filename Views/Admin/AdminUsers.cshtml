@@ -4,6 +4,20 @@
     Layout = "_LayoutDashboard";
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+    </div>
+}
+
 <div class="admin-container">
 
     <div class="admin-header">
@@ -26,6 +40,15 @@
                        
                         <option value="@clase.Nombre">@clase.Nombre</option>
                     }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="estado-filter">Filtrar por estado:</label>
+                <select id="estado-filter" class="filter-select">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
                 </select>
             </div>
 
@@ -70,7 +93,7 @@
     </div>
 
     <div class="action-section">
-        <button class="add-user-button">
+        <button class="add-user-button" id="btnAddUser">
             <i class="fas fa-plus"></i>
             Agregar Nuevo Usuario
         </button>
@@ -204,7 +227,8 @@
             <span class="close">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="editUserForm" class="edit-user-form">
+            @* formulario editar *@
+            <form id="editUserForm" class="edit-user-form" method="post" action="/Admin/ActualizarUsuario">
                 <input type="hidden" id="editUserId" name="Id_Usuario">
 
                 <div class="form-row">
@@ -285,16 +309,18 @@
 
                 <div class="form-group full-width">
                     <label>Clases asignadas:</label>
+
                     <div class="clases-checkbox-container">
                         @foreach (var clase in Model.Clases)
                         {
                             <label class="checkbox-label">
-                                <input type="checkbox" name="Clases" value="@clase.Id_Clase" class="clase-checkbox">
+                                <input type="checkbox" name="ClasesSeleccionadas[]" value="@clase.Id_Clase" class="clase-checkbox">
                                 <span class="checkmark"></span>
                                 @clase.Nombre
                             </label>
                         }
                     </div>
+
                 </div>
 
                 <div class="form-actions">
@@ -309,7 +335,497 @@
     </div>
 </div>
 
+@* Modal para crear nuevo usuario *@
+<div id="createUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Crear Nuevo Usuario</h2>
+            <span class="close-create">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="createUserForm" class="edit-user-form" method="post" action="/Admin/CrearUsuario">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="createNombre">Nombre completo:</label>
+                        <input type="text" id="createNombre" name="Nombre" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createCorreo">Correo electrónico:</label>
+                        <input type="email" id="createCorreo" name="Correo" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="createGamerTag">Gamertag:</label>
+                        <input type="text" id="createGamerTag" name="Gamer_Tag" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createPassword">Contraseña:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="createPassword" name="Pass" class="form-input" required>
+                            <i class="fas fa-eye toggle-password-input-create"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="createRol">Rol:</label>
+                        <select id="createRol" name="Id_Rol" class="form-select" required>
+                            @foreach (var rol in Model.Roles)
+                            {
+                                <option value="@rol.Id_Rol">@rol.Rol</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createActivo">Estado:</label>
+                        <select id="createActivo" name="Activo" class="form-select" required>
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="createExp">Experiencia (XP):</label>
+                        <input type="number" id="createExp" name="Exp" class="form-input" min="0" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="createRacha">Racha:</label>
+                        <input type="number" id="createRacha" name="Racha" class="form-input" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="createLicencia">Licencia:</label>
+                        <select id="createLicencia" name="Licencia" class="form-select" required>
+                            
+                            @foreach (var lic in Model.Licencias)
+                            {
+                                <option value="@lic.Nombre">@lic.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Clases asignadas:</label>
+                    <div class="clases-checkbox-container">
+                        @foreach (var clase in Model.Clases)
+                        {
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="ClasesSeleccionadas[]" value="@clase.Id_Clase" class="clase-checkbox-create">
+                                <span class="checkmark"></span>
+                                @clase.Nombre
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel-create">Cancelar</button>
+                    <button type="submit" class="btn-create">
+                        <i class="fas fa-user-plus"></i>
+                        Crear Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Modal para eliminar usuario *@
+<div id="deleteUserModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Eliminar Usuario</h2>
+            <span class="close-delete">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="deleteUserForm" method="post" action="@Url.Action("EliminarUsuario", "Admin")">
+                
+                <input type="hidden" id="deleteUserId" name="Id_Usuario" value="">
+                <input type="hidden" id="deleteUserNombre" name="Nombre" value="">
+                <input type="hidden" id="deleteUserEmail" name="Correo" value="">
+
+                <div class="delete-warning">
+                    <div class="warning-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="warning-content">
+                        <h3>¡Atención!</h3>
+                        <p>Esta acción no se puede deshacer. Se eliminarán todos los registros del usuario, incluyendo:</p>
+                        <ul>
+                            <li>Datos personales del usuario</li>
+                            <li>Todos sus registros de tareas, prácticas, recompensas</li>
+                            <li>Progreso y estadísticas</li>
+                            <li>Se borrará el usuario de la o las clases a las que pertenece</li>
+                            <li>No se podrá recuperar el registro de su licencia de software</li>
+                        </ul>
+                        <p class="warning-highlight">Esta operación es irreversible.</p>
+                    </div>
+                </div>
+
+                <div class="countdown-section">
+                    <div class="countdown-text">
+                        El botón de eliminación se habilitará en:
+                        <span id="countdown-timer" class="countdown-number">5</span> segundos
+                    </div>
+                    <div class="countdown-bar">
+                        <div id="countdown-progress" class="countdown-progress"></div>
+                    </div>
+                </div>
+
+                <div class="delete-actions">
+                    <button type="button" class="btn-cancel-delete">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnConfirmDelete" class="btn-confirm-delete" disabled>
+                        <i class="fas fa-trash"></i>
+                        <span id="delete-button-text">Eliminar Usuario</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
+
+    /* Estilos para la información del usuario en el modal de eliminación */
+    .user-info-delete {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+        border-left: 3px solid var(--color-primary);
+    }
+
+    .user-details-delete {
+        color: var(--color-light);
+        font-size: 0.9rem;
+    }
+
+        .user-details-delete strong {
+            color: var(--color-primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .user-details-delete div {
+            margin: 0.2rem 0;
+            padding-left: 0.5rem;
+        }
+    /* Estilos para el modal de eliminación */
+    #deleteUserForm {
+        margin: 0;
+        padding: 0;
+    }
+
+    .delete-warning {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: rgba(255, 71, 87, 0.1);
+        border-radius: 0.8rem;
+        border-left: 4px solid #ff4757;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .warning-content h3 {
+        color: #ff4757;
+        margin: 0 0 0.8rem 0;
+        font-size: 1.3rem;
+    }
+
+    .warning-content p {
+        margin: 0.5rem 0;
+        color: var(--color-light);
+        line-height: 1.5;
+    }
+
+    .warning-content ul {
+        margin: 0.8rem 0;
+        padding-left: 1.5rem;
+        color: var(--color-light);
+    }
+
+    .warning-content li {
+        margin: 0.3rem 0;
+    }
+
+    .warning-highlight {
+        font-weight: 600;
+        color: #ff4757 !important;
+        font-size: 1rem;
+    }
+
+    .countdown-section {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.2rem;
+        border-radius: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .countdown-text {
+        text-align: center;
+        color: var(--color-light);
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .countdown-number {
+        font-weight: 700;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+    }
+
+    .countdown-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .countdown-progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), #6233b8);
+        border-radius: 3px;
+        width: 0%;
+        transition: width 1s linear;
+    }
+
+    .delete-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-cancel-delete {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--color-light);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-cancel-delete:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+    .btn-confirm-delete {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-confirm-delete:disabled {
+            background: rgba(255, 71, 87, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        .btn-confirm-delete:not(:disabled):hover {
+            background: linear-gradient(135deg, #ff3742, #ff2e2e);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+
+    .close-delete {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .close-delete:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+    .btn-confirm-delete.loading {
+        position: relative;
+        color: transparent;
+    }
+
+        .btn-confirm-delete.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    /* Botón cancelar - FORMULARIO CREAR */
+    .btn-cancel-create {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--color-light);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-cancel-create:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    /* Contenedor para input de contraseña - CREAR USUARIO */
+    #createUserForm .password-input-container {
+        position: relative;
+    }
+
+        #createUserForm .password-input-container .form-input {
+            padding-right: 3rem;
+        }
+
+    .toggle-password-input-create {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-primary);
+        cursor: pointer;
+        font-size: 0.9rem;
+        z-index: 2;
+    }
+
+    /* Checkboxes para clases - FORMULARIO CREAR */
+    #createUserForm .clase-checkbox-create {
+        display: none;
+    }
+
+        #createUserForm .clase-checkbox-create:checked + .checkmark {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            border-color: var(--color-primary);
+        }
+
+            #createUserForm .clase-checkbox-create:checked + .checkmark:after {
+                opacity: 1;
+            }
+
+    /* Estilos específicos para el modal de crear */
+    .btn-create {
+        background: linear-gradient(135deg, #00cc66, #00b359);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+        .btn-create:hover {
+            background: linear-gradient(135deg, #00b359, #00994d);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+
+    .close-create {
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .close-create:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+    .is-valid {
+        border-color: #28a745 !important;
+        background-image: url("data:image/svg+xml,..."); /* Icono check */
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,..."); /* Icono error */
+    }
+
+    .error-email {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #dc3545;
+    }
 
     /* Estilos para la modal */
     .modal {
@@ -1207,148 +1723,167 @@
 </style>
 
 <script>
-       // Funcionalidad para filtros y búsqueda
-    document.addEventListener('DOMContentLoaded', function() {
-        const claseFilter = document.getElementById('clase-filter');
-        const rolFilter = document.getElementById('rol-filter');
+    // SOLO UN DOMContentLoaded - combina todo aquí
+document.addEventListener('DOMContentLoaded', function() {
+    // === FILTROS Y BÚSQUEDA ===
+    const claseFilter = document.getElementById('clase-filter');
+    const rolFilter = document.getElementById('rol-filter');
+        const estadoFilter = document.getElementById('estado-filter');
         const experienciaFilter = document.getElementById('experiencia-filter');
-        const userSearch = document.getElementById('user-search');
-        const searchButton = document.querySelector('.search-button');
-        const tableRows = document.querySelectorAll('.table-row');
+    const userSearch = document.getElementById('user-search');
+    const searchButton = document.querySelector('.search-button');
+    const tableRows = document.querySelectorAll('.table-row');
 
-        // Función principal de filtrado
-        function filterUsers() {
-            const claseValue = claseFilter.value;
-            const rolValue = rolFilter.value;
-            const experienciaValue = experienciaFilter.value;
-            const searchValue = userSearch.value.toLowerCase().trim();
+    // Función principal de filtrado
+    function filterUsers() {
+        const claseValue = claseFilter.value;
+        const rolValue = rolFilter.value;
+            const estadoValue = estadoFilter.value;
+        const experienciaValue = experienciaFilter.value;
+        const searchValue = userSearch.value.toLowerCase().trim();
 
-            tableRows.forEach(row => {
-                let showRow = true;
+        tableRows.forEach(row => {
+            let showRow = true;
 
-                // Filtro por clase
-                if (claseValue && showRow) {
-                    const clasesContainer = row.querySelector('.clases-container');
-                    const hasClase = Array.from(clasesContainer.querySelectorAll('.clase-badge'))
-                        .some(badge => {
-                            const claseId = badge.textContent.trim();
-                            return claseId === claseValue;
-                        });
-                    if (!hasClase) showRow = false;
-                }
-
-                // Filtro por rol
-                if (rolValue && showRow) {
-                    const rolBadge = row.querySelector('.rol-badge');
-                    const userRol = rolBadge.textContent.trim();
-                    if (userRol !== rolValue) showRow = false;
-                }
-
-                // Filtro por experiencia
-                if (experienciaValue && showRow) {
-                    const xpDisplay = row.querySelector('.xp-display');
-                    const userXP = parseInt(xpDisplay.textContent.replace(/,/g, ''));
-
-                    switch(experienciaValue) {
-                        case '0-1000':
-                            if (userXP > 1000) showRow = false;
-                            break;
-                        case '1001-5000':
-                            if (userXP < 1001 || userXP > 5000) showRow = false;
-                            break;
-                        case '5001-10000':
-                            if (userXP < 5001 || userXP > 10000) showRow = false;
-                            break;
-                        case '10001+':
-                            if (userXP < 10001) showRow = false;
-                            break;
-                    }
-                }
-
-                // Filtro por búsqueda
-                if (searchValue && showRow) {
-                    const userName = row.querySelector('.user-fullname').textContent.toLowerCase();
-                    const userEmail = row.querySelector('.col-email').textContent.toLowerCase();
-                    const userGamertag = row.querySelector('.gamertag-badge').textContent.toLowerCase();
-                    const userId = row.querySelector('.col-id').textContent.toLowerCase();
-
-                    const matchesSearch = userName.includes(searchValue) ||
-                                        userEmail.includes(searchValue) ||
-                                        userGamertag.includes(searchValue) ||
-                                        userId.includes(searchValue);
-
-                    if (!matchesSearch) showRow = false;
-                }
-
-                // Mostrar u ocultar la fila
-                row.style.display = showRow ? 'grid' : 'none';
-            });
-
-            // Mostrar mensaje si no hay resultados
-            showNoResultsMessage();
-        }
-
-        // Función para mostrar mensaje cuando no hay resultados
-        function showNoResultsMessage() {
-            const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
-            const tableBody = document.querySelector('.table-body');
-
-            // Remover mensaje anterior si existe
-            const existingMessage = document.querySelector('.no-results-message');
-            if (existingMessage) {
-                existingMessage.remove();
+            // Filtro por clase
+            if (claseValue && showRow) {
+                const clasesContainer = row.querySelector('.clases-container');
+                const hasClase = Array.from(clasesContainer.querySelectorAll('.clase-badge'))
+                    .some(badge => {
+                        const claseId = badge.textContent.trim();
+                        return claseId === claseValue;
+                    });
+                if (!hasClase) showRow = false;
             }
 
-            if (visibleRows.length === 0) {
-                const message = document.createElement('div');
-                message.className = 'no-results-message';
-                message.innerHTML = `
-                    <div class="no-results-content">
-                        <i class="fas fa-search"></i>
-                        <h3>No se encontraron usuarios</h3>
-                        <p>Intenta ajustar los filtros o términos de búsqueda</p>
-                    </div>
-                `;
-                tableBody.appendChild(message);
+            // Filtro por rol
+            if (rolValue && showRow) {
+                const rolBadge = row.querySelector('.rol-badge');
+                const userRol = rolBadge.textContent.trim();
+                if (userRol !== rolValue) showRow = false;
             }
+
+                // Filtro por estado
+             if (estadoValue && showRow) {
+                const statusBadge = row.querySelector('.status-badge');
+                const userEstado = statusBadge.textContent.trim().toLowerCase();
+
+                if (estadoValue === 'activo' && userEstado !== 'activo') {
+                    showRow = false;
+                } else if (estadoValue === 'inactivo' && userEstado !== 'inactivo') {
+                    showRow = false;
+                }
+            }
+
+
+            // Filtro por experiencia
+            if (experienciaValue && showRow) {
+                const xpDisplay = row.querySelector('.xp-display');
+                const userXP = parseInt(xpDisplay.textContent.replace(/,/g, ''));
+
+                switch(experienciaValue) {
+                    case '0-1000':
+                        if (userXP > 1000) showRow = false;
+                        break;
+                    case '1001-5000':
+                        if (userXP < 1001 || userXP > 5000) showRow = false;
+                        break;
+                    case '5001-10000':
+                        if (userXP < 5001 || userXP > 10000) showRow = false;
+                        break;
+                    case '10001+':
+                        if (userXP < 10001) showRow = false;
+                        break;
+                }
+            }
+
+            // Filtro por búsqueda
+            if (searchValue && showRow) {
+                const userName = row.querySelector('.user-fullname').textContent.toLowerCase();
+                const userEmail = row.querySelector('.col-email').textContent.toLowerCase();
+                const userGamertag = row.querySelector('.gamertag-badge').textContent.toLowerCase();
+                const userId = row.querySelector('.col-id').textContent.toLowerCase();
+
+                const matchesSearch = userName.includes(searchValue) ||
+                                    userEmail.includes(searchValue) ||
+                                    userGamertag.includes(searchValue) ||
+                                    userId.includes(searchValue);
+
+                if (!matchesSearch) showRow = false;
+            }
+
+            // Mostrar u ocultar la fila
+            row.style.display = showRow ? 'grid' : 'none';
+        });
+
+        // Mostrar mensaje si no hay resultados
+        showNoResultsMessage();
+    }
+
+    // Función para mostrar mensaje cuando no hay resultados
+    function showNoResultsMessage() {
+        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+        const tableBody = document.querySelector('.table-body');
+
+        // Remover mensaje anterior si existe
+        const existingMessage = document.querySelector('.no-results-message');
+        if (existingMessage) {
+            existingMessage.remove();
         }
 
-        // Event listeners para los filtros
-        claseFilter.addEventListener('change', filterUsers);
-        rolFilter.addEventListener('change', filterUsers);
-        experienciaFilter.addEventListener('change', filterUsers);
+        if (visibleRows.length === 0) {
+            const message = document.createElement('div');
+            message.className = 'no-results-message';
+            message.innerHTML = `
+                <div class="no-results-content">
+                    <i class="fas fa-search"></i>
+                    <h3>No se encontraron usuarios</h3>
+                    <p>Intenta ajustar los filtros o términos de búsqueda</p>
+                </div>
+            `;
+            tableBody.appendChild(message);
+        }
+    }
 
-        // Event listeners para la búsqueda
-        searchButton.addEventListener('click', filterUsers);
+    // Event listeners para los filtros
+    if (claseFilter) claseFilter.addEventListener('change', filterUsers);
+    if (rolFilter) rolFilter.addEventListener('change', filterUsers);
+    if (estadoFilter) estadoFilter.addEventListener('change', filterUsers);
+    if (experienciaFilter) experienciaFilter.addEventListener('change', filterUsers);
+
+    // Event listeners para la búsqueda
+    if (searchButton) searchButton.addEventListener('click', filterUsers);
+    if (userSearch) {
         userSearch.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
                 filterUsers();
             }
         });
-
-        // Búsqueda en tiempo real
         userSearch.addEventListener('input', filterUsers);
+    }
 
-        // Función para limpiar filtros
-        function clearFilters() {
-            claseFilter.value = '';
-            rolFilter.value = '';
-            experienciaFilter.value = '';
-            userSearch.value = '';
-            filterUsers();
-        }
-
-        // Botón de limpiar filtros (si existe)
-        const clearFiltersBtn = document.getElementById('clear-filters');
-        if (clearFiltersBtn) {
-            clearFiltersBtn.addEventListener('click', clearFilters);
-        }
-
-        // Inicializar filtros al cargar la página
+    // Función para limpiar filtros
+    function clearFilters() {
+        if (claseFilter) claseFilter.value = '';
+        if (rolFilter) rolFilter.value = '';
+        if (estadoFilter) estadoFilter.value = '';
+        if (experienciaFilter) experienciaFilter.value = '';
+        if (userSearch) userSearch.value = '';
         filterUsers();
+    }
 
-        // Tu código existente para drag scroll y contraseñas...
-        const tableContainer = document.querySelector('.users-table-container');
+    // Botón de limpiar filtros
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    }
+
+    // Inicializar filtros al cargar la página
+    filterUsers();
+
+    // Drag scroll
+    const tableContainer = document.querySelector('.users-table-container');
+    if (tableContainer) {
         let isDragging = false;
         let startX;
         let scrollLeft;
@@ -1402,88 +1937,105 @@
                 e.preventDefault();
             }
         });
+    }
 
-        document.querySelectorAll('.toggle-password').forEach(function(icon) {
-            icon.addEventListener('click', function() {
-                const passwordField = this.parentElement;
-                const isVisible = passwordField.classList.contains('visible');
-                const realPassword = passwordField.getAttribute('data-password');
-                const textElement = passwordField.querySelector('.password-text') ||
-                                   document.createElement('span');
+    // Toggle passwords en la tabla
+    document.querySelectorAll('.toggle-password').forEach(function(icon) {
+        icon.addEventListener('click', function() {
+            const passwordField = this.parentElement;
+            const isVisible = passwordField.classList.contains('visible');
+            const realPassword = passwordField.getAttribute('data-password');
+            const textElement = passwordField.querySelector('.password-text') ||
+                               document.createElement('span');
 
-                if (!passwordField.querySelector('.password-text')) {
-                    textElement.className = 'password-text';
-                    passwordField.appendChild(textElement);
-                }
+            if (!passwordField.querySelector('.password-text')) {
+                textElement.className = 'password-text';
+                passwordField.appendChild(textElement);
+            }
 
-                if (isVisible) {
-                    this.className = 'fas fa-eye toggle-password';
-                    textElement.textContent = ' ••••••••';
-                    passwordField.classList.remove('visible');
-                } else {
-                    this.className = 'fas fa-eye-slash toggle-password';
-                    textElement.textContent = ` ${realPassword}`;
-                    passwordField.classList.add('visible');
-                }
-            });
-        });
-
-        const rows = document.querySelectorAll('.table-row');
-        rows.forEach((row, index) => {
-            row.setAttribute('data-id', (index + 1).toString().padStart(3, '0'));
+            if (isVisible) {
+                this.className = 'fas fa-eye toggle-password';
+                textElement.textContent = ' ••••••••';
+                passwordField.classList.remove('visible');
+            } else {
+                this.className = 'fas fa-eye-slash toggle-password';
+                textElement.textContent = ` ${realPassword}`;
+                passwordField.classList.add('visible');
+            }
         });
     });
 
+    // Asignar data-id a las filas
+    const rows = document.querySelectorAll('.table-row');
+    rows.forEach((row, index) => {
+        row.setAttribute('data-id', (index + 1).toString().padStart(3, '0'));
+    });
 
+    // === MODAL FUNCTIONALITY ===
+    const modal = document.getElementById('editUserModal');
+    const closeBtn = document.querySelector('.close');
+    const cancelBtn = document.querySelector('.btn-cancel');
+    const editForm = document.getElementById('editUserForm');
 
-        // Funcionalidad para la modal de modificar usuario
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('editUserModal');
-        const closeBtn = document.querySelector('.close');
-        const cancelBtn = document.querySelector('.btn-cancel');
-        const editForm = document.getElementById('editUserForm');
-
-            
+    // Event listener para botones de edición CON VERIFICACIÓN
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('btn-edit') ||
-            e.target.parentElement.classList.contains('btn-edit')) {
+        if (!e.target) return;
 
-            const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.parentElement;
-            const userId = btn.getAttribute('data-userid');
+        let btnEdit = null;
 
-            loadUserData(btn, userId);
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+        if (e.target.classList && e.target.classList.contains('btn-edit')) {
+            btnEdit = e.target;
+        } else if (e.target.parentElement &&
+                   e.target.parentElement.classList &&
+                   e.target.parentElement.classList.contains('btn-edit')) {
+            btnEdit = e.target.parentElement;
+        }
+
+        if (btnEdit && modal) {
+            const userId = btnEdit.getAttribute('data-userid');
+            if (userId) {
+                loadUserData(btnEdit, userId);
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
         }
     });
 
-        // Cerrar modal
-        function closeModal() {
+    // Cerrar modal
+    function closeModal() {
+        if (modal) {
             modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
         }
+        document.body.style.overflow = 'auto';
+    }
 
+    if (closeBtn) {
         closeBtn.addEventListener('click', closeModal);
+    }
+
+    if (cancelBtn) {
         cancelBtn.addEventListener('click', closeModal);
+    }
 
-        // Cerrar modal al hacer click fuera del contenido
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
+    // Cerrar modal al hacer click fuera
+    window.addEventListener('click', function(e) {
+        if (modal && e.target === modal) {
+            closeModal();
+        }
+    });
 
-        // Cerrar modal con ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.style.display === 'block') {
-                closeModal();
-            }
-        });
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+            closeModal();
+        }
+    });
 
-        // Toggle para mostrar/ocultar contraseña en el formulario
-        document.querySelectorAll('.toggle-password-input').forEach(function(icon) {
-            icon.addEventListener('click', function() {
-                const passwordInput = this.previousElementSibling;
+    // Toggle para mostrar/ocultar contraseña en el formulario
+    document.querySelectorAll('.toggle-password-input').forEach(function(icon) {
+        icon.addEventListener('click', function() {
+            const passwordInput = this.previousElementSibling;
+            if (passwordInput && passwordInput.type) {
                 if (passwordInput.type === 'password') {
                     passwordInput.type = 'text';
                     this.className = 'fas fa-eye-slash toggle-password-input';
@@ -1491,117 +2043,838 @@
                     passwordInput.type = 'password';
                     this.className = 'fas fa-eye toggle-password-input';
                 }
-            });
-        });
-
-       
-    function loadUserData(btn, userId) {
-        // Obtener todos los datos de los atributos data del botón
-        const nombre = btn.getAttribute('data-nombre');
-        const correo = btn.getAttribute('data-correo');
-        const gamertag = btn.getAttribute('data-gamertag');
-        const password = btn.getAttribute('data-password');
-        const activo = btn.getAttribute('data-activo');
-        const exp = btn.getAttribute('data-exp');
-        const racha = btn.getAttribute('data-racha');
-        const licencia = btn.getAttribute('data-licencia');
-        const fechaVencimiento = btn.getAttribute('data-fechavencimiento');
-        const clasesString = btn.getAttribute('data-clases');
-
-        const userRow = btn.closest('.table-row');
-        const rolTexto = userRow.querySelector('.rol-badge').textContent.trim();
-
-
-        // Convertir string de clases a array
-        const userClases = clasesString ? clasesString.split(',') : [];
-
-        // Llenar el formulario
-        document.getElementById('editUserId').value = userId;
-        document.getElementById('editNombre').value = nombre || '';
-        document.getElementById('editCorreo').value = correo || '';
-        document.getElementById('editGamerTag').value = gamertag || '';
-        document.getElementById('editPassword').value = password || '';
-
-        const rolSelect = document.getElementById('editRol');
-        rolSelect.selectedIndex = -1;
-        let rolEncontrado = false;
-        for (let i = 0; i < rolSelect.options.length; i++) {
-            const option = rolSelect.options[i];
-
-            // Comparar tanto el valor como el texto de la opción
-            if (option.value === rolTexto || option.text === rolTexto) {
-                option.selected = true;
-                rolEncontrado = true;
-                break;
             }
-        }
-
-        if (!rolEncontrado && rolSelect.options.length > 0) {
-        rolSelect.options[0].selected = true;
-    }
-       
-
-        document.getElementById('editActivo').value = activo === 'True' ? 'true' : 'false';
-        document.getElementById('editExp').value = exp || '0';
-        document.getElementById('editRacha').value = racha || '0';
-        document.getElementById('editLicencia').value = licencia || 'Básica';
-        document.getElementById('editFechaVencimiento').value = fechaVencimiento || '';
-
-        // Limpiar y marcar checkboxes de clases
-        document.querySelectorAll('.clase-checkbox').forEach(checkbox => {
-            checkbox.checked = false;
-        });
-
-        // Marcar las clases del usuario
-        userClases.forEach(claseNombre => {
-            const checkboxLabel = Array.from(document.querySelectorAll('.checkbox-label'))
-                .find(label => {
-                    const labelText = label.textContent.trim();
-                    return labelText === claseNombre;
-                });
-
-            if (checkboxLabel) {
-                const checkbox = checkboxLabel.querySelector('.clase-checkbox');
-                if (checkbox) {
-                    checkbox.checked = true;
-                }
-            }
-        });
-
-        console.log('Datos cargados:', {
-            userId, nombre, correo, gamertag, password, rolTexto, activo, exp, racha, licencia, fechaVencimiento, userClases
-        });
-    }
-
-        // Manejar envío del formulario
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Aquí iría la lógica para enviar los datos al servidor
-            const formData = new FormData(this);
-            const userData = Object.fromEntries(formData.entries());
-
-            console.log('Datos a actualizar:', userData);
-
-            // Simular actualización (reemplazar con llamada AJAX real)
-            alert('Usuario actualizado correctamente (esto es una simulación)');
-            closeModal();
-
-            // En una implementación real, aquí harías:
-            // fetch('/api/usuarios/actualizar', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(userData)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.success) {
-            //         alert('Usuario actualizado correctamente');
-            //         closeModal();
-            //         // Recargar la página o actualizar la tabla
-            //         location.reload();
-            //     }
-            // });
         });
     });
+
+    // Función para cargar datos del usuario
+    function loadUserData(btn, userId) {
+        if (!btn) return;
+
+        try {
+            const nombre = btn.getAttribute('data-nombre') || '';
+            const correo = btn.getAttribute('data-correo') || '';
+            const gamertag = btn.getAttribute('data-gamertag') || '';
+            const password = btn.getAttribute('data-password') || '';
+            const activo = btn.getAttribute('data-activo') || 'true';
+            const exp = btn.getAttribute('data-exp') || '0';
+            const racha = btn.getAttribute('data-racha') || '0';
+            const licencia = btn.getAttribute('data-licencia') || '';
+            const fechaVencimiento = btn.getAttribute('data-fechavencimiento') || '';
+            const clasesString = btn.getAttribute('data-clases') || '';
+
+            const userRow = btn.closest('.table-row');
+            const rolTexto = userRow ? userRow.querySelector('.rol-badge').textContent.trim() : '';
+
+            // Convertir string de clases a array
+            const userClases = clasesString ? clasesString.split(',') : [];
+
+            // Llenar el formulario
+            const userIdInput = document.getElementById('editUserId');
+            if (userIdInput) userIdInput.value = userId;
+
+            const nombreInput = document.getElementById('editNombre');
+            if (nombreInput) nombreInput.value = nombre;
+
+            const correoInput = document.getElementById('editCorreo');
+            if (correoInput) correoInput.value = correo;
+
+            const gamertagInput = document.getElementById('editGamerTag');
+            if (gamertagInput) gamertagInput.value = gamertag;
+
+            const passwordInput = document.getElementById('editPassword');
+            if (passwordInput) passwordInput.value = password || '';
+
+            // Seleccionar rol
+            const rolSelect = document.getElementById('editRol');
+            if (rolSelect) {
+                rolSelect.selectedIndex = -1;
+                let rolEncontrado = false;
+                for (let i = 0; i < rolSelect.options.length; i++) {
+                    const option = rolSelect.options[i];
+                    if (option.value === rolTexto || option.text === rolTexto) {
+                        option.selected = true;
+                        rolEncontrado = true;
+                        break;
+                    }
+                }
+                if (!rolEncontrado && rolSelect.options.length > 0) {
+                    rolSelect.options[0].selected = true;
+                }
+            }
+
+            const activoSelect = document.getElementById('editActivo');
+            if (activoSelect) activoSelect.value = activo === 'True' ? 'true' : 'false';
+
+            const expInput = document.getElementById('editExp');
+            if (expInput) expInput.value = exp || '0';
+
+            const rachaInput = document.getElementById('editRacha');
+            if (rachaInput) rachaInput.value = racha || '0';
+
+            const licenciaSelect = document.getElementById('editLicencia');
+            if (licenciaSelect) licenciaSelect.value = licencia || 'Básica';
+
+            const fechaInput = document.getElementById('editFechaVencimiento');
+            if (fechaInput) fechaInput.value = fechaVencimiento || '';
+
+            // Limpiar y marcar checkboxes de clases
+            document.querySelectorAll('.clase-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            // Marcar las clases del usuario
+            userClases.forEach(claseNombre => {
+                const checkboxLabel = Array.from(document.querySelectorAll('.checkbox-label'))
+                    .find(label => {
+                        const labelText = label.textContent.trim();
+                        return labelText === claseNombre;
+                    });
+
+                if (checkboxLabel) {
+                    const checkbox = checkboxLabel.querySelector('.clase-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                }
+            });
+
+            // Limpiar mensajes de error al cargar nuevos datos
+            limpiarMensajesError();
+
+        } catch (error) {
+            console.error('Error al cargar datos del usuario:', error);
+        }
+    }
+
+    // === VALIDACIÓN DEL FORMULARIO ===
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validarFormulario()) {
+                this.submit();
+            }
+        });
+    }
+
+    // Función de validación completa
+    function validarFormulario() {
+        let esValido = true;
+        const mensajesError = [];
+
+        // Limpiar mensajes de error anteriores
+        limpiarMensajesError();
+
+        // 1. Validar campos requeridos
+        const nombre = document.getElementById('editNombre').value.trim();
+        const correo = document.getElementById('editCorreo').value.trim();
+        const gamertag = document.getElementById('editGamerTag').value.trim();
+        const rol = document.getElementById('editRol').value;
+        const licencia = document.getElementById('editLicencia').value;
+            const pass = document.getElementById('editPassword').value;
+
+        if (!nombre) {
+            mostrarError('editNombre', 'El nombre completo es requerido');
+            esValido = false;
+            mensajesError.push('El nombre completo es requerido');
+        } else if (nombre.length < 10 || nombre.length > 40) {
+            mostrarError('editNombre', 'El nombre debe tener entre 10 y 40 caracteres');
+            esValido = false;
+            mensajesError.push('El nombre debe tener entre 10 y 40 caracteres');
+        }
+
+
+        if (!correo) {
+            mostrarError('editCorreo', 'El correo electrónico es requerido');
+            esValido = false;
+            mensajesError.push('El correo electrónico es requerido');
+        } else if (!correo.includes('.') || correo.length < 10 || correo.length >40) {
+            mostrarError('editCorreo', 'El formato del correo no es válido, y/o debe contener entre 10 y 40 caracteres');
+            esValido = false;
+            mensajesError.push('El formato del correo no es válido');
+        }
+
+        if (!gamertag) {
+            mostrarError('editGamerTag', 'El gamertag es requerido');
+            esValido = false;
+            mensajesError.push('El gamertag es requerido');
+        } else if (gamertag.length < 7 || gamertag.length > 10) {
+            mostrarError('editGamerTag', 'El gamertag debe tener entre 7 y 10 caracteres');
+            esValido = false;
+            mensajesError.push('El gamertag debe tener entre 7 y 10 caracteres');
+        }
+
+        if (!rol) {
+            mostrarError('editRol', 'El rol es requerido');
+            esValido = false;
+            mensajesError.push('El rol es requerido');
+        }
+
+        if (!licencia) {
+            mostrarError('editLicencia', 'La licencia es requerida');
+            esValido = false;
+            mensajesError.push('La licencia es requerida');
+        }
+
+        // 2. Validar que al menos una clase esté seleccionada
+        const clasesSeleccionadas = document.querySelectorAll('.clase-checkbox:checked');
+        if (clasesSeleccionadas.length === 0) {
+            mostrarErrorClases('Debe seleccionar al menos una clase');
+            esValido = false;
+            mensajesError.push('Debe seleccionar al menos una clase');
+        }
+
+       
+
+        // 4. Validar números positivos
+        const exp = document.getElementById('editExp').value;
+        const racha = document.getElementById('editRacha').value;
+
+        if (exp && parseInt(exp) < 0) {
+            mostrarError('editExp', 'La experiencia no puede ser negativa');
+            esValido = false;
+            mensajesError.push('La experiencia no puede ser negativa');
+        }
+
+        if (racha && parseInt(racha) < 0) {
+            mostrarError('editRacha', 'La racha no puede ser negativa');
+            esValido = false;
+            mensajesError.push('La racha no puede ser negativa');
+        }
+
+    if (!pass) {
+        mostrarError('editPassword', 'La contraseña es requerida');
+        esValido = false;
+        mensajesError.push('La contraseña es requerida');
+    } else if (pass.length < 7 || pass.length > 10) {
+        mostrarError('editPassword', 'La contraseña debe contener entre 7 a 10 caracteres');
+        esValido = false;
+        mensajesError.push('La contraseña debe contener entre 7 a 10 caracteres');
+    }
+
+        // Mostrar mensaje general de error si hay problemas
+        if (!esValido) {
+            mostrarMensajeErrorGeneral('Por favor, corrige los errores en el formulario: ' + mensajesError.join(', '));
+        }
+
+        return esValido;
+    }
+
+    // Función para mostrar error en un campo específico
+    function mostrarError(campoId, mensaje) {
+        const campo = document.getElementById(campoId);
+        const grupo = campo.closest('.form-group');
+        
+        // Remover error anterior
+        const errorAnterior = grupo.querySelector('.error-message');
+        if (errorAnterior) {
+            errorAnterior.remove();
+        }
+        
+        // Agregar estilo de error al campo
+        campo.style.borderColor = '#ff4757';
+        
+        // Crear mensaje de error
+        const errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.style.color = '#ff4757';
+        errorElement.style.fontSize = '0.8rem';
+        errorElement.style.marginTop = '0.3rem';
+        errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+        
+        grupo.appendChild(errorElement);
+    }
+
+    // Función para mostrar error en las clases
+    function mostrarErrorClases(mensaje) {
+        const clasesContainer = document.querySelector('.clases-checkbox-container');
+        const grupoClases = clasesContainer.closest('.form-group');
+        
+        // Remover error anterior
+        const errorAnterior = grupoClases.querySelector('.error-message');
+        if (errorAnterior) {
+            errorAnterior.remove();
+        }
+        
+        // Crear mensaje de error
+        const errorElement = document.createElement('div');
+        errorElement.className = 'error-message';
+        errorElement.style.color = '#ff4757';
+        errorElement.style.fontSize = '0.8rem';
+        errorElement.style.marginTop = '0.5rem';
+        errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+        
+        grupoClases.appendChild(errorElement);
+    }
+
+    // Función para mostrar mensaje de error general
+    function mostrarMensajeErrorGeneral(mensaje) {
+        // Remover mensaje anterior
+        const mensajeAnterior = document.querySelector('.alert-error-general');
+        if (mensajeAnterior) {
+            mensajeAnterior.remove();
+        }
+        
+        // Crear mensaje de error general
+        const errorGeneral = document.createElement('div');
+        errorGeneral.className = 'alert-error-general';
+        errorGeneral.style.background = 'linear-gradient(135deg, #ff4757, #ff3742)';
+        errorGeneral.style.color = 'white';
+        errorGeneral.style.padding = '1rem';
+        errorGeneral.style.borderRadius = '0.5rem';
+        errorGeneral.style.marginBottom = '1rem';
+        errorGeneral.style.marginTop = '1rem';
+        errorGeneral.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>Error:</strong> ${mensaje}
+        `;
+
+        const formActions = editForm.querySelector('.form-actions');
+        if (formActions && formActions.parentNode) {
+            editForm.insertBefore(errorGeneral, formActions);
+        } else {
+       
+            editForm.appendChild(errorGeneral);
+        }
+    }
+
+    // Función para limpiar todos los mensajes de error
+    function limpiarMensajesError() {
+        // Limpiar mensajes de error de campos
+        document.querySelectorAll('.error-message').forEach(error => error.remove());
+        
+        // Limpiar estilos de error
+        document.querySelectorAll('.form-input, .form-select').forEach(campo => {
+            campo.style.borderColor = '';
+        });
+        
+        // Limpiar mensaje de error general
+        const mensajeAnterior = document.querySelector('.alert-error-general');
+        if (mensajeAnterior) {
+            mensajeAnterior.remove();
+        }
+    }
+
+    // Validación en tiempo real para campos críticos
+    document.getElementById('editNombre')?.addEventListener('blur', validarCampoRequerido);
+    document.getElementById('editCorreo')?.addEventListener('blur', validarEmailEnTiempoReal);
+    document.getElementById('editGamerTag')?.addEventListener('blur', validarCampoRequerido);
+
+    function validarCampoRequerido(e) {
+        const campo = e.target;
+        if (!campo.value.trim()) {
+            mostrarError(campo.id, `El ${campo.previousElementSibling.textContent.replace(':', '')} es requerido`);
+        } else {
+            limpiarError(campo.id);
+        }
+    }
+
+    function validarEmailEnTiempoReal(e) {
+        const campo = e.target;
+        const email = campo.value.trim();
+        
+        if (!email) {
+            mostrarError(campo.id, 'El correo electrónico es requerido');
+        } else {
+            limpiarError(campo.id);
+        }
+    }
+
+    function limpiarError(campoId) {
+        const campo = document.getElementById(campoId);
+        const grupo = campo.closest('.form-group');
+        const errorElement = grupo.querySelector('.error-message');
+        
+        if (errorElement) {
+            errorElement.remove();
+        }
+        
+        campo.style.borderColor = '';
+    }
+
+
+    // === MODAL CREAR USUARIO ===
+const createModal = document.getElementById('createUserModal');
+const closeCreateBtn = document.querySelector('.close-create');
+const cancelCreateBtn = document.querySelector('.btn-cancel-create');
+const createForm = document.getElementById('createUserForm');
+const addUserBtn = document.getElementById('btnAddUser');
+
+// Abrir modal de crear usuario
+if (addUserBtn) {
+    addUserBtn.addEventListener('click', function() {
+        if (createModal) {
+            createModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            limpiarFormularioCrear();
+        }
+    });
+}
+
+// Cerrar modal de crear
+function closeCreateModal() {
+    if (createModal) {
+        createModal.style.display = 'none';
+    }
+    document.body.style.overflow = 'auto';
+}
+
+if (closeCreateBtn) {
+    closeCreateBtn.addEventListener('click', closeCreateModal);
+}
+
+if (cancelCreateBtn) {
+    cancelCreateBtn.addEventListener('click', closeCreateModal);
+}
+
+// Cerrar modal al hacer click fuera
+window.addEventListener('click', function(e) {
+    if (createModal && e.target === createModal) {
+        closeCreateModal();
+    }
+});
+
+// Cerrar con ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && createModal && createModal.style.display === 'block') {
+        closeCreateModal();
+    }
+});
+
+// Toggle password para crear usuario
+document.querySelectorAll('.toggle-password-input-create').forEach(function(icon) {
+    icon.addEventListener('click', function() {
+        const passwordInput = this.previousElementSibling;
+        if (passwordInput && passwordInput.type) {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.className = 'fas fa-eye-slash toggle-password-input-create';
+            } else {
+                passwordInput.type = 'password';
+                this.className = 'fas fa-eye toggle-password-input-create';
+            }
+        }
+    });
+});
+
+// Limpiar formulario de crear
+function limpiarFormularioCrear() {
+    document.getElementById('createNombre').value = '';
+    document.getElementById('createCorreo').value = '';
+    document.getElementById('createGamerTag').value = '';
+    document.getElementById('createPassword').value = '';
+    document.getElementById('createRol').selectedIndex = 0;
+    document.getElementById('createActivo').value = 'true';
+    document.getElementById('createExp').value = '0';
+    document.getElementById('createRacha').value = '0';
+    document.getElementById('createLicencia').selectedIndex = 0;
+    
+    // Limpiar checkboxes de clases
+    document.querySelectorAll('.clase-checkbox-create').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    limpiarMensajesErrorCrear();
+}
+
+// Validación del formulario de crear
+if (createForm) {
+    createForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (validarFormularioCrear()) {
+            this.submit();
+        }
+    });
+}
+
+function validarFormularioCrear() {
+    let esValido = true;
+    const mensajesError = [];
+
+    limpiarMensajesErrorCrear();
+
+    // 1. Validar campos requeridos y longitudes
+    const nombre = document.getElementById('createNombre').value.trim();
+    const correo = document.getElementById('createCorreo').value.trim();
+    const gamertag = document.getElementById('createGamerTag').value.trim();
+    const pass = document.getElementById('createPassword').value;
+    const rol = document.getElementById('createRol').value;
+    const licencia = document.getElementById('createLicencia').value;
+
+    // Validar NOMBRE (10-40 caracteres)
+    if (!nombre) {
+        mostrarErrorCrear('createNombre', 'El nombre completo es requerido');
+        esValido = false;
+    } else if (nombre.length < 10 || nombre.length > 40) {
+        mostrarErrorCrear('createNombre', 'El nombre debe tener entre 10 y 40 caracteres');
+        esValido = false;
+        mensajesError.push('El nombre debe tener entre 10 y 40 caracteres');
+    }
+
+    // Validar CORREO (10-40 caracteres)
+    if (!correo) {
+        mostrarErrorCrear('createCorreo', 'El correo electrónico es requerido');
+        esValido = false;
+    } else if (correo.length < 10 || correo.length > 40) {
+        mostrarErrorCrear('createCorreo', 'El correo debe tener entre 10 y 40 caracteres');
+        esValido = false;
+        mensajesError.push('El correo debe tener entre 10 y 40 caracteres');
+    } else if (!correo.includes('.')) {
+        mostrarErrorCrear('createCorreo', 'El formato del correo no es válido');
+        esValido = false;
+    }
+
+    // Validar GAMERTAG (7-10 caracteres)
+    if (!gamertag) {
+        mostrarErrorCrear('createGamerTag', 'El gamertag es requerido');
+        esValido = false;
+    } else if (gamertag.length < 7 || gamertag.length > 10) {
+        mostrarErrorCrear('createGamerTag', 'El gamertag debe tener entre 7 y 10 caracteres');
+        esValido = false;
+        mensajesError.push('El gamertag debe tener entre 7 y 10 caracteres');
+    }
+
+    // Validar CONTRASEÑA (7-10 caracteres) - YA EXISTE
+    if (!pass) {
+        mostrarErrorCrear('createPassword', 'La contraseña es requerida');
+        esValido = false;
+    } else if (pass.length < 7 || pass.length > 10) {
+        mostrarErrorCrear('createPassword', 'La contraseña debe contener entre 7 a 10 caracteres');
+        esValido = false;
+        mensajesError.push('La contraseña debe contener entre 7 a 10 caracteres');
+    }
+
+    // Resto de validaciones existentes...
+    if (!rol) {
+        mostrarErrorCrear('createRol', 'El rol es requerido');
+        esValido = false;
+    }
+
+    if (!licencia) {
+        mostrarErrorCrear('createLicencia', 'La licencia es requerida');
+        esValido = false;
+    }
+
+    // Validar clases
+    const clasesSeleccionadas = document.querySelectorAll('.clase-checkbox-create:checked');
+    if (clasesSeleccionadas.length === 0) {
+        mostrarErrorClasesCrear('Debe seleccionar al menos una clase');
+        esValido = false;
+        mensajesError.push('Debe seleccionar al menos una clase');
+    }
+
+    if (!esValido) {
+        mostrarMensajeErrorGeneralCrear('Por favor, corrige los errores en el formulario: ' + mensajesError.join(', '));
+    }
+
+    return esValido;
+}
+
+// Funciones auxiliares para mostrar errores (versión crear)
+function mostrarErrorCrear(campoId, mensaje) {
+    const campo = document.getElementById(campoId);
+    const grupo = campo.closest('.form-group');
+    
+    // Remover error anterior
+    const errorAnterior = grupo.querySelector('.error-message');
+    if (errorAnterior) {
+        errorAnterior.remove();
+    }
+    
+    // Agregar estilo de error al campo
+    campo.style.borderColor = '#ff4757';
+    
+    // Crear mensaje de error
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = '#ff4757';
+    errorElement.style.fontSize = '0.8rem';
+    errorElement.style.marginTop = '0.3rem';
+    errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+    
+    grupo.appendChild(errorElement);
+}
+
+function mostrarErrorClasesCrear(mensaje) {
+    const clasesContainer = document.querySelector('.clases-checkbox-container');
+    const grupoClases = clasesContainer.closest('.form-group');
+    
+    // Remover error anterior
+    const errorAnterior = grupoClases.querySelector('.error-message');
+    if (errorAnterior) {
+        errorAnterior.remove();
+    }
+    
+    // Crear mensaje de error
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = '#ff4757';
+    errorElement.style.fontSize = '0.8rem';
+    errorElement.style.marginTop = '0.5rem';
+    errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${mensaje}`;
+    
+    grupoClases.appendChild(errorElement);
+}
+
+function mostrarMensajeErrorGeneralCrear(mensaje) {
+    // Remover mensaje anterior
+    const mensajeAnterior = document.querySelector('.alert-error-general-create');
+    if (mensajeAnterior) {
+        mensajeAnterior.remove();
+    }
+    
+    // Crear mensaje de error general
+    const errorGeneral = document.createElement('div');
+    errorGeneral.className = 'alert-error-general-create';
+    errorGeneral.style.background = 'linear-gradient(135deg, #ff4757, #ff3742)';
+    errorGeneral.style.color = 'white';
+    errorGeneral.style.padding = '1rem';
+    errorGeneral.style.borderRadius = '0.5rem';
+    errorGeneral.style.marginBottom = '1rem';
+    errorGeneral.style.marginTop = '1rem';
+    errorGeneral.innerHTML = `
+        <i class="fas fa-exclamation-triangle"></i> 
+        <strong>Error:</strong> ${mensaje}
+    `;
+
+       // CORRECCIÓN: Buscar form-actions dentro del formulario de crear
+        const formActions = createForm.querySelector('.form-actions');
+        if (formActions && formActions.parentNode) {
+            createForm.insertBefore(errorGeneral, formActions);
+        } else {
+            // Fallback: insertar al final del formulario
+            createForm.appendChild(errorGeneral);
+        }
+}
+
+function limpiarMensajesErrorCrear() {
+    // Limpiar mensajes de error de campos
+    document.querySelectorAll('.error-message').forEach(error => error.remove());
+    
+    // Limpiar estilos de error
+    document.querySelectorAll('#createUserForm .form-input, #createUserForm .form-select').forEach(campo => {
+        campo.style.borderColor = '';
+    });
+    
+    // Limpiar mensaje de error general
+    const mensajeAnterior = document.querySelector('.alert-error-general-create');
+    if (mensajeAnterior) {
+        mensajeAnterior.remove();
+    }
+}
+
+
+    // === MODAL ELIMINAR USUARIO ===
+    const deleteModal = document.getElementById('deleteUserModal');
+    const closeDeleteBtn = document.querySelector('.close-delete');
+    const cancelDeleteBtn = document.querySelector('.btn-cancel-delete');
+    const confirmDeleteBtn = document.getElementById('btnConfirmDelete');
+    const deleteButtonText = document.getElementById('delete-button-text');
+    const countdownTimer = document.getElementById('countdown-timer');
+    const countdownProgress = document.getElementById('countdown-progress');
+    const deleteUserForm = document.getElementById('deleteUserForm');
+    const deleteUserIdInput = document.getElementById('deleteUserId');
+    const deleteUserNombreInput = document.getElementById('deleteUserNombre');
+    const deleteUserEmailInput = document.getElementById('deleteUserEmail');
+
+    let countdownInterval;
+    let currentUserId;
+    let currentUserData = {};
+    const COUNTDOWN_TIME = 5; // segundos
+
+    // Event listener para botones de eliminar
+    document.addEventListener('click', function(e) {
+        if (!e.target) return;
+
+        let btnDelete = null;
+
+        if (e.target.classList && e.target.classList.contains('btn-delete')) {
+            btnDelete = e.target;
+        } else if (e.target.parentElement &&
+                   e.target.parentElement.classList &&
+                   e.target.parentElement.classList.contains('btn-delete')) {
+            btnDelete = e.target.parentElement;
+        }
+
+        if (btnDelete && deleteModal) {
+            currentUserId = btnDelete.getAttribute('data-userid');
+
+            // Obtener la fila completa para extraer más datos
+            const userRow = btnDelete.closest('.table-row');
+            const userName = userRow ? userRow.querySelector('.user-fullname').textContent : '';
+            const userEmail = userRow ? userRow.querySelector('.col-email').textContent : '';
+            const userGamertag = userRow ? userRow.querySelector('.gamertag-badge').textContent : '';
+
+            // Obtener todos los datos del usuario
+            currentUserData = {
+                id: currentUserId,
+                nombre: userName,
+                correo: userEmail,
+                gamertag: userGamertag
+            };
+
+            if (currentUserId) {
+                openDeleteModal();
+            }
+        }
+    });
+
+    // Abrir modal de eliminación
+    function openDeleteModal() {
+        if (deleteModal && deleteUserIdInput) {
+            // Establecer los datos del usuario en el formulario
+            deleteUserIdInput.value = currentUserData.id;
+            deleteUserNombreInput.value = currentUserData.nombre;
+            deleteUserEmailInput.value = currentUserData.correo;
+
+            // Actualizar el contenido del modal con información del usuario
+            updateDeleteModalContent();
+
+            deleteModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            startCountdown();
+        }
+    }
+
+    // Actualizar el contenido del modal con información del usuario
+    function updateDeleteModalContent() {
+        const warningContent = document.querySelector('.warning-content');
+
+        // Remover información anterior si existe
+        const existingUserInfo = document.getElementById('userInfoToDelete');
+        if (existingUserInfo) {
+            existingUserInfo.remove();
+        }
+
+        // Crear elemento con la información del usuario
+        const userInfoDiv = document.createElement('div');
+        userInfoDiv.id = 'userInfoToDelete';
+        userInfoDiv.className = 'user-info-delete';
+        userInfoDiv.innerHTML = `
+            <div class="user-details-delete">
+                <strong>Usuario a eliminar:</strong>
+                <div>ID: ${currentUserData.id}</div>
+                <div>Nombre: ${currentUserData.nombre}</div>
+                <div>Email: ${currentUserData.correo}</div>
+                <div>Gamertag: ${currentUserData.gamertag}</div>
+            </div>
+        `;
+
+        // Insertar después del h3
+        const h3Element = warningContent.querySelector('h3');
+        warningContent.insertBefore(userInfoDiv, h3Element.nextSibling);
+    }
+
+    // Cerrar modal de eliminación
+    function closeDeleteModal() {
+        if (deleteModal) {
+            deleteModal.style.display = 'none';
+        }
+        document.body.style.overflow = 'auto';
+        resetCountdown();
+    }
+
+    if (closeDeleteBtn) {
+        closeDeleteBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    }
+
+    // Cerrar modal al hacer click fuera
+    window.addEventListener('click', function(e) {
+        if (deleteModal && e.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && deleteModal && deleteModal.style.display === 'block') {
+            closeDeleteModal();
+        }
+    });
+
+    // Iniciar contador
+    function startCountdown() {
+        let timeLeft = COUNTDOWN_TIME;
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.style.cursor = 'not-allowed';
+        deleteButtonText.textContent = `Eliminar Usuario (${timeLeft}s)`;
+
+        // Resetear progreso
+        countdownProgress.style.width = '0%';
+
+        countdownInterval = setInterval(function() {
+            timeLeft--;
+
+            // Actualizar texto y progreso
+            countdownTimer.textContent = timeLeft;
+            deleteButtonText.textContent = `Eliminar Usuario (${timeLeft}s)`;
+
+            // Actualizar barra de progreso
+            const progressPercentage = ((COUNTDOWN_TIME - timeLeft) / COUNTDOWN_TIME) * 100;
+            countdownProgress.style.width = `${progressPercentage}%`;
+
+            // Cambiar color cuando queda poco tiempo
+            if (timeLeft <= 2) {
+                countdownProgress.style.background = 'linear-gradient(90deg, #ff4757, #ff3742)';
+            }
+
+            // Finalizar contador
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.style.cursor = 'pointer';
+                deleteButtonText.textContent = 'Eliminar Usuario';
+                countdownProgress.style.width = '100%';
+            }
+        }, 1000);
+    }
+
+    // Resetear contador
+    function resetCountdown() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+        countdownTimer.textContent = COUNTDOWN_TIME;
+        countdownProgress.style.width = '0%';
+        countdownProgress.style.background = 'linear-gradient(90deg, var(--color-primary), #6233b8)';
+        confirmDeleteBtn.disabled = true;
+        deleteButtonText.textContent = 'Eliminar Usuario';
+    }
+
+    // Prevenir envío del formulario si el botón está deshabilitado
+    if (deleteUserForm) {
+        deleteUserForm.addEventListener('submit', function(e) {
+            if (confirmDeleteBtn.disabled) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Mostrar estado de carga
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.classList.add('loading');
+            deleteButtonText.textContent = 'Eliminando...';
+
+            // El formulario se enviará normalmente después de esto
+            return true;
+        });
+    }
+
+    // También prevenir clic directo en el botón si está deshabilitado
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function(e) {
+            if (this.disabled) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+    }
+
+});
 </script>

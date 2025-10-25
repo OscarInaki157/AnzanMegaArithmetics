@@ -128,6 +128,21 @@ namespace AnzanMegaArithmetics.Services
                 return contador;
             }
         }
+
+        public int ListarClasesTotales() 
+        {
+            int contador = 0;
+            try
+            {
+                contador = _context.Clases.Count();
+                return contador;
+            }
+            catch (Exception ex)
+            {
+                return contador;
+            }
+        }
+
         public ListUsersModel ObtenerUsuarios() 
         {
             ListUsersModel model = new ListUsersModel();
@@ -206,5 +221,240 @@ namespace AnzanMegaArithmetics.Services
             return model;
         }
 
+        public string ActualizarUser(ActualizarUsuarioModel actualizar)
+        {
+            if (actualizar == null || actualizar.Id_Usuario <= 0 || actualizar.ClasesSeleccionadas == null)
+            {
+                return "Error datos de usuario inválidos";
+            }
+
+            try
+            {
+                UsuariosDB usuarioDB = _context.Usuarios.FirstOrDefault(x => x.Id_Usuario == actualizar.Id_Usuario);
+                if (usuarioDB == null)
+                {
+                    return "Error al actualizar usuario";
+                }
+
+                // Actualizar los campos del usuario
+                usuarioDB.Id_Rol = actualizar.Id_Rol;
+                usuarioDB.Nombre = actualizar.Nombre;
+                usuarioDB.Correo = actualizar.Correo;
+                usuarioDB.Gamer_Tag = actualizar.Gamer_Tag;
+                usuarioDB.Pass = actualizar.Pass;
+                usuarioDB.Activo = actualizar.Activo;
+                usuarioDB.Racha = actualizar.Racha;
+                usuarioDB.Experiencia_Total = actualizar.Exp;
+
+                //actualizar clases
+                List<int> clases = actualizar.ClasesSeleccionadas;
+                string actualizo =  ActualizarClasesUsuario(clases, actualizar.Id_Usuario);
+                if (actualizo.StartsWith("Error")) 
+                {
+                    return actualizo;
+                }
+
+                //actualizar licencia
+                string actualizoLicencia = ActualizarLicenciaUsuario(actualizar.Licencia, actualizar.Id_Usuario);
+                if (actualizoLicencia.StartsWith("Error"))
+                {
+                    return actualizoLicencia;
+                }
+
+                _context.SaveChanges();
+                return "Usuario actualizado correctamente";
+
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar el usuario: " + ex.Message;
+            }
+        }
+
+        public string ActualizarClasesUsuario(List<int> clases, int Id_Usuario) 
+        {
+            try 
+            {
+                var clasesActuales = _context.Usuarios_Clases.Where(uc => uc.Id_Usuario == Id_Usuario);
+                _context.Usuarios_Clases.RemoveRange(clasesActuales);
+
+                foreach (var Id_clase in clases)
+                {
+                    _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                    {
+                        Id_Usuario = Id_Usuario,
+                        Id_Clase = Id_clase
+                    });
+                }
+                _context.SaveChanges();
+                return "Clases del usuario actualizadas correctamente";
+            }
+            catch (Exception ex) 
+            {
+                return "Error al actualizar las clases del usuario: " + ex.Message;
+            }
+            
+        }
+
+        public string ActualizarLicenciaUsuario(string nueva, int Id_Usuario)
+        {
+            try
+            {
+                //obtener id de la licencia
+                int LicenciaId = _context.Licencias.Where(l => l.Nombre == nueva)
+                    .Select(l => l.Id_Licencia)
+                    .FirstOrDefault();
+                if (LicenciaId == 0) 
+                {
+                    return "Error: Licencia no encontrada";
+                }
+
+                //modificar la licencia del usuario
+                //licencia actual
+                var usuarioLicencia = _context.Usuarios_Licencias.FirstOrDefault(ul => ul.Id_Usuario == Id_Usuario);
+
+                //obtener vigencia
+                var busqueda = _context.Licencias.FirstOrDefault(l => l.Id_Licencia == LicenciaId);
+                int vigencia = busqueda.Vigencia;
+                if (vigencia <= 0) 
+                {
+                    vigencia = 12; //por defecto un año
+                }
+
+                if (usuarioLicencia == null)
+                {
+                    usuarioLicencia = new Usuarios_LicenciasDB
+                    {
+                        Id_Usuario = Id_Usuario,
+                        Id_Licencia = LicenciaId,
+                        Fecha_Asignacion = DateTime.Now,
+                        Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia),
+                        Vigencia = _context.Licencias
+                            .Where(l => l.Id_Licencia == LicenciaId)
+                            .Select(l => l.Vigencia)
+                            .FirstOrDefault()
+                    };
+                }
+                else 
+                {
+                    usuarioLicencia.Id_Licencia = LicenciaId;
+                    usuarioLicencia.Fecha_Asignacion = DateTime.Now;
+                    usuarioLicencia.Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia);
+                    usuarioLicencia.Vigencia = vigencia;
+                }
+
+                _context.SaveChanges();
+                return "Licencia del usuario actualizada correctamente";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar la licencia del usuario: " + ex.Message;
+            }
+        }
+
+        public string CrearNuevoUsuario(ActualizarUsuarioModel nuevo)
+        {
+            if (nuevo == null || nuevo.ClasesSeleccionadas == null)
+            {
+                return "Error datos de usuario inválidos";
+            }
+
+            //excepcion, buscar si ya existe un usuario con el mismo gamer tag o correo
+            var usuarioExistente = _context.Usuarios.FirstOrDefault(u => u.Gamer_Tag == nuevo.Gamer_Tag || u.Correo == nuevo.Correo);
+            if (usuarioExistente != null)
+            {
+                return "Error: Ya existe un usuario con el mismo Gamer Tag o Correo.";
+            }
+
+            try
+            {
+                //Insertar nuevo usuario
+                UsuariosDB usuariosDB = new UsuariosDB
+                {
+                    Id_Rol = nuevo.Id_Rol,
+                    Nombre = nuevo.Nombre,
+                    Correo = nuevo.Correo,
+                    Gamer_Tag = nuevo.Gamer_Tag,
+                    Pass = nuevo.Pass,
+                    Activo = nuevo.Activo,
+                    Racha = nuevo.Racha,
+                    Experiencia_Total = nuevo.Exp,
+                    Ultima_Actividad = DateTime.Now
+                };
+
+                _context.Usuarios.Add(usuariosDB);
+                _context.SaveChanges();
+                //Insertar clases_usuario
+
+                int Id_Usuario = _context.Usuarios.Where(u => u.Gamer_Tag == nuevo.Gamer_Tag && u.Correo == nuevo.Correo && u.Pass == nuevo.Pass)
+                  .Select(u => u.Id_Usuario)
+                  .FirstOrDefault();
+
+                foreach (var Id_clase in nuevo.ClasesSeleccionadas)
+                {
+                    _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                    {
+                        Id_Usuario = Id_Usuario,
+                        Id_Clase = Id_clase
+                    });
+                }
+                _context.SaveChanges();
+
+                //Insertar licencia_usuario
+              
+                int Id_Licencia = _context.Licencias.Where(l => l.Nombre == nuevo.Licencia)
+                    .Select(l => l.Id_Licencia)
+                    .FirstOrDefault();
+                int vigencia = _context.Licencias.Where(l => l.Nombre == nuevo.Licencia).Select(l => l.Vigencia).FirstOrDefault();
+                Usuarios_LicenciasDB usuario_licencia = new Usuarios_LicenciasDB
+                {
+                    Id_Usuario = Id_Usuario,
+                    Id_Licencia = Id_Licencia,
+                    Fecha_Asignacion = DateTime.Now,
+                    Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia),
+                    Vigencia = vigencia
+                };
+
+                _context.Usuarios_Licencias.Add(usuario_licencia);
+                _context.SaveChanges();
+
+                return "Exito creando el usuario";
+            }
+            catch (Exception ex)
+            {
+                return "Error al crear el nuevo usuario: " + ex.Message;
+            }
+        }
+
+        public string EliminarUsuario(ActualizarUsuarioModel model) 
+        {
+            int Id_Usuario = model.Id_Usuario;
+
+            try 
+            {
+                var usuarioDB = _context.Usuarios.FirstOrDefault(u => u.Id_Usuario == Id_Usuario);
+                if (usuarioDB == null) 
+                {
+                    return "Error: Usuario no encontrado";
+                }
+                //eliminar pruebas del wey
+                var pruebasUsuario = _context.Pruebas.Where(p => p.Id_Usuario == Id_Usuario);
+                _context.Pruebas.RemoveRange(pruebasUsuario);
+                //eliminar clases asociadas
+                var clasesUsuario = _context.Usuarios_Clases.Where(uc => uc.Id_Usuario == Id_Usuario);
+                _context.Usuarios_Clases.RemoveRange(clasesUsuario);
+                //eliminar licencias asociadas
+                var licenciasUsuario = _context.Usuarios_Licencias.Where(ul => ul.Id_Usuario == Id_Usuario);
+                _context.Usuarios_Licencias.RemoveRange(licenciasUsuario);
+                //eliminar usuario
+                _context.Usuarios.Remove(usuarioDB);
+                _context.SaveChanges();
+                return "Usuario eliminado correctamente";
+            }
+            catch (Exception ex) 
+            {
+                return "Error al eliminar el usuario: " + ex.Message;
+            }
+        }
     }
 }
