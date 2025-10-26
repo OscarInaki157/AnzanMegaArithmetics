@@ -94,6 +94,51 @@ namespace AnzanMegaArithmetics.Services
             return response;
         }
 
+        public LoginResponseModel ObtenerUserDashboard(int id_Usuario)
+        {
+       
+            LoginResponseModel response = new();
+            try
+            {
+                response = _context.Usuarios
+                    .Include(u => u.Rol)
+                    .Include(u => u.Usuario_Clase)
+                    .ThenInclude(uc => uc.Clase)
+                    .Include(u => u.UsuarioLicencias)
+                    .ThenInclude(ul => ul.Licencia)
+                    .Where(u => u.Id_Usuario == id_Usuario)
+                    .Select(u => new LoginResponseModel
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Id_Rol = u.Rol.Rol,
+                        Clases = u.Usuario_Clase
+                            .Where(uc => uc.Clase != null)
+                            .Select(uc => uc.Clase.Nombre)
+                            .ToList(),
+                        Racha = u.Racha,
+                        Exp = u.Experiencia_Total,
+                        Ultima_Cnx = u.Ultima_Actividad,
+                        Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Licencia.Nombre)
+                            .FirstOrDefault() ?? "Sin licencia"
+                    })
+                    .FirstOrDefault();
+                if (response == null) 
+                {
+                    return new LoginResponseModel { Id_Usuario = 0 };
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return new LoginResponseModel { Id_Usuario = 0 };
+            }
+        }
+
         public bool UltimaConexion(LoginResponseModel user)
         {
             try

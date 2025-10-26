@@ -25,10 +25,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
+            return View(userInfo);
         }
 
         public IActionResult Dashboard()
@@ -39,10 +36,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
+            return View(userInfo);
         }
 
         public IActionResult Desafios()
@@ -53,10 +47,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
+            return View(userInfo);
         }
 
         public IActionResult Conferencias()
@@ -67,10 +58,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
+            return View(userInfo);
         }
 
         public IActionResult Memorizacion()
@@ -81,10 +69,7 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
-            return View();
+            return View(userInfo);
         }
 
         public IActionResult PanelAdministrador()
@@ -98,61 +83,56 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            SetViewBag(userInfo);
-            SetFraseBienvenida(userInfo.Nombre);
-
             ViewBag.UsersCount = usersCount;
             ViewBag.ClasesCount = clasesCount;
 
-            return View();
+            return View(userInfo);
         }
 
         private LoginResponseModel GetUserInfo()
         {
-            var clasesClaim = User.FindFirst("Clases")?.Value;
-            var listaClases = !string.IsNullOrEmpty(clasesClaim)
-                ? clasesClaim.Split(',').ToList()
-                : new List<string>();
-
-            int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario);
-            int.TryParse(User.FindFirst("Racha")?.Value, out int racha);
-            int.TryParse(User.FindFirst("Exp")?.Value, out int exp);
-            DateTime.TryParse(User.FindFirst("UltimaCnx")?.Value, out DateTime ultimaCnx);
-
-            return new LoginResponseModel
+            try
             {
-                Id_Usuario = idUsuario,
-                Nombre = User.FindFirst(ClaimTypes.Name)?.Value,
-                Id_Rol = User.FindFirst(ClaimTypes.Role)?.Value,
-                Gamer_Tag = User.FindFirst("Usuario")?.Value,
-                Correo = User.FindFirst("Correo")?.Value,
-                Clases = listaClases,
-                Racha = racha,
-                Exp = exp,
-                Ultima_Cnx = ultimaCnx,
-                Licencia= User.FindFirst("Licencia")?.Value
-            };
+                int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario);
+
+                if (idUsuario == 0)
+                {
+                    return new LoginResponseModel { Id_Usuario = 0 };
+                }
+
+                LoginResponseModel response = usersDBService.ObtenerUserDashboard(idUsuario);
+
+                if (response == null || response.Id_Usuario == 0)
+                {
+                    return new LoginResponseModel { Id_Usuario = 0 };
+                }
+
+                string FraseBienvenida = SetFraseBienvenida(response.Nombre);
+
+                return new LoginResponseModel
+                {
+                    Id_Usuario = response.Id_Usuario,
+                    Nombre = response.Nombre,
+                    Id_Rol = response.Id_Rol,
+                    Gamer_Tag = response.Gamer_Tag,
+                    Correo = response.Correo,
+                    Clases = response.Clases,
+                    Racha = response.Racha,
+                    Exp = response.Exp,
+                    Ultima_Cnx = response.Ultima_Cnx,
+                    Licencia = response.Licencia,
+                    Frase_Bienvenida = FraseBienvenida
+                };
+            }
+            catch (Exception)
+            {
+                return new LoginResponseModel { Id_Usuario = 0 };
+            }
         }
 
-        private void SetViewBag(LoginResponseModel userInfo)
+        private string SetFraseBienvenida(string nombre)
         {
-            ViewBag.IdUsuario = userInfo.Id_Usuario;
-            ViewBag.Nombre = userInfo.Nombre;
-            ViewBag.Rol = userInfo.Id_Rol;
-            ViewBag.Gamer_Tag = userInfo.Gamer_Tag;
-            ViewBag.Correo = userInfo.Correo;
-            ViewBag.Clases = userInfo.Clases;
-            ViewBag.PrimeraClase = userInfo.Clases.FirstOrDefault() ?? "Sin clase asignada";
-
-            ViewBag.Racha = userInfo.Racha;
-            ViewBag.Exp = userInfo.Exp;
-            ViewBag.UltimaCnx = userInfo.Ultima_Cnx.ToString("dd/MM/yyyy HH:mm");
-
-            ViewBag.Licencia = userInfo.Licencia;
-        }
-
-        private void SetFraseBienvenida(string nombre)
-        {
+            string FraseBienvenida = string.Empty;
             var frases = new List<string>
             {
                 $"¡Hola {nombre}, bienvenido a Mentes México!",
@@ -165,7 +145,9 @@ namespace AnzanMegaArithmetics.Controllers
 
             var random = new Random();
             int index = random.Next(frases.Count);
-            ViewBag.FraseBienvenida = frases[index];
+            FraseBienvenida = frases[index];
+
+            return FraseBienvenida;
         }
     }
 }

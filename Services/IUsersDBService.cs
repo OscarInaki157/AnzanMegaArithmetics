@@ -5,6 +5,7 @@ namespace AnzanMegaArithmetics.Services
     public interface IUsersDBService
     {
         public LoginResponseModel ValidateLogin(string user, string pass);
+        public LoginResponseModel ObtenerUserDashboard(int id_Usuario);
         public bool UltimaConexion(LoginResponseModel user);
         public int ListarUsersTotales();
         public ListUsersModel ObtenerUsuarios();

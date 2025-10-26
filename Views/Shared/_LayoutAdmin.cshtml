@@ -20,9 +20,9 @@
             --color-danger: #df312c;
         }
 
-        *, html, body, *::before, *::after{
-            box-sizing:border-box;
-            overflow-x:hidden;
+        *, html, body, *::before, *::after {
+            box-sizing: border-box;
+            overflow-x: hidden;
             user-select: none;
         }
 
@@ -202,7 +202,7 @@
             align-items: stretch;
         }
 
-        .names{
+        .names {
             color: #ffffff;
             font-size: 2rem;
             position: absolute;
@@ -719,30 +719,28 @@
 
         /* ====== RESPONSIVE ====== */
         @@media (max-width: 768px) {
-            .dashboard-sidebar
+            .dashboard-sidebar {
+                left: -15.625rem;
+                transition: left 0.3s ease;
+            }
 
-        {
-            left: -15.625rem;
-            transition: left 0.3s ease;
-        }
+                .dashboard-sidebar.open {
+                    left: 0;
+                }
 
-        .dashboard-sidebar.open {
-            left: 0;
-        }
+            .dashboard-main {
+                margin-left: 0;
+                padding-top: 4.375rem;
+            }
 
-        .dashboard-main {
-            margin-left: 0;
-            padding-top: 4.375rem;
-        }
+            .dashboard-header {
+                display: flex;
+            }
 
-        .dashboard-header {
-            display: flex;
-        }
-
-        .sidebar-logo img{
-            margin-top: 3.5rem;
-            margin-bottom: -1.5rem;
-        }
+            .sidebar-logo img {
+                margin-top: 3.5rem;
+                margin-bottom: -1.5rem;
+            }
 
             .modulos-wrapper {
                 grid-template-columns: 1fr;
@@ -801,7 +799,6 @@
                 left: 0;
                 transform: none;
             }
-
             /* modal */
             .modal-content {
                 width: 95%;
@@ -827,7 +824,6 @@
             .update h3 {
                 font-size: 1.2rem;
             }
-
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -866,7 +862,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("Dashboard","Dashboard")" id="Neuros">
+                        <a href="@Url.Action("Dashboard", "Dashboard")" id="Neuros">
                             <i class="fas fa-bolt"></i> Neuroactividades
                         </a>
                     </li>
@@ -876,14 +872,15 @@
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("Desafios","Dashboard")" id="Challenge">
-                            <i class="fa-solid fa-atom"></i> Zona de desafios</a>
+                        <a href="@Url.Action("Desafios", "Dashboard")" id="Challenge">
+                            <i class="fa-solid fa-atom"></i> Zona de desafios
+                        </a>
                     </li>
                     <li>
                         <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li>
 
-                    @if (Model.Id_Rol != "Alumno")
+                    @if (ViewBag.Rol != "Alumno")
                     {
                         <li>
                             <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
@@ -892,7 +889,7 @@
                         </li>
                         <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
                     }
-                    @if (Model.Id_Rol == "Master")
+                    @if (ViewBag.Rol == "Master")
                     {
                         <li>
                             <a href="@Url.Action("PanelAdministrador", "Dashboard")" id="admini">
@@ -913,7 +910,6 @@
 
 
     <footer class="page-footer">
-        
     </footer>
 
     <script>
@@ -1011,7 +1007,7 @@
             // Contador de XP
             const xpElement = document.getElementById("xp-counter");
             if (xpElement) {
-                const targetXP = @Model.Exp;
+                const targetXP = @ViewBag.Exp;
                 const duration = 2000;
                 const frameRate = 60;
                 const totalFrames = Math.round((duration / 1000) * frameRate);
@@ -1032,7 +1028,7 @@
             }
 
             // Protección (opcional)
-            
+
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
             });
@@ -1046,7 +1042,7 @@
                      e.preventDefault();
                  }
              });
-            
+
         });
     </script>
 

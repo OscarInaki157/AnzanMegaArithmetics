@@ -1,4 +1,5 @@
-﻿@{
+﻿@model AnzanMegaArithmetics.Models.LoginResponseModel
+@{
     ViewBag.Title = "Mi perfil";
     Layout = "_LayoutDashboard";
 }
@@ -10,29 +11,29 @@
             <div class="profile-circle">
                 <img src="/Content/Images/ProfS.png" alt="Foto de perfil" />
             </div>
-            <h2 class="welcome-message">¡Hola @ViewBag.Nombre!</h2>
-            <p><i class="fas fa-envelope"></i> @ViewBag.Correo</p>
+            <h2 class="welcome-message">¡Hola @Model.Nombre!</h2>
+            <p><i class="fas fa-envelope"></i> @Model.Correo</p>
             <p class="welcome-subtitle">Bienvenido a tu perfil</p>
         </div>
     </div>
 
     <!-- Contenedor existente de información del usuario -->
     <div class="user-info-card">
-        <p><strong>Licencia @ViewBag.Licencia</strong></p>
-        <p>Última conexión: @ViewBag.UltimaCnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@ViewBag.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", ViewBag.Clases)</p>
+        <p><strong>Licencia @Model.Licencia</strong></p>
+        <p>Última conexión: @Model.Ultima_Cnx</p>
+        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
+        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
         @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @ViewBag.Gamer_Tag</p>
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p>
         <div class="contenedorR">
             <div class="R3">
-                <p class="txt"><strong>🔥<br />@ViewBag.Racha</strong></p>
+                <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
             </div>
             <div class="R2">
                 <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
             </div>
             <div class="R1">
-                <p class="txt"><strong>✨<br /><span id="xp-counter">@ViewBag.Exp</span>XP</strong></p>
+                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span>XP</strong></p>
             </div>
         </div>
     </div>

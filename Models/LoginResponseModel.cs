@@ -16,5 +16,6 @@ namespace AnzanMegaArithmetics.Models
         public int Exp {  get; set; }
         public DateTime Ultima_Cnx { get; set; }
         public string Licencia { get; set; }
+        public string Frase_Bienvenida { get; set; } = string.Empty;
     }
 }
