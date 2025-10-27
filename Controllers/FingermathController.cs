@@ -166,7 +166,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult ResultadoLectura(int respuesta, string respondido)
+        public IActionResult ResultadoLectura(int respuesta, string respondido, double tiempoRespuesta)
         {
             bool respondio = respondido == "true";
             int respuestaCorrecta = Convert.ToInt32(TempData["RespuestaCorrecta"]);
@@ -181,7 +181,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new RLecturaFingerModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = respuestaCorrecta
+                RespuestaCorrecta = respuestaCorrecta,
+                TiempoRespuesta = tiempoRespuesta
             });
 
            
@@ -222,6 +223,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
 
+            double tiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
             //armar modelo generico para resultados
             PruebasDBModel results = new PruebasDBModel
             {
@@ -230,7 +233,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Lectura",
-                ExperienciaAdquirida = xp
+                ExperienciaAdquirida = xp,
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal)
             };
 
             bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
@@ -240,7 +244,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarLectura(int respuesta, string respondido, int respuestaCorrecta)
+        public IActionResult FinalizarLectura(int respuesta, string respondido, int respuestaCorrecta, double tiempoRespuesta)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<RLecturaFingerModel> resultados = string.IsNullOrEmpty(resultadosJson)
@@ -251,7 +255,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new RLecturaFingerModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = respuestaCorrecta
+                RespuestaCorrecta = respuestaCorrecta,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             int ejerciciosRealizados = resultados.Count;
@@ -263,7 +268,8 @@ namespace AnzanMegaArithmetics.Controllers
                 resultados.Add(new RLecturaFingerModel
                 {
                     RespuestaUsuario = -1,
-                    RespuestaCorrecta = 0
+                    RespuestaCorrecta = 0,
+                    TiempoRespuesta = 0
                 });
             }
 
@@ -381,7 +387,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult ResultadoEscritura(int respuesta, string respondido)
+        public IActionResult ResultadoEscritura(int respuesta, string respondido, double tiempoRespuesta)
         {
             bool respondio = respondido == "true";
             int numeroObjetivo = Convert.ToInt32(TempData["NumeroObjetivo"]);
@@ -396,7 +402,8 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
                 RespuestaCorrecta = numeroObjetivo,
-                EsCorrecto = respondio && respuesta == numeroObjetivo
+                EsCorrecto = respondio && respuesta == numeroObjetivo,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             ejerciciosRealizados++;
@@ -431,6 +438,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
 
+            double tiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
             //armar modelo generico para resultados
             PruebasDBModel results = new PruebasDBModel
             {
@@ -439,7 +448,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Escritura",
-                ExperienciaAdquirida = xp
+                ExperienciaAdquirida = xp,
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal)
             };
 
             bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
@@ -451,7 +461,7 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         [HttpPost]
-        public IActionResult FinalizarEscritura(int respuesta, string respondido, int respuestaCorrecta)
+        public IActionResult FinalizarEscritura(int respuesta, string respondido, int respuestaCorrecta, double tiempoRespuesta)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<REscrituraFingerModel> resultados = string.IsNullOrEmpty(resultadosJson)
@@ -463,7 +473,8 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
                 RespuestaCorrecta = respuestaCorrecta,
-                EsCorrecto = respondio && respuesta == respuestaCorrecta
+                EsCorrecto = respondio && respuesta == respuestaCorrecta,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             int ejerciciosRealizados = resultados.Count;
@@ -475,7 +486,8 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     RespuestaUsuario = -1,
                     RespuestaCorrecta = 0,
-                    EsCorrecto = false
+                    EsCorrecto = false,
+                    TiempoRespuesta = 0
                 });
             }
 

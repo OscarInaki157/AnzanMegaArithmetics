@@ -109,6 +109,7 @@
         <input type="hidden" id="respondido" name="respondido" value="true" />
         <input type="hidden" name="tipoPregunta" value="@ViewBag.TipoPregunta" />
         <input type="hidden" name="velocidadPreguntas" value="@ViewBag.VelocidadPreguntas" />
+        <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
     </form>
 
 </div>
@@ -664,6 +665,7 @@ top: 27%;
 </style>
 
 <script>
+    let tiempoInicio = Date.now();
     const dedosIzquierda = @Html.Raw(Json.Serialize(ViewBag.DedosIzquierda));
     const dedosDerecha = @Html.Raw(Json.Serialize(ViewBag.DedosDerecha));
     const formRespuesta = document.getElementById("formRespuesta");
@@ -714,6 +716,10 @@ top: 27%;
     });
 
     function finalizarConRespuesta() {
+
+        const tiempofin = Date.now();
+        const tiempoTotalSegundos = (tiempofin - tiempoInicio) / 1000;
+
         const respuesta = inputRespuesta.value.trim();
         const respondio = respuesta !== "";
 
@@ -736,15 +742,26 @@ top: 27%;
         campoCorrecta.name = "respuestaCorrecta";
         campoCorrecta.value = "@ViewBag.RespuestaCorrecta";
 
+        const campoTiempo = document.createElement("input");
+        campoTiempo.type = "hidden";
+        campoTiempo.name = "tiempoRespuesta";
+        campoTiempo.value = tiempoTotalSegundos.toFixed(2);
+
         form.appendChild(campoRespuesta);
         form.appendChild(campoRespondido);
         form.appendChild(campoCorrecta);
+        form.appendChild(campoTiempo);
 
         document.body.appendChild(form);
         form.submit();
     }
 
        function validarRespuesta() {
+           const tiempofin = Date.now();
+           const tiempoTotalSegundos = (tiempofin - tiempoInicio) / 1000;
+
+           document.getElementById("tiempoRespuesta").value = tiempoTotalSegundos.toFixed(2);
+
         if (inputRespuesta.value.trim() === "") {
             respondidoInput.value = "false";
 

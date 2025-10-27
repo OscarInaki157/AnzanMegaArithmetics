@@ -49,6 +49,7 @@
     <form id="formulario" method="post" asp-action="ResultadoEscritura" class="form-respuesta">
         <input type="hidden" id="respuesta" name="respuesta" />
         <input type="hidden" id="respondido" name="respondido" value="true" />
+        <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
         <div id="tecladoInvisible" tabindex="-1" style="position: absolute; width: 0; height: 0; overflow: hidden;"></div>
 
         <div class="manos-wrapper">
@@ -687,6 +688,7 @@
 </style>
 
 <script>
+    let tiempoInicio = Date.now();
     let suma = 0;
     let finalizando = false;
 
@@ -694,8 +696,32 @@
     const tecladoInvisible = document.getElementById("tecladoInvisible");
     const formRespuesta = document.getElementById("formulario");
     const respondidoInput = document.getElementById("respondido");
+    const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
     const puntos = document.querySelectorAll('.punto');
 
+    window.addEventListener('load', function() {
+        tiempoInicio = Date.now();
+        enfocarInputInvisible();
+    });
+
+    // Manejador único para el submit del formulario
+    formRespuesta.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevenir envío inmediato
+
+        // Calcular y asignar tiempo ANTES de enviar
+        const tiempoFin = Date.now();
+        const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+        tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
+        // Asegurar que hay una respuesta
+        if (respuestaInput.value.trim() === "") {
+            respuestaInput.value = "0";
+        }
+        respondidoInput.value = "true";
+
+        // Enviar formulario
+        this.submit();
+    });
 
     document.querySelector(".form-fin")?.addEventListener("submit", () => {
         finalizando = true;
@@ -742,12 +768,10 @@
 
             if (numDedo >= 1 && numDedo <= 4) {
                 if (iluminado) {
-                    // Desilumina desde dedo 1 hasta el actual
                     for (let i = 1; i <= numDedo; i++) {
                         desiluminarDedo(i);
                     }
                 } else {
-                    // Ilumina desde el dedo actual hasta el 4
                     for (let i = numDedo; i <= 4; i++) {
                         iluminarDedo(i);
                     }
@@ -764,12 +788,10 @@
 
             if (numDedo >= 7 && numDedo <= 10) {
                 if (iluminado) {
-                    // Desilumina desde el dedo actual hasta el 10
                     for (let i = numDedo; i <= 10; i++) {
                         desiluminarDedo(i);
                     }
                 } else {
-                    // Ilumina desde el 7 hasta el dedo actual
                     for (let i = 7; i <= numDedo; i++) {
                         iluminarDedo(i);
                     }
@@ -783,10 +805,6 @@
             }
         });
     });
-
-
-
-
 
     const velocidad = parseFloat("@String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}", velocidad)");
     const contadorElemento = document.getElementById("contador");
@@ -802,6 +820,11 @@
                 clearInterval(interval);
                 contadorElemento.textContent = "0.0";
                 if (!finalizando) {
+                    // Usar el mismo método que el submit normal
+                    const tiempoFin = Date.now();
+                    const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+                    tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
                     if (respuestaInput.value.trim() === "") {
                         respuestaInput.value = "0";
                     }
@@ -825,19 +848,20 @@
         }
     }
 
-    window.onload = enfocarInputInvisible;
-
     tecladoInvisible.addEventListener("keydown", function (e) {
          if (e.key === "Enter") {
              e.preventDefault();
-             formRespuesta.submit();
+             // Disparar el evento submit del formulario para usar el mismo manejo
+             formRespuesta.dispatchEvent(new Event('submit'));
          }
     });
 
     function finalizarEscrituraConRespuesta() {
+        const tiempoFin = Date.now();
+        const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+
         const respondido = document.querySelectorAll(".punto.iluminado").length > 0;
         const sumaFinal = document.getElementById("respuesta").value.trim();
-
 
         const form = document.createElement("form");
         form.method = "post";
@@ -858,14 +882,17 @@
         campoCorrecta.name = "respuestaCorrecta";
         campoCorrecta.value = "@numeroObjetivo";
 
+        const campoTiempo = document.createElement("input");
+        campoTiempo.type = "hidden";
+        campoTiempo.name = "tiempoRespuesta";
+        campoTiempo.value = tiempoTotalSegundos.toFixed(2);
+
         form.appendChild(campoRespuesta);
         form.appendChild(campoRespondido);
         form.appendChild(campoCorrecta);
+        form.appendChild(campoTiempo);
 
         document.body.appendChild(form);
         form.submit();
     }
-
-
-
 </script>
