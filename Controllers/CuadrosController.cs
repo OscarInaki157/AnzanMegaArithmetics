@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -10,11 +11,22 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class CuadrosController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public CuadrosController(IPruebasDBService pruebasDBService)
+        {
+            _pruebasDBService = pruebasDBService;
+        }
 
         [HttpGet]
-        public IActionResult CuadrosForm(int? CantidadRejillas, string DimensionRejilla, string TipoIluminacion, 
-            string TipoOperacion, string DigitosSuma, string DigitosResta, int? TiempoMeditacion)
+        public IActionResult CuadrosForm(int? CantidadRejillas, string DimensionRejilla, string TipoIluminacion, string TipoOperacion, string DigitosSuma, string DigitosResta, int? TiempoMeditacion)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             ConfCuadrosModel config;
 
             if (!CantidadRejillas.HasValue || string.IsNullOrEmpty(DimensionRejilla) 
@@ -352,6 +364,13 @@ namespace AnzanMegaArithmetics.Controllers
         {
             try
             {
+                var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+                if (userId == null || userId == 0)
+                {
+                    return RedirectToAction("Inicio", "Inicio");
+                }
+
                 var ejerciciosJson = HttpContext.Session.GetString("Ejercicios");
                 var resultadosJson = HttpContext.Session.GetString("Respuestas");
                 var configuracionJson = HttpContext.Session.GetString("ConfiguracionPractica");
@@ -365,12 +384,33 @@ namespace AnzanMegaArithmetics.Controllers
                 List<RCuadrosModel> respuestas = JsonSerializer.Deserialize<List<RCuadrosModel>>(resultadosJson);
                 ConfCuadrosModel configuracion = JsonSerializer.Deserialize<ConfCuadrosModel>(configuracionJson);
 
+                double Tiempototal = respuestas.Sum(r => r.TiempoRespuesta);
+
                 ResultadosCuadrosPruebaModel final = new ResultadosCuadrosPruebaModel
                 {
                     config = configuracion,
                     ejercicios = actuales.ejerciciosCuadros,
                     respuestas = respuestas
                 };
+
+                int total = respuestas.Count;
+                int correctas = respuestas.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+                int incorrectas = respuestas.Count(r => r.RespuestaUsuario != r.RespuestaCorrecta && r.Respondido);
+
+                int porcentaje = total > 0 ? (correctas * 100) / total : 0;
+
+                PruebasDBModel result = new PruebasDBModel
+                {
+                    Id_Usuario = userId.Value,
+                    Total_Preguntas = total,
+                    Tiempo = TimeSpan.FromSeconds(Tiempototal),
+                    Respuestas_Correctas = correctas,
+                    Fecha = DateTime.Now,
+                    ExperienciaAdquirida = porcentaje,
+                    Tipo_Prueba = "Cuadros Práctica"
+                };
+
+                bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
 
                 return View(final);
 
