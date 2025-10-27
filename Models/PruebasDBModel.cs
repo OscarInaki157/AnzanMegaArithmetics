@@ -4,7 +4,7 @@
     {
         public int Id_Prueba { get; set; }
         public int Id_Usuario { get; set; }
-        public int Id_Clase { get; set; }
+        public string Ids_Clases { get; set; } = string.Empty;
         public bool Activo { get; set; }
         public TimeSpan Tiempo { get; set; }
         public int Total_Preguntas { get; set; } = 0;

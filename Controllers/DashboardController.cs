@@ -109,6 +109,8 @@ namespace AnzanMegaArithmetics.Controllers
 
                 string FraseBienvenida = SetFraseBienvenida(response.Nombre);
 
+                HttpContext.Session.SetInt32("Id_Usuario", response.Id_Usuario);
+
                 return new LoginResponseModel
                 {
                     Id_Usuario = response.Id_Usuario,

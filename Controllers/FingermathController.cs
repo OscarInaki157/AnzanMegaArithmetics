@@ -3,12 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using AnzanMegaArithmetics.Models;
 using System.Globalization;
+using AnzanMegaArithmetics.Services;
 
 namespace AnzanMegaArithmetics.Controllers
 {
     [Authorize]
     public class FingermathController : Controller
     {
+        private readonly IPruebasDBService pruebasDBService;
+        public FingermathController(IPruebasDBService pruebasDBService)
+        {
+            this.pruebasDBService = pruebasDBService;
+        }
+
         private static readonly int[][] combinacionesManoIzquierda = new[]
         {
             new[] { 5 },
@@ -32,6 +39,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult LecturaFinger(string tipo, string velocidad, int? cantidad)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var modelo = new ConfLecturaFingerModel
             {
                TipoPregunta = tipo ?? "ambas",
@@ -190,10 +204,37 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("EjercicioLectura");
         }
 
-
         [HttpGet]
         public IActionResult ResultadoLectura()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var resultados = JsonSerializer.Deserialize<List<RLecturaFingerModel>>(TempData["Resultados"] as string) ?? new List<RLecturaFingerModel>();
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
+            int xp = porcentaje;
+
+            //armar modelo generico para resultados
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = Convert.ToInt32(TempData.Peek("CantidadEjercicios")),
+                Respuestas_Correctas = JsonSerializer.Deserialize<List<RLecturaFingerModel>>(TempData["Resultados"] as string)?.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta) ?? 0,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Fingermath Lectura",
+                ExperienciaAdquirida = xp
+            };
+
+            bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
+
             TempData.Keep("Resultados");
             return View();
         }
@@ -235,6 +276,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EscrituraFinger(string tipo, string velocidad, int? cantidad)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var modelo = new ConfEscrituraFingerModel
             {
                 TipoPregunta = tipo ?? "derecha",
@@ -332,8 +380,6 @@ namespace AnzanMegaArithmetics.Controllers
             return View();
         }
 
-
-
         [HttpPost]
         public IActionResult ResultadoEscritura(int respuesta, string respondido)
         {
@@ -366,10 +412,38 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("EjercicioEscritura");
         }
 
-
         [HttpGet]
         public IActionResult ResultadoEscritura()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var resultados = JsonSerializer.Deserialize<List<REscrituraFingerModel>>(TempData["Resultados"] as string) ?? new List<REscrituraFingerModel>();
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
+            int xp = porcentaje;
+
+            //armar modelo generico para resultados
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = Convert.ToInt32(TempData.Peek("CantidadEjercicios")),
+                Respuestas_Correctas = JsonSerializer.Deserialize<List<REscrituraFingerModel>>(TempData["Resultados"] as string)?.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta) ?? 0,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Fingermath Escritura",
+                ExperienciaAdquirida = xp
+            };
+
+            bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
+
             TempData.Keep("Resultados");
             ViewBag.CantidadEjercicios = TempData.Peek("CantidadEjercicios");
             return View();

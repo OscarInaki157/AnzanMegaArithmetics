@@ -118,7 +118,7 @@
                 (prueba.Respuestas_Correctas * 100.0 / prueba.Total_Preguntas) : 0;
 
                 <div class="table-row" data-prueba-id="@prueba.Id_Prueba" data-usuario-id="@prueba.Id_Usuario"
-                     data-clase-id="@prueba.Id_Clase" data-activo="@prueba.Activo" data-tipo="@prueba.Tipo_Prueba"
+                     data-clase-id="@prueba.Ids_Clases" data-activo="@prueba.Activo" data-tipo="@prueba.Tipo_Prueba"
                      data-porcentaje="@porcentaje" data-fecha="@prueba.Fecha.ToString("yyyy-MM-dd")">
 
                     <div class="col-id">@prueba.Id_Prueba.ToString("D3")</div>
@@ -128,7 +128,7 @@
                     </div>
 
                     <div class="col-clase">
-                        <span class="clase-badge">@prueba.Id_Clase.ToString("D3")</span>
+                        <span class="clase-badge">@prueba.Ids_Clases</span>
                     </div>
 
                     <div class="col-tipo">

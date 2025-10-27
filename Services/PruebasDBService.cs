@@ -1,5 +1,6 @@
 ﻿using AnzanMegaArithmetics.Models;
 using DataBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -30,7 +31,7 @@ namespace AnzanMegaArithmetics.Services
                     {
                         Id_Prueba = prueba.Id_Prueba,
                         Id_Usuario = prueba.Id_Usuario,
-                        Id_Clase = prueba.Id_Clase,
+                        Ids_Clases = prueba.Ids_Clases,
                         Activo = prueba.Activo,
                         Tiempo = prueba.Tiempo,
                         Total_Preguntas = prueba.Total_Preguntas,
@@ -49,6 +50,43 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public bool GuardarPrueba(PruebasDBModel model)
+        {
+            try
+            {
+                UsuariosDB usuario = _context.Usuarios.Include(u => u.Usuario_Clase).ThenInclude(uc=> uc.Clase).FirstOrDefault(u => u.Id_Usuario == model.Id_Usuario);
 
+                if (usuario == null)
+                {
+                    return false;
+                }
+
+                string clases = string.Join(", ", usuario.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre));
+
+                PruebasDB nuevaPrueba = new PruebasDB
+                {
+                    Id_Usuario = usuario.Id_Usuario,
+                    Ids_Clases = clases,
+                    Activo = usuario.Activo,
+                    Tiempo = model.Tiempo,
+                    Total_Preguntas = model.Total_Preguntas,
+                    Respuestas_Correctas = model.Respuestas_Correctas,
+                    Fecha = model.Fecha,
+                    ExperienciaAdquirida = model.ExperienciaAdquirida,
+                    Tipo_Prueba = model.Tipo_Prueba
+                };
+
+                usuario.Experiencia_Total += model.ExperienciaAdquirida;
+                _context.Usuarios.Update(usuario);
+                _context.Pruebas.Add(nuevaPrueba);
+                _context.SaveChanges();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }
