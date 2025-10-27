@@ -65,6 +65,8 @@
     <form method="post" asp-action="ResultadoEscrituraSoroban" id="formulario" class="form-respuesta-barra">
         <input type="hidden" name="respuesta" id="respuesta" />
         <input type="hidden" id="respondido" name="respondido" value="true" />
+        <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
+
         <button type="submit">Enviar</button>
     </form>
 </div>
@@ -449,12 +451,39 @@
 
 @section Scripts {
     <script>
+        let tiempoInicio = Date.now();
+        let finalizando = false;
         const velocidad = parseFloat("@velocidad");
         const contadorElemento = document.getElementById("contador");
         const respuestaInput = document.getElementById("respuesta");
+        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
         const columnas = document.querySelectorAll(".soroban-column");
         const respondido = document.getElementById("respondido");
         const form = document.getElementById("formulario");
+
+         window.addEventListener('load', function() {
+            tiempoInicio = Date.now();
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Calcular tiempo antes de enviar
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
+            // Validar respuesta
+            if (respuestaInput.value.trim() === "") {
+                respondido.value = "false";
+            } else {
+                respondido.value = "true";
+            }
+
+            // Enviar formulario
+            this.submit();
+        });
+
 
         if (velocidad > 0) {
             let tiempo = velocidad;
@@ -462,6 +491,9 @@
                 tiempo -= 0.1;
                 if (tiempo <= 0) {
                     clearInterval(interval);
+                    const tiempoFin = Date.now();
+                    const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+                    tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
                     respondido.value = respuestaInput.value.trim() !== "" ? "true" : "false";
                     form.submit();
                 } else {
@@ -509,6 +541,8 @@
         }
 
         function finalizarConRespuesta() {
+             const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
             const respuesta = respuestaInput.value.trim();
             const respondio = respuesta !== "";
             const form = document.createElement("form");
@@ -516,9 +550,10 @@
             form.action = "/Soroban/FinalizarEscrituraSoroban";
 
             form.innerHTML = `
-                <input type="hidden" name="respuesta" value="${respondio ? respuesta : '0'}" />
-                <input type="hidden" name="respondido" value="${respondio}" />
-            `;
+                       <input type="hidden" name="respuesta" value="${respondio ? respuesta : '-1'}" />
+                       <input type="hidden" name="respondido" value="${respondio}" />
+                       <input type="hidden" name="tiempoRespuesta" value="${tiempoTotalSegundos.toFixed(2)}" />
+                   `;
 
             document.body.appendChild(form);
             form.submit();

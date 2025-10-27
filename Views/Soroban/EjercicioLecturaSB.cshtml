@@ -76,12 +76,13 @@
     </div>
 </div>
 
-<form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-barra" onsubmit="return validarRespuesta();">
+<form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-barra">
 
     <input type="number" id="respuesta" name="respuesta" autocomplete="off" min="0" />
     <button type="submit">Enviar respuesta</button>
     <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
     <input type="hidden" id="respondido" name="respondido" value="true" />
+    <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
 </form>
 
 <style>
@@ -477,10 +478,48 @@
 
 @section Scripts {
     <script>
+        let tiempoInicio = Date.now();
+        let finalizado = false;
+
         const velocidad = parseFloat("@velocidad");
         const contadorElemento = document.getElementById("contador");
         const inputRespuesta = document.getElementById("respuesta");
         const respondidoInput = document.getElementById("respondido");
+        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
+        const formRespuesta = document.getElementById("formRespuesta");
+
+         window.addEventListener('load', function() {
+            tiempoInicio = Date.now();
+            inputRespuesta?.focus({ preventScroll: true });
+        });
+
+        formRespuesta.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Calcular tiempo antes de enviar
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
+            // Validar respuesta
+            if (inputRespuesta.value.trim() === "") {
+                respondidoInput.value = "false";
+
+                const inputHidden = document.createElement("input");
+                inputHidden.type = "hidden";
+                inputHidden.name = "respuesta";
+                inputHidden.value = "-1";
+                formRespuesta.appendChild(inputHidden);
+
+                inputRespuesta.value = "";
+                inputRespuesta.name = "";
+            } else {
+                respondidoInput.value = "true";
+            }
+
+            // Enviar formulario
+            this.submit();
+        });
 
         if (velocidad > 0) {
             let tiempoRestante = velocidad;
@@ -525,20 +564,24 @@
 
 
         function finalizarConRespuesta() {
-            const respuesta = inputRespuesta.value.trim();
-            const respondio = respuesta !== "";
-            const form = document.createElement("form");
-            form.method = "post";
-            form.action = "/Soroban/FinalizarLecturaSoroban";
+                   const tiempoFin = Date.now();
+                   const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+                   const respuesta = inputRespuesta.value.trim();
+                   const respondio = respuesta !== "";
 
-            form.innerHTML = `
-                <input type="hidden" name="respuesta" value="${respondio ? respuesta : '-1'}" />
-                <input type="hidden" name="respondido" value="${respondio}" />
-                <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
-            `;
+                   const form = document.createElement("form");
+                   form.method = "post";
+                   form.action = "/Soroban/FinalizarLecturaSoroban";
 
-            document.body.appendChild(form);
-            form.submit();
+                   form.innerHTML = `
+                       <input type="hidden" name="respuesta" value="${respondio ? respuesta : '-1'}" />
+                       <input type="hidden" name="respondido" value="${respondio}" />
+                       <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
+                       <input type="hidden" name="tiempoRespuesta" value="${tiempoTotalSegundos.toFixed(2)}" />
+                   `;
+
+                   document.body.appendChild(form);
+                   form.submit();
         }
 
         window.addEventListener("load", function () {

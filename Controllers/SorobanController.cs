@@ -124,7 +124,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult ResultadoLecturaSoroban(int respuesta, string respondido)
+        public IActionResult ResultadoLecturaSoroban(int respuesta, string respondido, double tiempoRespuesta)
         {
             bool respondio = respondido == "true";
             long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
@@ -138,7 +138,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new RLecturaSorobanModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = numeroCorrecto
+                RespuestaCorrecta = numeroCorrecto,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             ejerciciosRealizados++;
@@ -158,7 +159,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarLecturaSoroban(int respuesta, string respondido, long respuestaCorrecta)
+        public IActionResult FinalizarLecturaSoroban(int respuesta, string respondido, long respuestaCorrecta, double tiempoRespuesta)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<RLecturaSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
@@ -169,7 +170,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new RLecturaSorobanModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = respuestaCorrecta
+                RespuestaCorrecta = respuestaCorrecta,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             int ejerciciosRealizados = resultados.Count;
@@ -180,7 +182,8 @@ namespace AnzanMegaArithmetics.Controllers
                 resultados.Add(new RLecturaSorobanModel
                 {
                     RespuestaUsuario = -1,
-                    RespuestaCorrecta = 0
+                    RespuestaCorrecta = 0,
+                    TiempoRespuesta = 0
                 });
             }
 
@@ -207,6 +210,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
 
+            double TiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
             PruebasDBModel results = new PruebasDBModel
             {
                 Id_Usuario = userId.Value,
@@ -214,7 +219,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Soroban Lectura",
-                ExperienciaAdquirida = xp
+                ExperienciaAdquirida = xp,
+                Tiempo = TimeSpan.FromSeconds(TiempoTotal)
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
@@ -323,7 +329,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido)
+        public IActionResult ResultadoEscrituraSoroban(int respuesta, string respondido, double tiempoRespuesta)
         {
             bool respondio = respondido == "true";
             long numeroCorrecto = Convert.ToInt64(TempData["NumeroObjetivo"]);
@@ -337,7 +343,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new REscrituraSorobanModel
             {
                 RespuestaUsuario = (respondio ? respuesta : 0),
-                RespuestaCorrecta = numeroCorrecto
+                RespuestaCorrecta = numeroCorrecto,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             ejerciciosRealizados++;
@@ -362,7 +369,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarEscrituraSoroban(int respuesta, string respondido)
+        public IActionResult FinalizarEscrituraSoroban(int respuesta, string respondido, double tiempoRespuesta)
         {
             var resultadosJson = TempData["Resultados"] as string;
             List<REscrituraSorobanModel> resultados = string.IsNullOrEmpty(resultadosJson)
@@ -375,7 +382,8 @@ namespace AnzanMegaArithmetics.Controllers
             resultados.Add(new REscrituraSorobanModel
             {
                 RespuestaUsuario = respondio ? respuesta : -1,
-                RespuestaCorrecta = numeroCorrecto
+                RespuestaCorrecta = numeroCorrecto,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             int ejerciciosRealizados = resultados.Count;
@@ -386,7 +394,8 @@ namespace AnzanMegaArithmetics.Controllers
                 resultados.Add(new REscrituraSorobanModel
                 {
                     RespuestaUsuario = -1,
-                    RespuestaCorrecta = 0
+                    RespuestaCorrecta = 0,
+                    TiempoRespuesta = 0
                 });
             }
 
@@ -414,6 +423,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
 
+            double TiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
             PruebasDBModel results = new PruebasDBModel
             {
                 Id_Usuario = userId.Value,
@@ -421,7 +432,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Soroban Escritura",
-                ExperienciaAdquirida = xp
+                ExperienciaAdquirida = xp,
+                Tiempo = TimeSpan.FromSeconds(TiempoTotal)
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);

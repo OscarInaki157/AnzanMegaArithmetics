@@ -11,6 +11,8 @@
     var total = resultados.Count;
     var correctos = resultados.Count(r => r.EsCorrecto);
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
+    var tiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
     string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
 }
 
@@ -470,7 +472,7 @@
             <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
         <div id="estrellas" class="estrellas-container"></div>
-
+        <p>⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")</strong></p>
     </div>
 </div>
 
@@ -490,6 +492,7 @@
             <div>
                 <p>🧠 <strong>Tu respuesta:</strong><br /> @(r.RespuestaUsuario == -1 ? "No respondió" : r.RespuestaUsuario.ToString())</p>
                 <p>✔️ <strong>Respuesta correcta:</strong><br /> @r.RespuestaCorrecta</p>
+                <p>⏱️ <strong>Tiempo respuesta:</strong><br /> @r.TiempoRespuesta</p>
             </div>
         </details>
     }
