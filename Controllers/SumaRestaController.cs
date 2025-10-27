@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -8,10 +9,24 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class SumaRestaController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public SumaRestaController(IPruebasDBService pruebasDBService) 
+        {
+            this._pruebasDBService = pruebasDBService;
+        }
+
         [HttpGet]
         public IActionResult FormularioSR()
         {
             TempData.Clear();
+
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == 0 || userId == null) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var configJson = HttpContext.Session.GetString("UltimaConfigSR");
             ConfSumaRestaModel config;
             if (!string.IsNullOrEmpty(configJson))
@@ -325,7 +340,6 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
-
 
         private long GenerarPrimerNumeroCercanoAlMaximo(long valorMaximo, int minDig, int maxDig,
                                        string[] digitosPermitidos, Random random)
@@ -860,10 +874,37 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult ResultadoSR()
         {
 
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+            if (userId == null || userId == 0) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var resultadosJson = TempData["Resultados"] as string;
             var resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<RSumaRestaModel>()
                 : JsonSerializer.Deserialize<List<RSumaRestaModel>>(resultadosJson);
+
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
+            int xp = porcentaje;
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Tiempo = TimeSpan.FromSeconds(resultados.Sum(r => r.TiempoRespuesta)),
+                Total_Preguntas = cantidadEjercicios,
+                Respuestas_Correctas = correctos,
+                Fecha = DateTime.UtcNow,
+                ExperienciaAdquirida = xp,
+                Tipo_Prueba = "Suma Resta"
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
 
             TempData.Keep("Resultados");
             return View(resultados);
