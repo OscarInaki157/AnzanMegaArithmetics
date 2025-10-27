@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -9,9 +10,22 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class SorobanController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public SorobanController(IPruebasDBService pruebasDBService) 
+        {
+            this._pruebasDBService = pruebasDBService;
+        }
+
         [HttpGet]
         public IActionResult LecturaSoroban(int? cantidad, long? valMin, long? valMax, string velocidad, int? TiempoMeditacion)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var model = new ConfLecturaSorobanModel
             {
                 CantidadEjercicios = cantidad ?? 5,
@@ -20,6 +34,7 @@ namespace AnzanMegaArithmetics.Controllers
                 VelocidadPreguntas = velocidad ?? "0",
                 TiempoMeditacion = TiempoMeditacion ?? 3
             };
+
             return View(model);
         }
 
@@ -176,6 +191,34 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoLecturaSoroban()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var resultados = JsonSerializer.Deserialize<List<RLecturaSorobanModel>>(TempData["Resultados"] as string) ?? new List<RLecturaSorobanModel>();
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
+            int xp = porcentaje;
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = cantidadEjercicios,
+                Respuestas_Correctas = correctos,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Soroban Lectura",
+                ExperienciaAdquirida = xp
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
+
             TempData.Keep("Resultados");
             return View();
         }
@@ -185,6 +228,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult EscrituraSoroban(int? cantidad, long? valMin, long? valMax, string velocidad, int? TiempoMeditacion)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var model = new ConfEscrituraSorobanModel
             {
                 CantidadEjercicios = cantidad ?? 5,
@@ -348,6 +398,34 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoEscrituraSoroban()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var resultados = JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(TempData["Resultados"] as string) ?? new List<REscrituraSorobanModel>();
+            int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+
+            int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
+            int xp = porcentaje;
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = cantidadEjercicios,
+                Respuestas_Correctas = correctos,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Soroban Escritura",
+                ExperienciaAdquirida = xp
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
+
             TempData.Keep("Resultados");
             return View();
         }

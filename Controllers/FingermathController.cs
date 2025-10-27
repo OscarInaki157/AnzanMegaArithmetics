@@ -226,8 +226,8 @@ namespace AnzanMegaArithmetics.Controllers
             PruebasDBModel results = new PruebasDBModel
             {
                 Id_Usuario = userId.Value,
-                Total_Preguntas = Convert.ToInt32(TempData.Peek("CantidadEjercicios")),
-                Respuestas_Correctas = JsonSerializer.Deserialize<List<RLecturaFingerModel>>(TempData["Resultados"] as string)?.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta) ?? 0,
+                Total_Preguntas = cantidadEjercicios,
+                Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Lectura",
                 ExperienciaAdquirida = xp
@@ -435,8 +435,8 @@ namespace AnzanMegaArithmetics.Controllers
             PruebasDBModel results = new PruebasDBModel
             {
                 Id_Usuario = userId.Value,
-                Total_Preguntas = Convert.ToInt32(TempData.Peek("CantidadEjercicios")),
-                Respuestas_Correctas = JsonSerializer.Deserialize<List<REscrituraFingerModel>>(TempData["Resultados"] as string)?.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta) ?? 0,
+                Total_Preguntas = cantidadEjercicios,
+                Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Escritura",
                 ExperienciaAdquirida = xp
