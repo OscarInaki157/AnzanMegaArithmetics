@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,10 +10,23 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class MemorizacionController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public MemorizacionController(IPruebasDBService pruebasDBService)
+        {
+            this._pruebasDBService = pruebasDBService;
+        }
+
         //asociacion numero figura
         [HttpGet]
         public IActionResult FormNumeroFigura(int? CantidadEjercicios, int? NumeroDigitos, string TipoPregunta, string VelocidadPreguntas, int? TiempoMeditacion)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             ConfNumeroFigura modelo = new ConfNumeroFigura
             {
                 CantidadEjercicios = CantidadEjercicios ?? 5,
@@ -160,6 +174,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoNF()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var ejerciciosJson = HttpContext.Session.GetString("EjerciciosNF");
             var configJson = HttpContext.Session.GetString("ConfigNF");
 
@@ -170,6 +191,7 @@ namespace AnzanMegaArithmetics.Controllers
 
             var sesionEjercicios = JsonSerializer.Deserialize<EjerciciosNumeroFiguraModel>(ejerciciosJson);
             var configuracion = JsonSerializer.Deserialize<ConfNumeroFigura>(configJson);
+            double tiempoTotal = 0;
 
             // Crear lista de resultados para la vista
             var resultados = new List<ResultadoEjercicioNFViewModel>();
@@ -187,6 +209,7 @@ namespace AnzanMegaArithmetics.Controllers
                                 ejercicio.RespuestaUsuario.SequenceEqual(ejercicio.RespuestaCorrecta)
                 };
                 resultados.Add(resultado);
+                tiempoTotal += ejercicio.TiempoRespuesta;
             }
 
             int total = resultados.Count;
@@ -200,6 +223,18 @@ namespace AnzanMegaArithmetics.Controllers
 
             HttpContext.Session.Remove("EjerciciosNF");
 
+            PruebasDBModel result = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = total,
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                Respuestas_Correctas = correctos,
+                Fecha = DateTime.Now,
+                ExperienciaAdquirida = porcentaje,
+                Tipo_Prueba = "Número Figura"
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
 
             return View(resultados);
         }
