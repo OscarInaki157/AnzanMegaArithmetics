@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -9,9 +10,22 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class MultiplicacionController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public MultiplicacionController(IPruebasDBService pruebasDBService)
+        {
+            _pruebasDBService = pruebasDBService;
+        }
+
         [HttpGet]
         public IActionResult TablasForm()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var configStr = HttpContext.Session.GetString("ConfTablas");
 
             ConfTablasModel modelo;
@@ -284,6 +298,35 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoTablas()
         {
+
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var configStr = HttpContext.Session.GetString("ConfTablas");
+
+            ConfTablasModel modelo;
+
+            if (!string.IsNullOrEmpty(configStr))
+            {
+                try
+                {
+                    modelo = JsonSerializer.Deserialize<ConfTablasModel>(configStr);
+                    modelo.CantidadEjercicios = 1;
+                }
+                catch
+                {
+                    modelo = ConfigDef();
+                }
+            }
+            else
+            {
+                modelo = ConfigDef();
+            }
+
             var resultadosJson = TempData["Resultados"] as string;
             var resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<RMultiplicacionModel>()
@@ -294,10 +337,37 @@ namespace AnzanMegaArithmetics.Controllers
             int incorrectas = resultados.Count(r => r.RespuestaUsuario != -1 && !r.EsCorrecto);
             int noRespondidas = resultados.Count(r => r.RespuestaUsuario == -1);
 
+            int porcentaje = total > 0 ? (correctas * 100) / total : 0;
+            int xp = porcentaje;
+
+            TimeSpan tiempoTotal;
+            if (double.TryParse(modelo.VelocidadPreguntas, out double velocidadSegundos))
+            {
+                // Tiempo total = velocidad por pregunta * cantidad de ejercicios
+                tiempoTotal = TimeSpan.FromSeconds(velocidadSegundos * total);
+            }
+            else
+            {
+                tiempoTotal = TimeSpan.FromSeconds(1.0 * total); // Valor por defecto
+            }
+
             ViewBag.Total = total;
             ViewBag.Correctas = correctas;
             ViewBag.Incorrectas = incorrectas;
             ViewBag.NoRespondidas = noRespondidas;
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = total,
+                Respuestas_Correctas = correctas,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Tablas de Multiplicar",
+                ExperienciaAdquirida = xp,
+                Tiempo = tiempoTotal
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
 
             return View(resultados);
         }
@@ -347,6 +417,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult MultiplicacionForm()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
             ConfMultiModel modelo;
 
@@ -395,8 +472,6 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("MultiplicacionForm");
         }
 
-
-
         [HttpPost]
         public IActionResult ConcentracionMultiplicacion(ConfMultiModel config)
         {
@@ -410,7 +485,6 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View();
         }
-
 
         [HttpGet]
         public IActionResult EjercicioMultiplicacion()
@@ -474,7 +548,6 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("EjercicioMultiplicacion");
         }
 
-
         [HttpPost]
         public IActionResult FinalizarMultiplicacion()
         {
@@ -524,18 +597,90 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadosMultiplicacion()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
+            ConfMultiModel modelo;
+
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                modelo = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+            }
+            else
+            {
+                modelo = new ConfMultiModel
+                {
+                    CantidadEjercicios = 5,
+                    FormatoPregunta = "Vertical",
+                    DireccionRespuesta = "DerechaAIzquierda",
+                    VelocidadPreguntas = "0.0",
+                    DigitosMultiplicando = "2",
+                    DigitosMultiplicador = "2",
+                    TiempoMeditacion = 3
+                };
+            }
+
             var resJson = HttpContext.Session.GetString("ResMultiplicacion");
             if (!string.IsNullOrEmpty(resJson))
             {
                 TempData["Resultados"] = resJson;
             }
+            var resultados = string.IsNullOrEmpty(resJson)
+       ? new List<RMultiplicationModel>()
+       : System.Text.Json.JsonSerializer.Deserialize<List<RMultiplicationModel>>(resJson);
+
+            int total = resultados.Count;
+            int correctas = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectas = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = total > 0 ? (correctas * 100) / total : 0;
+            int xp = porcentaje;
+
+            TimeSpan tiempoTotal;
+            if (double.TryParse(modelo.VelocidadPreguntas.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double velocidadSegundos))
+            {
+                // Tiempo total = velocidad por pregunta * cantidad de ejercicios
+                tiempoTotal = TimeSpan.FromSeconds(velocidadSegundos * total);
+            }
+            else
+            {
+                tiempoTotal = TimeSpan.FromSeconds(1.0 * total); // Valor por defecto
+            }
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = total,
+                Respuestas_Correctas = correctas,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = "Multiplicación",
+                ExperienciaAdquirida = xp,
+                Tiempo = tiempoTotal
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
 
             return View();
         }
 
+
+        //competencia
+
         [HttpGet]
         public IActionResult FormCompetenciaMulti()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             HttpContext.Session.Remove("EjerciciosCompetencia");
             var json = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
 
@@ -662,6 +807,11 @@ namespace AnzanMegaArithmetics.Controllers
             var ejercicios = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
             var resultados = new List<RCompetenciaMultiModel>();
 
+            // Calcular tiempo real utilizado
+            var inicioStr = HttpContext.Session.GetString("InicioCompetencia");
+            DateTime inicio = string.IsNullOrEmpty(inicioStr) ? DateTime.UtcNow : DateTime.Parse(inicioStr);
+            TimeSpan tiempoRealUtilizado = DateTime.UtcNow - inicio;
+
             for (int i = 0; i < ejercicios.Count; i++)
             {
                 var ej = ejercicios[i];
@@ -691,17 +841,76 @@ namespace AnzanMegaArithmetics.Controllers
 
             HttpContext.Session.Remove("InicioCompetencia");
 
+            // CREAR UN TIMESPAN LIMPIO (sin milisegundos)
+            TimeSpan tiempoLimpio = new TimeSpan(tiempoRealUtilizado.Days, tiempoRealUtilizado.Hours, tiempoRealUtilizado.Minutes, tiempoRealUtilizado.Seconds);
+
+            HttpContext.Session.SetString("TiempoRealCompetencia", tiempoLimpio.ToString());
+
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
             return RedirectToAction("ResultadoCompetencia");
         }
 
-
+        [HttpGet]
         public IActionResult ResultadoCompetencia()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var resultadosJson = TempData["Resultados"] as string;
             var resultados = string.IsNullOrEmpty(resultadosJson)
                 ? new List<RCompetenciaMultiModel>()
                 : JsonSerializer.Deserialize<List<RCompetenciaMultiModel>>(resultadosJson);
+
+            // Obtener configuración
+            var configJson = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+            var config = !string.IsNullOrEmpty(configJson)
+                ? JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson)
+                : new ConfCompetenciaMultiModel();
+
+            // Calcular estadísticas
+            int total = resultados.Count;
+            int correctas = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectas = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+
+            int porcentaje = total > 0 ? (correctas * 100) / total : 0;
+            int xp = porcentaje;
+
+            // Obtener tiempo real utilizado
+            var tiempoRealStr = HttpContext.Session.GetString("TiempoRealCompetencia");
+            TimeSpan tiempoReal;
+
+            if (!string.IsNullOrEmpty(tiempoRealStr) && TimeSpan.TryParse(tiempoRealStr, out TimeSpan parsedTime))
+            {
+                tiempoReal = parsedTime;
+            }
+            else
+            {
+                tiempoReal = TiempoPorTipo[config.TipoPregunta];
+            }
+
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = total,
+                Respuestas_Correctas = correctas,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = $"Competencia Multiplicación - {config.TipoPregunta}",
+                ExperienciaAdquirida = xp,
+                Tiempo = tiempoReal
+            };
+
+            bool insertarPrueba = _pruebasDBService.GuardarPrueba(results);
+
+            // Limpiar sesión
+            HttpContext.Session.Remove("TiempoRealCompetencia");
+            HttpContext.Session.Remove("EjerciciosCompetencia");
+
+
 
             return View(resultados);
         }
@@ -858,7 +1067,8 @@ namespace AnzanMegaArithmetics.Controllers
                     OperacionTexto = $"{ej.Multiplicando} × {ej.Multiplicador}",
                     RespuestaCorrecta = resultadoEsperado,
                     RespuestaUsuario = respuestaUsuario,
-                    Respondido = respondido
+                    Respondido = respondido,
+                    EsCorrecto = esCorrecto
                 });
             }
 
@@ -870,11 +1080,60 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ResultadoMemorizada()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+
             var resultadosJson = HttpContext.Session.GetString("ResultadosMemorizada");
             if (string.IsNullOrEmpty(resultadosJson))
                 return RedirectToAction("Dashboard", "Dashboard");
 
             var resultados = JsonSerializer.Deserialize<List<RCompetenciaMultiModel>>(resultadosJson);
+
+            // Obtener configuración
+            var configJson = HttpContext.Session.GetString("UltimaConfigMemorizada");
+            var config = !string.IsNullOrEmpty(configJson)
+                ? JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson)
+                : new ConfCompetenciaMultiModel();
+
+            // Calcular estadísticas
+            int total = resultados.Count;
+            int correctas = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
+            int incorrectas = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
+            int noRespondidas = resultados.Count(r => r.RespuestaUsuario == -1);
+
+            int porcentaje = total > 0 ? (correctas * 100) / total : 0;
+            int xp = porcentaje;
+
+
+            // Usar tiempo máximo para competencia memorizada - CREAR TIMESPAN LIMPIO
+            TimeSpan tiempoMaximoBase = TiempoPorTipoTercera.ContainsKey(config.TipoPregunta)
+                ? TiempoPorTipoTercera[config.TipoPregunta]
+                : TimeSpan.FromMinutes(5);
+
+            // CREAR TIMESPAN LIMPIO (sin milisegundos)
+            TimeSpan tiempoMaximo = new TimeSpan(tiempoMaximoBase.Days, tiempoMaximoBase.Hours, tiempoMaximoBase.Minutes, tiempoMaximoBase.Seconds);
+
+
+
+            // Guardar en BD
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = total,
+                Respuestas_Correctas = correctas,
+                Fecha = DateTime.Now,
+                Tipo_Prueba = $"Competencia Memorizada - {config.TipoPregunta}",
+                ExperienciaAdquirida = xp,
+                Tiempo = tiempoMaximo
+            };
+
+            bool insertarPrueba = _pruebasDBService.GuardarPrueba(results);
+
 
             HttpContext.Session.Remove("YaCargoMemorizada");
             HttpContext.Session.Remove("ResultadosMemorizada");
