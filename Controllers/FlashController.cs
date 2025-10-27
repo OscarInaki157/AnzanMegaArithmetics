@@ -1,4 +1,5 @@
 ﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -8,6 +9,12 @@ namespace AnzanMegaArithmetics.Controllers
     [Authorize]
     public class FlashController : Controller
     {
+        private readonly IPruebasDBService _pruebasDBService;
+        public FlashController(IPruebasDBService pruebasDBService) 
+        {
+            this._pruebasDBService = pruebasDBService;
+        }
+
         [HttpGet]
         public IActionResult LimpiarFlashYDashboard()
         {
@@ -22,6 +29,13 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult FormularioFlash()
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             var configStr = HttpContext.Session.GetString("ConfFlash");
 
             ConfFlashModel modelo;
@@ -285,6 +299,12 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult ResultadoFlash(string respuestaUsuario)
         {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
             // Leer el modelo desde Session
             var resultadoJson = HttpContext.Session.GetString("ResultadoFlash");
             var resultado = string.IsNullOrEmpty(resultadoJson)
@@ -334,6 +354,58 @@ namespace AnzanMegaArithmetics.Controllers
             // Guardar de nuevo en Session
             HttpContext.Session.SetString("HistorialFlash", JsonSerializer.Serialize(sesiones));
             HttpContext.Session.SetString("ResultadoFlash", JsonSerializer.Serialize(resultado));
+
+
+            // Guardar en base de datos
+
+            var configStr = HttpContext.Session.GetString("ConfFlash");
+
+            ConfFlashModel modelo;
+
+            if (!string.IsNullOrEmpty(configStr))
+            {
+                try
+                {
+                    modelo = JsonSerializer.Deserialize<ConfFlashModel>(configStr);
+                }
+                catch
+                {
+                    modelo = ObtenerConfiguracionPorDefecto();
+                }
+            }
+            else
+            {
+                modelo = ObtenerConfiguracionPorDefecto();
+            }
+
+            TimeSpan tiempo;
+            if (double.TryParse(modelo.VelocidadPreguntas, out double velocidadSegundos))
+            {
+                tiempo = TimeSpan.FromSeconds(velocidadSegundos);
+            }
+            else
+            {
+                tiempo = TimeSpan.FromSeconds(1.0);
+            }
+
+            int totalSesiones = sesiones.Count;
+            int correctas = sesiones.Count(s => s.FueCorrecta);
+            int incorrectas = totalSesiones - correctas;
+            int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
+
+
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = 1,
+                Tiempo = tiempo * modelo.CantidadEjercicios,
+                Respuestas_Correctas = fueCorrecta ? 1 : 0,
+                Fecha = DateTime.Now,
+                ExperienciaAdquirida = porcentajeGlobal,
+                Tipo_Prueba = "Números Flash"
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
 
             return View("ResultadoFlash", resultado);
         }
