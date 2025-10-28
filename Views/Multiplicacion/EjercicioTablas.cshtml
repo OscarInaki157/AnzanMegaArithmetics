@@ -10,8 +10,6 @@
     int porcentaje = (int)(((float)ejercicioActual / totalEjercicios) * 100);
 }
 
-
-
 <style>
 
     .elhr {
@@ -610,6 +608,9 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="respondido" name="respondido" value="false" />
                 <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
+
+                <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0"/>
+
                 <input type="text"
                        inputmode="numeric"
                        pattern="[0-9]*"
@@ -648,12 +649,36 @@
 
 @section Scripts {
     <script>
+        let tiempoInicio = Date.now();
+
         const velocidad = parseFloat("@velocidad");
         const contador = document.getElementById("contador");
         const form = document.getElementById("formRespuesta");
         const inputRespuesta = document.getElementById("inputRespuesta");
 
+        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
+        
         const respondidoField = document.getElementById("respondido");
+
+
+        // AGREGADO: Manejador del submit del formulario
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Calcular tiempo antes de enviar
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
+            const valor = inputRespuesta.value.trim();
+            document.getElementById("hiddenRespuestaUsuario").value = valor === "" ? -1 : valor;
+            respondidoField.value = valor === "" ? "false" : "true";
+
+            // Enviar formulario
+            this.submit();
+        });
+
+
 
         if (velocidad > 0 && contador) {
             let tiempo = velocidad;
@@ -661,6 +686,10 @@
                 tiempo -= 0.1;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
+
+                    const tiempoFin = Date.now();
+                    const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+                    tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
 
                     if (inputRespuesta.value.trim() !== "") {
                         // Si hay contenido, enviar la respuesta
@@ -679,14 +708,14 @@
             }, 100);
         }
 
-        form.addEventListener("submit", function (e) {
-            const valor = inputRespuesta.value.trim();
-            document.getElementById("hiddenRespuestaUsuario").value = valor === "" ? -1 : valor;
-        });
+       
 
 
         function enviarYFinalizar(e) {
             e.preventDefault();
+
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
 
             // Obtener la respuesta actual (si existe)
             const respuesta = inputRespuesta.value.trim();
@@ -707,6 +736,14 @@
                 form.appendChild(inputResp);
             }
 
+             // Incluir tiempo de respuesta
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoTotalSegundos.toFixed(2);
+            form.appendChild(inputTiempo);
+
+
             // Incluir el token anti-falsificación
             const token = document.querySelector('input[name="__RequestVerificationToken"]').cloneNode(true);
             form.appendChild(token);
@@ -714,6 +751,12 @@
             document.body.appendChild(form);
             form.submit();
         }
+
+        // AGREGADO: Inicializar tiempo al cargar
+        window.addEventListener('load', function() {
+            tiempoInicio = Date.now();
+            inputRespuesta?.focus({ preventScroll: true });
+        });
 
         // soroban
         document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {

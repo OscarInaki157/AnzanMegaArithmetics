@@ -217,7 +217,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult EnviarRespuestaTablas(int? respuestaUsuario)
+        public IActionResult EnviarRespuestaTablas(int? respuestaUsuario, double tiempoRespuesta)
         {
             int multiplicando = Convert.ToInt32(TempData["Multiplicando"]);
             int multiplicador = Convert.ToInt32(TempData["Multiplicador"]);
@@ -235,7 +235,8 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 Multiplicando = multiplicando,
                 Multiplicador = multiplicador,
-                RespuestaUsuario = respuestaUsuario ?? -1
+                RespuestaUsuario = respuestaUsuario ?? -1,
+                TiempoRespuesta = tiempoRespuesta
             };
 
             resultados.Add(model);
@@ -253,7 +254,7 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         [HttpPost]
-        public IActionResult FinalizarDesdeEjercicio(int? respuestaUsuario = null)
+        public IActionResult FinalizarDesdeEjercicio(int? respuestaUsuario, double tiempoRespuesta)
         {
             int total = Convert.ToInt32(TempData["CantidadEjercicios"]);
             int actual = TempData.ContainsKey("EjerciciosRealizados") ? Convert.ToInt32(TempData["EjerciciosRealizados"]) : 0;
@@ -273,7 +274,8 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     Multiplicando = multiplicando,
                     Multiplicador = multiplicador,
-                    RespuestaUsuario = respuestaUsuario.Value
+                    RespuestaUsuario = respuestaUsuario.Value,
+                    TiempoRespuesta = tiempoRespuesta
                 });
                 actual++; // Incrementar el contador
             }
@@ -285,7 +287,8 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     Multiplicando = 0,
                     Multiplicador = 0,
-                    RespuestaUsuario = -1
+                    RespuestaUsuario = -1,
+                    TiempoRespuesta = 0
                 });
             }
 
@@ -340,16 +343,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = total > 0 ? (correctas * 100) / total : 0;
             int xp = porcentaje;
 
-            TimeSpan tiempoTotal;
-            if (double.TryParse(modelo.VelocidadPreguntas, out double velocidadSegundos))
-            {
-                // Tiempo total = velocidad por pregunta * cantidad de ejercicios
-                tiempoTotal = TimeSpan.FromSeconds(velocidadSegundos * total);
-            }
-            else
-            {
-                tiempoTotal = TimeSpan.FromSeconds(1.0 * total); // Valor por defecto
-            }
+            double tiempoTotalSegundos = resultados.Sum(r => r.TiempoRespuesta);
+            TimeSpan tiempoTotal = TimeSpan.FromSeconds(tiempoTotalSegundos);
 
             ViewBag.Total = total;
             ViewBag.Correctas = correctas;
@@ -401,6 +396,8 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("Dashboard", "Dashboard");
         }
 
+        //multiplicacion normal
+
         [HttpGet]
         public IActionResult LimpiarMultiplicacionYDashboard()
         {
@@ -412,7 +409,6 @@ namespace AnzanMegaArithmetics.Controllers
 
             return RedirectToAction("Dashboard", "Dashboard");
         }
-
 
         [HttpGet]
         public IActionResult MultiplicacionForm()
@@ -447,7 +443,6 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View(modelo);
         }
-
 
         [HttpPost]
         public IActionResult RepetirMultiplicacion()
@@ -516,7 +511,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult EnviarRespuesta(string respuestaUsuario, string respondido)
+        public IActionResult EnviarRespuesta(string respuestaUsuario, string respondido, double tiempoRespuesta)
         {
             var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActual") ?? 1;
             var total = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(
@@ -536,7 +531,8 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 Multiplicando = multiplicando,
                 Multiplicador = multiplicador,
-                RespuestaUsuario = respuesta
+                RespuestaUsuario = respuesta,
+                TiempoRespuesta = tiempoRespuesta
             });
 
             HttpContext.Session.SetString("ResMultiplicacion", System.Text.Json.JsonSerializer.Serialize(resultados));
@@ -549,7 +545,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult FinalizarMultiplicacion()
+        public IActionResult FinalizarMultiplicacion(string respuestaUsuario ,double tiempoRespuesta)
         {
             var configJson = HttpContext.Session.GetString("ConfMultiplicacion");
             var resJson = HttpContext.Session.GetString("ResMultiplicacion");
@@ -564,19 +560,35 @@ namespace AnzanMegaArithmetics.Controllers
 
             var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActual") ?? 1;
 
+            if (!string.IsNullOrEmpty(respuestaUsuario) && int.TryParse(respuestaUsuario, out int respuesta))
+            {
+                int multiplicando = HttpContext.Session.GetInt32("MultiplicandoActual") ?? 0;
+                int multiplicador = HttpContext.Session.GetInt32("MultiplicadorActual") ?? 0;
+
+                resultados.Add(new RMultiplicationModel
+                {
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
+                    RespuestaUsuario = respuesta,
+                    TiempoRespuesta = tiempoRespuesta
+                });
+                ejercicioActual++;
+            }
+
+
             var rng = new Random();
 
             for (int i = ejercicioActual; i <= config.CantidadEjercicios; i++)
             {
                 int multiplicando = GenerarNumero(rng, config.DigitosMultiplicando);
                 int multiplicador = GenerarNumero(rng, config.DigitosMultiplicador);
-                int correcta = multiplicando * multiplicador;
 
                 resultados.Add(new RMultiplicationModel
                 {
                     Multiplicando = multiplicando,
                     Multiplicador = multiplicador,
-                    RespuestaUsuario = -1
+                    RespuestaUsuario = -1,
+                    TiempoRespuesta = 0
                 });
             }
 
@@ -604,27 +616,6 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
-            ConfMultiModel modelo;
-
-            if (!string.IsNullOrEmpty(configJson))
-            {
-                modelo = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
-            }
-            else
-            {
-                modelo = new ConfMultiModel
-                {
-                    CantidadEjercicios = 5,
-                    FormatoPregunta = "Vertical",
-                    DireccionRespuesta = "DerechaAIzquierda",
-                    VelocidadPreguntas = "0.0",
-                    DigitosMultiplicando = "2",
-                    DigitosMultiplicador = "2",
-                    TiempoMeditacion = 3
-                };
-            }
-
             var resJson = HttpContext.Session.GetString("ResMultiplicacion");
             if (!string.IsNullOrEmpty(resJson))
             {
@@ -641,16 +632,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = total > 0 ? (correctas * 100) / total : 0;
             int xp = porcentaje;
 
-            TimeSpan tiempoTotal;
-            if (double.TryParse(modelo.VelocidadPreguntas.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out double velocidadSegundos))
-            {
-                // Tiempo total = velocidad por pregunta * cantidad de ejercicios
-                tiempoTotal = TimeSpan.FromSeconds(velocidadSegundos * total);
-            }
-            else
-            {
-                tiempoTotal = TimeSpan.FromSeconds(1.0 * total); // Valor por defecto
-            }
+            double tiempoTotalSegundos = resultados.Sum(r => r.TiempoRespuesta);
+            TimeSpan tiempoTotal = TimeSpan.FromSeconds(tiempoTotalSegundos);
 
             PruebasDBModel results = new PruebasDBModel
             {

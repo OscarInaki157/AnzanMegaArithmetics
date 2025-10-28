@@ -14,11 +14,9 @@
 
 <div class="top-bar">
 
-    <form method="post" action="/Multiplicacion/FinalizarMultiplicacion" class="form-fin" id="formFinalizar">
-        <button type="submit" class="btn-finalizar">
-            ❌ <span>Finalizar</span>
-        </button>
-    </form>
+    <button type="button" onclick="finalizarConTiempo()" class="btn-finalizar">
+        ❌ <span>Finalizar</span>
+    </button>
 
     <div class="barra-progreso-contenedor">
         <div class="barra-progreso">
@@ -63,6 +61,7 @@
             <form method="post" asp-controller="Multiplicacion" asp-action="EnviarRespuesta" id="formRespuesta" class="Forms">
                 <input type="hidden" id="respondido" name="respondido" value="false" />
                 <input type="hidden" name="respuestaUsuario" id="hiddenRespuestaUsuario" value="-1" />
+                <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
 
                 <input type="text"
                        inputmode="numeric"
@@ -73,8 +72,6 @@
                        autofocus
                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                        @(direccion == "DerechaAIzquierda" ? "dir=\"rtl\"" : "") />
-
-
 
                 <button type="submit" class="btn-enviar-respuesta">Enviar</button>
             </form>
@@ -675,16 +672,23 @@
 
 @section Scripts {
     <script>
+         let tiempoInicio = Date.now();
+
         const velocidad = parseFloat("@velocidad");
         const contador = document.getElementById("contador");
         const form = document.getElementById("formRespuesta");
-        const formFinalizar = document.getElementById("formFinalizar");
         const inputRespuesta = document.getElementById("inputRespuesta");
+        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
         const respondidoField = document.getElementById("respondido");
         const hiddenRespuesta = document.getElementById("hiddenRespuestaUsuario");
         const direccionRespuesta = "@direccion";
 
-        // Función para actualizar los campos ocultos antes de enviar
+        window.addEventListener('load', function() {
+            tiempoInicio = Date.now();
+            inputRespuesta?.focus({ preventScroll: true });
+        });
+
+
         function actualizarCamposOcultos() {
             const valor = inputRespuesta.value.trim();
             hiddenRespuesta.value = valor === "" ? "-1" : valor;
@@ -692,32 +696,30 @@
             return valor;
         }
 
-        // Función para enviar la respuesta actual via AJAX
-        async function enviarRespuestaActual() {
-            const respuestaActual = inputRespuesta.value.trim();
-            if (respuestaActual === "") return false;
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
 
-            try {
-                const response = await fetch('/Multiplicacion/EnviarRespuesta', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `respuestaUsuario=${respuestaActual}&respondido=true`
-                });
-                return response.ok;
-            } catch (error) {
-                console.error('Error al enviar respuesta:', error);
-                return false;
-            }
-        }
+      
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
 
+            actualizarCamposOcultos();
+            this.submit();
+        });
+
+    
         if (velocidad > 0 && contador) {
             let tiempo = velocidad;
             const intervalo = setInterval(() => {
                 tiempo -= 0.1;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
+
+                    const tiempoFin = Date.now();
+                    const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+                    tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+
                     actualizarCamposOcultos();
                     form.submit();
                 } else {
@@ -726,31 +728,46 @@
             }, 100);
         }
 
-        // Manejar el envío del formulario normal
-        form.addEventListener("submit", function(e) {
-            actualizarCamposOcultos();
-        });
+        function finalizarConTiempo() {
+      
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
 
-        // Manejar el envío del formulario de finalización
-        formFinalizar.addEventListener("submit", async function(e) {
-            e.preventDefault();
+            const respuesta = inputRespuesta.value.trim();
+            const tieneRespuesta = respuesta !== "";
 
-            // Enviar la respuesta actual si existe
-            const respuestaActual = actualizarCamposOcultos();
-            if (respuestaActual !== "") {
-                await enviarRespuestaActual();
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Multiplicacion/FinalizarMultiplicacion';
+            form.style.display = 'none';
+
+            // Si hay respuesta, incluirla
+            if (tieneRespuesta) {
+                const inputResp = document.createElement('input');
+                inputResp.type = 'hidden';
+                inputResp.name = 'respuestaUsuario';
+                inputResp.value = respuesta;
+                form.appendChild(inputResp);
             }
 
-            // Proceder con la finalización
-            this.submit();
-        });
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoTotalSegundos.toFixed(2);
+            form.appendChild(inputTiempo);
 
-        // Manejar Enter en el input
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').cloneNode(true);
+            form.appendChild(token);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+
         inputRespuesta.addEventListener("keypress", function(e) {
             if (e.key === "Enter") {
                 e.preventDefault();
-                actualizarCamposOcultos();
-                form.submit();
+                form.dispatchEvent(new Event('submit'));
             }
         });
 
@@ -764,8 +781,7 @@
             });
         }
 
-
-        // Código del soroban...
+    
         document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
