@@ -40,7 +40,8 @@ namespace AnzanMegaArithmetics.Controllers
                     TipoOperacion = "suma",
                     DigitosSuma = "1,2,3,4,5,6,7,8,9",
                     DigitosResta = "1,2,3,4,5,6,7,8,9",
-                    TiempoMeditacion = 3
+                    TiempoMeditacion = 3,
+                    TipoPrueba = "Práctica"
                 };
             }
             else 
@@ -53,7 +54,8 @@ namespace AnzanMegaArithmetics.Controllers
                     TipoOperacion = TipoOperacion,
                     DigitosSuma = DigitosSuma,
                     DigitosResta = DigitosResta,
-                    TiempoMeditacion = TiempoMeditacion.Value
+                    TiempoMeditacion = TiempoMeditacion.Value,
+                    TipoPrueba = "Práctica"
                 };
             }
             
@@ -111,6 +113,27 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 return RedirectToAction("CuadrosForm");
             }
+        }
+
+        [HttpPost]
+        public IActionResult CuadrosCompetencia() 
+        {
+            ConfCuadrosModel config;
+            config = new ConfCuadrosModel
+            {
+                CantidadRejillas = 3,
+                DimensionRejilla = "10X10",
+                TipoIluminacion = "ninguna",
+                TipoOperacion = "suma",
+                DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                DigitosResta = "1,2,3,4,5,6,7,8,9",
+                TiempoMeditacion = 3,
+                TipoPrueba = "Competencia"
+            };
+
+            HttpContext.Session.SetString("ConfiguracionPractica", JsonSerializer.Serialize(config));
+
+            return RedirectToAction("ConcentracionPractica");
         }
 
         [HttpPost]
@@ -407,7 +430,7 @@ namespace AnzanMegaArithmetics.Controllers
                     Respuestas_Correctas = correctas,
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = porcentaje,
-                    Tipo_Prueba = "Cuadros Práctica"
+                    Tipo_Prueba = "Cuadros de velocidad " + final.config.TipoPrueba +" : "+ final.config.CantidadRejillas.ToString() + " rejillas " + final.config.DimensionRejilla
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);

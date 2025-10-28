@@ -29,5 +29,7 @@ namespace AnzanMegaArithmetics.Models
 
         [Required]
         public int TiempoMeditacion { get; set; }
+
+        public string TipoPrueba { get; set; } = string.Empty;
     }
 }

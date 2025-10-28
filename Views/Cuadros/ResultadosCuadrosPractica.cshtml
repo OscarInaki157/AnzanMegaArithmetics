@@ -7,6 +7,9 @@
     var correctos = Model.respuestas.Count(r => r.EsCorrecto);
     var porcentaje = total > 0 ? (int)((double)correctos / total * 100) : 0;
     string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
+
+    var tiempoTotal = Model.respuestas.Sum(r => r.TiempoRespuesta);
+    var promedio = total > 0 ? tiempoTotal / total : 0;
 }
 
 <style>
@@ -468,7 +471,8 @@
             <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
         <div id="estrellas" class="estrellas-container"></div>
-
+        <p>⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")</strong></p>
+        <p>⏱️ Tiempo promedio: <strong>@promedio.ToString("0.00")</strong></p>
     </div>
 </div>
 

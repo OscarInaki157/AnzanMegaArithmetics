@@ -92,14 +92,19 @@
             </button>
         </div>
         <div id="Cuadros-menu" class="modulo-menu">
-            <a href="#">
+            
+            <a href="#" onclick="submitCompetenciaForm()">
                 <i class="fa-solid fa-trophy"></i> Modo Competencia
             </a>
+
             <a href="@Url.Action("CuadrosForm","Cuadros")">
                 <i class="fas fa-pencil-alt"></i> Modo Práctica
             </a>
         </div>
     </div>
+
+    <form id="competenciaForm" asp-action="CuadrosCompetencia" asp-controller="Cuadros" method="post" style="display: none;">
+    </form>
 
     @* matematicas con dados *@
     <div class="modulo-card">
@@ -118,3 +123,9 @@
     </div>
 
 </div>
+
+<script>
+    function submitCompetenciaForm() {
+        document.getElementById('competenciaForm').submit();
+    }
+</script>
