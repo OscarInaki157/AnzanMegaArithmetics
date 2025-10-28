@@ -683,7 +683,6 @@ namespace AnzanMegaArithmetics.Controllers
             });
         }
 
-
         [HttpPost]
         public IActionResult ConcentracionCompetencia(ConfCompetenciaMultiModel config)
         {
@@ -770,7 +769,8 @@ namespace AnzanMegaArithmetics.Controllers
 
             HttpContext.Session.SetString("EjerciciosCompetencia", JsonSerializer.Serialize(ejercicios));
 
-            HttpContext.Session.SetString("InicioCompetencia", DateTime.UtcNow.ToString("o"));
+            var inicioCompetencia = DateTime.UtcNow;
+            HttpContext.Session.SetString("InicioCompetencia", inicioCompetencia.ToString("o"));
 
             ViewBag.TiempoLimiteSeg = TiempoPorTipo[configNuevo.TipoPregunta].TotalSeconds;
             ViewBag.MostrarContador = configNuevo.MostrarContadorTiempo;
@@ -778,9 +778,8 @@ namespace AnzanMegaArithmetics.Controllers
             return View(ejercicios);
         }
 
-
         [HttpPost]
-        public IActionResult FinalizarCompetencia(List<string> RespuestasUsuario)
+        public IActionResult FinalizarCompetencia(List<string> RespuestasUsuario, long TiempoRealMs = 0)
         {
             var ejerciciosJson = HttpContext.Session.GetString("EjerciciosCompetencia");
 
@@ -790,10 +789,22 @@ namespace AnzanMegaArithmetics.Controllers
             var ejercicios = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
             var resultados = new List<RCompetenciaMultiModel>();
 
-            // Calcular tiempo real utilizado
-            var inicioStr = HttpContext.Session.GetString("InicioCompetencia");
-            DateTime inicio = string.IsNullOrEmpty(inicioStr) ? DateTime.UtcNow : DateTime.Parse(inicioStr);
-            TimeSpan tiempoRealUtilizado = DateTime.UtcNow - inicio;
+            TimeSpan tiempoRealUtilizado;
+
+            // USAR EL TIEMPO DEL FRONTEND
+            if (TiempoRealMs > 0)
+            {
+                tiempoRealUtilizado = TimeSpan.FromMilliseconds(TiempoRealMs);
+                Console.WriteLine($"Tiempo recibido del frontend: {tiempoRealUtilizado}");
+            }
+            else
+            {
+                // Fallback por si acaso
+                var configJson = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
+                var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson);
+                tiempoRealUtilizado = TiempoPorTipo[config.TipoPregunta];
+                Console.WriteLine($"Usando tiempo límite como fallback: {tiempoRealUtilizado}");
+            }
 
             for (int i = 0; i < ejercicios.Count; i++)
             {
@@ -818,18 +829,17 @@ namespace AnzanMegaArithmetics.Controllers
                     RespuestaUsuario = respuestaUsuario,
                     Respondido = respondido,
                     EsCorrecto = esCorrecto,
-                    TiempoRespuesta = ej.TiempoRespuesta
+                    TiempoRespuesta = TimeSpan.Zero
                 });
             }
 
             HttpContext.Session.Remove("InicioCompetencia");
 
-            // CREAR UN TIMESPAN LIMPIO (sin milisegundos)
             TimeSpan tiempoLimpio = new TimeSpan(tiempoRealUtilizado.Days, tiempoRealUtilizado.Hours, tiempoRealUtilizado.Minutes, tiempoRealUtilizado.Seconds);
 
-            HttpContext.Session.SetString("TiempoRealCompetencia", tiempoLimpio.ToString());
-
+            TempData["TiempoRealCompetencia"] = tiempoLimpio.ToString();
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
+
             return RedirectToAction("ResultadoCompetencia");
         }
 
@@ -863,8 +873,9 @@ namespace AnzanMegaArithmetics.Controllers
             int xp = porcentaje;
 
             // Obtener tiempo real utilizado
-            var tiempoRealStr = HttpContext.Session.GetString("TiempoRealCompetencia");
-            TimeSpan tiempoReal;
+            var tiempoRealStr = TempData["TiempoRealCompetencia"] as string;
+            TimeSpan tiempoReal = TimeSpan.Zero;
+
 
             if (!string.IsNullOrEmpty(tiempoRealStr) && TimeSpan.TryParse(tiempoRealStr, out TimeSpan parsedTime))
             {
@@ -875,6 +886,8 @@ namespace AnzanMegaArithmetics.Controllers
                 tiempoReal = TiempoPorTipo[config.TipoPregunta];
             }
 
+            ViewBag.TiempoUtilizado = tiempoReal;
+            ViewBag.TiempoFormateado = FormatearTiempo(tiempoReal);
 
             PruebasDBModel results = new PruebasDBModel
             {
@@ -893,9 +906,23 @@ namespace AnzanMegaArithmetics.Controllers
             HttpContext.Session.Remove("TiempoRealCompetencia");
             HttpContext.Session.Remove("EjerciciosCompetencia");
 
-
-
             return View(resultados);
+        }
+
+        private string FormatearTiempo(TimeSpan tiempo)
+        {
+            if (tiempo.TotalHours >= 1)
+            {
+                return $"{(int)tiempo.TotalHours}:{tiempo.Minutes:00}:{tiempo.Seconds:00}";
+            }
+            else if (tiempo.TotalMinutes >= 1)
+            {
+                return $"{tiempo.Minutes}:{tiempo.Seconds:00}";
+            }
+            else
+            {
+                return $"{tiempo.Seconds} segundos";
+            }
         }
 
         [HttpGet]
@@ -1020,7 +1047,7 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         [HttpPost]
-        public IActionResult FinalizarMemorizada(List<string> RespuestasUsuario)
+        public IActionResult FinalizarMemorizada(List<string> RespuestasUsuario, long TiempoRealMs)
         {
             var ejerciciosJson = HttpContext.Session.GetString("EjerciciosMemorizada");
             if (string.IsNullOrEmpty(ejerciciosJson))
@@ -1028,6 +1055,23 @@ namespace AnzanMegaArithmetics.Controllers
 
             var ejercicios = JsonSerializer.Deserialize<List<EjercicioCompetenciaModel>>(ejerciciosJson);
             var resultados = new List<RCompetenciaMultiModel>();
+
+            TimeSpan tiempoRealUtilizado;
+
+    
+            if (TiempoRealMs > 0)
+            {
+                tiempoRealUtilizado = TimeSpan.FromMilliseconds(TiempoRealMs);
+                Console.WriteLine($"Tiempo recibido del frontend (Memorizada): {tiempoRealUtilizado}");
+            }
+            else
+            {
+                
+                var configJson = HttpContext.Session.GetString("UltimaConfigMemorizada");
+                var config = JsonSerializer.Deserialize<ConfCompetenciaMultiModel>(configJson);
+                tiempoRealUtilizado = TiempoPorTipoTercera[config.TipoPregunta].Add(TimeSpan.FromMinutes(5));
+                Console.WriteLine($"Usando tiempo estimado como fallback (Memorizada): {tiempoRealUtilizado}");
+            }
 
             for (int i = 0; i < ejercicios.Count; i++)
             {
@@ -1056,6 +1100,7 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             HttpContext.Session.Remove("YaCargoMemorizada");
+            TempData["TiempoRealMemorizada"] = tiempoRealUtilizado.ToString();
             HttpContext.Session.SetString("ResultadosMemorizada", JsonSerializer.Serialize(resultados));
             return RedirectToAction("ResultadoMemorizada");
         }
@@ -1092,16 +1137,23 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = total > 0 ? (correctas * 100) / total : 0;
             int xp = porcentaje;
 
+            TimeSpan tiempoReal;
+            var tiempoRealStr = TempData["TiempoRealMemorizada"] as string;
 
-            // Usar tiempo máximo para competencia memorizada - CREAR TIMESPAN LIMPIO
-            TimeSpan tiempoMaximoBase = TiempoPorTipoTercera.ContainsKey(config.TipoPregunta)
-                ? TiempoPorTipoTercera[config.TipoPregunta]
-                : TimeSpan.FromMinutes(5);
+            if (!string.IsNullOrEmpty(tiempoRealStr) && TimeSpan.TryParse(tiempoRealStr, out TimeSpan parsedTime))
+            {
+                tiempoReal = parsedTime;
+            }
+            else
+            {
+                // Fallback al tiempo límite
+                tiempoReal = TiempoPorTipoTercera.ContainsKey(config.TipoPregunta)
+                    ? TiempoPorTipoTercera[config.TipoPregunta]
+                    : TimeSpan.FromMinutes(5);
+            }
 
-            // CREAR TIMESPAN LIMPIO (sin milisegundos)
-            TimeSpan tiempoMaximo = new TimeSpan(tiempoMaximoBase.Days, tiempoMaximoBase.Hours, tiempoMaximoBase.Minutes, tiempoMaximoBase.Seconds);
-
-
+            ViewBag.TiempoUtilizado = tiempoReal;
+            ViewBag.TiempoFormateado = FormatearTiempo(tiempoReal);
 
             // Guardar en BD
             PruebasDBModel results = new PruebasDBModel
@@ -1112,7 +1164,7 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = $"Competencia Memorizada - {config.TipoPregunta}",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoMaximo
+                Tiempo = tiempoReal
             };
 
             bool insertarPrueba = _pruebasDBService.GuardarPrueba(results);

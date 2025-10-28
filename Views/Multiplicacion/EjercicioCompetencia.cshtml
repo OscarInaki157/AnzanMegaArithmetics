@@ -394,6 +394,9 @@
     window.formularioEnviado = false;
     let timer;
 
+    let tiempoInicio = Date.now();
+    let tiempoLimiteMs = @tiempoLimiteSeg * 1000;
+
 
     function renderEjercicio() {
         const ej = ejercicios[actual];
@@ -607,7 +610,7 @@
         renderEjercicio();
     }
 
-        function actualizarRespuesta() {
+    function actualizarRespuesta() {
         const input = document.getElementById("respuestaActual");
         let valorMostrado = input.value;
 
@@ -631,23 +634,24 @@
         miniInput.value = valorVisual;
     }
 
-
-
-
     renderEjercicio();
 
     // Cronómetro si se activa
-    let tiempo = @tiempoLimiteSeg;
+    let tiempoRestante = @tiempoLimiteSeg;
     const cronometro = document.getElementById("cronometro");
 
     function actualizarCronometro() {
-        if (tiempo <= 0) {
-            tiempo = 0;
+        if (tiempoRestante <= 0) {
+            tiempoRestante = 0;
             clearInterval(timer);
 
             // Solo si aún no se envió
             if (!window.formularioEnviado) {
                 window.formularioEnviado = true;
+
+                let tiempoUtilizadoMs = tiempoLimiteMs;
+                agregarTiempoRealAlFormulario(tiempoUtilizadoMs);
+
                 copiarRespuestasAlFormulario();
                 document.getElementById("FormFinalizar").submit();
             }
@@ -655,16 +659,39 @@
         }
 
         if(cronometro){
-            const min = Math.floor(tiempo / 60);
-            const seg = Math.floor(tiempo % 60).toString().padStart(2, '0');
+            const min = Math.floor(tiempoRestante / 60);
+            const seg = Math.floor(tiempoRestante % 60).toString().padStart(2, '0');
             cronometro.textContent = `${min}:${seg}`;
         }
 
-        tiempo--;
+        tiempoRestante--;
     }
 
+        function agregarTiempoRealAlFormulario(tiempoMs) {
+        let inputTiempo = document.getElementById("hiddenTiempoReal");
+        if (!inputTiempo) {
+            inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'TiempoRealMs';
+            inputTiempo.id = 'hiddenTiempoReal';
+            document.getElementById("FormFinalizar").appendChild(inputTiempo);
+        }
+        inputTiempo.value = tiempoMs;
+    }
 
+        // Cuando el usuario presiona Finalizar manualmente
+    document.getElementById("FormFinalizar").addEventListener("submit", function (e) {
+        // Calcular tiempo real utilizado
+        let tiempoTranscurridoMs = Date.now() - tiempoInicio;
 
+        // Si se pasó del tiempo límite, usar el tiempo límite
+        if (tiempoTranscurridoMs > tiempoLimiteMs) {
+            tiempoTranscurridoMs = tiempoLimiteMs;
+        }
+
+        agregarTiempoRealAlFormulario(tiempoTranscurridoMs);
+        copiarRespuestasAlFormulario();
+    });
 
     
     actualizarCronometro();
@@ -711,10 +738,6 @@
 
         return true;
     }
-
-    document.getElementById("FormFinalizar").addEventListener("submit", function (e) {
-        copiarRespuestasAlFormulario();
-    });
 
     history.pushState(null, null, location.href);
     window.onpopstate = function () {

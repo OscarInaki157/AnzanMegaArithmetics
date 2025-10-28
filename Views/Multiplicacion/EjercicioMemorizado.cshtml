@@ -68,50 +68,54 @@
     let cronometro = document.getElementById("cronometro");
     let modoRespuesta = false;
 
+    let tiempoInicioTotal = Date.now();
+    let tiempoLimiteMs = @tiempoMemoria * 1000;
+    let tiempoUtilizadoMs = 0; 
+    window.formularioEnviado = false;
+
     function iniciarMemorizacion() {
+        document.querySelectorAll('.ejercicio-mini').forEach(el => {
+            el.classList.remove('activo', 'resuelto');
+        });
 
-            document.querySelectorAll('.ejercicio-mini').forEach(el => {
-                el.classList.remove('activo', 'resuelto');
-            });
+        document.getElementById("contenidoEjercicio").innerHTML = "";
 
-            document.getElementById("contenidoEjercicio").innerHTML = "";
+        if (mostrarContador && cronometro) {
+            actualizarCronometro(tiempoRestante);
+        }
 
-            if (mostrarContador && cronometro) {
-                actualizarCronometro(tiempoRestante);
-            }
+        const intervalo = setInterval(() => {
+            if (!modoRespuesta) {
+                tiempoRestante--;
 
-
-            const intervalo = setInterval(() => {
-                if (!modoRespuesta) {
-                    tiempoRestante--;
-
-                    if (mostrarContador && cronometro) {
-                        actualizarCronometro(tiempoRestante);
-                    }
-
-                    if (tiempoRestante <= 0) {
-                        modoRespuesta = true;
-                        clearInterval(intervalo);
-
-                        // Deshabilitar el botón cuando el tiempo termine
-                        const btn = document.getElementById("btnSaltarMemorizacion");
-                        btn.disabled = true;
-                        btn.style.opacity = "0.7";
-                        btn.style.cursor = "not-allowed";
-
-                        ocultarOperaciones();
-                        if (mostrarContador && cronometro) {
-                            cronometro.textContent = "Responde";
-                            cronometro.classList.add("modo-libre");
-                        }
-                        mostrarEjercicio();
-                        habilitarInput();
-                    }
+                if (mostrarContador && cronometro) {
+                    actualizarCronometro(tiempoRestante);
                 }
-            }, 1000);
+
+                if (tiempoRestante <= 0) {
+                    modoRespuesta = true;
+                    clearInterval(intervalo);
+
+                    
+                    tiempoUtilizadoMs = tiempoLimiteMs;
+
+                    
+                    const btn = document.getElementById("btnSaltarMemorizacion");
+                    btn.disabled = true;
+                    btn.style.opacity = "0.7";
+                    btn.style.cursor = "not-allowed";
+
+                    ocultarOperaciones();
+                    if (mostrarContador && cronometro) {
+                        cronometro.textContent = "Responde";
+                        cronometro.classList.add("modo-libre");
+                    }
+                    mostrarEjercicio();
+                    habilitarInput();
+                }
+            }
+        }, 1000);
     }
-
-
 
     function actualizarCronometro(t) {
         if (cronometro) {
@@ -131,7 +135,6 @@
             </div>
         `;
 
-        // Resaltar el ejercicio actual en el grid
         document.querySelectorAll('.ejercicio-mini').forEach((el, index) => {
             el.classList.remove('activo');
             if (index === actual) {
@@ -148,7 +151,6 @@
             document.getElementById(`linea2_${i}`).textContent = "× " + mul2;
         });
     }
-
 
     function habilitarInput() {
         const input = document.getElementById("respuestaActual");
@@ -183,7 +185,6 @@
         const miniInput = document.getElementById(`respuestaMini_${actual}`);
         if (miniInput) miniInput.value = valor;
 
-        // Marcar como resuelto
         document.getElementById(`ejMini_${actual}`).classList.add('resuelto');
         document.getElementById(`ejMini_${actual}`).classList.remove('activo');
 
@@ -203,11 +204,40 @@
                 habilitarInput();
             }
         } else {
-            // Cuando terminamos todos los ejercicios, quitamos el resaltado
+           
             document.querySelectorAll('.ejercicio-mini').forEach(el => {
                 el.classList.remove('activo');
             });
         }
+    }
+
+    function agregarTiempoRealAlFormulario() {
+        let tiempoTranscurridoMs;
+
+        if (modoRespuesta && tiempoUtilizadoMs > 0) {
+           
+            tiempoTranscurridoMs = tiempoUtilizadoMs;
+        } else {
+           
+            tiempoTranscurridoMs = Date.now() - tiempoInicioTotal;
+
+            
+            if (tiempoTranscurridoMs > tiempoLimiteMs) {
+                tiempoTranscurridoMs = tiempoLimiteMs;
+            }
+        }
+
+        let inputTiempo = document.getElementById("hiddenTiempoReal");
+        if (!inputTiempo) {
+            inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'TiempoRealMs';
+            inputTiempo.id = 'hiddenTiempoReal';
+            document.getElementById("FormFinalizar").appendChild(inputTiempo);
+        }
+        inputTiempo.value = tiempoTranscurridoMs;
+
+        console.log(`Tiempo enviado: ${tiempoTranscurridoMs}ms`);
     }
 
     function copiarRespuestasAlFormulario() {
@@ -215,29 +245,41 @@
             const input = document.getElementById(`hiddenRespuesta_${i}`);
             if (input) input.value = resp;
         });
+
+        agregarTiempoRealAlFormulario();
         return true;
     }
 
     function finalizar() {
-        copiarRespuestasAlFormulario();
-        document.getElementById("FormFinalizar").submit();
+        if (!window.formularioEnviado) {
+            window.formularioEnviado = true;
+            copiarRespuestasAlFormulario();
+            document.getElementById("FormFinalizar").submit();
+        }
     }
+
+    document.getElementById("FormFinalizar").addEventListener("submit", function (e) {
+        e.preventDefault();
+        finalizar();
+    });
 
     document.addEventListener("DOMContentLoaded", iniciarMemorizacion);
 
-     function saltarMemorizacion() {
+    function saltarMemorizacion() {
         if (modoRespuesta) return;
 
-        // Forzar el fin del tiempo de memorización
-        tiempoRestante = 0;
+       
+        tiempoUtilizadoMs = Date.now() - tiempoInicioTotal;
 
-        // Actualizar UI
+      
+        tiempoRestante = 0;
+        modoRespuesta = true;
+
         if (mostrarContador && cronometro) {
             cronometro.textContent = "Responde";
             cronometro.classList.add("modo-libre");
         }
 
-        // Deshabilitar el botón
         const btn = document.getElementById("btnSaltarMemorizacion");
         btn.disabled = true;
         btn.style.opacity = "0.7";
