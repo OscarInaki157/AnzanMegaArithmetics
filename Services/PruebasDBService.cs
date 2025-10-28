@@ -76,6 +76,9 @@ namespace AnzanMegaArithmetics.Services
                     Tipo_Prueba = model.Tipo_Prueba
                 };
 
+                //calcular racha
+                CalcularRacha(usuario, model.Fecha);
+
                 usuario.Experiencia_Total += model.ExperienciaAdquirida;
                 _context.Usuarios.Update(usuario);
                 _context.Pruebas.Add(nuevaPrueba);
@@ -88,5 +91,36 @@ namespace AnzanMegaArithmetics.Services
                 return false;
             }
         }
+
+
+        public void CalcularRacha(UsuariosDB usuario, DateTime fechaActual)
+        {
+            DateTime hoy = fechaActual.Date;
+            DateTime ayer = hoy.AddDays(-1);
+
+            // Verificar si ya hizo prueba hoy
+            bool yaHizoPruebaHoy = _context.Pruebas
+                .Any(p => p.Id_Usuario == usuario.Id_Usuario &&
+                         p.Fecha.Date == hoy);
+
+            if (yaHizoPruebaHoy)
+            {
+                return;
+            }
+
+            bool hizoPruebaAyer = _context.Pruebas
+                .Any(p => p.Id_Usuario == usuario.Id_Usuario &&
+                         p.Fecha.Date == ayer);
+
+            if (hizoPruebaAyer)
+            {
+                usuario.Racha = usuario.Racha + 1;
+            }
+            else
+            {
+                usuario.Racha = 1;
+            }
+        }
+
     }
 }
