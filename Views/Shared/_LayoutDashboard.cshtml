@@ -562,13 +562,92 @@
         }
 
         .R2 {
-            background-color: #798478;
             width: 30%;
             height: 6rem;
             border-radius: 1rem;
             justify-content: center;
             align-items: center;
             display: flex;
+            background-color: #798478;
+        }
+
+        .R2.bronze {
+            background: linear-gradient(135deg, #cd7f32, #a56c2c);
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
+        }
+
+        .R2.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
+        }
+
+        .R2.gold {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .R2.diamond {
+            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        .R2.heroic {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .R2.dark-matter {
+            background: linear-gradient(135deg, #2d1b69, #1a1033, #000000);
+            box-shadow: 0 4px 15px rgba(106, 13, 173, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .R2.dark-matter::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 234, 0.1) 50%, transparent 70%);
+                animation: dark-matter-shine 3s infinite linear;
+            }
+
+        @@keyframes dark-matter-shine {
+            0%
+
+        {
+            transform: rotate(0deg) translateX(-50%);
+        }
+
+        100% {
+            transform: rotate(360deg) translateX(-50%);
+        }
+
+        }
+
+        /* Asegurar que el texto sea legible en todos los fondos */
+        .R2.bronze .txt,
+        .R2.dark-matter .txt {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .R2.silver .txt,
+        .R2.gold .txt {
+            color: #000;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .R2.diamond .txt {
+            color: #0066cc;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .R2.heroic .txt {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .R3 {
@@ -917,7 +996,7 @@
     </footer>
 
     <script>
-            document.addEventListener('DOMContentLoaded', function() {
+                    document.addEventListener('DOMContentLoaded', function() {
             // Manejo del sidebar
             const hamburgerBtn = document.getElementById('hamburger-btn');
             const sidebar = document.querySelector('.dashboard-sidebar');
@@ -1008,7 +1087,62 @@
                 });
             });
 
-            // Contador de XP
+            // Función para determinar el rango
+            function determinarRango(exp) {
+                const xp = parseInt(exp) || 0;
+
+                if (xp >= 500000 && xp <= 749999) return { nombre: "Materia Oscura I", clase: "dark-matter" };
+                if (xp >= 750000 && xp <= 1000000) return { nombre: "Materia Oscura II", clase: "dark-matter" };
+                if (xp > 1000000) return { nombre: "Materia Oscura III", clase: "dark-matter" };
+                if (xp >= 260001 && xp <= 280000) return { nombre: "Heroico I", clase: "heroic" };
+                if (xp >= 280001 && xp <= 300000) return { nombre: "Heroico II", clase: "heroic" };
+                if (xp >= 300001 && xp <= 320000) return { nombre: "Heroico III", clase: "heroic" };
+                if (xp >= 220001 && xp <= 260000) return { nombre: "Diamante III", clase: "diamond" };
+                if (xp >= 200001 && xp <= 220000) return { nombre: "Diamante II", clase: "diamond" };
+                if (xp >= 180001 && xp <= 200000) return { nombre: "Diamante I", clase: "diamond" };
+                if (xp >= 160001 && xp <= 180000) return { nombre: "Oro III", clase: "gold" };
+                if (xp >= 140001 && xp <= 160000) return { nombre: "Oro II", clase: "gold" };
+                if (xp >= 120001 && xp <= 140000) return { nombre: "Oro I", clase: "gold" };
+                if (xp >= 100001 && xp <= 120000) return { nombre: "Plata III", clase: "silver" };
+                if (xp >= 80001 && xp <= 100000) return { nombre: "Plata II", clase: "silver" };
+                if (xp >= 60001 && xp <= 80000) return { nombre: "Plata I", clase: "silver" };
+                if (xp >= 40001 && xp <= 60000) return { nombre: "Bronce III", clase: "bronze" };
+                if (xp >= 20001 && xp <= 40000) return { nombre: "Bronce II", clase: "bronze" };
+
+                return { nombre: "Bronce I", clase: "bronze" };
+            }
+
+            // Función para actualizar el rango en la interfaz
+            function actualizarRango() {
+                const rangoElement = document.querySelector('.R2 .txt strong');
+                const r2Element = document.querySelector('.R2');
+
+                if (rangoElement && r2Element) {
+                    // Obtener XP directamente del modelo
+                    const xp = @Model.Exp;
+                    const rango = determinarRango(xp);
+
+                    // Actualizar el texto del rango
+                    rangoElement.innerHTML = `🎖️<br />${rango.nombre}`;
+
+                    // Actualizar los estilos según el rango
+                    r2Element.className = 'R2'; // Reset classes
+
+                    // Aplicar la clase correspondiente al rango
+                    r2Element.classList.add(rango.clase);
+                }
+            }
+
+            // Función para actualizar XP dinámicamente
+            function actualizarXP(nuevaXP) {
+                const xpElement = document.getElementById('xp-counter');
+                if (xpElement) {
+                    xpElement.textContent = nuevaXP + 'XP';
+                    actualizarRango();
+                }
+            }
+
+            // Contador de XP con animación
             const xpElement = document.getElementById("xp-counter");
             if (xpElement) {
                 const targetXP = @Model.Exp;
@@ -1022,20 +1156,21 @@
                     const progress = currentFrame / totalFrames;
                     const value = Math.round(targetXP * progress);
 
-                    xpElement.textContent = value;
+                    xpElement.textContent = value + 'XP';
 
                     if (currentFrame >= totalFrames) {
                         clearInterval(counter);
-                        xpElement.textContent = targetXP;
+                        xpElement.textContent = targetXP + 'XP';
                     }
                 }, 1000 / frameRate);
             }
 
+            actualizarRango();
+
             // Protección (opcional)
-            
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+             document.addEventListener('contextmenu', function(e) {
+                 e.preventDefault();
+             });
 
              document.addEventListener('keydown', function(e) {
                  if (
@@ -1046,7 +1181,6 @@
                      e.preventDefault();
                  }
              });
-            
         });
     </script>
 

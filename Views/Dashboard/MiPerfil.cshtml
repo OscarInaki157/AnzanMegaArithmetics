@@ -1,4 +1,5 @@
-﻿@model AnzanMegaArithmetics.Models.LoginResponseModel
+﻿@using AnzanMegaArithmetics.Models
+@model AnzanMegaArithmetics.Models.LoginResponseModel
 @{
     ViewBag.Title = "Mi perfil";
     Layout = "_LayoutDashboard";
@@ -17,7 +18,6 @@
         </div>
     </div>
 
-    <!-- Contenedor existente de información del usuario -->
     <div class="user-info-card">
         <p><strong>Licencia @Model.Licencia</strong></p>
         <p>Última conexión: @Model.Ultima_Cnx</p>
@@ -33,7 +33,7 @@
                 <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
             </div>
             <div class="R1">
-                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span>XP</strong></p>
+                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>
             </div>
         </div>
     </div>
@@ -84,7 +84,6 @@
         </div>
     </div>
 
-    <!-- Tabla Top Globales -->
     <div class="global-ranking-container">
         <div class="ranking-header">
             <h2 class="ranking-title">🏆 Top Globales</h2>
@@ -100,143 +99,160 @@
             </div>
 
             <div class="table-body">
-                <!-- Jugador 1 -->
-                <div class="table-row top-1">
-                    <div class="rank-col">
-                        <span class="rank-badge gold">1</span>
-                    </div>
-                    <div class="player-col">
-                        <div class="player-info">
+                @{
+                    var ranking = ViewBag.Ranking as List<RankingUsersModel>;
+                    var currentUserId = Model.Id_Usuario;
+                    var rankNumber = 1;
 
-                            <div class="player-details">
-                                <div class="player-name">Luis Fernando Herrera Aparicio</div>
-                                <div class="player-tag">PsyDestroyer69</div>
+                    if (ranking != null && ranking.Any())
+                    {
+                        foreach (var user in ranking)
+                        {
+                            var isCurrentUser = user.Id_Usuario == currentUserId;
+                            var rankClass = rankNumber == 1 ? "top-1" : rankNumber == 2 ? "top-2" : rankNumber == 3 ? "top-3" : "";
+                            var userClass = isCurrentUser ? "current-user" : "";
+                            var combinedClass = $"{rankClass} {userClass}".Trim();
+
+                            <div class="table-row @combinedClass">
+                                <div class="rank-col">
+                                    @if (rankNumber <= 3)
+                                    {
+                                        <span class="rank-badge @(rankNumber == 1 ? "gold" : rankNumber == 2 ? "silver" : "bronze")">@rankNumber</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="rank-number">@rankNumber</span>
+                                    }
+                                </div>
+                                <div class="player-col">
+                                    <div class="player-info">
+                                        <div class="player-details">
+                                            <div class="player-name">
+                                                @user.Nombre
+                                                @if (isCurrentUser)
+                                                {
+                                                    <span class="user-indicator-text">(Tú)</span>
+                                                }
+                                            </div>
+                                            <div class="player-tag">@user.Gamer_Tag</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="xp-col">
+                                    <div class="xp-amount">@user.Exp.ToString("N0") XP</div>
+                                    <div class="xp-bar">
+                                        @{
+                                            var maxXp = ranking.First().Exp;
+                                            var progressPercentage = maxXp > 0 ? (user.Exp * 100) / maxXp : 0;
+                                            progressPercentage = Math.Min(progressPercentage, 100);
+                                        }
+                                        <div class="xp-progress" style="width: @progressPercentage%"></div>
+                                    </div>
+                                </div>
+                                <div class="badge-col">
+                                    @{
+                                        string GetRankBadgeClass(int exp)
+                                        {
+                                            if (exp >= 500000 && exp <= 749999) return "dark-matter";
+                                            if (exp >= 750000 && exp <= 1000000) return "dark-matter";
+                                            if (exp > 1000000) return "dark-matter";
+                                            if (exp >= 260001 && exp <= 280000) return "heroic";
+                                            if (exp >= 280001 && exp <= 300000) return "heroic";
+                                            if (exp >= 300001 && exp <= 320000) return "heroic";
+                                            if (exp >= 220001 && exp <= 260000) return "diamond";
+                                            if (exp >= 200001 && exp <= 220000) return "diamond";
+                                            if (exp >= 180001 && exp <= 200000) return "diamond";
+                                            if (exp >= 160001 && exp <= 180000) return "gold";
+                                            if (exp >= 140001 && exp <= 160000) return "gold";
+                                            if (exp >= 120001 && exp <= 140000) return "gold";
+                                            if (exp >= 100001 && exp <= 120000) return "silver";
+                                            if (exp >= 80001 && exp <= 100000) return "silver";
+                                            if (exp >= 60001 && exp <= 80000) return "silver";
+                                            if (exp >= 40001 && exp <= 60000) return "bronze";
+                                            if (exp >= 20001 && exp <= 40000) return "bronze";
+                                            return "bronze";
+                                        }
+
+                                        string GetRankName(int exp)
+                                        {
+                                            if (exp >= 500000 && exp <= 749999) return "☄️ Materia Oscura I";
+                                            if (exp >= 750000 && exp <= 1000000) return "☄️ Materia Oscura II";
+                                            if (exp > 1000000) return "☄️ Materia Oscura III";
+                                            if (exp >= 260001 && exp <= 280000) return "🔥 Heroico I";
+                                            if (exp >= 280001 && exp <= 300000) return "🔥 Heroico II";
+                                            if (exp >= 300001 && exp <= 320000) return "🔥 Heroico III";
+                                            if (exp >= 220001 && exp <= 260000) return "💎 Diamante III";
+                                            if (exp >= 200001 && exp <= 220000) return "💎 Diamante II";
+                                            if (exp >= 180001 && exp <= 200000) return "💎 Diamante I";
+                                            if (exp >= 160001 && exp <= 180000) return "🥇 Oro III";
+                                            if (exp >= 140001 && exp <= 160000) return "🥇 Oro II";
+                                            if (exp >= 120001 && exp <= 140000) return "🥇 Oro I";
+                                            if (exp >= 100001 && exp <= 120000) return "🥈 Plata III";
+                                            if (exp >= 80001 && exp <= 100000) return "🥈 Plata II";
+                                            if (exp >= 60001 && exp <= 80000) return "🥈 Plata I";
+                                            if (exp >= 40001 && exp <= 60000) return "🥉 Bronce III";
+                                            if (exp >= 20001 && exp <= 40000) return "🥉 Bronce II";
+                                            return "🥉 Bronce I";
+                                        }
+
+                                        var badgeClass = GetRankBadgeClass(user.Exp);
+                                        var rankName = GetRankName(user.Exp);
+                                    }
+                                    <div class="level-badge @badgeClass">@rankName</div>
+                                </div>
+                            </div>
+
+                            rankNumber++;
+                        }
+                    }
+                    else
+                    {
+                        <div class="table-row">
+                            <div class="no-data" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                                No hay datos de ranking disponibles
                             </div>
                         </div>
-                    </div>
-                    <div class="xp-col">
-                        <div class="xp-amount">999,999 XP</div>
-                        <div class="xp-bar">
-                            <div class="xp-progress" style="width: 95%"></div>
-                        </div>
-                    </div>
-                    <div class="badge-col">
-                        <div class="level-badge dark-matter">☄️ Materia Oscura</div>
-                    </div>
-                </div>
-
-                <!-- Jugador 2 -->
-                <div class="table-row top-2">
-                    <div class="rank-col">
-                        <span class="rank-badge silver">2</span>
-                    </div>
-                    <div class="player-col">
-                        <div class="player-info">
-
-                            <div class="player-details">
-                                <div class="player-name">Oscar Iñaki Gómez</div>
-                                <div class="player-tag">OscarInaki157</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="xp-col">
-                        <div class="xp-amount">149,403 XP</div>
-                        <div class="xp-bar">
-                            <div class="xp-progress" style="width: 78%"></div>
-                        </div>
-                    </div>
-                    <div class="badge-col">
-                        <div class="level-badge diamond">💎 Diamante I</div>
-                    </div>
-                </div>
-
-                <!-- Jugador 3 -->
-                <div class="table-row top-3">
-                    <div class="rank-col">
-                        <span class="rank-badge bronze">3</span>
-                    </div>
-                    <div class="player-col">
-                        <div class="player-info">
-
-                            <div class="player-details">
-                                <div class="player-name">MathWizard</div>
-                                <div class="player-tag">MathWizard</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="xp-col">
-                        <div class="xp-amount">132,831 XP</div>
-                        <div class="xp-bar">
-                            <div class="xp-progress" style="width: 65%"></div>
-                        </div>
-                    </div>
-                    <div class="badge-col">
-                        <div class="level-badge gold">🥇 Oro II</div>
-                    </div>
-                </div>
-
-                <!-- Jugador 4 -->
-                <div class="table-row">
-                    <div class="rank-col">
-                        <span class="rank-number">4</span>
-                    </div>
-                    <div class="player-col">
-                        <div class="player-info">
-
-                            <div class="player-details">
-                                <div class="player-name">CodeNinja</div>
-                                <div class="player-tag">CodeNinja</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="xp-col">
-                        <div class="xp-amount">50,000 XP</div>
-                        <div class="xp-bar">
-                            <div class="xp-progress" style="width: 55%"></div>
-                        </div>
-                    </div>
-                    <div class="badge-col">
-                        <div class="level-badge silver">🥈 Plata I</div>
-                    </div>
-                </div>
-
-                <!-- Jugador 5 (Tú) -->
-                <div class="table-row current-user">
-                    <div class="rank-col">
-                        <span class="rank-number">147</span>
-                    </div>
-                    <div class="player-col">
-                        <div class="player-info">
-
-                            <div class="player-details">
-                                <div class="player-name">@ViewBag.Nombre</div>
-                                <div class="player-tag">@ViewBag.Gamer_Tag</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="xp-col">
-                        <div class="xp-amount">@ViewBag.Exp XP</div>
-                        <div class="xp-bar">
-                            <div class="xp-progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="badge-col">
-                        <div class="level-badge bronze">🥉 Bronce I</div>
-                    </div>
-                </div>
+                    }
+                }
             </div>
         </div>
 
-        <div class="ranking-footer">
+        @* <div class="ranking-footer">
             <button class="view-all-btn">
                 <i class="fas fa-trophy"></i>
                 Ver ranking completo
             </button>
-        </div>
+        </div> *@
     </div>
+
+
 </div>
 
 <style>
+
+    /* Agregar esto a tu CSS existente */
+    .user-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: var(--color-primary);
+        color: white;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: bold;
+        border: 2px solid var(--color-card-bg);
+    }
+
+    .no-data {
+        color: #a0a0c0;
+        font-style: italic;
+    }
+
     .dashboard-top {
         display: flex;
         flex-wrap: wrap;

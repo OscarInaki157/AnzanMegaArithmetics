@@ -25,6 +25,10 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
+            List<RankingUsersModel> ranking = usersDBService.ObtenerRankingUsuarios();
+
+            ViewBag.Ranking = ranking;
+
             return View(userInfo);
         }
 
