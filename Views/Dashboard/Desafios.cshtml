@@ -38,6 +38,7 @@
 
 <div class="modulos-wrapper">
     
+    @* Calendario Mental *@
     <div class="modulo-card">
         <div class="modulo-header">
             <div class="modulo-image">
@@ -61,22 +62,6 @@
         </div>
     </div>
 
-    @* Raices y potencias *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/raices.gif" alt="Division" />
-            </div>
-            <div class="modulo-text">
-                <h2>Raíces y Potencias</h2>
-                <p>Ejercicios de raices y potencias</p>
-            </div>
-            <a href="#" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-
     @* cuadros de velocidad *@
     <div class="modulo-card">
         <div class="modulo-header">
@@ -92,12 +77,12 @@
             </button>
         </div>
         <div id="Cuadros-menu" class="modulo-menu">
-            
+
             <a href="#" onclick="submitCompetenciaForm()">
                 <i class="fa-solid fa-trophy"></i> Modo Competencia
             </a>
 
-            <a href="@Url.Action("CuadrosForm","Cuadros")">
+            <a href="@Url.Action("CuadrosForm", "Cuadros")">
                 <i class="fas fa-pencil-alt"></i> Modo Práctica
             </a>
         </div>
@@ -105,6 +90,46 @@
 
     <form id="competenciaForm" asp-action="CuadrosCompetencia" asp-controller="Cuadros" method="post" style="display: none;">
     </form>
+
+    @* Raices y potencias *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/raices.gif" alt="potencias" />
+            </div>
+            <div class="modulo-text">
+                <h2>Números al cuadrado</h2>
+                <p>Ejercicios de potencias</p>
+            </div>
+            <button class="modulo-toggle" data-menu-id="Potencia-menu">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div id="Potencia-menu" class="modulo-menu">
+            <a href="@Url.Action("", "")">
+                <i class="fa-solid fa-trophy"></i> Modo Competencia
+            </a>
+            <a href="@Url.Action("FormularioPotencias", "Potencias")">
+                <i class="fas fa-pencil-alt"></i> Modo Práctica
+            </a>
+        </div>
+    </div>
+
+
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/raices.gif" alt="raices" />
+            </div>
+            <div class="modulo-text">
+                <h2>Raíces cuadradas</h2>
+                <p>Ejercicios de raices cuadradas</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
 
     @* matematicas con dados *@
     <div class="modulo-card">

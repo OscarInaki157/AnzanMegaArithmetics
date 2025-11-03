@@ -1,0 +1,533 @@
+﻿@model AnzanMegaArithmetics.Models.EjercicioPotenciasModel
+@{
+    ViewBag.Title = "Ejercicio de potencias";
+    Layout = "_LayoutPotencias";
+
+    var ejercicioActual = ViewBag.EjercicioActual ?? 1;
+    var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
+    var tiempoRestante = ViewBag.TiempoRestante ?? 0;
+
+    var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
+}
+
+<style>
+    .input-respuesta {
+        width: 85%;
+        caret-color: transparent;
+        padding: 0.6rem 1rem;
+        font-size: 3.5rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .btn-enviar-respuesta {
+        padding: 0.6rem 2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 2.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        width: 50%;
+    }
+
+        .btn-enviar-respuesta:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+        }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: #1b1e3c;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="number"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
+    /* ESTILOS ESPECÍFICOS PARA POTENCIAS */
+    .potencia-grande {
+        font-size: 5.5rem;
+        font-weight: 800;
+        text-align: center;
+        line-height: 1.2;
+        padding: 2rem;
+        animation: float 3s ease-in-out infinite;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .base-numero {
+        text-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+    }
+
+    .exponente {
+        font-size: 2.5rem;
+        vertical-align: super;
+        text-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+    }
+
+    .igual {
+        color: #ffffff;
+        margin: 0 1rem;
+    }
+
+    .instruccion {
+        font-size: 1.3rem;
+        color: #d1d1f0;
+        margin-bottom: 2rem;
+        font-weight: 500;
+    }
+
+    .formulario-respuesta {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .input-respuesta-potencia {
+        width: 300px;
+        padding: 1rem 1.5rem;
+        font-size: 2.5rem;
+        border-radius: 15px;
+        border: 3px solid #4c4cff;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-enviar-potencia {
+        padding: 1rem 3rem;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(76, 76, 255, 0.4);
+    }
+
+        .btn-enviar-potencia:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 76, 255, 0.6);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+    .temporizador-global {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 15px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin: 1rem auto;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        max-width: 300px;
+    }
+
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .areaej {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .Ejercicio {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .potencia-grande {
+            font-size: 5.5rem;
+            padding: 1.5rem;
+        }
+
+        .exponente {
+            font-size: 3.5rem;
+        }
+
+        .input-respuesta-potencia {
+            width: 250px;
+            font-size: 2rem;
+        }
+
+        .btn-enviar-potencia {
+            padding: 0.8rem 2rem;
+            font-size: 1.3rem;
+        }
+
+        .top-bar {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .barra-progreso-contenedor {
+            width: 100%;
+        }
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .potencia-grande {
+            font-size: 2.2rem;
+            padding: 1rem;
+        }
+
+        .exponente {
+            font-size: 1.4rem;
+        }
+
+        .input-respuesta-potencia {
+            width: 200px;
+            font-size: 1.8rem;
+        }
+
+        .btn-enviar-potencia {
+            padding: 0.7rem 1.5rem;
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <button type="button" onclick="enviarYFinalizar(event)" class="btn-finalizar">
+        ❌ <span>Finalizar</span>
+    </button>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span> s</span>
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <div class="areaej">
+        <div class="Ejercicio">
+
+            <div class="potencia-grande">
+                <span class="base-numero">@Model.Numero_Base</span>
+                <span class="exponente">2</span>
+            </div>
+
+            <form method="post" action="/Potencias/EjercicioPotencias" class="formulario-respuesta" id="formRespuesta">
+                <input type="hidden" name="Tiempo_Inicio" id="tiempoInicio" value="@DateTime.Now.Ticks" />
+
+                <input type="number"
+                       name="Respuesta_Usuario"
+                       class="input-respuesta-potencia"
+                       placeholder="0"
+                       required
+                       step="any"
+                       autocomplete="off"
+                       autofocus />
+
+                <button type="submit" class="btn-enviar-potencia">
+                    Enviar Respuesta
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let tiempoRestante = @tiempoRestante;
+        const contadorTiempo = document.getElementById('contadorTiempoRestante');
+
+        function actualizarTemporizador() {
+            if (tiempoRestante <= 0) {
+                window.location.href = '/Potencias/ResultadosPotencias';
+                return;
+            }
+
+            tiempoRestante--;
+            contadorTiempo.textContent = tiempoRestante;
+        }
+
+        
+        setInterval(actualizarTemporizador, 1000);
+
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputRespuesta = document.querySelector('.input-respuesta-potencia');
+            if (inputRespuesta) {
+                inputRespuesta.focus();
+                inputRespuesta.select();
+            }
+        });
+
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.querySelector('.btn-enviar-potencia').click();
+            }
+        });
+
+        function enviarYFinalizar(event) {
+            event.preventDefault();
+                window.location.href = '/Potencias/ResultadosPotencias';  
+        }
+
+        
+        document.getElementById('formRespuesta').addEventListener('submit', function(e) {
+            
+            e.preventDefault();
+
+            const tiempoInicio = parseInt(document.getElementById('tiempoInicio').value);
+            const tiempoFin = Date.now();
+            const tiempoRespuesta = (tiempoFin - tiempoInicio) / 1000;
+
+            
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoRespuesta.toFixed(2);
+            this.appendChild(inputTiempo);
+
+           
+            this.submit();
+        });
+
+     
+    </script>
+}
