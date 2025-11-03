@@ -19,6 +19,11 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult LimpiarYDashboard() 
         {
+            HttpContext.Session.Remove("EjerciciosPotencias");
+            HttpContext.Session.Remove("RespuestasPotencias");
+            //HttpContext.Session.Remove("ConfPotencias");
+            HttpContext.Session.Remove("EjercicioActualPotencias");
+            HttpContext.Session.Remove("TiempoRestantePotencias");
             return RedirectToAction("Desafios", "Dashboard");
         }
 
@@ -273,6 +278,19 @@ namespace AnzanMegaArithmetics.Controllers
                 HttpContext.Session.Remove("EjercicioActualPotencias");
                 HttpContext.Session.Remove("TiempoRestantePotencias");
 
+                PruebasDBModel result = new PruebasDBModel
+                {
+                    Id_Usuario = userId.Value,
+                    Total_Preguntas = ejercicios.Count,
+                    Respuestas_Correctas = correctas,
+                    Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                    Fecha = DateTime.Now,
+                    ExperienciaAdquirida = (int)porcentajeAcierto,
+                    Tipo_Prueba = "Potencias - " + config.TipoPrueba
+                };
+
+                bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
+
                 return View(modeloResultados);
             }
             catch (Exception ex)
@@ -282,6 +300,99 @@ namespace AnzanMegaArithmetics.Controllers
 
         }
 
+        [HttpGet]
+        public IActionResult RepetirPotencias()
+        {
+            try
+            {
+                
+                var configJson = HttpContext.Session.GetString("ConfPotencias");
 
+                if (string.IsNullOrEmpty(configJson))
+                {
+                  
+                    return RedirectToAction("FormularioPotencias");
+                }
+
+             
+                var config = JsonSerializer.Deserialize<ConfPotenciasModel>(configJson);
+
+                List<EjercicioPotenciasModel> ejercicios = GenerarEjerciciosPotencias(config);
+
+                List<RespuestaPotenciaModel> respuestas = ejercicios.Select(e => new RespuestaPotenciaModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = 0,
+                    Es_Correcto = false,
+                    Tiempo_Respuesta = 0
+                }).ToList();
+
+                HttpContext.Session.SetString("EjerciciosPotencias", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("RespuestasPotencias", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualPotencias", 1);
+
+                HttpContext.Session.SetInt32("TiempoRestantePotencias", config.TiempoTotal * 60);
+                HttpContext.Session.SetString("InicioTiempoPotencias", DateTime.Now.ToString());
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                return View("ConcentracionPotencias");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("FormularioPotencias");
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult CompetenciaPotencias()
+        {
+            try
+            {
+                var userId = HttpContext.Session.GetInt32("Id_Usuario");
+                if (userId == null || userId == 0)
+                {
+                    return RedirectToAction("Inicio", "Inicio");
+                }
+
+                var config = new ConfPotenciasModel
+                {
+                    CantidadEjercicios = 50,
+                    NumeroInicial = 10,
+                    NumeroFinal = 130,
+                    TiempoTotal = 1,
+                    TiempoMeditacion = 3,
+                    TipoPrueba = "Competencia"
+                };
+
+                // Generar ejercicios
+                List<EjercicioPotenciasModel> ejercicios = GenerarEjerciciosPotencias(config);
+
+                // Generar respuestas
+                List<RespuestaPotenciaModel> respuestas = ejercicios.Select(e => new RespuestaPotenciaModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = 0,
+                    Es_Correcto = false,
+                    Tiempo_Respuesta = 0
+                }).ToList();
+
+                // Guardar en session
+                HttpContext.Session.SetString("ConfPotencias", JsonSerializer.Serialize(config));
+                HttpContext.Session.SetString("EjerciciosPotencias", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("RespuestasPotencias", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualPotencias", 1);
+
+                HttpContext.Session.SetInt32("TiempoRestantePotencias", config.TiempoTotal * 60);
+                HttpContext.Session.SetString("InicioTiempoPotencias", DateTime.Now.ToString());
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                return View("ConcentracionPotencias");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("FormularioPotencias");
+            }
+        }
     }
 }

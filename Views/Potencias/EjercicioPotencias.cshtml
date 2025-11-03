@@ -449,13 +449,10 @@
             </div>
 
             <form method="post" action="/Potencias/EjercicioPotencias" class="formulario-respuesta" id="formRespuesta">
-                <input type="hidden" name="Tiempo_Inicio" id="tiempoInicio" value="@DateTime.Now.Ticks" />
-
+                
                 <input type="number"
-                       name="Respuesta_Usuario"
+                       name="respuestaUsuario"
                        class="input-respuesta-potencia"
-                       placeholder="0"
-                       required
                        step="any"
                        autocomplete="off"
                        autofocus />
@@ -470,52 +467,32 @@
 
 @section Scripts {
     <script>
-        let tiempoRestante = @tiempoRestante;
-        const contadorTiempo = document.getElementById('contadorTiempoRestante');
+        let tiempoInicioEjercicio = Date.now();
+        let tiempoRestanteGlobal = @tiempoRestante;
+        let temporizadorGlobalInterval;
 
-        function actualizarTemporizador() {
-            if (tiempoRestante <= 0) {
-                window.location.href = '/Potencias/ResultadosPotencias';
-                return;
+        function actualizarTemporizadorGlobal() {
+            if (tiempoRestanteGlobal > 0) {
+                tiempoRestanteGlobal--;
+                document.getElementById('contadorTiempoRestante').textContent = tiempoRestanteGlobal;
+
+                if (tiempoRestanteGlobal <= 0) {
+                    clearInterval(temporizadorGlobalInterval);
+                    window.location.href = '/Potencias/ResultadosPotencias';
+                }
             }
-
-            tiempoRestante--;
-            contadorTiempo.textContent = tiempoRestante;
         }
-
-        
-        setInterval(actualizarTemporizador, 1000);
-
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputRespuesta = document.querySelector('.input-respuesta-potencia');
-            if (inputRespuesta) {
-                inputRespuesta.focus();
-                inputRespuesta.select();
-            }
-        });
-
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                document.querySelector('.btn-enviar-potencia').click();
-            }
-        });
 
         function enviarYFinalizar(event) {
             event.preventDefault();
-                window.location.href = '/Potencias/ResultadosPotencias';  
+            clearInterval(temporizadorGlobalInterval);
+            window.location.href = '/Potencias/ResultadosPotencias';
         }
 
-        
         document.getElementById('formRespuesta').addEventListener('submit', function(e) {
             
-            e.preventDefault();
-
-            const tiempoInicio = parseInt(document.getElementById('tiempoInicio').value);
             const tiempoFin = Date.now();
-            const tiempoRespuesta = (tiempoFin - tiempoInicio) / 1000;
+            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
 
             
             const inputTiempo = document.createElement('input');
@@ -524,10 +501,27 @@
             inputTiempo.value = tiempoRespuesta.toFixed(2);
             this.appendChild(inputTiempo);
 
-           
-            this.submit();
+            clearInterval(temporizadorGlobalInterval);
+
         });
 
-     
+        document.addEventListener('DOMContentLoaded', function() {
+            tiempoInicioEjercicio = Date.now();
+
+            const inputRespuesta = document.querySelector('.input-respuesta-potencia');
+            if (inputRespuesta) {
+                inputRespuesta.focus();
+                inputRespuesta.select();
+            }
+
+            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.querySelector('.btn-enviar-potencia').click();
+            }
+        });
     </script>
 }

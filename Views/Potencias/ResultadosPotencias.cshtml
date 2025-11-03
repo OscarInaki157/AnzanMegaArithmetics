@@ -417,7 +417,7 @@
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
-    <form method="get" asp-action="ConcentracionPotencias" asp-controller="Potencias">
+    <form method="get" asp-action="RepetirPotencias" asp-controller="Potencias">
         <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
 
@@ -443,6 +443,11 @@
                 <div class="card-titulo">INCORRECTOS</div>
                 <div class="card-icono">❌</div>
                 <div class="card-valor" id="contadorIncorrectos">@incorrectos</div>
+            </div>
+            <div class="card-resumen experiencia">
+                <div class="card-titulo">XP</div>
+                <div class="card-icono">✨</div>
+                <div class="card-valor" id="contadorXP">@porcentaje/100 XP</div>
             </div>
             
         </div>
