@@ -1,0 +1,446 @@
+﻿@model AnzanMegaArithmetics.Models.CalendarioConfModel
+
+@{
+    ViewBag.Title = "Calendario Mental";
+    Layout = "_LayoutCalendario";
+}
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 1rem;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+        width: 100%;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: white;
+        }
+
+    #configuracionEjercicios {
+        width: 90%;
+        max-width: 80%;
+        margin: 2rem auto 2rem auto;
+        padding: 1.4rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+        color: var(--color-light);
+        animation: fadeIn 0.4s ease;
+        flex-direction: column;
+        display: flex;
+        gap: 20%;
+        justify-content: space-around;
+        align-items: flex-start;
+    }
+
+        #configuracionEjercicios div {
+            margin-bottom: 1rem;
+        }
+
+        #configuracionEjercicios label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        #configuracionEjercicios input[type="number"],
+        #configuracionEjercicios select {
+            width: 100%;
+            padding: 0.5rem 0.6rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #292c4f;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        #configuracionEjercicios small {
+            display: block;
+            margin-top: 0.3rem;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        #configuracionEjercicios button[type="submit"] {
+            color: white;
+            padding: 1.2rem 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            background: #28a745;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+            #configuracionEjercicios button[type="submit"]:hover {
+                background: #2ecc71;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
+            }
+
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: space-between;
+        margin: 1.2rem 0 1.5rem;
+        padding: 0 1rem;
+        align-items: center;
+        gap: 1.5rem;
+        justify-self: center;
+        width: 80%;
+    }
+
+    .campos {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 20%;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+        .btn-dashboard:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+        }
+
+    .main-content {
+        margin-top: 3.5rem;
+    }
+
+    .year-configuration {
+        margin-bottom: 1rem;
+    }
+
+    .year-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .single-year-input,
+    .year-range-inputs {
+        display: none;
+    }
+
+    .year-range-inputs {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .year-range-row {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+        .year-range-row > div {
+            flex: 1;
+        }
+
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 480px) {
+        #configuracionEjercicios {
+            padding: 1.2rem;
+            flex-direction: column;
+            max-width: 90%;
+        }
+
+        .dashboard-button-wrapper {
+            padding: 0 0.6rem;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        #configuracionEjercicios button,
+        .btn-dashboard {
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+        }
+
+        .form-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .campos {
+            flex-direction: column;
+        }
+
+        .year-range-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<form id="configuracionEjercicios" method="post" asp-controller="Calendario" asp-action="ConcentracionCalendario">
+    <div class="form-header">
+        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+        <h2>Ajustes calendario mental</h2>
+    </div>
+
+    <div class="campos">
+        <div>
+            <div>
+                <label asp-for="CantidadEjercicios"></label>
+                <input asp-for="CantidadEjercicios" type="number" min="1" max="100" required />
+                <span asp-validation-for="CantidadEjercicios" class="validation-error"></span>
+                <small>Indica cuántos ejercicios deseas realizar en esta sesión.</small>
+            </div>
+
+            <div class="year-configuration">
+                <label for="yearSelectionType">Tipo de selección de años</label>
+                <select id="yearSelectionType" name="yearSelectionType" required>
+                    @* <option value="">Selecciona una opción</option> *@
+                    <option value="single">Un solo año</option>
+                    <option value="range">Rango de años</option>
+                </select>
+            
+                <input type="hidden" asp-for="TipoOperacion" id="TipoOperacion" required />
+                <span asp-validation-for="TipoOperacion" class="validation-error"></span>
+                <small>Selecciona si quieres trabajar con un solo año o con un rango de años.</small>
+
+                <div class="year-inputs">
+                    <div class="single-year-input">
+                        <label for="AnnoUnico">Año</label>
+                        <input id="AnnoUnico" name="AnnoUnico" type="number" min="1900" max="2100" value="@DateTime.Now.Year" required />
+                        <span id="annoUnicoError" class="validation-error" style="display: none;">Este campo es requerido</span>
+                    </div>
+
+                    <div class="year-range-inputs">
+                        <div class="year-range-row">
+                            <div>
+                                <label asp-for="AnnoInicio">Año de inicio</label>
+                                <input asp-for="AnnoInicio" type="number" min="1900" max="2100" value="@(DateTime.Now.Year - 10)" required />
+                                <span asp-validation-for="AnnoInicio" class="validation-error"></span>
+                            </div>
+                            <div>
+                                <label asp-for="AnnoFin">Año de fin</label>
+                                <input asp-for="AnnoFin" type="number" min="1900" max="2100" value="@DateTime.Now.Year" required />
+                                <span asp-validation-for="AnnoFin" class="validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div>
+                <label asp-for="TiempoLimiteMinutos"></label>
+                <input asp-for="TiempoLimiteMinutos" type="number" min="1" max="40" required />
+                <span asp-validation-for="TiempoLimiteMinutos" class="validation-error"></span>
+                <small>Indica el tiempo límite para resolver todos los ejercicios.</small>
+            </div>
+
+            <div>
+                <label asp-for="TiempoConcentracion"></label>
+                <select asp-for="TiempoConcentracion" required>
+                    <option value="0">0 (sin concentración)</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                </select>
+                <span asp-validation-for="TiempoConcentracion" class="validation-error"></span>
+            </div>
+
+            <button type="submit">🗓️ Iniciar Ejercicios de Calendario Mental</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function regresarAlDashboard() {
+            window.location.href = '@Url.Action("Desafios", "Dashboard")';
+        }
+
+        function updateTipoOperacion() {
+            const selectionType = document.getElementById('yearSelectionType').value;
+            const tipoOperacionField = document.getElementById('TipoOperacion');
+
+            if (selectionType === 'single') {
+                tipoOperacionField.value = 'anno unico';
+            } else if (selectionType === 'range') {
+                tipoOperacionField.value = 'rango de annos';
+            } else {
+                tipoOperacionField.value = '';
+            }
+        }
+
+      
+        function toggleYearInputs() {
+            const selectionType = document.getElementById('yearSelectionType').value;
+            const singleYearInput = document.querySelector('.single-year-input');
+            const yearRangeInputs = document.querySelector('.year-range-inputs');
+
+            if (selectionType === 'single') {
+                singleYearInput.style.display = 'block';
+                yearRangeInputs.style.display = 'none';
+            } else if (selectionType === 'range') {
+                singleYearInput.style.display = 'none';
+                yearRangeInputs.style.display = 'flex';
+            } else {
+                singleYearInput.style.display = 'none';
+                yearRangeInputs.style.display = 'none';
+            }
+
+       
+            updateTipoOperacion();
+        }
+
+   
+        function validarFormulario() {
+            let esValido = true;
+            const selectionType = document.getElementById('yearSelectionType').value;
+
+           
+            if (!selectionType) {
+                document.getElementById('yearSelectionType').classList.add('input-error');
+                esValido = false;
+            } else {
+                document.getElementById('yearSelectionType').classList.remove('input-error');
+            }
+
+          
+            if (selectionType === 'single') {
+                const annoUnico = document.getElementById('AnnoUnico').value;
+                if (!annoUnico) {
+                    document.getElementById('AnnoUnico').classList.add('input-error');
+                    document.getElementById('annoUnicoError').style.display = 'block';
+                    esValido = false;
+                } else {
+                    document.getElementById('AnnoUnico').classList.remove('input-error');
+                    document.getElementById('annoUnicoError').style.display = 'none';
+                }
+            } else if (selectionType === 'range') {
+                const annoInicio = document.querySelector('input[name="AnnoInicio"]').value;
+                const annoFin = document.querySelector('input[name="AnnoFin"]').value;
+
+                if (!annoInicio) {
+                    document.querySelector('input[name="AnnoInicio"]').classList.add('input-error');
+                    esValido = false;
+                } else {
+                    document.querySelector('input[name="AnnoInicio"]').classList.remove('input-error');
+                }
+
+                if (!annoFin) {
+                    document.querySelector('input[name="AnnoFin"]').classList.add('input-error');
+                    esValido = false;
+                } else {
+                    document.querySelector('input[name="AnnoFin"]').classList.remove('input-error');
+                }
+
+                if (annoInicio && annoFin && parseInt(annoInicio) > parseInt(annoFin)) {
+                    alert('El año de inicio no puede ser mayor que el año de fin.');
+                    esValido = false;
+                }
+            }
+
+        
+            const tipoOperacion = document.getElementById('TipoOperacion').value;
+            if (!tipoOperacion) {
+                esValido = false;
+            }
+
+            return esValido;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer valor inicial según la configuración del modelo
+            const initialTipoOperacion = '@Model.TipoOperacion';
+            const yearSelectionType = document.getElementById('yearSelectionType');
+
+            if (initialTipoOperacion === 'anno unico') {
+                yearSelectionType.value = 'single';
+            } else if (initialTipoOperacion === 'rango de annos') {
+                yearSelectionType.value = 'range';
+            }
+
+            toggleYearInputs();
+
+       
+            document.getElementById('yearSelectionType').addEventListener('change', toggleYearInputs);
+
+
+            document.querySelectorAll('input, select').forEach(field => {
+                field.addEventListener('input', function() {
+                    this.classList.remove('input-error');
+                });
+            });
+        });
+
+        document.getElementById('configuracionEjercicios').addEventListener('submit', function(e) {
+            // Asegurarse de que TipoOperacion esté actualizado antes de enviar
+            updateTipoOperacion();
+
+            if (!validarFormulario()) {
+                e.preventDefault();
+                alert('Por favor, completa todos los campos requeridos correctamente.');
+                return false;
+            }
+
+            return true;
+        });
+    </script>
+}

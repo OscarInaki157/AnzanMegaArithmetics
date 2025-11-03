@@ -1,0 +1,634 @@
+﻿@model AnzanMegaArithmetics.Models.EjercicioCalendarModel
+@{
+    ViewBag.Title = "Ejercicio de calendario mental";
+    Layout = "_LayoutCalendario";
+
+    int ejercicioActual = ViewBag.EjercicioActual;
+    int totalEjercicios = ViewBag.TotalEjercicios;
+    int tiempoRestante = ViewBag.TiempoRestante;
+    double porcentaje = (ejercicioActual * 100.0) / totalEjercicios;
+}
+
+<style>
+    .input-respuesta {
+        width: 85%;
+        caret-color: transparent;
+        padding: 0.6rem 1rem;
+        font-size: 3.5rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .btn-enviar-respuesta {
+        padding: 0.6rem 2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 2.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        width: 50%;
+    }
+
+        .btn-enviar-respuesta:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+        }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .modo-libre {
+        color: #ffffff;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .form-respuesta-barra {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background-color: #1b1e3c;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        z-index: 100;
+        position: relative;
+    }
+
+    .etiqueta-respuesta {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #d1d1f0;
+    }
+
+    .form-respuesta-barra input[type="number"] {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        width: 120px;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+    }
+
+    .form-respuesta-barra button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .form-respuesta-barra button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.3);
+        }
+
+    /* FECHA CON GLASSMORPHISM */
+    .fecha-grande {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-align: center;
+        margin: 1rem 0;
+        line-height: 1.2;
+        padding: 2rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+        .fecha-grande::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            z-index: -1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+    /* BOTONES CON GLASSMORPHISM */
+    .botones-dias {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+        margin: 3rem 0;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-dia {
+        padding: 1.5rem 1rem;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        min-width: 150px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+        .btn-dia:nth-child(1) {
+            background: rgba(178, 34, 34, 0.4); /* Lunes - Rojo fuego */
+        }
+
+        .btn-dia:nth-child(2) {
+            background: rgba(0, 0, 205, 0.4); /* Martes - Azul medio */
+        }
+
+        .btn-dia:nth-child(3) {
+            background: rgba(255, 140, 0, 0.4); /* Miércoles - Naranja oscuro */
+        }
+
+        .btn-dia:nth-child(4) {
+            background: rgba(75, 0, 130, 0.4); /* Jueves - Índigo */
+        }
+
+        .btn-dia:nth-child(5) {
+            background: rgba(0, 104, 139, 0.4); /* Viernes - Azul marino */
+        }
+
+        .btn-dia:nth-child(6) {
+            background: rgba(199, 21, 133, 0.4); /* Sábado - Rosa violeta */
+        }
+
+        .btn-dia:nth-child(7) {
+            background: rgba(128, 0, 128, 0.4); /* Domingo - Púrpura */
+        }
+
+        .btn-dia::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-dia:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+            .btn-dia:hover::before {
+                left: 100%;
+            }
+
+        .btn-dia:active {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+    .temporizador-global {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 15px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin: 1rem auto;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        max-width: 300px;
+    }
+
+    .temporizador-ejercicio {
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 1rem auto;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        max-width: 250px;
+    }
+
+    @@keyframes float {
+        0%, 100%
+
+    {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+
+    }
+
+    @@keyframes bounce {
+        0%
+
+    {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1.15);
+    }
+
+    }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .areaej {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .Ejercicio {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .Numeros {
+        font-size: 3.8rem;
+        text-align: end;
+        line-height: 1.1;
+    }
+
+    .Forms {
+        width: 100%;
+    }
+
+    @@media (max-width: 768px) {
+        #btnModoConcentracion {
+            display: none;
+        }
+
+        .etiqueta-respuesta {
+            text-align: center;
+        }
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .form-respuesta-barra {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .form-respuesta-barra input[type="number"] {
+                width: 100%;
+            }
+
+            .form-respuesta-barra button {
+                width: 100%;
+            }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
+        .areaej {
+            flex-direction: column;
+        }
+
+        .Ejercicio {
+            width: 100%;
+        }
+
+        .fecha-grande {
+            font-size: 2.2rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+        }
+
+        .botones-dias {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .btn-dia {
+            padding: 1.2rem 0.8rem;
+            font-size: 1.1rem;
+            min-width: 130px;
+        }
+
+        .temporizador-global {
+            font-size: 1.2rem;
+            padding: 0.8rem 1.5rem;
+        }
+
+        .temporizador-ejercicio {
+            font-size: 1rem;
+            padding: 0.6rem 1.2rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .fecha-grande {
+            font-size: 1.8rem;
+            padding: 1rem;
+        }
+
+        .botones-dias {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+
+        .btn-dia {
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <button type="button" onclick="enviarYFinalizar(event)" class="btn-finalizar">
+        ❌ <span>Finalizar</span>
+    </button>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span> s</span>
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <div class="areaej">
+        <div class="Ejercicio">
+            <div class="fecha-grande">
+                @Model.Fecha_Formateada
+            </div>
+
+            <form method="post" asp-controller="Calendario" asp-action="EjercicioCalendario" id="formRespuesta" class="Forms">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="tiempoRespuesta" id="tiempoRespuesta" value="0" />
+
+                <div class="botones-dias">
+                    @foreach (var dia in new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" })
+                    {
+                        <button type="submit"
+                                name="respuestaUsuario"
+                                value="@dia"
+                                class="btn-dia"
+                                onclick="actualizarTiempoRespuesta()">
+                            @dia
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        let tiempoInicioEjercicio = Date.now();
+        let tiempoRestanteGlobal = @tiempoRestante;
+        let temporizadorEjercicioInterval;
+        let temporizadorGlobalInterval;
+
+
+        document.getElementById('tiempoRespuesta').value = 0;
+
+        function actualizarTemporizadorEjercicio() {
+            let tiempoActual = Date.now();
+            let segundosTranscurridos = Math.floor((tiempoActual - tiempoInicioEjercicio) / 950);
+            document.getElementById('tiempoRespuesta').value = segundosTranscurridos;
+        }
+
+        function actualizarTemporizadorGlobal() {
+            if (tiempoRestanteGlobal > 0) {
+                tiempoRestanteGlobal--;
+                document.getElementById('contadorTiempoRestante').textContent = tiempoRestanteGlobal;
+
+                if (tiempoRestanteGlobal <= 0) {
+                   
+                    clearInterval(temporizadorEjercicioInterval);
+                    clearInterval(temporizadorGlobalInterval);
+                    window.location.href = '@Url.Action("ResultadosCalendario", "Calendario")';
+                }
+            }
+        }
+
+        function actualizarTiempoRespuesta() {
+         
+            actualizarTemporizadorEjercicio();
+        }
+
+        function enviarYFinalizar(event) {
+            event.preventDefault();
+            clearInterval(temporizadorEjercicioInterval);
+            clearInterval(temporizadorGlobalInterval);
+            window.location.href = '@Url.Action("ResultadosCalendario", "Calendario")';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            temporizadorEjercicioInterval = setInterval(actualizarTemporizadorEjercicio, 1000);
+            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+        });
+
+        document.getElementById('formRespuesta').addEventListener('submit', function() {
+            clearInterval(temporizadorEjercicioInterval);
+            clearInterval(temporizadorGlobalInterval);
+        });
+    </script>
+}
