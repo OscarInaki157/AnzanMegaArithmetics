@@ -1,18 +1,18 @@
-﻿@model AnzanMegaArithmetics.Models.ConfPotenciasModel
+﻿@model AnzanMegaArithmetics.Models.ConfDadosModel
 @{
-    ViewBag.Title = "Potencias";
-    Layout = "_LayoutPotencias";
+    ViewBag.Title = "Matemáticas con Dados";
+    Layout = "_LayoutDados";
 }
 
 <div id="contenedorConfiguracionFlash">
 
-    <form method="post" action="/Potencias/ConcentracionPotencias" id="formConfigSR" class="formulario-flash">
+    <form method="post" action="/Dados/ConcentracionDados" id="formConfigSR" class="formulario-flash">
 
         <div class="form-header">
             <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
                 <i class="fas fa-home"></i> Regresar al Dashboard
             </button>
-            <h2>Ajustes Números al Cuadrado</h2>
+            <h2>Ajustes Matemáticas con Dados</h2>
         </div>
 
         <div class="form-grid-three-columns">
@@ -20,39 +20,9 @@
 
                 <div>
                     <label asp-for="CantidadEjercicios">Cantidad de ejercicios:</label>
-                    <input asp-for="CantidadEjercicios" type="number" min="1" required/>
+                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
                     <span asp-validation-for="CantidadEjercicios" class="text-danger"></span>
                 </div>
-
-                <div class="rango-options">
-                    <label>Rango de números:</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="rango11-19" name="rangoPredefinido" value="11-19" checked>
-                            <label for="rango11-19">11-19</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="rango21-29" name="rangoPredefinido" value="21-29">
-                            <label for="rango21-29">21-29</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="rango31-69" name="rangoPredefinido" value="31-69">
-                            <label for="rango31-69">31-69</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="rango71-130" name="rangoPredefinido" value="71-130">
-                            <label for="rango71-130">71-130</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Campos ocultos para los valores reales -->
-                <input asp-for="NumeroInicial" type="hidden" id="numeroInicial" value="11" />
-                <input asp-for="NumeroFinal" type="hidden" id="numeroFinal" value="19" />
-
-            </div>
-
-            <div class="form-column">
 
                 <div>
                     <label asp-for="TiempoTotal">Minutos para contestar todos los ejercicios:</label>
@@ -60,6 +30,10 @@
                     <span asp-validation-for="TiempoTotal" class="validation-error"></span>
 
                 </div>
+
+            </div>
+
+            <div class="form-column">
 
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
@@ -451,51 +425,7 @@
 
 <script>
     function regresarAlDashboard() {
-        window.location.href = '@Url.Action("LimpiarYDashboard", "Potencias")';
+        window.location.href = '@Url.Action("LimpiarYDashboard", "Dados")';
     }
 
-       document.addEventListener('DOMContentLoaded', function() {
-        const radioButtons = document.querySelectorAll('input[name="rangoPredefinido"]');
-        const radioOptions = document.querySelectorAll('.radio-option');
-        const numeroInicialInput = document.getElementById('numeroInicial');
-        const numeroFinalInput = document.getElementById('numeroFinal');
-
-        function actualizarRango() {
-            const radioSeleccionado = document.querySelector('input[name="rangoPredefinido"]:checked');
-            if (radioSeleccionado) {
-                const valores = radioSeleccionado.value.split('-');
-                numeroInicialInput.value = valores[0];
-                numeroFinalInput.value = valores[1];
-
-                // Actualizar clases visuales
-                radioOptions.forEach(option => {
-                    option.classList.remove('selected');
-                });
-
-                const selectedOption = radioSeleccionado.closest('.radio-option');
-                if (selectedOption) {
-                    selectedOption.classList.add('selected');
-                }
-            }
-        }
-
-        // Agregar event listeners a los radio buttons
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', actualizarRango);
-        });
-
-        // Agregar event listeners a los contenedores completos
-        radioOptions.forEach(option => {
-            option.addEventListener('click', function(e) {
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio && !radio.checked) {
-                    radio.checked = true;
-                    actualizarRango();
-                }
-            });
-        });
-
-        // Inicializar con el valor por defecto
-        actualizarRango();
-    });
 </script>
