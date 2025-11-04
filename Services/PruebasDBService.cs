@@ -27,6 +27,9 @@ namespace AnzanMegaArithmetics.Services
                 List<PruebasDBModel> pruebasModel = new();
                 foreach (var prueba in pruebasDB)
                 {
+
+                    var usuario = _context.Usuarios.FirstOrDefault(u => u.Id_Usuario == prueba.Id_Usuario);
+
                     PruebasDBModel modelo = new PruebasDBModel
                     {
                         Id_Prueba = prueba.Id_Prueba,
@@ -38,7 +41,10 @@ namespace AnzanMegaArithmetics.Services
                         Respuestas_Correctas = prueba.Respuestas_Correctas,
                         Fecha = prueba.Fecha,
                         ExperienciaAdquirida = prueba.ExperienciaAdquirida,
-                        Tipo_Prueba = prueba.Tipo_Prueba
+                        Tipo_Prueba = prueba.Tipo_Prueba,
+
+                        NombreUsuario = usuario != null ? usuario.Nombre : "No obtenido",
+                        GamertagUsuario = usuario != null ? usuario.Gamer_Tag : "No obtenido"
                     };
                     pruebasModel.Add(modelo);
                 }

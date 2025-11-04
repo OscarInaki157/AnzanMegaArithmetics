@@ -30,9 +30,17 @@
     <div class="filter-section">
         <div class="filter-bar">
             <div class="filter-group">
-                <label for="usuario-filter">Filtrar por usuario:</label>
+                <label for="usuario-filter">Filtrar por nombre:</label>
                 <select id="usuario-filter" class="filter-select">
                     <option value="">Todos los usuarios</option>
+                    <!-- Se llenará dinámicamente con JavaScript -->
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="gamertag-filter">Filtrar por gamertag:</label>
+                <select id="gamertag-filter" class="filter-select">
+                    <option value="">Todos los gamertags</option>
                     <!-- Se llenará dinámicamente con JavaScript -->
                 </select>
             </div>
@@ -98,7 +106,9 @@
     <div class="users-table-container">
         <div class="table-header">
             <div class="col-id">ID Prueba</div>
-            <div class="col-usuario">ID Usuario</div>
+            <div class="col-usuario-id">ID Usuario</div> <!-- Cambiado a col-usuario-id -->
+            <div class="col-usuario">Usuario</div>
+            <div class="col-gamertag">Gamertag</div>
             <div class="col-clase">ID Clase</div>
             <div class="col-tipo">Tipo</div>
             <div class="col-estado">Estado</div>
@@ -123,8 +133,20 @@
 
                     <div class="col-id">@prueba.Id_Prueba.ToString("D3")</div>
 
-                    <div class="col-usuario">
+                    <div class="col-usuario-id">
                         <span class="usuario-badge">@prueba.Id_Usuario.ToString("D3")</span>
+                    </div>
+
+                    <div class="col-usuario">
+                        <div class="user-info">
+                            <div class="user-details">
+                                <div class="user-fullname">@prueba.NombreUsuario</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-gamertag">
+                        <span class="gamertag-badge">@prueba.GamertagUsuario</span>
                     </div>
 
                     <div class="col-clase">
@@ -177,10 +199,7 @@
                             <i class="fas fa-eye"></i>
                             Ver
                         </button>
-                        <button class="btn-delete" data-pruebaid="@prueba.Id_Prueba">
-                            <i class="fas fa-trash"></i>
-                            Eliminar
-                        </button>
+                       
                     </div>
                 </div>
             }
@@ -205,6 +224,16 @@
                     <div class="form-group">
                         <label>ID de Usuario:</label>
                         <span id="detailIdUsuario" class="form-input detail-value"></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre del Usuario:</label>
+                        <span id="detailNombreUsuario" class="form-input detail-value"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Gamertag:</label>
+                        <span id="detailGamertag" class="form-input detail-value"></span>
                     </div>
                 </div>
                 <div class="form-row">
@@ -262,49 +291,6 @@
     </div>
 </div>
 
-<!-- Modal para Eliminar Prueba -->
-<div id="deletePruebaModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Eliminar Prueba</h2>
-            <span class="close-delete">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="deletePruebaForm" method="post" action="@Url.Action("EliminarPrueba", "Admin")">
-                <input type="hidden" id="deletePruebaId" name="Id_Prueba">
-
-                <div class="delete-warning">
-                    <div class="warning-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="warning-content">
-                        <h3>¡Atención!</h3>
-                        <p>¿Estás seguro de que deseas eliminar esta prueba? Esta acción no se puede deshacer.</p>
-                        <div class="user-info-delete">
-                            <div class="user-details-delete">
-                                <strong>Información de la prueba:</strong>
-                                <div>ID: <span id="deletePruebaInfoId"></span></div>
-                                <div>Usuario: <span id="deletePruebaInfoUsuario"></span></div>
-                                <div>Fecha: <span id="deletePruebaInfoFecha"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="delete-actions">
-                    <button type="button" class="btn-cancel-delete">
-                        <i class="fas fa-times"></i>
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn-confirm-delete">
-                        <i class="fas fa-trash"></i>
-                        Eliminar Prueba
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <style>
 
@@ -727,6 +713,12 @@
             font-size: 0.9rem;
         }
 
+    .col-usuario-id {
+        font-weight: 600;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+    }
+
     .form-input, .form-select {
         background-color: var(--color-sidebar);
         color: var(--color-light);
@@ -1088,19 +1080,20 @@
 
     .table-header {
         display: grid;
-        grid-template-columns: minmax(50px, 60px) /* ID */
-        minmax(70px, 80px) /* Rol */
-        minmax(150px, 1fr) /* Nombre */
-        minmax(170px, 1fr) /* Correo */
-        minmax(130px, 140px) /* Gamertag */
-        minmax(130px, 140px) /* Contraseña */
-        minmax(70px, 80px) /* Activo */
-        minmax(60px, 70px) /* Racha */
-        minmax(80px, 100px) /* Exp */
-        minmax(120px, 140px) /* Última Conexión */
-        minmax(100px, 120px) /* Licencia */
-        minmax(130px, 150px) /* Clases */
-        minmax(200px, 200px); /* Acciones */
+        grid-template-columns: minmax(50px, 60px) /* ID Prueba */
+        minmax(80px, 90px) /* ID Usuario */
+        minmax(120px, 150px) /* Usuario */
+        minmax(140px, 150px) /* Gamertag */
+        minmax(100px, 100px) /* ID Clase */
+        minmax(100px, 120px) /* Tipo */
+        minmax(80px, 90px) /* Estado */
+        minmax(80px, 90px) /* Tiempo */
+        minmax(80px, 90px) /* Total Preguntas */
+        minmax(80px, 90px) /* Correctas */
+        minmax(90px, 100px) /* Porcentaje */
+        minmax(120px, 140px) /* Fecha */
+        minmax(90px, 100px) /* Experiencia */
+        minmax(150px, 180px); /* Acciones */
         gap: 0.8rem;
         padding: 1rem;
         background-color: rgba(59, 60, 143, 0.3);
@@ -1120,19 +1113,20 @@
 
     .table-row {
         display: grid;
-        grid-template-columns: minmax(50px, 60px) /* ID */
-        minmax(70px, 80px) /* Rol */
-        minmax(150px, 1fr) /* Nombre */
-        minmax(170px, 1fr) /* Correo */
-        minmax(130px, 140px) /* Gamertag */
-        minmax(130px, 140px) /* Contraseña */
-        minmax(70px, 80px) /* Activo */
-        minmax(60px, 70px) /* Racha */
-        minmax(80px, 100px) /* Exp */
-        minmax(120px, 140px) /* Última Conexión */
-        minmax(100px, 120px) /* Licencia */
-        minmax(130px, 150px) /* Clases */
-        minmax(200px, 200px); /* Acciones */
+        grid-template-columns: minmax(50px, 60px) /* ID Prueba */
+        minmax(80px, 90px) /* ID Usuario */
+        minmax(120px, 150px) /* Usuario */
+        minmax(140px, 150px) /* Gamertag */
+        minmax(100px, 100px) /* ID Clase */
+        minmax(100px, 120px) /* Tipo */
+        minmax(80px, 90px) /* Estado */
+        minmax(80px, 90px) /* Tiempo */
+        minmax(80px, 90px) /* Total Preguntas */
+        minmax(80px, 90px) /* Correctas */
+        minmax(90px, 100px) /* Porcentaje */
+        minmax(120px, 140px) /* Fecha */
+        minmax(90px, 100px) /* Experiencia */
+        minmax(150px, 180px); /* Acciones */
         gap: 0.8rem;
         padding: 1rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -1140,9 +1134,6 @@
         align-items: center;
         font-size: 0.85rem;
         min-width: fit-content;
-        z-index: 100;
-        justify-content: center;
-        align-items: center;
         text-align: center;
     }
 
@@ -1527,6 +1518,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // === FILTROS Y BÚSQUEDA ===
         const usuarioFilter = document.getElementById('usuario-filter');
+        const gamertagFilter = document.getElementById('gamertag-filter');
         const claseFilter = document.getElementById('clase-filter');
         const estadoFilter = document.getElementById('estado-filter');
         const fechaFilter = document.getElementById('fecha-filter');
@@ -1538,23 +1530,43 @@
 
         // Llenar filtros dinámicamente
         function populateFilters() {
-            const usuarios = new Set();
+             const usuarios = new Map(); // Cambiado a Map para guardar nombre y ID
+        const gamertags = new Set(); // NUEVO
             const clases = new Set();
 
             tableRows.forEach(row => {
                 const usuarioId = row.getAttribute('data-usuario-id');
+                const nombreUsuario = row.querySelector('.col-usuario .user-fullname').textContent.trim();
+                const gamertag = row.querySelector('.col-gamertag .gamertag-badge').textContent.trim();
                 const claseId = row.getAttribute('data-clase-id');
+   
+               if (usuarioId && nombreUsuario) {
+                   usuarios.set(nombreUsuario, usuarioId);
+               }
 
-                if (usuarioId) usuarios.add(usuarioId);
-                if (claseId) clases.add(claseId);
+             
+               if (gamertag) {
+                   gamertags.add(gamertag);
+               }
+
+               if (claseId) {
+                   clases.add(claseId);
+               }
             });
 
             // Llenar filtro de usuarios
-            usuarios.forEach(usuarioId => {
-                const option = document.createElement('option');
-                option.value = usuarioId;
-                option.textContent = `Usuario ${usuarioId}`;
-                usuarioFilter.appendChild(option);
+            usuarios.forEach((usuarioId, nombreUsuario) => {
+            const option = document.createElement('option');
+            option.value = usuarioId; // El valor sigue siendo el ID para el filtrado
+            option.textContent = nombreUsuario; // Pero mostramos el nombre
+            usuarioFilter.appendChild(option);
+            });
+
+             gamertags.forEach(gamertag => {
+            const option = document.createElement('option');
+            option.value = gamertag;
+            option.textContent = gamertag;
+            gamertagFilter.appendChild(option);
             });
 
             // Llenar filtro de clases
@@ -1569,6 +1581,7 @@
         // Función principal de filtrado
         function filterPruebas() {
             const usuarioValue = usuarioFilter.value;
+            const gamertagValue = gamertagFilter.value; 
             const claseValue = claseFilter.value;
             const estadoValue = estadoFilter.value;
             const fechaValue = fechaFilter.value;
@@ -1581,11 +1594,17 @@
             tableRows.forEach(row => {
                 let showRow = true;
 
-                // Filtro por usuario
-                if (usuarioValue && showRow) {
-                    const usuarioId = row.getAttribute('data-usuario-id');
-                    if (usuarioId !== usuarioValue) showRow = false;
-                }
+                  if (usuarioValue && showRow) {
+                        const usuarioId = row.getAttribute('data-usuario-id');
+                        if (usuarioId !== usuarioValue) showRow = false;
+                    }
+
+                    // NUEVO: Filtro por gamertag
+                    if (gamertagValue && showRow) {
+                        const gamertag = row.querySelector('.col-gamertag .gamertag-badge').textContent.trim();
+                        if (gamertag !== gamertagValue) showRow = false;
+                    }
+
 
                 // Filtro por clase
                 if (claseValue && showRow) {
@@ -1649,15 +1668,19 @@
                 }
 
                 // Filtro por búsqueda
-                if (searchValue && showRow) {
-                    const pruebaId = row.querySelector('.col-id').textContent.toLowerCase();
-                    const usuarioId = row.querySelector('.col-usuario').textContent.toLowerCase();
+               if (searchValue && showRow) {
+                const pruebaId = row.querySelector('.col-id').textContent.toLowerCase();
+                const usuarioId = row.querySelector('.col-usuario-id').textContent.toLowerCase();
+                const nombreUsuario = row.querySelector('.col-usuario .user-fullname').textContent.toLowerCase();
+                const gamertag = row.querySelector('.col-gamertag .gamertag-badge').textContent.toLowerCase();
 
-                    const matchesSearch = pruebaId.includes(searchValue) ||
-                                        usuarioId.includes(searchValue);
+                const matchesSearch = pruebaId.includes(searchValue) ||
+                                    usuarioId.includes(searchValue) ||
+                                    nombreUsuario.includes(searchValue) ||
+                                    gamertag.includes(searchValue);
 
-                    if (!matchesSearch) showRow = false;
-                }
+                if (!matchesSearch) showRow = false;
+            }
 
                 // Mostrar u ocultar la fila
                 row.style.display = showRow ? 'grid' : 'none';
@@ -1700,6 +1723,7 @@
             fechaFilter.value = '';
             rendimientoFilter.value = '';
             pruebaSearch.value = '';
+             gamertagFilter.value = '';
             filterPruebas();
         }
 
@@ -1711,6 +1735,7 @@
         rendimientoFilter.addEventListener('change', filterPruebas);
         searchButton.addEventListener('click', filterPruebas);
         clearFiltersBtn.addEventListener('click', clearFilters);
+          gamertagFilter.addEventListener('change', filterPruebas);
 
         pruebaSearch.addEventListener('keyup', function(e) {
             if (e.key === 'Enter') {
@@ -1752,38 +1777,41 @@
             }
         });
 
-        // Cargar detalles de la prueba
-        function loadPruebaDetails(pruebaId) {
-            const row = document.querySelector(`.table-row[data-prueba-id="${pruebaId}"]`);
-            if (!row) return;
+          function loadPruebaDetails(pruebaId) {
+        const row = document.querySelector(`.table-row[data-prueba-id="${pruebaId}"]`);
+        if (!row) return;
 
-            const idPrueba = row.querySelector('.col-id').textContent;
-            const idUsuario = row.querySelector('.col-usuario').textContent;
-            const idClase = row.querySelector('.col-clase').textContent;
-            const estado = row.querySelector('.status-badge').textContent;
-            const tiempo = row.querySelector('.tiempo-badge').textContent;
-            const totalPreguntas = row.querySelector('.col-preguntas').textContent;
-            const correctas = row.querySelector('.col-correctas').textContent;
-            const porcentaje = row.getAttribute('data-porcentaje');
-            const fecha = row.querySelector('.fecha-text').textContent;
-            const experiencia = row.querySelector('.experiencia-badge').textContent;
+        const idPrueba = row.querySelector('.col-id').textContent;
+        const idUsuario = row.querySelector('.col-usuario-id').textContent; // CORREGIDO
+        const nombreUsuario = row.querySelector('.col-usuario .user-fullname').textContent;
+        const gamertag = row.querySelector('.col-gamertag .gamertag-badge').textContent;
+        const idClase = row.querySelector('.col-clase').textContent;
+        const estado = row.querySelector('.status-badge').textContent;
+        const tiempo = row.querySelector('.tiempo-badge').textContent;
+        const totalPreguntas = row.querySelector('.col-preguntas').textContent;
+        const correctas = row.querySelector('.col-correctas').textContent;
+        const porcentaje = row.getAttribute('data-porcentaje');
+        const fecha = row.querySelector('.fecha-text').textContent;
+        const experiencia = row.querySelector('.experiencia-badge').textContent;
 
-            // Llenar el modal
-            document.getElementById('detailIdPrueba').textContent = idPrueba;
-            document.getElementById('detailIdUsuario').textContent = idUsuario;
-            document.getElementById('detailIdClase').textContent = idClase;
-            document.getElementById('detailEstado').textContent = estado;
-            document.getElementById('detailTiempo').textContent = tiempo;
-            document.getElementById('detailTotalPreguntas').textContent = totalPreguntas;
-            document.getElementById('detailCorrectas').textContent = correctas;
-            document.getElementById('detailPorcentaje').textContent = parseFloat(porcentaje).toFixed(1) + '%';
-            document.getElementById('detailFecha').textContent = fecha;
-            document.getElementById('detailExperiencia').textContent = experiencia;
+        // Llenar el modal
+        document.getElementById('detailIdPrueba').textContent = idPrueba;
+        document.getElementById('detailIdUsuario').textContent = idUsuario;
+        document.getElementById('detailNombreUsuario').textContent = nombreUsuario;
+        document.getElementById('detailGamertag').textContent = gamertag;
+        document.getElementById('detailIdClase').textContent = idClase;
+        document.getElementById('detailEstado').textContent = estado;
+        document.getElementById('detailTiempo').textContent = tiempo;
+        document.getElementById('detailTotalPreguntas').textContent = totalPreguntas;
+        document.getElementById('detailCorrectas').textContent = correctas;
+        document.getElementById('detailPorcentaje').textContent = parseFloat(porcentaje).toFixed(1) + '%';
+        document.getElementById('detailFecha').textContent = fecha;
+        document.getElementById('detailExperiencia').textContent = experiencia;
 
-            // Actualizar barra de progreso
-            const progressBar = document.getElementById('detailPorcentajeBar');
-            progressBar.style.width = `${Math.min(parseFloat(porcentaje), 100)}%`;
-        }
+        // Actualizar barra de progreso
+        const progressBar = document.getElementById('detailPorcentajeBar');
+        progressBar.style.width = `${Math.min(parseFloat(porcentaje), 100)}%`;
+    }
 
         // Cerrar modal de ver
         function closeViewModal() {
@@ -1801,76 +1829,12 @@
             closeModalBtn.addEventListener('click', closeViewModal);
         }
 
-        // === MODAL ELIMINAR PRUEBA ===
-        const deleteModal = document.getElementById('deletePruebaModal');
-        const closeDeleteBtn = document.querySelector('.close-delete');
-        const cancelDeleteBtn = document.querySelector('.btn-cancel-delete');
-        const deletePruebaForm = document.getElementById('deletePruebaForm');
-        const deletePruebaIdInput = document.getElementById('deletePruebaId');
-
-        // Event listener para botones de eliminar
-        document.addEventListener('click', function(e) {
-            if (!e.target) return;
-
-            let btnDelete = null;
-
-            if (e.target.classList && e.target.classList.contains('btn-delete')) {
-                btnDelete = e.target;
-            } else if (e.target.parentElement &&
-                       e.target.parentElement.classList &&
-                       e.target.parentElement.classList.contains('btn-delete')) {
-                btnDelete = e.target.parentElement;
-            }
-
-            if (btnDelete && deleteModal) {
-                const pruebaId = btnDelete.getAttribute('data-pruebaid');
-                if (pruebaId) {
-                    loadPruebaDeleteInfo(pruebaId);
-                    deleteModal.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
-                }
-            }
-        });
-
-        // Cargar información para eliminar
-        function loadPruebaDeleteInfo(pruebaId) {
-            const row = document.querySelector(`.table-row[data-prueba-id="${pruebaId}"]`);
-            if (!row) return;
-
-            const idPrueba = row.querySelector('.col-id').textContent;
-            const idUsuario = row.querySelector('.col-usuario').textContent;
-            const fecha = row.querySelector('.fecha-text').textContent;
-
-            // Llenar el formulario y la información
-            deletePruebaIdInput.value = pruebaId;
-            document.getElementById('deletePruebaInfoId').textContent = idPrueba;
-            document.getElementById('deletePruebaInfoUsuario').textContent = idUsuario;
-            document.getElementById('deletePruebaInfoFecha').textContent = fecha;
-        }
-
-        // Cerrar modal de eliminar
-        function closeDeleteModal() {
-            if (deleteModal) {
-                deleteModal.style.display = 'none';
-            }
-            document.body.style.overflow = 'auto';
-        }
-
-        if (closeDeleteBtn) {
-            closeDeleteBtn.addEventListener('click', closeDeleteModal);
-        }
-
-        if (cancelDeleteBtn) {
-            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-        }
-
+     
+      
         // Cerrar modales al hacer click fuera
         window.addEventListener('click', function(e) {
             if (viewModal && e.target === viewModal) {
                 closeViewModal();
-            }
-            if (deleteModal && e.target === deleteModal) {
-                closeDeleteModal();
             }
         });
 
