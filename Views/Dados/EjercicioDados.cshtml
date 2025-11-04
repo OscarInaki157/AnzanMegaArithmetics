@@ -1,0 +1,571 @@
+﻿@model AnzanMegaArithmetics.Models.EjercicioDadosModel
+@{
+    ViewBag.Title = "Ejercicio de Matemáticas con Dados";
+    Layout = "_LayoutDados";
+
+    var ejercicioActual = ViewBag.EjercicioActual ?? 1;
+    var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
+    var tiempoRestante = ViewBag.TiempoRestante ?? 0;
+
+    var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
+}
+
+<style>
+    .input-respuesta {
+        width: 85%;
+        caret-color: transparent;
+        padding: 0.6rem 1rem;
+        font-size: 3.5rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .btn-enviar-respuesta {
+        padding: 0.6rem 2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 2.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        width: 50%;
+    }
+
+        .btn-enviar-respuesta:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+        }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    /* ESTILOS PARA DADOS */
+    .dados-container {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .dado {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ffffff, #f0f0f0);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2d3748;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        position: relative;
+        transform: rotate(25deg);
+    }
+
+    .dado-resultado {
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        margin-left: 1rem;
+    }
+
+    .dado-label {
+        position: relative;
+        font-size: 1.2rem;
+        top: -1rem;
+        color: #d1d1f0;
+        font-weight: 600;
+    }
+
+    /* ESTILOS PARA BOTONES DE NÚMEROS Y OPERACIONES */
+    .botones-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 2rem 0;
+        align-items: center;
+    }
+
+    .botones-numeros {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .botones-operadores {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-numero {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-numero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(76, 76, 255, 0.5);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+        .btn-numero:active {
+            transform: translateY(-1px);
+        }
+
+    .btn-operador {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-operador:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+            background: linear-gradient(135deg, #ee5a24, #d63031);
+        }
+
+        .btn-operador:active {
+            transform: translateY(-1px);
+        }
+
+    /* ESTILOS PARA FORMULARIO DE RESPUESTA */
+    .formulario-respuesta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .input-expresion {
+        width: 400px;
+        padding: 1rem 1.5rem;
+        font-size: 1.8rem;
+        border-radius: 12px;
+        border: 3px solid #4c4cff;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        caret-color: transparent;
+    }
+
+        .input-expresion:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 25px rgba(255, 107, 107, 0.4);
+        }
+
+    .btn-enviar {
+        padding: 1rem 3rem;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(76, 76, 255, 0.4);
+    }
+
+        .btn-enviar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 76, 255, 0.6);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+    .btn-limpiar {
+        padding: 1rem 3rem;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(76, 76, 255, 0.4);
+    }
+
+        .btn-limpiar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 76, 255, 0.6);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+    .instruccion {
+        font-size: 1.2rem;
+        color: #d1d1f0;
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .areaej {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .Ejercicio {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .dado {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
+
+        .btn-numero, .btn-operador {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+        }
+
+        .input-expresion {
+            width: 300px;
+            font-size: 1.5rem;
+        }
+
+        .dados-container {
+            gap: 1rem;
+        }
+
+        .botones-numeros, .botones-operadores {
+            gap: 0.8rem;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <button type="button" onclick="enviarYFinalizar(event)" class="btn-finalizar">
+        ❌ <span>Finalizar</span>
+    </button>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-tiempo">
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span> s</span>
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <!-- DADOS -->
+    <div class="dados-container">
+        @for (int i = 0; i < Model.Dados.Length; i++)
+        {
+            <div class="dado-container">
+                <div class="dado">@Model.Dados[i]</div>
+            </div>
+        }
+        <div class="dado-container">
+            <div class="dado dado-resultado">@Model.Dado_Resultado</div>
+        </div>
+    </div>
+
+    <p class="instruccion">Usa los botones para construir tu operación matemática</p>
+
+    <div class="botones-container">
+        <div class="botones-numeros">
+            @foreach (var numero in Model.Dados)
+            {
+                <button type="button" class="btn-numero" onclick="agregarNumero(@numero)">@numero</button>
+            }
+        </div>
+
+        <div class="botones-operadores">
+            <button type="button" class="btn-operador" onclick="agregarOperador('+')">+</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador('-')">-</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador('*')">×</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador('/')">÷</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador('^')">^</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador('(')">(</button>
+            <button type="button" class="btn-operador" onclick="agregarOperador(')')">)</button>
+        </div>
+    </div>
+
+    <!-- FORMULARIO DE RESPUESTA -->
+    <div class="formulario-respuesta">
+        <input type="text"
+               id="expresionMatematica"
+               class="input-expresion"
+               readonly />
+
+        <button type="button" class="btn-limpiar" onclick="limpiarExpresion()">Limpiar</button>
+        <button type="button" class="btn-enviar" onclick="enviarRespuesta()">Enviar</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let tiempoInicioEjercicio = Date.now();
+        let tiempoRestanteGlobal = @tiempoRestante;
+        let temporizadorGlobalInterval;
+
+        function actualizarTemporizadorGlobal() {
+            if (tiempoRestanteGlobal > 0) {
+                tiempoRestanteGlobal--;
+                document.getElementById('contadorTiempoRestante').textContent = tiempoRestanteGlobal;
+
+                if (tiempoRestanteGlobal <= 0) {
+                    clearInterval(temporizadorGlobalInterval);
+                    window.location.href = '/Dados/ResultadosDados';
+                }
+            }
+        }
+
+        function enviarYFinalizar(event) {
+            event.preventDefault();
+            clearInterval(temporizadorGlobalInterval);
+            window.location.href = '/Dados/ResultadosDados';
+        }
+
+        function agregarNumero(numero) {
+            const input = document.getElementById('expresionMatematica');
+            input.value += numero;
+        }
+
+        function agregarOperador(operador) {
+            const input = document.getElementById('expresionMatematica');
+            input.value += ' ' + operador + ' ';
+        }
+
+        function limpiarExpresion() {
+            document.getElementById('expresionMatematica').value = '';
+        }
+
+               function enviarRespuesta() {
+            const expresion = document.getElementById('expresionMatematica').value.trim();
+
+            if (!expresion) {
+                alert('Por favor, construye una operación matemática');
+                return;
+            }
+
+            const tiempoFin = Date.now();
+            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
+
+            // Crear formulario dinámico para enviar la respuesta
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Dados/EjercicioDados';
+
+            // Agregar datos al formulario
+            const inputExpresion = document.createElement('input');
+            inputExpresion.type = 'hidden';
+            inputExpresion.name = 'respuestaUsuario';
+            inputExpresion.value = expresion;
+            form.appendChild(inputExpresion);
+
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoRespuesta.toFixed(2);
+            form.appendChild(inputTiempo);
+
+            document.body.appendChild(form);
+            form.submit();
+
+            clearInterval(temporizadorGlobalInterval);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            tiempoInicioEjercicio = Date.now();
+            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                enviarRespuesta();
+            }
+        });
+    </script>
+}
