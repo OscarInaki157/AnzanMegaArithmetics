@@ -1,7 +1,7 @@
-﻿@model AnzanMegaArithmetics.Models.EjercicioPotenciasModel
+﻿@model AnzanMegaArithmetics.Models.EjercicioRaicesModel
 @{
-    ViewBag.Title = "Ejercicio de potencias";
-    Layout = "_LayoutPotencias";
+    ViewBag.Title = "Ejercicio de raíces cuadradas";
+    Layout = "_LayoutRaices";
 
     var ejercicioActual = ViewBag.EjercicioActual ?? 1;
     var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
@@ -299,6 +299,18 @@
         max-width: 300px;
     }
 
+    .simbolo-raiz {
+        font-size: 3rem;
+        vertical-align: middle;
+        margin-right: 0.5rem;
+        color: #4CAF50;
+    }
+
+    .numero-base {
+        text-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    }
+
+
     @@keyframes float {
         0%, 100% {
             transform: translateY(0px);
@@ -364,6 +376,11 @@
             font-size: 3.5rem;
         }
 
+
+        .simbolo-raiz {
+            font-size: 2.5rem;
+        }
+
         .input-respuesta-potencia {
             width: 250px;
             font-size: 2rem;
@@ -395,6 +412,7 @@
             font-size: 0.8rem;
         }
     }
+
 </style>
 
 <div class="top-bar">
@@ -420,14 +438,14 @@
 
     <div class="areaej">
         <div class="Ejercicio">
-
+           
             <div class="potencia-grande">
-                <span class="base-numero">@Model.Numero_Base</span>
-                <span class="exponente">2</span>
+                <span class="simbolo-raiz">√</span>
+                <span class="numero-base">@Model.Numero_Base</span>
             </div>
 
-            <form method="post" action="/Potencias/EjercicioPotencias" class="formulario-respuesta" id="formRespuesta">
-                
+            <form method="post" action="/Raices/EjercicioRaices" class="formulario-respuesta" id="formRespuesta">
+
                 <input type="number"
                        name="respuestaUsuario"
                        class="input-respuesta-potencia"
@@ -456,7 +474,7 @@
 
                 if (tiempoRestanteGlobal <= 0) {
                     clearInterval(temporizadorGlobalInterval);
-                    window.location.href = '/Potencias/ResultadosPotencias';
+                    window.location.href = '/Raices/ResultadosRaices';
                 }
             }
         }
@@ -464,15 +482,15 @@
         function enviarYFinalizar(event) {
             event.preventDefault();
             clearInterval(temporizadorGlobalInterval);
-            window.location.href = '/Potencias/ResultadosPotencias';
+            window.location.href = '/Raices/ResultadosRaices';
         }
 
         document.getElementById('formRespuesta').addEventListener('submit', function(e) {
-            
+
             const tiempoFin = Date.now();
             const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
 
-            
+
             const inputTiempo = document.createElement('input');
             inputTiempo.type = 'hidden';
             inputTiempo.name = 'tiempoRespuesta';
