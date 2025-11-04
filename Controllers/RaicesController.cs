@@ -18,6 +18,11 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult LimpiarYDashboard() 
         {
+            HttpContext.Session.Remove("RaicesEjercicios");
+            HttpContext.Session.Remove("RaicesRespuestas");
+            HttpContext.Session.Remove("EjercicioActualRaices");
+            //HttpContext.Session.Remove("RaicesConf");
+            HttpContext.Session.Remove("RaicesTiempoRestante");
             return RedirectToAction("Desafios", "Dashboard");
         }
 
@@ -279,6 +284,18 @@ namespace AnzanMegaArithmetics.Controllers
                 //HttpContext.Session.Remove("RaicesConf");
                 HttpContext.Session.Remove("RaicesTiempoRestante");
 
+                PruebasDBModel result = new PruebasDBModel
+                {
+                    Id_Usuario = userId.Value,
+                    Total_Preguntas = ejercicios.Count,
+                    Respuestas_Correctas = correctas,
+                    Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                    Fecha = DateTime.Now,
+                    ExperienciaAdquirida = (int)porcentajeAcierto,
+                    Tipo_Prueba = "Raíces - " + config.TipoPrueba
+                };
+
+                bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
 
                 return View(modeloResultados);
             }
@@ -288,6 +305,92 @@ namespace AnzanMegaArithmetics.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult RepetirRaices()
+        {
+            try
+            {
+                var configJson = HttpContext.Session.GetString("RaicesConf");
+
+                if (string.IsNullOrEmpty(configJson))
+                {
+                    return RedirectToAction("FormularioRaices");
+                }
+
+                var config = JsonSerializer.Deserialize<ConfRaicesModel>(configJson);
+
+                List<EjercicioRaicesModel> ejercicios = GenerarEjerciciosRaices(config);
+                List<RespuestaRaicesModel> respuestas = ejercicios.Select(e => new RespuestaRaicesModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = 0,
+                    Es_Correcto = false,
+                    Tiempo_Respuesta = 0
+                }).ToList();
+
+                HttpContext.Session.SetString("RaicesEjercicios", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("RaicesRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualRaices", 1);
+
+                HttpContext.Session.SetInt32("RaicesTiempoRestante", config.TiempoTotal * 60);
+                HttpContext.Session.SetString("RaicesInicioTiempo", DateTime.Now.ToString());
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                return View("ConcentracionRaices");
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("FormularioRaices");
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult CompetenciaRaices() 
+        {
+            try 
+            {
+                var userId = HttpContext.Session.GetInt32("Id_Usuario");
+                if (userId == null || userId == 0)
+                {
+                    return RedirectToAction("Inicio", "Inicio");
+                }
+
+                var config = new ConfRaicesModel
+                {
+                    CantidadEjercicios = 50,
+                    TipoEjercicio = "2digitos",
+                    TiempoTotal = 1,
+                    TiempoMeditacion = 2,
+                    TipoPrueba = "Competencia"
+                };
+
+                List<EjercicioRaicesModel> ejercicios = GenerarEjerciciosRaices(config);
+                List<RespuestaRaicesModel> respuestas = ejercicios.Select(e => new RespuestaRaicesModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = 0,
+                    Es_Correcto = false,
+                    Tiempo_Respuesta = 0
+                }).ToList();
+
+
+                HttpContext.Session.SetString("RaicesConf", JsonSerializer.Serialize(config));
+                HttpContext.Session.SetString("RaicesEjercicios", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("RaicesRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualRaices", 1);
+
+                HttpContext.Session.SetInt32("RaicesTiempoRestante", config.TiempoTotal * 60);
+                HttpContext.Session.SetString("RaicesInicioTiempo", DateTime.Now.ToString());
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                return View("ConcentracionRaices");
+            }
+            catch (Exception ex) 
+            {
+                return RedirectToAction("FormularioRaices");
+            }
+        }
 
     }
 }
