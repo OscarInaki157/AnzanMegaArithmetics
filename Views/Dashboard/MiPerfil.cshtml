@@ -5,6 +5,42 @@
     Layout = "_LayoutDashboard";
 }
 
+
+<!-- Barra Superior - Información Personal -->
+<div class="user-top-info">
+    <div class="user-left-section">
+        <div class="user-name">
+            @Model.Nombre
+        </div>
+        <div class="user-meta-row">
+            <span class="gamertag">
+                <i class="fa-solid fa-gamepad"></i>
+                <strong>Gamertag:</strong> @Model.Gamer_Tag
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-id-card"></i>
+                <strong>Licencia:</strong> @Model.Licencia
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-landmark"></i>
+                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
+            </span>
+        </div>
+    </div>
+
+    <div class="user-right-section">
+        <div class="user-coins">
+            <i class="fa-solid fa-coins"></i>
+            <strong>Mind coins:</strong> <span id="user-coins">0</span>
+        </div>
+        <div class="last-connection">
+            <i class="fa-solid fa-clock"></i>
+            Última conexión: @Model.Ultima_Cnx
+        </div>
+    </div>
+</div>
+
+
 <div class="dashboard-top">
     <!-- Nueva sección de bienvenida -->
     <div class="user-welcome-card">
@@ -19,12 +55,12 @@
     </div>
 
     <div class="user-info-card">
-        <p><strong>Licencia @Model.Licencia</strong></p>
+        @*  <p><strong>Licencia @Model.Licencia</strong></p>
         <p>Última conexión: @Model.Ultima_Cnx</p>
         <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
         <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        @* <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p> *@
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p>
+        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
+        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
             <div class="R3">
                 <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
@@ -36,6 +72,17 @@
                 <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>
             </div>
         </div>
+
+        <div class="xp-progress-container">
+            <div class="xp-bar">
+                <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
+            </div>
+            <div class="xp-next-level">
+                <i class="fas fa-arrow-up"></i>
+                <span id="xp-next-level-text">Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP</span>
+            </div>
+        </div>
+
     </div>
 </div>
 

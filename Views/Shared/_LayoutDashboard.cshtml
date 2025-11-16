@@ -192,6 +192,114 @@
         }
 
         /*ESTILOS DASHBOARDS=========================================================================*/
+
+        /* ===== BARRA SUPERIOR INFORMACIÓN PERSONAL ===== */
+        .user-top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, var(--color-card-bg) 0%, #151a39 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sección izquierda */
+        .user-left-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 50%;
+        }
+
+        .user-name {
+            color: var(--color-light);
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+            .user-name i {
+                color: var(--color-primary);
+            }
+
+        .user-meta-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            flex-direction:row;
+        }
+
+        .gamertag, .license {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--color-light);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+        }
+
+            .gamertag i, .license i {
+                font-size: 0.8rem;
+            }
+
+
+        .user-classes {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-light);
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+            .user-classes i {
+                color: var(--color-primary);
+            }
+
+        /* Sección derecha */
+        .user-right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+            min-width: 180px;
+        }
+
+        .user-coins {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-light);
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+        }
+
+            .user-coins i {
+                color: #ffd700; /* Color dorado para las monedas */
+            }
+
+        .last-connection {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-light);
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+        }
+
+
         /* ===== TOP SECTION ===== */
         .dashboard-top {
             display: flex;
@@ -241,12 +349,25 @@
             }
 
         .user-welcome-card {
-            background: linear-gradient(to top, var(--color-card-bg) 50%, transparent 50%);
-            padding: 1rem;
+            background: linear-gradient(to top, var(--color-card-bg) 60%, transparent 40%);
+            border-radius: 1rem;
+            display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: none;
+            position: relative;
+            overflow: visible;
         }
+
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
 
         .image-wrapper {
             width: 100%;
@@ -530,18 +651,59 @@
                 }
 
         .speech-bubble {
-            position: relative;
-            top: -10%;
-            left: -2%;
             background-color: var(--color-primary);
             color: white;
-            padding: 0.5rem;
-            border-radius: 1.2rem;
-            font-size: 0.9rem;
-            max-width: 10rem;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1.5rem;
+            font-size: 0.95rem;
+            max-width: 14rem;
             z-index: 3;
             font-weight: 500;
             text-align: center;
+            margin-bottom: -3rem;
+            box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+            order: 1; 
+        }
+
+            .speech-bubble::after {
+                content: '';
+                position: absolute;
+                bottom: 69%;
+                left: 55%;
+                width: 0;
+                height: 0;
+                border-left: 10px solid transparent;
+                border-right: 10px solid transparent;
+                border-top: 10px solid var(--color-primary);
+            }
+
+        .character-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            order: 2;
+        }
+
+        .professor-img {
+            max-width: 12rem;
+            height: auto;
+            object-fit: contain;
+            z-index: 2;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .character-name {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            backdrop-filter: blur(5px);
         }
 
         .contenedorR {
@@ -667,6 +829,105 @@
         }
         /*ESTILOS DASHBOARDS=========================================================================*/
 
+        /* ===== BARRA DE XP ===== */
+
+        .xp-bar {
+            position: relative;
+            height: 0.8rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 0.8rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .xp-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4cff4c 0%, #00e600 50%, #00cc00 100%);
+            border-radius: 1rem;
+            width: 0%;
+            position: relative;
+            transition: width 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+            box-shadow: 0 0 10px rgba(76, 255, 76, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+            .xp-progress::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                animation: xp-shine 4s infinite;
+                animation-delay: 1s;
+            }
+
+        @@keyframes xp-shine {
+            0%{
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .xp-next-level {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--color-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: rgba(76, 255, 76, 0.1);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(76, 255, 76, 0.2);
+        }
+
+            .xp-next-level i {
+                color: #4cff4c;
+                font-size: 0.7rem;
+            }
+
+        .xp-level-up {
+            animation: level-up-pulse 0.8s ease-out;
+        }
+
+        @@keyframes level-up-pulse {
+            0%{
+                box-shadow: 0 0 0 0 rgba(76, 255, 76, 0.7);
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(76, 255, 76, 0.3);
+                transform: scale(1.02);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 255, 76, 0);
+                transform: scale(1);
+            }
+        }
+
+        .xp-progress.loading {
+            background: linear-gradient(90deg, #4cff4c 0%, #00e600 50%, #4cff4c 100%);
+            background-size: 200% 100%;
+            animation: loading-shimmer 2s infinite;
+        }
+
+        @@keyframes loading-shimmer {
+            0%{
+                background-position: -200% 0;
+            }
+            100%{
+                background-position: 200% 0;
+            }
+        }
+
         .modal {
             position: fixed;
             z-index: 2000;
@@ -675,7 +936,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            display: none; /* Cambiado de flex a none (se mostrará con JS) */
+            display: none;
             justify-content: center;
             align-items: center;
         }
@@ -737,7 +998,6 @@
             scrollbar-color: var(--color-primary) var(--color-sidebar);
         }
 
-            /* Estilos personalizados para la barra de scroll */
             .update-notes::-webkit-scrollbar {
                 width: 8px;
             }
@@ -907,6 +1167,24 @@
                 font-size: 1.2rem;
             }
 
+            .user-top-info {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .user-left-section,
+            .user-center-section,
+            .user-right-section {
+                align-items: center;
+                text-align: center;
+            }
+
+            .user-right-section {
+                align-items: end;
+            }
+            
+
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -996,8 +1274,7 @@
     </footer>
 
     <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-            // Manejo del sidebar
+        document.addEventListener('DOMContentLoaded', function() {
             const hamburgerBtn = document.getElementById('hamburger-btn');
             const sidebar = document.querySelector('.dashboard-sidebar');
             const Neuros = document.getElementById('Neuros');
@@ -1013,7 +1290,6 @@
                 });
             }
 
-            // Resaltar menú activo
             const pageTitle = document.title;
             if (pageTitle.includes('Neuroactividades')) {
                 if (Neuros) {
@@ -1046,13 +1322,11 @@
                 }
             }
 
-            // Función para los menús desplegables
             function toggleMenu(menuId, event) {
                 event.preventDefault();
                 const menu = document.getElementById(menuId);
                 const isVisible = menu.style.display === 'block';
 
-                // Oculta todos los menús antes de mostrar el seleccionado
                 document.querySelectorAll('.modulo-menu').forEach(m => m.style.display = 'none');
 
                 if (!isVisible) {
@@ -1065,7 +1339,6 @@
                 }
             }
 
-            // Manejo de los botones de menú
             const toggleButtons = document.querySelectorAll('.modulo-toggle');
             toggleButtons.forEach(button => {
                 button.addEventListener('click', function(event) {
@@ -1074,7 +1347,6 @@
                 });
             });
 
-            // Cerrar menús al hacer clic fuera
             document.addEventListener('click', function(event) {
                 document.querySelectorAll('.modulo-menu').forEach(menu => {
                     const button = document.querySelector(`[data-menu-id="${menu.id}"]`);
@@ -1087,59 +1359,155 @@
                 });
             });
 
-            // Función para determinar el rango
+            // Sistema de rangos mejorado con límites
             function determinarRango(exp) {
                 const xp = parseInt(exp) || 0;
 
-                if (xp >= 500000 && xp <= 749999) return { nombre: "Materia Oscura I", clase: "dark-matter" };
-                if (xp >= 750000 && xp <= 1000000) return { nombre: "Materia Oscura II", clase: "dark-matter" };
-                if (xp > 1000000) return { nombre: "Materia Oscura III", clase: "dark-matter" };
-                if (xp >= 260001 && xp <= 280000) return { nombre: "Heroico I", clase: "heroic" };
-                if (xp >= 280001 && xp <= 300000) return { nombre: "Heroico II", clase: "heroic" };
-                if (xp >= 300001 && xp <= 320000) return { nombre: "Heroico III", clase: "heroic" };
-                if (xp >= 220001 && xp <= 260000) return { nombre: "Diamante III", clase: "diamond" };
-                if (xp >= 200001 && xp <= 220000) return { nombre: "Diamante II", clase: "diamond" };
-                if (xp >= 180001 && xp <= 200000) return { nombre: "Diamante I", clase: "diamond" };
-                if (xp >= 160001 && xp <= 180000) return { nombre: "Oro III", clase: "gold" };
-                if (xp >= 140001 && xp <= 160000) return { nombre: "Oro II", clase: "gold" };
-                if (xp >= 120001 && xp <= 140000) return { nombre: "Oro I", clase: "gold" };
-                if (xp >= 100001 && xp <= 120000) return { nombre: "Plata III", clase: "silver" };
-                if (xp >= 80001 && xp <= 100000) return { nombre: "Plata II", clase: "silver" };
-                if (xp >= 60001 && xp <= 80000) return { nombre: "Plata I", clase: "silver" };
-                if (xp >= 40001 && xp <= 60000) return { nombre: "Bronce III", clase: "bronze" };
-                if (xp >= 20001 && xp <= 40000) return { nombre: "Bronce II", clase: "bronze" };
+                if (xp >= 500000 && xp <= 749999) return { nombre: "Materia Oscura I", clase: "dark-matter", min: 500000, max: 749999 };
+                if (xp >= 750000 && xp <= 1000000) return { nombre: "Materia Oscura II", clase: "dark-matter", min: 750000, max: 1000000 };
+                if (xp > 1000000) return { nombre: "Materia Oscura III", clase: "dark-matter", min: 1000001, max: Infinity };
+                if (xp >= 260001 && xp <= 280000) return { nombre: "Heroico I", clase: "heroic", min: 260001, max: 280000 };
+                if (xp >= 280001 && xp <= 300000) return { nombre: "Heroico II", clase: "heroic", min: 280001, max: 300000 };
+                if (xp >= 300001 && xp <= 320000) return { nombre: "Heroico III", clase: "heroic", min: 300001, max: 320000 };
+                if (xp >= 220001 && xp <= 260000) return { nombre: "Diamante III", clase: "diamond", min: 220001, max: 260000 };
+                if (xp >= 200001 && xp <= 220000) return { nombre: "Diamante II", clase: "diamond", min: 200001, max: 220000 };
+                if (xp >= 180001 && xp <= 200000) return { nombre: "Diamante I", clase: "diamond", min: 180001, max: 200000 };
+                if (xp >= 160001 && xp <= 180000) return { nombre: "Oro III", clase: "gold", min: 160001, max: 180000 };
+                if (xp >= 140001 && xp <= 160000) return { nombre: "Oro II", clase: "gold", min: 140001, max: 160000 };
+                if (xp >= 120001 && xp <= 140000) return { nombre: "Oro I", clase: "gold", min: 120001, max: 140000 };
+                if (xp >= 100001 && xp <= 120000) return { nombre: "Plata III", clase: "silver", min: 100001, max: 120000 };
+                if (xp >= 80001 && xp <= 100000) return { nombre: "Plata II", clase: "silver", min: 80001, max: 100000 };
+                if (xp >= 60001 && xp <= 80000) return { nombre: "Plata I", clase: "silver", min: 60001, max: 80000 };
+                if (xp >= 40001 && xp <= 60000) return { nombre: "Bronce III", clase: "bronze", min: 40001, max: 60000 };
+                if (xp >= 20001 && xp <= 40000) return { nombre: "Bronce II", clase: "bronze", min: 20001, max: 40000 };
 
-                return { nombre: "Bronce I", clase: "bronze" };
+                return { nombre: "Bronce I", clase: "bronze", min: 0, max: 20000 };
             }
 
-            // Función para actualizar el rango en la interfaz
+            // Función para calcular el próximo rango y progreso
+            function calcularProximoRango(exp) {
+                const rangos = [
+                    { nombre: "Bronce I", min: 0, max: 20000 },
+                    { nombre: "Bronce II", min: 20001, max: 40000 },
+                    { nombre: "Bronce III", min: 40001, max: 60000 },
+                    { nombre: "Plata I", min: 60001, max: 80000 },
+                    { nombre: "Plata II", min: 80001, max: 100000 },
+                    { nombre: "Plata III", min: 100001, max: 120000 },
+                    { nombre: "Oro I", min: 120001, max: 140000 },
+                    { nombre: "Oro II", min: 140001, max: 160000 },
+                    { nombre: "Oro III", min: 160001, max: 180000 },
+                    { nombre: "Diamante I", min: 180001, max: 200000 },
+                    { nombre: "Diamante II", min: 200001, max: 220000 },
+                    { nombre: "Diamante III", min: 220001, max: 260000 },
+                    { nombre: "Heroico I", min: 260001, max: 280000 },
+                    { nombre: "Heroico II", min: 280001, max: 300000 },
+                    { nombre: "Heroico III", min: 300001, max: 320000 },
+                    { nombre: "Materia Oscura I", min: 500000, max: 749999 },
+                    { nombre: "Materia Oscura II", min: 750000, max: 1000000 },
+                    { nombre: "Materia Oscura III", min: 1000001, max: Infinity }
+                ];
+
+                const xp = parseInt(exp) || 0;
+                const rangoActual = determinarRango(xp);
+
+                // Encontrar índice del rango actual
+                const indiceActual = rangos.findIndex(r => r.nombre === rangoActual.nombre);
+
+                // Si es el último rango
+                if (indiceActual === rangos.length - 1) {
+                    return {
+                        proximoRango: null,
+                        xpRestante: 0,
+                        porcentaje: 100,
+                        esNivelMaximo: true
+                    };
+                }
+
+                const proximoRango = rangos[indiceActual + 1];
+                const xpRestante = proximoRango.min - xp;
+                const xpEnRangoActual = xp - rangoActual.min;
+                const xpTotalRangoActual = rangoActual.max - rangoActual.min;
+                const porcentaje = Math.min(100, (xpEnRangoActual / xpTotalRangoActual) * 100);
+
+                return {
+                    proximoRango: proximoRango.nombre,
+                    xpRestante: xpRestante,
+                    porcentaje: porcentaje,
+                    esNivelMaximo: false
+                };
+            }
+
             function actualizarRango() {
                 const rangoElement = document.querySelector('.R2 .txt strong');
                 const r2Element = document.querySelector('.R2');
 
                 if (rangoElement && r2Element) {
-                    // Obtener XP directamente del modelo
                     const xp = @Model.Exp;
                     const rango = determinarRango(xp);
 
-                    // Actualizar el texto del rango
                     rangoElement.innerHTML = `🎖️<br />${rango.nombre}`;
 
-                    // Actualizar los estilos según el rango
-                    r2Element.className = 'R2'; // Reset classes
-
-                    // Aplicar la clase correspondiente al rango
+                    r2Element.className = 'R2';
                     r2Element.classList.add(rango.clase);
                 }
             }
 
-            // Función para actualizar XP dinámicamente
+            function animarBarraXP() {
+                const xpBar = document.getElementById('xp-progress-bar');
+                if (!xpBar) return;
+
+                const xpActual = parseInt(xpBar.dataset.xp) || 0;
+                const progreso = calcularProximoRango(xpActual);
+
+                xpBar.classList.add('loading');
+
+                setTimeout(() => {
+                    xpBar.classList.remove('loading');
+                    xpBar.style.width = `${progreso.porcentaje}%`;
+
+                    if (progreso.porcentaje >= 100) {
+                        xpBar.classList.add('xp-level-up');
+                        setTimeout(() => {
+                            xpBar.classList.remove('xp-level-up');
+                        }, 800);
+                    }
+                }, 600);
+
+                const xpNextLevel = document.getElementById('xp-next-level-text');
+                if (xpNextLevel) {
+                    if (progreso.esNivelMaximo) {
+                        xpNextLevel.textContent = "¡Nivel Máximo Alcanzado!";
+                        xpNextLevel.style.color = '#ffd700';
+                        xpNextLevel.style.fontWeight = 'bold';
+                    } else {
+                        xpNextLevel.textContent = `Próximo nivel en: ${progreso.xpRestante} XP`;
+
+                        // Cambiar color cuando está cerca de subir de nivel (10% o menos del rango actual)
+                        if (progreso.porcentaje >= 90) {
+                            xpNextLevel.style.color = '#4cff4c';
+                            xpNextLevel.style.fontWeight = 'bold';
+                        } else {
+                            xpNextLevel.style.color = 'var(--color-light)';
+                            xpNextLevel.style.fontWeight = 'normal';
+                        }
+                    }
+                }
+            }
+
             function actualizarXP(nuevaXP) {
                 const xpElement = document.getElementById('xp-counter');
+                const xpBar = document.getElementById('xp-progress-bar');
+
                 if (xpElement) {
                     xpElement.textContent = nuevaXP + 'XP';
-                    actualizarRango();
                 }
+
+                if (xpBar) {
+                    xpBar.dataset.xp = nuevaXP;
+                    animarBarraXP();
+                }
+
+                actualizarRango();
             }
 
             // Contador de XP con animación
@@ -1166,21 +1534,22 @@
             }
 
             actualizarRango();
+            animarBarraXP();
 
             // Protección (opcional)
-             document.addEventListener('contextmenu', function(e) {
-                 e.preventDefault();
-             });
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-             document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-             });
+            document.addEventListener('keydown', function(e) {
+                if (
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                    (e.ctrlKey && e.key === 'U')
+                ) {
+                    e.preventDefault();
+                }
+            });
         });
     </script>
 
