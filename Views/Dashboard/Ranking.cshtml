@@ -1,6 +1,7 @@
-﻿@model AnzanMegaArithmetics.Models.LoginResponseModel
+﻿@using AnzanMegaArithmetics.Models
+@model AnzanMegaArithmetics.Models.LoginResponseModel
 @{
-    ViewBag.Title = "Mi perfil";
+    ViewBag.Title = "Ranking";
     Layout = "_LayoutDashboard";
 }
 
@@ -39,20 +40,18 @@
     </div>
 </div>
 
-
 <div class="dashboard-top">
-    <!-- Nueva sección de bienvenida -->
     <div class="user-welcome-card">
         <div class="welcome-container">
-            <div class="profile-circle">
-                <img src="/Content/Images/ProfS.png" alt="Foto de perfil" />
+            <div class="speech-bubble">
+                @Model.Frase_Bienvenida
             </div>
-            <h2 class="welcome-message">¡Hola @Model.Nombre!</h2>
-            <p><i class="fas fa-envelope"></i> @Model.Correo</p>
-            @* <p class="welcome-subtitle">Bienvenido a tu perfil</p> *@
+            <div class="character-section">
+                <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
+                <p class="character-name"><strong>Jerry</strong></p>
+            </div>
         </div>
     </div>
-
     <div class="user-info-card">
         @*  <p><strong>Licencia @Model.Licencia</strong></p>
         <p>Última conexión: @Model.Ultima_Cnx</p>
@@ -85,54 +84,153 @@
     </div>
 </div>
 
-<!-- Segunda fila: Avatares -->
+
+<!-- Segunda fila: Avatares y Top Globales -->
 <div class="dashboard-bottom">
-    <!-- Contenedor de Avatares -->
-    <div class="avatars-container">
-        <h2 class="avatars-title">Mis Avatares</h2>
-        <div class="avatars-grid">
-
-            <div class="avatar-item unlocked">
-                <div class="avatar-icon">
-                    <img src="/Content/Images/ProfS.png" alt="Avatar Jerry" />
-                </div>
-                <p class="avatar-name">Jerry</p>
-            </div>
-
-            <div class="avatar-item locked">
-                <div class="avatar-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <p class="avatar-name">???</p>
-            </div>
-
-            <div class="avatar-item locked">
-                <div class="avatar-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <p class="avatar-name">???</p>
-            </div>
-
+   
+    <div class="global-ranking-container">
+        <div class="ranking-header">
+            <h2 class="ranking-title">🏆 Top Globales</h2>
+            <div class="ranking-subtitle">Los jugadores con más experiencia en la plataforma</div>
         </div>
 
-        <!-- Nueva sección de Eventos -->
-        <div class="events-section">
-            <h3 class="events-title">📅 Eventos</h3>
-            <div class="event-card locked">
-                <div class="event-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <div class="event-content">
-                    <h4 class="event-name">Próximamente</h4>
-                    <p class="event-description">Nuevos eventos emocionantes se avecinan</p>
-                </div>
+        <div class="ranking-table">
+            <div class="table-header">
+                <div class="rank-col">#</div>
+                <div class="player-col">Jugador</div>
+                <div class="xp-col">Experiencia</div>
+                <div class="badge-col">Nivel</div>
+            </div>
+
+            <div class="table-body">
+                @{
+                    var ranking = ViewBag.Ranking as List<RankingUsersModel>;
+                    var currentUserId = Model.Id_Usuario;
+                    var rankNumber = 1;
+
+                    if (ranking != null && ranking.Any())
+                    {
+                        foreach (var user in ranking)
+                        {
+                            var isCurrentUser = user.Id_Usuario == currentUserId;
+                            var rankClass = rankNumber == 1 ? "top-1" : rankNumber == 2 ? "top-2" : rankNumber == 3 ? "top-3" : "";
+                            var userClass = isCurrentUser ? "current-user" : "";
+                            var combinedClass = $"{rankClass} {userClass}".Trim();
+
+                            <div class="table-row @combinedClass">
+                                <div class="rank-col">
+                                    @if (rankNumber <= 3)
+                                    {
+                                        <span class="rank-badge @(rankNumber == 1 ? "gold" : rankNumber == 2 ? "silver" : "bronze")">@rankNumber</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="rank-number">@rankNumber</span>
+                                    }
+                                </div>
+                                <div class="player-col">
+                                    <div class="player-info">
+                                        <div class="player-details">
+                                            <div class="player-name">
+                                                @user.Nombre
+                                                @if (isCurrentUser)
+                                                {
+                                                    <span class="user-indicator-text">(Tú)</span>
+                                                }
+                                            </div>
+                                            <div class="player-tag">@user.Gamer_Tag</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="xp-col">
+                                    <div class="xp-amount">@user.Exp.ToString("N0") XP</div>
+                                    <div class="exp-bar">
+                                        @{
+                                            var maxXp = ranking.First().Exp;
+                                            var progressPercentage = maxXp > 0 ? (user.Exp * 100) / maxXp : 0;
+                                            progressPercentage = Math.Min(progressPercentage, 100);
+                                        }
+                                        <div class="xp-progress" style="width: @progressPercentage%"></div>
+                                    </div>
+                                </div>
+                                <div class="badge-col">
+                                    @{
+                                        string GetRankBadgeClass(int exp)
+                                        {
+                                            if (exp >= 500000 && exp <= 749999) return "dark-matter";
+                                            if (exp >= 750000 && exp <= 1000000) return "dark-matter";
+                                            if (exp > 1000000) return "dark-matter";
+                                            if (exp >= 260001 && exp <= 280000) return "heroic";
+                                            if (exp >= 280001 && exp <= 300000) return "heroic";
+                                            if (exp >= 300001 && exp <= 320000) return "heroic";
+                                            if (exp >= 220001 && exp <= 260000) return "diamond";
+                                            if (exp >= 200001 && exp <= 220000) return "diamond";
+                                            if (exp >= 180001 && exp <= 200000) return "diamond";
+                                            if (exp >= 160001 && exp <= 180000) return "gold";
+                                            if (exp >= 140001 && exp <= 160000) return "gold";
+                                            if (exp >= 120001 && exp <= 140000) return "gold";
+                                            if (exp >= 100001 && exp <= 120000) return "silver";
+                                            if (exp >= 80001 && exp <= 100000) return "silver";
+                                            if (exp >= 60001 && exp <= 80000) return "silver";
+                                            if (exp >= 40001 && exp <= 60000) return "bronze";
+                                            if (exp >= 20001 && exp <= 40000) return "bronze";
+                                            return "bronze";
+                                        }
+
+                                        string GetRankName(int exp)
+                                        {
+                                            if (exp >= 500000 && exp <= 749999) return "☄️ Materia Oscura I";
+                                            if (exp >= 750000 && exp <= 1000000) return "☄️ Materia Oscura II";
+                                            if (exp > 1000000) return "☄️ Materia Oscura III";
+                                            if (exp >= 260001 && exp <= 280000) return "🔥 Heroico I";
+                                            if (exp >= 280001 && exp <= 300000) return "🔥 Heroico II";
+                                            if (exp >= 300001 && exp <= 320000) return "🔥 Heroico III";
+                                            if (exp >= 220001 && exp <= 260000) return "💎 Diamante III";
+                                            if (exp >= 200001 && exp <= 220000) return "💎 Diamante II";
+                                            if (exp >= 180001 && exp <= 200000) return "💎 Diamante I";
+                                            if (exp >= 160001 && exp <= 180000) return "🥇 Oro III";
+                                            if (exp >= 140001 && exp <= 160000) return "🥇 Oro II";
+                                            if (exp >= 120001 && exp <= 140000) return "🥇 Oro I";
+                                            if (exp >= 100001 && exp <= 120000) return "🥈 Plata III";
+                                            if (exp >= 80001 && exp <= 100000) return "🥈 Plata II";
+                                            if (exp >= 60001 && exp <= 80000) return "🥈 Plata I";
+                                            if (exp >= 40001 && exp <= 60000) return "🥉 Bronce III";
+                                            if (exp >= 20001 && exp <= 40000) return "🥉 Bronce II";
+                                            return "🥉 Bronce I";
+                                        }
+
+                                        var badgeClass = GetRankBadgeClass(user.Exp);
+                                        var rankName = GetRankName(user.Exp);
+                                    }
+                                    <div class="level-badge @badgeClass">@rankName</div>
+                                </div>
+                            </div>
+
+                            rankNumber++;
+                        }
+                    }
+                    else
+                    {
+                        <div class="table-row">
+                            <div class="no-data" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                                No hay datos de ranking disponibles
+                            </div>
+                        </div>
+                    }
+                }
             </div>
         </div>
+
+        @* <div class="ranking-footer">
+            <button class="view-all-btn">
+                <i class="fas fa-trophy"></i>
+                Ver ranking completo
+            </button>
+        </div> *@
     </div>
 
+
 </div>
-
-
 
 <style>
 
@@ -178,152 +276,7 @@
         margin-top: 1rem;
     }
 
-    /* Nuevo contenedor de bienvenida */
-    .user-welcome-card {
-        width: calc(50% - 0.5rem);
-        background-color: var(--color-card-bg);
-        color: var(--color-light);
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-    }
-
-    .welcome-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .profile-circle {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 4px solid var(--color-primary);
-        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
-        background-color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-        .profile-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    .welcome-message {
-        font-size: 1.8rem;
-        margin: 0;
-        color: var(--color-light);
-        font-weight: 600;
-    }
-
-    .welcome-subtitle {
-        font-size: 1.1rem;
-        margin: 0;
-        font-weight: 500;
-    }
-
-    /* Contenedor existente de información del usuario */
-    .user-info-card {
-        width: calc(50% - 0.5rem);
-        background-color: var(--color-card-bg);
-        color: var(--color-light);
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        border-radius: 1rem;
-        gap: 1rem;
-        font-size: 1.1rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-    }
-
-    /* ===== CONTENEDOR DE AVATARES ===== */
-    .avatars-container {
-        width: calc(50% - 0.5rem);
-        background-color: var(--color-card-bg);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        color: var(--color-light);
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-
-    /* Nueva sección de Eventos */
-    .events-section {
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        width: 100%;
-    }
-
-    .events-title {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-        text-align: center;
-        color: var(--color-light);
-    }
-
-    .event-card {
-        display: flex;
-        align-items: center;
-        padding: 1.2rem;
-        border-radius: 1rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        gap: 1rem;
-    }
-
-        .event-card.locked {
-            background-color: rgba(59, 60, 143, 0.3);
-            border: 2px dashed var(--color-hover);
-        }
-
-    .event-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .event-card.locked .event-icon {
-        background-color: var(--color-sidebar);
-        color: var(--color-light);
-        font-size: 1.5rem;
-    }
-
-    .event-content {
-        flex-grow: 1;
-    }
-
-    .event-name {
-        font-size: 1.1rem;
-        margin: 0 0 0.3rem 0;
-        font-weight: 600;
-    }
-
-    .event-description {
-        font-size: 0.9rem;
-        margin: 0;
-        color: #a0a0c0;
-    }
-
-    .event-card.locked .event-name {
-        color: #a0a0c0;
-    }
+    
 
     .global-ranking-container {
         width: calc(50% - 0.5rem);
@@ -648,6 +601,14 @@
         font-weight: 600;
         font-size: 0.9rem;
         color: var(--color-primary);
+    }
+
+    .exp-bar {
+        width: 100%;
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
     }
 
 

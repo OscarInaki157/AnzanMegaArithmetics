@@ -1218,6 +1218,11 @@
                         </form>
                     </li>
                     <li>
+                        <a href="@Url.Action("Ranking", "Dashboard")" id="Ranking">
+                            <i class="fa fa-certificate"></i> Ranking
+                        </a>
+                    </li>
+                    <li>
                         <a href="@Url.Action("MiPerfil", "Dashboard")" id="Perfil">
                             <i class="fas fa-user"></i> Mi perfil
                         </a>
@@ -1283,6 +1288,7 @@
             const memos = document.getElementById('Memos');
             const perf = document.getElementById('Perfil');
             const admin = document.getElementById('admini');
+            const rank = document.getElementById('Ranking');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -1319,6 +1325,11 @@
             if (pageTitle.includes('dmin')) {
                 if (admin) {
                     admin.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('anking')) {
+                if (rank) {
+                    rank.classList.add('active');
                 }
             }
 
@@ -1537,19 +1548,19 @@
             animarBarraXP();
 
             // Protección (opcional)
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            // });
 
-            document.addEventListener('keydown', function(e) {
-                if (
-                    e.key === 'F12' ||
-                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                    (e.ctrlKey && e.key === 'U')
-                ) {
-                    e.preventDefault();
-                }
-            });
+            // document.addEventListener('keydown', function(e) {
+            //     if (
+            //         e.key === 'F12' ||
+            //         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            //         (e.ctrlKey && e.key === 'U')
+            //     ) {
+            //         e.preventDefault();
+            //     }
+            // });
         });
     </script>
 
