@@ -7,7 +7,7 @@ namespace AnzanMegaArithmetics.Services
         public LoginResponseModel ValidateLogin(string user, string pass);
         public LoginResponseModel ObtenerUserDashboard(int id_Usuario);
         public bool UltimaConexion(LoginResponseModel user);
-        public List<RankingUsersModel> ObtenerRankingUsuarios();
+        public List<RankingUsersModel> ObtenerRankingUsuarios(int cantidad = 0);
         public int ListarUsersTotales();
         public ListUsersModel ObtenerUsuarios();
         public string ActualizarUser(ActualizarUsuarioModel actualizar);

@@ -158,30 +158,36 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
-        public List<RankingUsersModel> ObtenerRankingUsuarios() 
+        public List<RankingUsersModel> ObtenerRankingUsuarios(int cantidad = 0)
         {
             List<RankingUsersModel> ranking = new List<RankingUsersModel>();
-            try 
+            try
             {
-                ranking = _context.Usuarios
+                var query = _context.Usuarios
                     .Include(u => u.Usuario_Clase)
                     .ThenInclude(uc => uc.Clase)
                     .OrderByDescending(u => u.Experiencia_Total)
-                    .Take(10)
-                    .Select(u => new RankingUsersModel 
-                    {
-                        Id_Usuario = u.Id_Usuario,
-                        Nombre = u.Nombre,
-                        Correo = u.Correo,
-                        Gamer_Tag = u.Gamer_Tag,
-                        Clases = u.Usuario_Clase
-                            .Where(uc => uc.Clase != null)
-                            .Select(uc => uc.Clase.Nombre)
-                            .ToList(),
-                        Exp = u.Experiencia_Total
-                    }).ToList();
+                    .AsQueryable();
+
+                if (cantidad > 0)
+                {
+                    query = query.Take(cantidad);
+                }
+
+                ranking = query.Select(u => new RankingUsersModel
+                {
+                    Id_Usuario = u.Id_Usuario,
+                    Nombre = u.Nombre,
+                    Correo = u.Correo,
+                    Gamer_Tag = u.Gamer_Tag,
+                    Clases = u.Usuario_Clase
+                        .Where(uc => uc.Clase != null)
+                        .Select(uc => uc.Clase.Nombre)
+                        .ToList(),
+                    Exp = u.Experiencia_Total
+                }).ToList();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return new List<RankingUsersModel>();
             }

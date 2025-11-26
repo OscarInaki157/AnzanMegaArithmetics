@@ -5,47 +5,24 @@
     Layout = "_LayoutDashboard";
 }
 
-
-<!-- Barra Superior - Información Personal -->
 <div class="user-top-info">
     <div class="user-left-section">
-        <div class="user-name">
-            @Model.Nombre
-        </div>
+        <div class="user-name">@Model.Nombre</div>
         <div class="user-meta-row">
-            <span class="gamertag">
-                <i class="fa-solid fa-gamepad"></i>
-                <strong>Gamertag:</strong> @Model.Gamer_Tag
-            </span>
-            <span class="license">
-                <i class="fa-solid fa-id-card"></i>
-                <strong>Licencia:</strong> @Model.Licencia
-            </span>
-            <span class="license">
-                <i class="fa-solid fa-landmark"></i>
-                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
-            </span>
+            <span class="gamertag"><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</span>
+            <span class="license"><i class="fa-solid fa-id-card"></i> <strong>Licencia:</strong> @Model.Licencia</span>
+            <span class="license"><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</span>
         </div>
     </div>
-
     <div class="user-right-section">
-        <div class="user-coins">
-            <i class="fa-solid fa-coins"></i>
-            <strong>Mind coins:</strong> <span id="user-coins">0</span>
-        </div>
-        <div class="last-connection">
-            <i class="fa-solid fa-clock"></i>
-            Última conexión: @Model.Ultima_Cnx
-        </div>
+        <div class="last-connection"><i class="fa-solid fa-clock"></i> Última conexión: @Model.Ultima_Cnx</div>
     </div>
 </div>
 
 <div class="dashboard-top">
     <div class="user-welcome-card">
         <div class="welcome-container">
-            <div class="speech-bubble">
-                @Model.Frase_Bienvenida
-            </div>
+            <div class="speech-bubble">@Model.Frase_Bienvenida</div>
             <div class="character-section">
                 <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
                 <p class="character-name"><strong>Jerry</strong></p>
@@ -53,24 +30,11 @@
         </div>
     </div>
     <div class="user-info-card">
-        @*  <p><strong>Licencia @Model.Licencia</strong></p>
-        <p>Última conexión: @Model.Ultima_Cnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
-            <div class="R3">
-                <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
-            </div>
-            <div class="R2">
-                <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
-            </div>
-            <div class="R1">
-                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>
-            </div>
+            <div class="R3"><p class="txt"><strong>🔥<br />@Model.Racha</strong></p></div>
+            <div class="R2"><p class="txt"><strong>🎖️<br />Bronce I</strong></p></div>
+            <div class="R1"><p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p></div>
         </div>
-
         <div class="xp-progress-container">
             <div class="xp-bar">
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
@@ -80,530 +44,625 @@
                 <span id="xp-next-level-text">Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP</span>
             </div>
         </div>
-
     </div>
 </div>
 
-
-<!-- Segunda fila: Avatares y Top Globales -->
 <div class="dashboard-bottom">
-   
     <div class="global-ranking-container">
         <div class="ranking-header">
             <h2 class="ranking-title">🏆 Top Globales</h2>
             <div class="ranking-subtitle">Los jugadores con más experiencia en la plataforma</div>
         </div>
 
-        <div class="ranking-table">
-            <div class="table-header">
-                <div class="rank-col">#</div>
-                <div class="player-col">Jugador</div>
-                <div class="xp-col">Experiencia</div>
-                <div class="badge-col">Nivel</div>
-            </div>
+        @{
+            var ranking = ViewBag.Ranking as List<AnzanMegaArithmetics.Models.RankingUsersModel>;
+            var currentUserId = Model.Id_Usuario;
 
-            <div class="table-body">
-                @{
-                    var ranking = ViewBag.Ranking as List<RankingUsersModel>;
-                    var currentUserId = Model.Id_Usuario;
-                    var rankNumber = 1;
+            // Funciones Helpers (C#) para la vista inicial
+            string GetRankBadgeClass(int exp)
+            {
+                if (exp >= 500000) return "dark-matter";
+                if (exp >= 260001 && exp <= 320000) return "heroic";
+                if (exp >= 180001 && exp <= 260000) return "diamond";
+                if (exp >= 120001 && exp <= 180000) return "gold";
+                if (exp >= 60001 && exp <= 120000) return "silver";
+                return "bronze";
+            }
+            string GetRankName(int exp)
+            {
+                if (exp > 1000000) return "☄️ Materia Oscura III";
+                if (exp >= 750000) return "☄️ Materia Oscura II";
+                if (exp >= 500000) return "☄️ Materia Oscura I";
+                if (exp >= 300001) return "🔥 Heroico III";
+                if (exp >= 280001) return "🔥 Heroico II";
+                if (exp >= 260001) return "🔥 Heroico I";
+                if (exp >= 220001) return "💎 Diamante III";
+                if (exp >= 200001) return "💎 Diamante II";
+                if (exp >= 180001) return "💎 Diamante I";
+                if (exp >= 160001) return "🥇 Oro III";
+                if (exp >= 140001) return "🥇 Oro II";
+                if (exp >= 120001) return "🥇 Oro I";
+                if (exp >= 100001) return "🥈 Plata III";
+                if (exp >= 80001) return "🥈 Plata II";
+                if (exp >= 60001) return "🥈 Plata I";
+                if (exp >= 40001) return "🥉 Bronce III";
+                if (exp >= 20001) return "🥉 Bronce II";
+                return "🥉 Bronce I";
+            }
 
-                    if (ranking != null && ranking.Any())
+            var top3 = ranking != null ? ranking.Take(3).ToList() : new List<AnzanMegaArithmetics.Models.RankingUsersModel>();
+            var restOfPlayers = ranking != null ? ranking.Skip(3).ToList() : new List<AnzanMegaArithmetics.Models.RankingUsersModel>();
+        }
+
+        @if (top3.Any())
+        {
+            <div class="podium-container">
+                <div class="podium-column second-place">
+                    @if (top3.Count >= 2)
                     {
-                        foreach (var user in ranking)
-                        {
-                            var isCurrentUser = user.Id_Usuario == currentUserId;
-                            var rankClass = rankNumber == 1 ? "top-1" : rankNumber == 2 ? "top-2" : rankNumber == 3 ? "top-3" : "";
-                            var userClass = isCurrentUser ? "current-user" : "";
-                            var combinedClass = $"{rankClass} {userClass}".Trim();
-
-                            <div class="table-row @combinedClass">
-                                <div class="rank-col">
-                                    @if (rankNumber <= 3)
-                                    {
-                                        <span class="rank-badge @(rankNumber == 1 ? "gold" : rankNumber == 2 ? "silver" : "bronze")">@rankNumber</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="rank-number">@rankNumber</span>
-                                    }
-                                </div>
-                                <div class="player-col">
-                                    <div class="player-info">
-                                        <div class="player-details">
-                                            <div class="player-name">
-                                                @user.Nombre
-                                                @if (isCurrentUser)
-                                                {
-                                                    <span class="user-indicator-text">(Tú)</span>
-                                                }
-                                            </div>
-                                            <div class="player-tag">@user.Gamer_Tag</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="xp-col">
-                                    <div class="xp-amount">@user.Exp.ToString("N0") XP</div>
-                                    <div class="exp-bar">
-                                        @{
-                                            var maxXp = ranking.First().Exp;
-                                            var progressPercentage = maxXp > 0 ? (user.Exp * 100) / maxXp : 0;
-                                            progressPercentage = Math.Min(progressPercentage, 100);
-                                        }
-                                        <div class="xp-progress" style="width: @progressPercentage%"></div>
-                                    </div>
-                                </div>
-                                <div class="badge-col">
-                                    @{
-                                        string GetRankBadgeClass(int exp)
-                                        {
-                                            if (exp >= 500000 && exp <= 749999) return "dark-matter";
-                                            if (exp >= 750000 && exp <= 1000000) return "dark-matter";
-                                            if (exp > 1000000) return "dark-matter";
-                                            if (exp >= 260001 && exp <= 280000) return "heroic";
-                                            if (exp >= 280001 && exp <= 300000) return "heroic";
-                                            if (exp >= 300001 && exp <= 320000) return "heroic";
-                                            if (exp >= 220001 && exp <= 260000) return "diamond";
-                                            if (exp >= 200001 && exp <= 220000) return "diamond";
-                                            if (exp >= 180001 && exp <= 200000) return "diamond";
-                                            if (exp >= 160001 && exp <= 180000) return "gold";
-                                            if (exp >= 140001 && exp <= 160000) return "gold";
-                                            if (exp >= 120001 && exp <= 140000) return "gold";
-                                            if (exp >= 100001 && exp <= 120000) return "silver";
-                                            if (exp >= 80001 && exp <= 100000) return "silver";
-                                            if (exp >= 60001 && exp <= 80000) return "silver";
-                                            if (exp >= 40001 && exp <= 60000) return "bronze";
-                                            if (exp >= 20001 && exp <= 40000) return "bronze";
-                                            return "bronze";
-                                        }
-
-                                        string GetRankName(int exp)
-                                        {
-                                            if (exp >= 500000 && exp <= 749999) return "☄️ Materia Oscura I";
-                                            if (exp >= 750000 && exp <= 1000000) return "☄️ Materia Oscura II";
-                                            if (exp > 1000000) return "☄️ Materia Oscura III";
-                                            if (exp >= 260001 && exp <= 280000) return "🔥 Heroico I";
-                                            if (exp >= 280001 && exp <= 300000) return "🔥 Heroico II";
-                                            if (exp >= 300001 && exp <= 320000) return "🔥 Heroico III";
-                                            if (exp >= 220001 && exp <= 260000) return "💎 Diamante III";
-                                            if (exp >= 200001 && exp <= 220000) return "💎 Diamante II";
-                                            if (exp >= 180001 && exp <= 200000) return "💎 Diamante I";
-                                            if (exp >= 160001 && exp <= 180000) return "🥇 Oro III";
-                                            if (exp >= 140001 && exp <= 160000) return "🥇 Oro II";
-                                            if (exp >= 120001 && exp <= 140000) return "🥇 Oro I";
-                                            if (exp >= 100001 && exp <= 120000) return "🥈 Plata III";
-                                            if (exp >= 80001 && exp <= 100000) return "🥈 Plata II";
-                                            if (exp >= 60001 && exp <= 80000) return "🥈 Plata I";
-                                            if (exp >= 40001 && exp <= 60000) return "🥉 Bronce III";
-                                            if (exp >= 20001 && exp <= 40000) return "🥉 Bronce II";
-                                            return "🥉 Bronce I";
-                                        }
-
-                                        var badgeClass = GetRankBadgeClass(user.Exp);
-                                        var rankName = GetRankName(user.Exp);
-                                    }
-                                    <div class="level-badge @badgeClass">@rankName</div>
-                                </div>
-                            </div>
-
-                            rankNumber++;
-                        }
+                        var p2 = top3[1];
+                        <div class="podium-player-card">
+                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="podium-name">@p2.Nombre</div>
+                            <div class="level-badge @GetRankBadgeClass(p2.Exp)" style="font-size: 0.6rem; margin: 2px 0;">@GetRankName(p2.Exp)</div>
+                            <div class="podium-xp">@p2.Exp.ToString("N0") XP</div>
+                        </div>
+                        <div class="podium-block"></div>
                     }
-                    else
+                </div>
+                <div class="podium-column first-place">
+                    @if (top3.Count >= 1)
                     {
-                        <div class="table-row">
-                            <div class="no-data" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                                No hay datos de ranking disponibles
+                        var p1 = top3[0];
+                        <div class="podium-player-card">
+                            <div class="crown-icon">👑</div>
+                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="podium-name">@p1.Nombre</div>
+                            <div class="level-badge @GetRankBadgeClass(p1.Exp)" style="font-size: 0.7rem; margin: 4px 0;">@GetRankName(p1.Exp)</div>
+                            <div class="podium-xp">@p1.Exp.ToString("N0") XP</div>
+                        </div>
+                        <div class="podium-block"><div class="shine-effect"></div></div>
+                    }
+                </div>
+                <div class="podium-column third-place">
+                    @if (top3.Count >= 3)
+                    {
+                        var p3 = top3[2];
+                        <div class="podium-player-card">
+                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="podium-name">@p3.Nombre</div>
+                            <div class="level-badge @GetRankBadgeClass(p3.Exp)" style="font-size: 0.6rem; margin: 2px 0;">@GetRankName(p3.Exp)</div>
+                            <div class="podium-xp">@p3.Exp.ToString("N0") XP</div>
+                        </div>
+                        <div class="podium-block"></div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="ranking-list-container">
+            @if (restOfPlayers.Any())
+            {
+                var currentRank = 4;
+                foreach (var user in restOfPlayers)
+                {
+                    var isCurrentUser = user.Id_Usuario == currentUserId;
+                    int xpCiclo = 20000;
+                    int xpEnBarraTabla = user.Exp % xpCiclo;
+                    var progressPercentage = (double)xpEnBarraTabla * 100 / xpCiclo;
+
+                    <div class="list-row @(isCurrentUser ? "current-user-row" : "")">
+                        <div class="list-rank">@currentRank</div>
+                        <div class="list-player">
+                            <div class="list-avatar-small"><i class="fa-solid fa-user"></i></div>
+                            <div class="list-info">
+                                <span class="list-name">@user.Nombre</span>
+                                <span class="list-tag">@user.Gamer_Tag</span>
                             </div>
                         </div>
-                    }
+                        <div class="list-badge-col"><div class="level-badge @GetRankBadgeClass(user.Exp)">@GetRankName(user.Exp)</div></div>
+                        <div class="list-xp-col">
+                            <div class="xp-text">@user.Exp.ToString("N0") XP</div>
+                            <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: @(progressPercentage.ToString("0"))%"></div></div>
+                        </div>
+                    </div>
+                    currentRank++;
                 }
-            </div>
+            }
+            else if (!top3.Any())
+            {
+                <div class="no-data">No hay datos de ranking disponibles</div>
+            }
         </div>
 
-        @* <div class="ranking-footer">
-            <button class="view-all-btn">
-                <i class="fas fa-trophy"></i>
-                Ver ranking completo
+        <div class="view-all-container">
+            <button type="button" class="btn-view-all" onclick="abrirModalRanking()">
+                Ver Ranking Completo <i class="fa-solid fa-list"></i>
             </button>
-        </div> *@
+        </div>
     </div>
-
-
 </div>
 
+<div id="modalRankingGlobal" class="custom-modal-overlay">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <div class="header-top-row">
+                <h3>🌍 Ranking Global Completo</h3>
+                <button class="close-modal-btn" onclick="cerrarModalRanking()">&times;</button>
+            </div>
+
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text"
+                       id="inputBusquedaRanking"
+                       class="search-input"
+                       placeholder="Buscar jugador por nombre..."
+                       onkeyup="filtrarRanking()">
+            </div>
+        </div>
+        <div class="custom-modal-body">
+            <div id="modalContentContainer">
+                <div class="loading-state">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Cargando datos...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 1. VARIABLE GLOBAL PARA GUARDAR LOS DATOS ORIGINALES
+    let todosLosUsuarios = [];
+    let rankingCargado = false;
+
+    // --- Helpers de Badges y Formato ---
+    function getRankBadgeClass(exp) {
+        if (exp >= 500000) return "dark-matter";
+        if (exp >= 260001 && exp <= 320000) return "heroic";
+        if (exp >= 180001 && exp <= 260000) return "diamond";
+        if (exp >= 120001 && exp <= 180000) return "gold";
+        if (exp >= 60001 && exp <= 120000) return "silver";
+        return "bronze";
+    }
+
+    function getRankName(exp) {
+        if (exp > 1000000) return "☄️ Materia Oscura III";
+        if (exp >= 750000) return "☄️ Materia Oscura II";
+        if (exp >= 500000) return "☄️ Materia Oscura I";
+        if (exp >= 300001) return "🔥 Heroico III";
+        if (exp >= 280001) return "🔥 Heroico II";
+        if (exp >= 260001) return "🔥 Heroico I";
+        if (exp >= 220001) return "💎 Diamante III";
+        if (exp >= 200001) return "💎 Diamante II";
+        if (exp >= 180001) return "💎 Diamante I";
+        if (exp >= 160001) return "🥇 Oro III";
+        if (exp >= 140001) return "🥇 Oro II";
+        if (exp >= 120001) return "🥇 Oro I";
+        if (exp >= 100001) return "🥈 Plata III";
+        if (exp >= 80001) return "🥈 Plata II";
+        if (exp >= 60001) return "🥈 Plata I";
+        if (exp >= 40001) return "🥉 Bronce III";
+        if (exp >= 20001) return "🥉 Bronce II";
+        return "🥉 Bronce I";
+    }
+
+    function formatNumber(num) {
+        if (num === null || num === undefined) return "0";
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // --- Lógica del Modal ---
+
+    function abrirModalRanking() {
+        const modal = document.getElementById('modalRankingGlobal');
+        modal.style.display = 'flex';
+
+        // Enfocar el input automáticamente
+        setTimeout(() => {
+            const input = document.getElementById('inputBusquedaRanking');
+            if(input) input.focus();
+        }, 100);
+
+        if (!rankingCargado) {
+            fetch('@Url.Action("ObtenerRankingJson", "Dashboard")')
+                .then(response => response.json())
+                .then(data => {
+                    // 2. GUARDAR RANKING ORIGINAL
+                    // Mapeamos los datos para añadir la propiedad 'RankOriginal'
+                    // Esto asegura que el #10 siga siendo el #10 aunque filtre la lista.
+                    todosLosUsuarios = data.map((user, index) => ({
+                        ...user,
+                        RankOriginal: index + 1
+                    }));
+
+                    construirTabla(todosLosUsuarios);
+                    rankingCargado = true;
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('modalContentContainer').innerHTML = '<p class="no-data">Error al cargar datos.</p>';
+                });
+        }
+    }
+
+    function cerrarModalRanking() {
+        document.getElementById('modalRankingGlobal').style.display = 'none';
+        // Opcional: Limpiar el input al cerrar para que la prox vez salga todo limpio
+        // document.getElementById('inputBusquedaRanking').value = "";
+        // construirTabla(todosLosUsuarios);
+    }
+
+    // --- 3. FUNCIÓN DE FILTRADO ---
+    function filtrarRanking() {
+        const texto = document.getElementById('inputBusquedaRanking').value.toLowerCase();
+
+        const usuariosFiltrados = todosLosUsuarios.filter(user =>
+            user.Nombre.toLowerCase().includes(texto) ||
+            (user.Gamer_Tag && user.Gamer_Tag.toLowerCase().includes(texto))
+        );
+
+        construirTabla(usuariosFiltrados);
+    }
+
+    function construirTabla(usuarios) {
+        const container = document.getElementById('modalContentContainer');
+        const currentUserId = @Model.Id_Usuario;
+
+        // Validar si no hay resultados
+        if (usuarios.length === 0) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fa-solid fa-user-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><br>
+                    No se encontraron jugadores.
+                </div>`;
+            return;
+        }
+
+        let html = '<div class="ranking-list-container" style="background:transparent; padding:0;">';
+
+        usuarios.forEach((user) => {
+            // USAMOS EL RANK ORIGINAL, NO EL INDEX DEL FOREACH
+            const rank = user.RankOriginal;
+
+            const badge = getRankBadgeClass(user.Exp);
+            const rankName = getRankName(user.Exp);
+            const userExp = user.Exp || 0;
+            const isMe = user.Id_Usuario === currentUserId ? 'current-user-row' : '';
+
+            const xpCiclo = 20000;
+            const xpBarra = userExp % xpCiclo;
+            const porcentaje = (xpBarra * 100) / xpCiclo;
+
+            html += `
+                <div class="list-row ${isMe}">
+                    <div class="list-rank">#${rank}</div>
+
+                    <div class="list-player">
+                        <div class="list-avatar-small">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="list-info">
+                            <span class="list-name">${user.Nombre}</span>
+                            <span class="list-tag">${user.Gamer_Tag || 'Sin Gamertag'}</span>
+                        </div>
+                    </div>
+
+                    <div class="list-badge-col">
+                        <div class="level-badge ${badge}">${rankName}</div>
+                    </div>
+
+                    <div class="list-xp-col">
+                        <div class="xp-text">${formatNumber(userExp)} XP</div>
+                        <div class="exp-bar-bg">
+                            <div class="exp-bar-fill" style="width: ${porcentaje.toFixed(0)}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('modalRankingGlobal')) cerrarModalRanking();
+    }
+</script>
+
 <style>
+    /* Estilos para el Buscador en Modal */
+    .header-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
 
-    /* Agregar esto a tu CSS existente */
-    .user-indicator {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        background: var(--color-primary);
+    .search-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.8rem; /* Espacio a la izq para el icono */
+        border-radius: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(0, 0, 0, 0.2);
         color: white;
-        border-radius: 50%;
-        width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.6rem;
-        font-weight: bold;
-        border: 2px solid var(--color-card-bg);
-    }
-
-    .no-data {
-        color: #a0a0c0;
-        font-style: italic;
-    }
-
-    .dashboard-top {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        align-items: stretch;
-        width: 100%;
-    }
-
-    .dashboard-bottom {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        align-items: stretch;
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    
-
-    .global-ranking-container {
-        width: calc(50% - 0.5rem);
-        margin-top: 0;
-        background-color: var(--color-card-bg);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        color: var(--color-light);
-    }
-
-    /* Responsive para móviles */
-    @@media (max-width: 768px) {
-        .dashboard-top {
-            flex-direction: column;
-        }
-
-        .dashboard-bottom {
-            flex-direction: column;
-        }
-
-        .user-welcome-card,
-        .user-info-card,
-        .avatars-container,
-        .global-ranking-container {
-            width: 100%;
-        }
-
-        .welcome-message {
-            font-size: 1.5rem;
-        }
-
-        .profile-circle {
-            width: 100px;
-            height: 100px;
-        }
-
-        .events-section {
-            margin-top: 1.5rem;
-            padding-top: 1.2rem;
-        }
-
-        .event-card {
-            padding: 1rem;
-        }
-
-        .event-icon {
-            width: 50px;
-            height: 50px;
-            font-size: 1.3rem;
-        }
-    }
-
-    /* Resto de estilos existentes se mantienen igual */
-    .avatars-title {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-
-    .avatars-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .avatar-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 1rem;
-        border-radius: 1rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-        .avatar-item.locked {
-            background-color: rgba(59, 60, 143, 0.3);
-            border: 2px dashed var(--color-hover);
-        }
-
-        .avatar-item.unlocked {
-            background-color: rgba(76, 76, 255, 0.2);
-            border: 2px solid var(--color-primary);
-        }
-
-    .avatar-icon {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 0.8rem;
-        overflow: hidden;
-    }
-
-    .avatar-item.locked .avatar-icon {
-        background-color: var(--color-sidebar);
-        color: var(--color-light);
-        font-size: 2rem;
-    }
-
-    .avatar-item.unlocked .avatar-icon {
-        background-color: white;
-    }
-
-    .avatar-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .avatar-name {
-        margin: 0;
-        font-size: 1rem;
-        text-align: center;
-        font-weight: 500;
-    }
-
-    .avatar-item.locked .avatar-name {
-        color: #a0a0c0;
-    }
-
-    .avatar-item.unlocked .avatar-name {
-        color: var(--color-light);
-    }
-
-    .ranking-header {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .ranking-title {
-        font-size: 1.8rem;
-        margin: 0 0 0.5rem 0;
-    }
-
-    .ranking-subtitle {
-        font-size: 0.9rem;
-        color: #a0a0c0;
-        font-weight: 500;
-    }
-
-    .ranking-table {
-        width: 100%;
-    }
-
-    .table-header {
-        display: grid;
-        grid-template-columns: 60px 1fr 120px 100px;
-        gap: 1rem;
-        padding: 0.8rem 1rem;
-        background-color: rgba(59, 60, 143, 0.3);
-        border-radius: 0.8rem;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-primary);
-    }
-
-    .table-body {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .table-row {
-        display: grid;
-        grid-template-columns: 60px 1fr 120px 100px;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: 0.8rem;
-        background-color: rgba(255, 255, 255, 0.05);
+        font-size: 0.95rem;
+        outline: none;
         transition: all 0.3s ease;
-        border: 1px solid transparent;
     }
 
-        .table-row:hover {
-            background-color: rgba(76, 76, 255, 0.1);
-            border-color: rgba(76, 76, 255, 0.3);
+        .search-input:focus {
+            background-color: rgba(0, 0, 0, 0.4);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: #a0a0c0;
+        }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-primary);
+        font-size: 1rem;
+        pointer-events: none; /* Para que el clic pase al input */
+    }
+    .view-all-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-top: 0.5rem;
+    }
+
+    .btn-view-all {
+        background: transparent;
+        border: 2px solid var(--color-primary, #4facfe);
+        color: #fff;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-view-all:hover {
+            background: var(--color-primary, #4facfe);
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.4);
             transform: translateY(-2px);
         }
 
-        .table-row.top-1 {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
-            border: 1px solid rgba(255, 215, 0, 0.3);
+    .custom-modal-overlay {
+        display: none; /* Oculto por defecto */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Fondo oscuro basado en tu header con transparencia */
+        background-color: rgba(1, 15, 54, 0.85);
+        z-index: 9999;
+        backdrop-filter: blur(4px);
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s;
+    }
+
+    .custom-modal-content {
+        background-color: var(--color-card-bg); /* #010f36 */
+        color: var(--color-light);
+        width: 90%;
+        max-width: 800px;
+        height: 85vh;
+        border-radius: 1rem;
+        border: 1px solid var(--color-hover); /* #3b3c8f */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .custom-modal-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid var(--color-hover);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0,0,0,0.2);
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .custom-modal-header h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
 
-        .table-row.top-2 {
-            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
-            border: 1px solid rgba(192, 192, 192, 0.3);
+    .close-modal-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: var(--color-light);
+        font-size: 2rem;
+        font-weight: normal;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px; 
+        height: 40px; 
+        overflow: hidden;
+
+        transition: color 0.2s, transform 0.2s;
+    }
+
+        .close-modal-btn:hover {
+            color: var(--color-danger);
         }
 
-        .table-row.top-3 {
-            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.05));
-            border: 1px solid rgba(205, 127, 50, 0.3);
+    .custom-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0; /* Sin padding para que la lista toque los bordes */
+    }
+
+        /* Scrollbar del Modal */
+        .custom-modal-body::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .table-row.current-user {
-            background: linear-gradient(135deg, rgba(76, 76, 255, 0.2), rgba(76, 76, 255, 0.1));
-            border: 2px solid var(--color-primary);
-            position: relative;
+        .custom-modal-body::-webkit-scrollbar-track {
+            background: var(--color-sidebar);
         }
 
-            .table-row.current-user::before {
-                content: "Tú";
-                position: absolute;
-                background: var(--color-primary);
-                color: white;
-                padding: 2px 8px;
-                border-radius: 10px;
-                font-size: 0.7rem;
-                font-weight: 600;
+        .custom-modal-body::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+
+            .custom-modal-body::-webkit-scrollbar-thumb:hover {
+                background: var(--color-primary-dark);
             }
 
-    .rank-col {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .rank-badge {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.9rem;
-    }
-
-        .rank-badge.gold {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        .rank-badge.silver {
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-            color: #000;
-            box-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
-        }
-
-        .rank-badge.bronze {
-            background: linear-gradient(135deg, #CD7F32, #A56C2C);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
-        }
-
-    .rank-number {
-        font-weight: 600;
+    .loading-state {
+        text-align: center;
+        padding: 3rem;
         color: var(--color-light);
+        font-size: 1.2rem;
     }
 
-    .player-col {
-        display: flex;
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+    }
+
+
+    .ranking-list-container {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 0.5rem;
+    }
+
+    .list-row {
+        display: grid;
+        grid-template-columns: 50px 1.5fr 100px 1fr;
         align-items: center;
+        gap: 1rem;
+        padding: 0.8rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: background 0.2s;
     }
 
-    .player-info {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
-
-    .player-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        position: relative;
-        border: 2px solid rgba(76, 76, 255, 0.5);
-    }
-
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .list-row:last-child {
+            border-bottom: none;
         }
 
-    .user-indicator {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        background: var(--color-primary);
+        .list-row:hover {
+            background-color: var(--color-hover); /* Efecto hover azulado */
+        }
+
+        .list-row.current-user-row {
+            background: rgba(76, 76, 255, 0.15);
+            border-left: 3px solid var(--color-primary);
+        }
+
+    .list-rank {
+        font-weight: bold;
+        color: var(--color-primary); /* #4c4cff */
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .list-player {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .list-avatar-small {
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
-        width: 16px;
-        height: 16px;
+        background: #2a2a40;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.6rem;
-    }
-
-    .player-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .player-name {
-        font-weight: 600;
-        font-size: 0.95rem;
-        margin-bottom: 2px;
-    }
-
-    .player-tag {
-        font-size: 0.8rem;
         color: #a0a0c0;
+        flex-shrink: 0;
+        overflow: hidden;
     }
 
-    .xp-col {
+    .list-info {
         display: flex;
         flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* NOMBRE EN BLANCO PURO */
+    .list-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ffffff !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .list-tag {
+        font-size: 0.75rem;
+        color: var(--color-light);
+        opacity: 0.8;
+    }
+
+    .list-badge-col {
+        display: flex;
         justify-content: center;
-        gap: 0.3rem;
     }
 
-    .xp-amount {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-primary);
+    .list-xp-col {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        justify-content: center;
     }
 
-    .exp-bar {
+    .xp-text {
+        font-weight: bold;
+        color: #ffffff; /* XP en blanco */
+        font-size: 0.85rem;
+        text-align: right;
+    }
+
+    .exp-bar-bg {
         width: 100%;
         height: 6px;
         background-color: rgba(255, 255, 255, 0.1);
@@ -611,12 +670,177 @@
         overflow: hidden;
     }
 
+    .exp-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        border-radius: 3px;
+        transition: width 1s ease-out;
+    }
 
-    .badge-col {
+    .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1rem;
+        padding: 1rem 0.5rem 0 0.5rem;
+        margin-bottom: 2rem;
+        min-height: 290px;
+    }
+
+    .podium-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        flex: 1;
+        max-width: 130px;
+    }
+
+    .podium-player-card {
+        text-align: center;
+        margin-bottom: 10px;
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .podium-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        background-color: #2a2a40;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+        margin-bottom: 5px;
+        color: #fff;
+        font-size: 1.5rem;
+        overflow: hidden;
     }
+
+    .podium-rank-badge {
+        position: absolute;
+        bottom: -5px;
+        right: -5px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #333;
+        color: white;
+        font-weight: bold;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--color-card-bg);
+        z-index: 5;
+    }
+
+    .podium-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .podium-xp {
+        font-size: 0.75rem;
+        color: var(--color-primary);
+        opacity: 0.9;
+        margin-top: 2px;
+    }
+
+    .podium-block {
+        width: 100%;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Colores del Podio */
+    .first-place {
+        z-index: 2;
+    }
+
+        .first-place .podium-avatar {
+            width: 80px;
+            height: 80px;
+            border-color: #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            background-color: #3d2b00;
+            font-size: 2rem;
+            color: #FFD700;
+        }
+
+        .first-place .podium-rank-badge {
+            background: #FFD700;
+            color: #000;
+        }
+
+        .first-place .podium-block {
+            height: 140px;
+            background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+    .second-place .podium-avatar {
+        border-color: #C0C0C0;
+        color: #C0C0C0;
+    }
+
+    .second-place .podium-rank-badge {
+        background: #C0C0C0;
+        color: #000;
+    }
+
+    .second-place .podium-block {
+        height: 90px;
+        background: linear-gradient(180deg, #C0C0C0 0%, #7F7F7F 100%);
+        opacity: 0.9;
+    }
+
+    .third-place .podium-avatar {
+        border-color: #CD7F32;
+        color: #CD7F32;
+    }
+
+    .third-place .podium-rank-badge {
+        background: #CD7F32;
+        color: #fff;
+    }
+
+    .third-place .podium-block {
+        height: 60px;
+        background: linear-gradient(180deg, #CD7F32 0%, #8B4513 100%);
+        opacity: 0.8;
+    }
+
+    .crown-icon {
+        font-size: 1.5rem;
+        margin-bottom: -10px;
+        z-index: 3;
+        animation: float 2s infinite ease-in-out;
+    }
+
+    .shine-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+        background-size: 200% 200%;
+        animation: shine 3s infinite;
+    }
+
 
     .level-badge {
         padding: 0.3rem 0.6rem;
@@ -648,147 +872,187 @@
                 animation: dark-matter-shine 3s infinite linear;
             }
 
+        .level-badge.heroic {
+            background: linear-gradient(135deg, #ff4d4d, #b30000);
+            color: #fff;
+            border: 1px solid #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+        }
+
+        .level-badge.diamond {
+            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+            color: #0066cc;
+        }
+
+        .level-badge.gold {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #8b6508;
+        }
+
+        .level-badge.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            color: #4a4a4a;
+        }
+
+        .level-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32, #a56c2c);
+            color: #fff;
+        }
+
     @@keyframes dark-matter-shine {
-        0% {
-            transform: rotate(0deg) translateX(-50%);
-        }
+        0%
 
-        100% {
-            transform: rotate(360deg) translateX(-50%);
-        }
+    {
+        transform: rotate(0deg) translateX(-50%);
     }
 
-    .level-badge.diamond {
-        background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
-        color: #0066cc;
+    100% {
+        transform: rotate(360deg) translateX(-50%);
     }
 
-    .level-badge.platinum {
-        background: linear-gradient(135deg, #e5e4e2, #b6b6b4);
-        color: #555555;
+    }
+    @@keyframes shine {
+        0%
+
+    {
+        background-position: 200% 0;
     }
 
-    .level-badge.gold {
-        background: linear-gradient(135deg, #ffd700, #ffa500);
-        color: #8b6508;
+    100% {
+        background-position: -200% 0;
     }
 
-    .level-badge.silver {
-        background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
-        color: #4a4a4a;
+    }
+    @@keyframes float {
+        0%, 100%
+
+    {
+        transform: translateY(0);
     }
 
-    .level-badge.bronze {
-        background: linear-gradient(135deg, #cd7f32, #a56c2c);
-        color: #fff;
+    50% {
+        transform: translateY(-5px);
     }
 
-    .ranking-footer {
-        margin-top: 1.5rem;
-        text-align: center;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .view-all-btn {
-        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    .user-indicator {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: var(--color-primary);
         color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 2rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: bold;
+        border: 2px solid var(--color-card-bg);
     }
 
-        .view-all-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 76, 255, 0.4);
-        }
+    .no-data {
+        color: #a0a0c0;
+        font-style: italic;
+    }
 
-    /* Responsive para tablets y móviles */
-    @@media (max-width: 1024px) {
-        .avatars-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    /* Layout Cards */
+    .dashboard-top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+    }
 
-        .table-header,
-        .table-row {
-            grid-template-columns: 50px 1fr 100px 90px;
-            gap: 0.8rem;
-            padding: 0.8rem;
-        }
+    .dashboard-bottom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: stretch;
+        width: 100%;
+        margin-top: 1rem;
+    }
 
-        .player-avatar {
-            width: 35px;
-            height: 35px;
-        }
+    .global-ranking-container {
+        width: calc(50% - 0.5rem);
+        margin-top: 0;
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: var(--color-light);
+    }
 
-        .player-name {
-            font-size: 0.9rem;
-        }
+    .ranking-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-        .level-badge {
-            font-size: 0.7rem;
-            min-width: 70px;
-        }
+    .ranking-title {
+        font-size: 1.8rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .ranking-subtitle {
+        font-size: 0.9rem;
+        color: #a0a0c0;
+        font-weight: 500;
     }
 
     @@media (max-width: 768px) {
-        .avatars-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.8rem;
-        }
+        .dashboard-top, .dashboard-bottom
 
-        .avatar-icon {
-            width: 70px;
-            height: 70px;
-        }
+    {
+        flex-direction: column;
+    }
 
-        .avatar-item.locked .avatar-icon {
-            font-size: 1.7rem;
-        }
+    .user-welcome-card, .user-info-card, .global-ranking-container {
+        width: 100%;
+    }
 
-        .table-header,
-        .table-row {
-            grid-template-columns: 45px 1fr 90px 80px;
-            gap: 0.6rem;
-            padding: 0.7rem;
-        }
+    /* Ajuste de lista para móvil */
+    .list-row {
+        grid-template-columns: 40px 1fr 80px;
+        padding: 1rem;
+    }
 
-        .ranking-title {
-            font-size: 1.6rem;
-        }
+    .list-badge-col {
+        display: none;
+    }
 
-        .player-info {
-            gap: 0.6rem;
-        }
+    .podium-container {
+        align-items: flex-end;
+    }
 
-        .player-avatar {
-            width: 32px;
-            height: 32px;
-        }
+    .podium-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
 
-        .player-name {
-            font-size: 0.85rem;
-        }
+    .first-place .podium-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
 
-        .player-tag {
-            font-size: 0.75rem;
-        }
+    /* Ajuste Modal en móvil */
+    .custom-modal-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
 
-        .xp-amount {
-            font-size: 0.8rem;
-        }
+    .custom-modal-header {
+        border-radius: 0;
+    }
 
-        .level-badge {
-            font-size: 0.65rem;
-            min-width: 65px;
-            padding: 0.2rem 0.4rem;
-        }
     }
 </style>

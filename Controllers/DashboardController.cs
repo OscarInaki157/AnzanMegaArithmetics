@@ -28,19 +28,26 @@ namespace AnzanMegaArithmetics.Controllers
             return View(userInfo);
         }
 
-        public IActionResult Ranking() 
+        public IActionResult Ranking()
         {
             var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
+            if (userInfo.Id_Usuario == 0) return RedirectToAction("Inicio", "Inicio");
 
-            List<RankingUsersModel> ranking = usersDBService.ObtenerRankingUsuarios();
-
+            List<RankingUsersModel> ranking = usersDBService.ObtenerRankingUsuarios(10);
             ViewBag.Ranking = ranking;
 
             return View(userInfo);
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerRankingJson()
+        {
+            List<RankingUsersModel> rankingCompleto = usersDBService.ObtenerRankingUsuarios(0);
+
+            return Json(rankingCompleto, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null
+            });
         }
 
         public IActionResult Dashboard()
