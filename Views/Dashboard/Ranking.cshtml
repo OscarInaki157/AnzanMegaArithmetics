@@ -48,136 +48,35 @@
 </div>
 
 <div class="dashboard-bottom">
-    <div class="global-ranking-container">
-        <div class="ranking-header">
-            <h2 class="ranking-title">🏆 Top Globales</h2>
-            <div class="ranking-subtitle">Los jugadores con más experiencia en la plataforma</div>
+    <div class="global-ranking-container" id="rankingCardContainer">
+
+        <div class="ranking-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;">
+
+            <button class="slider-nav-btn" onclick="cambiarSlideDashboard(-1)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div style="text-align: center; flex: 1; overflow: hidden;">
+                <h2 class="ranking-title slide-anim" id="lblDashTitle" style="font-size: 1.5rem; margin: 0;">Cargando...</h2>
+                <div class="ranking-subtitle slide-anim" id="lblDashSubtitle" style="font-size: 0.85rem; color: #a0a0c0;">...</div>
+
+                <div id="dashDots" class="slider-dots" style="justify-content: center; margin-top: 5px; display: flex; gap: 4px;"></div>
+            </div>
+
+            <button class="slider-nav-btn" onclick="cambiarSlideDashboard(1)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
 
-        @{
-            var ranking = ViewBag.Ranking as List<AnzanMegaArithmetics.Models.RankingUsersModel>;
-            var currentUserId = Model.Id_Usuario;
-
-            // Funciones Helpers (C#) para la vista inicial
-            string GetRankBadgeClass(int exp)
-            {
-                if (exp >= 500000) return "dark-matter";
-                if (exp >= 260001 && exp <= 320000) return "heroic";
-                if (exp >= 180001 && exp <= 260000) return "diamond";
-                if (exp >= 120001 && exp <= 180000) return "gold";
-                if (exp >= 60001 && exp <= 120000) return "silver";
-                return "bronze";
-            }
-            string GetRankName(int exp)
-            {
-                if (exp > 1000000) return "☄️ Materia Oscura III";
-                if (exp >= 750000) return "☄️ Materia Oscura II";
-                if (exp >= 500000) return "☄️ Materia Oscura I";
-                if (exp >= 300001) return "🔥 Heroico III";
-                if (exp >= 280001) return "🔥 Heroico II";
-                if (exp >= 260001) return "🔥 Heroico I";
-                if (exp >= 220001) return "💎 Diamante III";
-                if (exp >= 200001) return "💎 Diamante II";
-                if (exp >= 180001) return "💎 Diamante I";
-                if (exp >= 160001) return "🥇 Oro III";
-                if (exp >= 140001) return "🥇 Oro II";
-                if (exp >= 120001) return "🥇 Oro I";
-                if (exp >= 100001) return "🥈 Plata III";
-                if (exp >= 80001) return "🥈 Plata II";
-                if (exp >= 60001) return "🥈 Plata I";
-                if (exp >= 40001) return "🥉 Bronce III";
-                if (exp >= 20001) return "🥉 Bronce II";
-                return "🥉 Bronce I";
-            }
-
-            var top3 = ranking != null ? ranking.Take(3).ToList() : new List<AnzanMegaArithmetics.Models.RankingUsersModel>();
-            var restOfPlayers = ranking != null ? ranking.Skip(3).ToList() : new List<AnzanMegaArithmetics.Models.RankingUsersModel>();
-        }
-
-        @if (top3.Any())
-        {
-            <div class="podium-container">
-                <div class="podium-column second-place">
-                    @if (top3.Count >= 2)
-                    {
-                        var p2 = top3[1];
-                        <div class="podium-player-card">
-                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
-                            <div class="podium-name">@p2.Nombre</div>
-                            <div class="level-badge @GetRankBadgeClass(p2.Exp)" style="font-size: 0.6rem; margin: 2px 0;">@GetRankName(p2.Exp)</div>
-                            <div class="podium-xp">@p2.Exp.ToString("N0") XP</div>
-                        </div>
-                        <div class="podium-block"></div>
-                    }
-                </div>
-                <div class="podium-column first-place">
-                    @if (top3.Count >= 1)
-                    {
-                        var p1 = top3[0];
-                        <div class="podium-player-card">
-                            <div class="crown-icon">👑</div>
-                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
-                            <div class="podium-name">@p1.Nombre</div>
-                            <div class="level-badge @GetRankBadgeClass(p1.Exp)" style="font-size: 0.7rem; margin: 4px 0;">@GetRankName(p1.Exp)</div>
-                            <div class="podium-xp">@p1.Exp.ToString("N0") XP</div>
-                        </div>
-                        <div class="podium-block"><div class="shine-effect"></div></div>
-                    }
-                </div>
-                <div class="podium-column third-place">
-                    @if (top3.Count >= 3)
-                    {
-                        var p3 = top3[2];
-                        <div class="podium-player-card">
-                            <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
-                            <div class="podium-name">@p3.Nombre</div>
-                            <div class="level-badge @GetRankBadgeClass(p3.Exp)" style="font-size: 0.6rem; margin: 2px 0;">@GetRankName(p3.Exp)</div>
-                            <div class="podium-xp">@p3.Exp.ToString("N0") XP</div>
-                        </div>
-                        <div class="podium-block"></div>
-                    }
-                </div>
+        <div id="dashTableContainer" class="ranking-list-container" style="min-height: 200px;">
+            <div class="loading-state">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
             </div>
-        }
-
-        <div class="ranking-list-container">
-            @if (restOfPlayers.Any())
-            {
-                var currentRank = 4;
-                foreach (var user in restOfPlayers)
-                {
-                    var isCurrentUser = user.Id_Usuario == currentUserId;
-                    int xpCiclo = 20000;
-                    int xpEnBarraTabla = user.Exp % xpCiclo;
-                    var progressPercentage = (double)xpEnBarraTabla * 100 / xpCiclo;
-
-                    <div class="list-row @(isCurrentUser ? "current-user-row" : "")">
-                        <div class="list-rank">@currentRank</div>
-                        <div class="list-player">
-                            <div class="list-avatar-small"><i class="fa-solid fa-user"></i></div>
-                            <div class="list-info">
-                                <span class="list-name">@user.Nombre</span>
-                                <span class="list-tag">@user.Gamer_Tag</span>
-                            </div>
-                        </div>
-                        <div class="list-badge-col"><div class="level-badge @GetRankBadgeClass(user.Exp)">@GetRankName(user.Exp)</div></div>
-                        <div class="list-xp-col">
-                            <div class="xp-text">@user.Exp.ToString("N0") XP</div>
-                            <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: @(progressPercentage.ToString("0"))%"></div></div>
-                        </div>
-                    </div>
-                    currentRank++;
-                }
-            }
-            else if (!top3.Any())
-            {
-                <div class="no-data">No hay datos de ranking disponibles</div>
-            }
         </div>
 
         <div class="view-all-container">
-            <button type="button" class="btn-view-all" onclick="abrirModalRanking()">
-                Ver Ranking Completo <i class="fa-solid fa-list"></i>
+            <button type="button" class="btn-view-all" id="btnVerMasDash" onclick="abrirModalDesdeDashboard()">
+                Ver Ranking Completo <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>
     </div>
@@ -187,7 +86,21 @@
     <div class="custom-modal-content">
         <div class="custom-modal-header">
             <div class="header-top-row">
-                <h3>🌍 Ranking Global Completo</h3>
+                <div class="slider-header-container">
+                    <button class="slider-nav-btn" onclick="cambiarSlideModal(-1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <div class="slider-title-wrapper">
+                        <h3 id="lblModalTitle" class="slider-title">Ranking</h3>
+                        <div id="modalDots" class="slider-dots" style="justify-content:center; display:flex; gap:4px; margin-top:4px;"></div>
+                    </div>
+
+                    <button class="slider-nav-btn" onclick="cambiarSlideModal(1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
                 <button class="close-modal-btn" onclick="cerrarModalRanking()">&times;</button>
             </div>
 
@@ -196,175 +109,302 @@
                 <input type="text"
                        id="inputBusquedaRanking"
                        class="search-input"
-                       placeholder="Buscar jugador por nombre..."
-                       onkeyup="filtrarRanking()">
+                       placeholder="Buscar jugador en esta lista..."
+                       onkeyup="filtrarRankingModal()">
             </div>
         </div>
         <div class="custom-modal-body">
             <div id="modalContentContainer">
                 <div class="loading-state">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i> Cargando datos...
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Cargando datos completos...
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
 <script>
-    // 1. VARIABLE GLOBAL PARA GUARDAR LOS DATOS ORIGINALES
-    let todosLosUsuarios = [];
-    let rankingCargado = false;
+    // --- VARIABLES GLOBALES ---
+    const myUserId = @Model.Id_Usuario;
 
-    // --- Helpers de Badges y Formato ---
-    function getRankBadgeClass(exp) {
-        if (exp >= 500000) return "dark-matter";
-        if (exp >= 260001 && exp <= 320000) return "heroic";
-        if (exp >= 180001 && exp <= 260000) return "diamond";
-        if (exp >= 120001 && exp <= 180000) return "gold";
-        if (exp >= 60001 && exp <= 120000) return "silver";
-        return "bronze";
-    }
+    // 1. Datos del Dashboard (Top 10) - Vienen directo del Controller
+    let dashData = @Html.Raw(ViewBag.RankingJson ?? "[]");
+    let dashIndex = 0;
 
-    function getRankName(exp) {
-        if (exp > 1000000) return "☄️ Materia Oscura III";
-        if (exp >= 750000) return "☄️ Materia Oscura II";
-        if (exp >= 500000) return "☄️ Materia Oscura I";
-        if (exp >= 300001) return "🔥 Heroico III";
-        if (exp >= 280001) return "🔥 Heroico II";
-        if (exp >= 260001) return "🔥 Heroico I";
-        if (exp >= 220001) return "💎 Diamante III";
-        if (exp >= 200001) return "💎 Diamante II";
-        if (exp >= 180001) return "💎 Diamante I";
-        if (exp >= 160001) return "🥇 Oro III";
-        if (exp >= 140001) return "🥇 Oro II";
-        if (exp >= 120001) return "🥇 Oro I";
-        if (exp >= 100001) return "🥈 Plata III";
-        if (exp >= 80001) return "🥈 Plata II";
-        if (exp >= 60001) return "🥈 Plata I";
-        if (exp >= 40001) return "🥉 Bronce III";
-        if (exp >= 20001) return "🥉 Bronce II";
-        return "🥉 Bronce I";
-    }
+    // 2. Datos del Modal (Top 50) - Se cargarán via AJAX
+    let modalData = [];
+    let modalIndex = 0;
+    let rankingCompletoCargado = false;
 
-    function formatNumber(num) {
-        if (num === null || num === undefined) return "0";
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    // --- Lógica del Modal ---
-
-    function abrirModalRanking() {
-        const modal = document.getElementById('modalRankingGlobal');
-        modal.style.display = 'flex';
-
-        // Enfocar el input automáticamente
-        setTimeout(() => {
-            const input = document.getElementById('inputBusquedaRanking');
-            if(input) input.focus();
-        }, 100);
-
-        if (!rankingCargado) {
-            fetch('@Url.Action("ObtenerRankingJson", "Dashboard")')
-                .then(response => response.json())
-                .then(data => {
-                    // 2. GUARDAR RANKING ORIGINAL
-                    // Mapeamos los datos para añadir la propiedad 'RankOriginal'
-                    // Esto asegura que el #10 siga siendo el #10 aunque filtre la lista.
-                    todosLosUsuarios = data.map((user, index) => ({
-                        ...user,
-                        RankOriginal: index + 1
-                    }));
-
-                    construirTabla(todosLosUsuarios);
-                    rankingCargado = true;
-                })
-                .catch(err => {
-                    console.error(err);
-                    document.getElementById('modalContentContainer').innerHTML = '<p class="no-data">Error al cargar datos.</p>';
-                });
+    // --- AL INICIAR LA PÁGINA ---
+    document.addEventListener("DOMContentLoaded", function() {
+        if(dashData && dashData.length > 0) {
+            // Pre-procesar Ranking Original (1, 2, 3...)
+            dashData.forEach(cat => {
+                cat.Datos.forEach((u, i) => u.RankOriginal = i + 1);
+            });
+            renderDashboard();
+            generarDots('dashDots', dashData.length, dashIndex);
+        } else {
+            document.getElementById('dashTableContainer').innerHTML = '<div class="no-data" style="text-align:center; padding:2rem;">Sin datos.</div>';
         }
+    });
+
+    // ==========================================
+    // LÓGICA DEL DASHBOARD (SLIDER PEQUEÑO)
+    // ==========================================
+    function cambiarSlideDashboard(dir) {
+        dashIndex += dir;
+        if(dashIndex >= dashData.length) dashIndex = 0;
+        if(dashIndex < 0) dashIndex = dashData.length - 1;
+
+        renderDashboard();
+        actualizarDots('dashDots', dashIndex);
     }
 
-    function cerrarModalRanking() {
-        document.getElementById('modalRankingGlobal').style.display = 'none';
-        // Opcional: Limpiar el input al cerrar para que la prox vez salga todo limpio
-        // document.getElementById('inputBusquedaRanking').value = "";
-        // construirTabla(todosLosUsuarios);
+        // ==========================================
+    // LÓGICA DEL DASHBOARD (SLIDER PEQUEÑO)
+    // ==========================================
+
+    // Helper para generar el HTML del podio (reutilizado)
+    function getPodiumHtml(u, cls, crown=false) {
+        // [Se mantiene exactamente igual que en el helper]
+        return `<div class="podium-column ${cls}">
+            <div class="podium-player-card">
+                ${crown ? '<div class="crown-icon">👑</div>' : ''}
+                <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="podium-name">${u.Nombre}</div>
+                <div class="podium-xp">${formatNumber(u.Exp)} XP</div>
+            </div>
+            <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
+        </div>`;
     }
 
-    // --- 3. FUNCIÓN DE FILTRADO ---
-    function filtrarRanking() {
-        const texto = document.getElementById('inputBusquedaRanking').value.toLowerCase();
+    function renderDashboard() {
+        const cat = dashData[dashIndex];
 
-        const usuariosFiltrados = todosLosUsuarios.filter(user =>
-            user.Nombre.toLowerCase().includes(texto) ||
-            (user.Gamer_Tag && user.Gamer_Tag.toLowerCase().includes(texto))
-        );
+        // 1. Separar TOP 3 del RESTO
+        const top3 = cat.Datos.filter(u => u.RankOriginal <= 3);
+        const restOfPlayers = cat.Datos.filter(u => u.RankOriginal > 3);
 
-        construirTabla(usuariosFiltrados);
-    }
+        // Animación Texto
+        const tituloEl = document.getElementById('lblDashTitle');
+        const subEl = document.getElementById('lblDashSubtitle');
+        tituloEl.style.opacity = 0; subEl.style.opacity = 0;
 
-    function construirTabla(usuarios) {
-        const container = document.getElementById('modalContentContainer');
-        const currentUserId = @Model.Id_Usuario;
+        setTimeout(() => {
+            tituloEl.innerText = cat.Titulo;
+            subEl.innerText = cat.Titulo.includes("Global") ? "Los jugadores con más experiencia total" : "Top jugadores en esta actividad";
+            tituloEl.style.opacity = 1; subEl.style.opacity = 1;
+        }, 150);
 
-        // Validar si no hay resultados
-        if (usuarios.length === 0) {
-            container.innerHTML = `
-                <div class="loading-state">
-                    <i class="fa-solid fa-user-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><br>
-                    No se encontraron jugadores.
-                </div>`;
+        const container = document.getElementById('dashTableContainer');
+        let html = '';
+
+        if (!cat.Datos || cat.Datos.length === 0) {
+            container.innerHTML = '<div class="no-data" style="text-align:center; padding:1rem;">Aún no hay registros.</div>';
             return;
         }
 
-        let html = '<div class="ranking-list-container" style="background:transparent; padding:0;">';
+        // 2. GENERAR EL PODIO (SOLO EN EL DASHBOARD)
+        if (top3.length > 0) {
+            let p1 = top3.find(u => u.RankOriginal === 1);
+            let p2 = top3.find(u => u.RankOriginal === 2);
+            let p3 = top3.find(u => u.RankOriginal === 3);
 
-        usuarios.forEach((user) => {
-            // USAMOS EL RANK ORIGINAL, NO EL INDEX DEL FOREACH
-            const rank = user.RankOriginal;
+            html += `<div class="podium-container">`;
+            if(p2) html += getPodiumHtml(p2, 'second-place');
+            if(p1) html += getPodiumHtml(p1, 'first-place', true);
+            if(p3) html += getPodiumHtml(p3, 'third-place');
+            html += `</div>`;
+        }
 
-            const badge = getRankBadgeClass(user.Exp);
-            const rankName = getRankName(user.Exp);
-            const userExp = user.Exp || 0;
-            const isMe = user.Id_Usuario === currentUserId ? 'current-user-row' : '';
+        // 3. GENERAR LA LISTA (SOLO LOS PUESTOS DEL 4 al 10)
+        html += '<div class="ranking-list-container" style="padding: 0;">';
 
-            const xpCiclo = 20000;
-            const xpBarra = userExp % xpCiclo;
-            const porcentaje = (xpBarra * 100) / xpCiclo;
+        // Si no hay podio, mostramos al menos 10 filas, si hay podio, mostramos el resto.
+        const jugadoresParaLista = top3.length === 0 ? cat.Datos : restOfPlayers;
 
+        jugadoresParaLista.forEach(user => {
+            const isMe = user.Id_Usuario === myUserId ? 'background: rgba(76, 76, 255, 0.15); border-left: 3px solid var(--color-primary);' : '';
             html += `
-                <div class="list-row ${isMe}">
-                    <div class="list-rank">#${rank}</div>
-
-                    <div class="list-player">
-                        <div class="list-avatar-small">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                        <div class="list-info">
-                            <span class="list-name">${user.Nombre}</span>
-                            <span class="list-tag">${user.Gamer_Tag || 'Sin Gamertag'}</span>
-                        </div>
-                    </div>
-
-                    <div class="list-badge-col">
-                        <div class="level-badge ${badge}">${rankName}</div>
-                    </div>
-
-                    <div class="list-xp-col">
-                        <div class="xp-text">${formatNumber(userExp)} XP</div>
-                        <div class="exp-bar-bg">
-                            <div class="exp-bar-fill" style="width: ${porcentaje.toFixed(0)}%"></div>
-                        </div>
+            <div class="list-row" style="padding: 0.8rem 1rem; grid-template-columns: 40px 1fr 100px; ${isMe}">
+                <div class="list-rank" style="color:var(--color-primary); font-weight:bold;">#${user.RankOriginal}</div>
+                <div class="list-player" style="display:flex; gap:10px; align-items:center;">
+                    <div class="list-avatar-small" style="width:30px; height:30px;"><i class="fa-solid fa-user"></i></div>
+                    <div class="list-info">
+                        <span class="list-name" style="font-size:0.9rem;">${user.Nombre}</span>
+                        <span class="list-tag" style="font-size:0.7rem;">${user.Gamer_Tag || ''}</span>
                     </div>
                 </div>
-            `;
+                <div class="list-xp-col" style="text-align:right;">
+                    <div class="xp-text">${formatNumber(user.Exp)} XP</div>
+                </div>
+            </div>`;
         });
 
         html += '</div>';
         container.innerHTML = html;
     }
+
+    // ==========================================
+    // LÓGICA DEL MODAL (SLIDER GRANDE)
+    // ==========================================
+
+    // Abre el modal y sincroniza con la categoría que estabas viendo
+    function abrirModalDesdeDashboard() {
+        const modal = document.getElementById('modalRankingGlobal');
+        modal.style.display = 'flex';
+
+        // Sincronizar índice inicial
+        modalIndex = dashIndex;
+
+        if (!rankingCompletoCargado) {
+            fetch('@Url.Action("ObtenerRankingJson", "Dashboard")')
+                .then(r => r.json())
+                .then(data => {
+                    modalData = data.map(slide => {
+                        const datosConRank = slide.Datos.map((u, i) => ({ ...u, RankOriginal: i + 1 }));
+                        return {
+                            Titulo: slide.Titulo,
+                            Datos: datosConRank,
+                            Filtrados: datosConRank
+                        };
+                    });
+                    rankingCompletoCargado = true;
+                    generarDots('modalDots', modalData.length, modalIndex);
+                    renderModal();
+                })
+                .catch(e => {
+                    document.getElementById('modalContentContainer').innerHTML = '<p class="no-data">Error cargando datos.</p>';
+                });
+        } else {
+            // Si ya estaba cargado, solo actualizamos la vista al índice correcto
+            generarDots('modalDots', modalData.length, modalIndex);
+            renderModal();
+        }
+    }
+
+    function cerrarModalRanking() {
+        document.getElementById('modalRankingGlobal').style.display = 'none';
+    }
+
+    function cambiarSlideModal(dir) {
+        if(!rankingCompletoCargado) return;
+
+        modalIndex += dir;
+        if(modalIndex >= modalData.length) modalIndex = 0;
+        if(modalIndex < 0) modalIndex = modalData.length - 1;
+
+        // Limpiar búsqueda al cambiar
+        document.getElementById('inputBusquedaRanking').value = "";
+        modalData[modalIndex].Filtrados = modalData[modalIndex].Datos;
+
+        renderModal();
+        actualizarDots('modalDots', modalIndex);
+    }
+
+    function renderModal() {
+        const cat = modalData[modalIndex];
+
+        // Titulo Modal
+        const titEl = document.getElementById('lblModalTitle');
+        titEl.style.opacity = 0;
+        setTimeout(() => { titEl.innerText = cat.Titulo; titEl.style.opacity = 1; }, 100);
+
+        construirTablaModal(cat.Filtrados);
+    }
+
+    function filtrarRankingModal() {
+        const txt = document.getElementById('inputBusquedaRanking').value.toLowerCase();
+        const cat = modalData[modalIndex];
+
+        cat.Filtrados = cat.Datos.filter(u =>
+            u.Nombre.toLowerCase().includes(txt) ||
+            (u.Gamer_Tag && u.Gamer_Tag.toLowerCase().includes(txt))
+        );
+
+        construirTablaModal(cat.Filtrados);
+    }
+
+        // ==========================================
+    // LÓGICA DEL MODAL (SIN PODIO)
+    // ==========================================
+
+    function construirTablaModal(usuarios) {
+        const container = document.getElementById('modalContentContainer');
+
+        if (!usuarios || usuarios.length === 0) {
+            container.innerHTML = '<div class="loading-state">No hay resultados.</div>';
+            return;
+        }
+
+        // En el modal, solo queremos la lista completa.
+        let html = '<div class="ranking-list-container" style="background:transparent; padding:0;">';
+
+        // La lista itera sobre TODOS los usuarios (del 1 al 50+)
+        usuarios.forEach(u => {
+             const isMe = u.Id_Usuario === myUserId ? 'current-user-row' : '';
+             const pct = (u.Exp % 20000) * 100 / 20000;
+
+             html += `
+                <div class="list-row ${isMe}">
+                    <div class="list-rank">#${u.RankOriginal}</div>
+                    <div class="list-player">
+                        <div class="list-avatar-small"><i class="fa-solid fa-user"></i></div>
+                        <div class="list-info">
+                            <span class="list-name">${u.Nombre}</span>
+                            <span class="list-tag">${u.Gamer_Tag || '--'}</span>
+                        </div>
+                    </div>
+                    <div class="list-badge-col">
+                        <div class="level-badge ${getRankBadgeClass(u.Exp)}">${getRankName(u.Exp)}</div>
+                    </div>
+                    <div class="list-xp-col">
+                        <div class="xp-text">${formatNumber(u.Exp)} XP</div>
+                        <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: ${pct}%"></div></div>
+                    </div>
+                </div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // --- HELPERS ---
+    function formatNumber(n) { return n ? n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0"; }
+
+    function getPodiumHtml(u, cls, crown=false) {
+        return `<div class="podium-column ${cls}">
+            <div class="podium-player-card">
+                ${crown ? '<div class="crown-icon">👑</div>' : ''}
+                <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="podium-name">${u.Nombre}</div>
+                <div class="podium-xp">${formatNumber(u.Exp)} XP</div>
+            </div>
+            <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
+        </div>`;
+    }
+
+    function generarDots(containerId, count, activeIdx) {
+        const c = document.getElementById(containerId);
+        if(!c) return;
+        c.innerHTML = '';
+        for(let i=0; i<count; i++) {
+            c.innerHTML += `<div class="dot ${i===activeIdx?'active':''}"></div>`;
+        }
+    }
+    function actualizarDots(containerId, activeIdx) {
+        const dots = document.querySelectorAll(`#${containerId} .dot`);
+        dots.forEach((d, i) => {
+            if(i === activeIdx) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+    }
+
+    // Tus funciones GetRankName / GetRankBadgeClass originales
+    function getRankBadgeClass(exp) { if (exp >= 500000) return "dark-matter"; if (exp >= 260001) return "heroic"; if (exp >= 180001) return "diamond"; if (exp >= 120001) return "gold"; if (exp >= 60001) return "silver"; return "bronze"; }
+    function getRankName(exp) { if (exp > 1000000) return "☄️ Materia Oscura III"; if (exp >= 500000) return "☄️ Materia I"; if (exp >= 220001) return "💎 Diamante"; if (exp >= 120001) return "🥇 Oro"; if (exp >= 40001) return "🥉 Bronce"; return "🥉 Bronce I"; }
 
     window.onclick = function(event) {
         if (event.target == document.getElementById('modalRankingGlobal')) cerrarModalRanking();
@@ -372,6 +412,54 @@
 </script>
 
 <style>
+    /* Estilos Optimizado para las Flechas de Navegación */
+    .slider-nav-btn {
+        /* Fondo semi-transparente para integrarse al ambiente oscuro */
+        background: rgba(255, 255, 255, 0.05);
+        /* Borde sutil */
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        /* Color principal azul que usas */
+        color: var(--color-primary, #4facfe);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        /* Suavizado en las transiciones */
+        transition: all 0.3s ease-in-out;
+        /* Sombra sutil para darle profundidad */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+        /* Efecto Hover: Brillo y color más intenso */
+        .slider-nav-btn:hover {
+            background: var(--color-primary, #4facfe);
+            color: white;
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.7);
+        }
+
+        .slider-header-container{
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+    /* Estilos de los Dots (indicadores inferiores) - Asegurarse que se vean bien */
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: rgba(255,255,255,0.2);
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+        .dot.active {
+            background-color: var(--color-primary, #4facfe);
+            box-shadow: 0 0 5px var(--color-primary, #4facfe);
+        }
     /* Estilos para el Buscador en Modal */
     .header-top-row {
         display: flex;

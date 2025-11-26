@@ -33,8 +33,11 @@ namespace AnzanMegaArithmetics.Controllers
             var userInfo = GetUserInfo();
             if (userInfo.Id_Usuario == 0) return RedirectToAction("Inicio", "Inicio");
 
-            List<RankingUsersModel> ranking = usersDBService.ObtenerRankingUsuarios(10);
-            ViewBag.Ranking = ranking;
+            List<RankingSlideModel> rankingSlider = usersDBService.ObtenerRankingsSlider(10);
+
+            ViewBag.Ranking = rankingSlider;
+
+            ViewBag.RankingJson = System.Text.Json.JsonSerializer.Serialize(rankingSlider);
 
             return View(userInfo);
         }
@@ -42,7 +45,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpGet]
         public IActionResult ObtenerRankingJson()
         {
-            List<RankingUsersModel> rankingCompleto = usersDBService.ObtenerRankingUsuarios(0);
+            List<RankingSlideModel> rankingCompleto = usersDBService.ObtenerRankingsSlider(50);
 
             return Json(rankingCompleto, new System.Text.Json.JsonSerializerOptions
             {

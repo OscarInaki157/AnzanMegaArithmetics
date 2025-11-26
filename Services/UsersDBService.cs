@@ -194,6 +194,68 @@ namespace AnzanMegaArithmetics.Services
             return ranking;
         }
 
+        public List<RankingSlideModel> ObtenerRankingsSlider(int cantidad = 10)
+        {
+            var slides = new List<RankingSlideModel>();
+
+            try
+            {
+                var globalUsers = _context.Usuarios
+                    .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                    .OrderByDescending(u => u.Experiencia_Total)
+                    .Take(cantidad > 0 ? cantidad : 100)
+                    .Select(u => new RankingUsersModel
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Exp = u.Experiencia_Total,
+                        // Si necesitas las clases:
+                        Clases = u.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre).ToList()
+                    })
+                    .ToList();
+
+                slides.Add(new RankingSlideModel { Titulo = "🌍 Ranking Global", Datos = globalUsers });
+
+                var actividades = _context.Pruebas
+                    .Where(p => p.Activo)
+                    .GroupBy(p => p.Tipo_Prueba)
+                    .Select(grupo => new
+                    {
+                        NombreActividad = grupo.Key,
+                        TopUsuarios = grupo.GroupBy(p => p.Id_Usuario)
+                                           .Select(gUser => new RankingUsersModel
+                                           {
+                                               Id_Usuario = gUser.Key,
+                                               Nombre = gUser.FirstOrDefault().Usuario.Nombre,
+                                               Gamer_Tag = gUser.FirstOrDefault().Usuario.Gamer_Tag,
+                                               Exp = gUser.Sum(x => x.ExperienciaAdquirida)
+                                           })
+                                           .OrderByDescending(u => u.Exp)
+                                           .Take(cantidad > 0 ? cantidad : 100)
+                                           .ToList()
+                    })
+                    .ToList();
+
+                foreach (var act in actividades)
+                {
+                    slides.Add(new RankingSlideModel
+                    {
+                        Titulo = "📊 " + act.NombreActividad,
+                        Datos = act.TopUsuarios
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores (loguear si es necesario)
+                Console.WriteLine(ex.Message);
+            }
+
+            return slides;
+        }
+
         //CRUD de usuarios para el panel de administración
 
         public int ListarUsersTotales()
