@@ -2,10 +2,16 @@
 @{
     ViewBag.Title = "Mi perfil";
     Layout = "_LayoutDashboard";
+
+    // Acceder a la lista de retos que pasamos desde el Controller
+    var dailyChallenges = ViewBag.DailyChallenges as List<AnzanMegaArithmetics.Models.DailyChallengeViewModel>;
+
+    // Calcular el contador de retos completados
+    // NOTA: Para el contador superior, solo contamos los que fueron reclamados O están completados y listos para reclamar
+    int retosCompletados = dailyChallenges?.Count(r => r.FueReclamado || r.EsCompletado) ?? 0;
+    int totalRetos = dailyChallenges?.Count ?? 0;
 }
 
-
-<!-- Barra Superior - Información Personal -->
 <div class="user-top-info">
     <div class="user-left-section">
         <div class="user-name">
@@ -28,10 +34,6 @@
     </div>
 
     <div class="user-right-section">
-        @* <div class="user-coins">
-            <i class="fa-solid fa-coins"></i>
-            <strong>Abacoins:</strong> <span id="user-coins">0</span>
-        </div> *@
         <div class="last-connection">
             <i class="fa-solid fa-clock"></i>
             Última conexión: @Model.Ultima_Cnx
@@ -41,7 +43,6 @@
 
 
 <div class="dashboard-top">
-    <!-- Nueva sección de bienvenida -->
     <div class="user-welcome-card">
         <div class="welcome-container">
             <div class="profile-circle">
@@ -49,17 +50,10 @@
             </div>
             <h2 class="welcome-message">¡Hola @Model.Nombre!</h2>
             <p><i class="fas fa-envelope"></i> @Model.Correo</p>
-            @* <p class="welcome-subtitle">Bienvenido a tu perfil</p> *@
         </div>
     </div>
 
     <div class="user-info-card">
-        @*  <p><strong>Licencia @Model.Licencia</strong></p>
-        <p>Última conexión: @Model.Ultima_Cnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
             <div class="R3">
                 <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
@@ -85,9 +79,80 @@
     </div>
 </div>
 
-<!-- Segunda fila: Avatares -->
+
 <div class="dashboard-bottom">
-    <!-- Contenedor de Avatares -->
+
+    <div class="daily-challenges-container">
+        <div class="challenges-header">
+            <h2 class="challenges-title">🎯 Retos Diarios</h2>
+            <div class="challenges-counter" id="daily-challenges-counter">
+                <i class="fas fa-check-circle"></i>
+                <span>@retosCompletados / @totalRetos Completados</span>
+            </div>
+        </div>
+
+        <div class="challenges-list">
+
+            @if (dailyChallenges != null && dailyChallenges.Any())
+            {
+                foreach (var reto in dailyChallenges)
+                {
+                    // Lógica de estado para CSS e iconos
+                    var statusClass = reto.FueReclamado ? "completed" : (reto.EsCompletado ? "ready-to-claim" : "pending");
+                    var iconClass = reto.FueReclamado ? "fas fa-check" : (reto.EsCompletado ? "fa-solid fa-circle-check" : "fas fa-arrow-right");
+
+                    <div class="challenge-item @statusClass" id="reto-@reto.IdReto">
+                        <div class="challenge-status">
+                            <i class="@iconClass"></i>
+                        </div>
+                        <div class="challenge-content">
+                            <div class="challenge-name">@reto.Descripcion</div>
+                            <div class="challenge-reward">Recompensa: @reto.RecompensaXP XP</div>
+                        </div>
+
+                        @if (reto.FueReclamado)
+                        {
+                            <span class="claimed-text"><i class="fas fa-check"></i> Reclamado</span>
+                        }
+                        else
+                        {
+                            using (Html.BeginForm("ClaimReward", "Dashboard", FormMethod.Post, new { @class = "claim-form" }))
+                            {
+                              
+                                @Html.Hidden("retoId", reto.IdReto)
+
+                                <button type="submit"
+                                        class="claim-btn btn-primary"
+                                        @if (!reto.EsCompletado)
+                                        {
+                                                            <text>disabled</text>
+                                                    }
+                                            >
+                                                @if (reto.EsCompletado)
+                                                {
+                                                        <text>Reclamar XP</text>
+                                                }
+                                                else
+                                                {
+                                                        <text>Pendiente</text>
+                                                }
+                                            </button>
+                            }
+                            
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="no-data">No hay retos disponibles hoy.</p>
+            }
+        </div>
+    </div>
+
+
+
+
     <div class="avatars-container">
         <h2 class="avatars-title">Mis Avatares</h2>
         <div class="avatars-grid">
@@ -115,7 +180,6 @@
 
         </div>
 
-        <!-- Nueva sección de Eventos -->
         <div class="events-section">
             <h3 class="events-title">📅 Eventos</h3>
             <div class="event-card locked">
@@ -133,8 +197,175 @@
 </div>
 
 
-
 <style>
+
+    /* Estilos para mensajes de TempData */
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .success-message-box {
+        background-color: rgba(0, 255, 0, 0.15);
+        border: 1px solid var(--color-success);
+        color: var(--color-success);
+    }
+
+    .error-message-box {
+        background-color: rgba(255, 0, 0, 0.15);
+        border: 1px solid #ff4d4f; /* Rojo de error */
+        color: #ff4d4f;
+    }
+
+    .daily-challenges-container {
+        width: calc(50% - 0.5rem);
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        color: var(--color-light);
+    }
+
+    .challenges-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .challenges-title {
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .challenges-counter {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--color-light);
+    }
+
+    .challenges-list {
+        display: flex; /* Cambiado a flex para control total en móviles */
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .challenge-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        border-radius: 0.8rem;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        justify-content: space-between; /* Alinear contenido y botón */
+    }
+
+        /* === ESTADOS VISUALES === */
+
+        .challenge-item.pending {
+            border-color: rgba(255, 165, 0, 0.3); /* Naranja/Amarillo: Pendiente */
+            opacity: 0.8;
+        }
+
+        .challenge-item.ready-to-claim {
+            border-color: var(--color-primary); /* Azul Primario: Listo para reclamar */
+            background-color: rgba(76, 76, 255, 0.1);
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        }
+
+        .challenge-item.completed {
+            background-color: rgba(0, 255, 0, 0.1); /* Verde: Reclamado */
+            border-color: rgba(0, 255, 0, 0.3);
+            opacity: 0.7;
+        }
+
+    .challenge-status {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .challenge-item.pending .challenge-status {
+        background-color: var(--color-accent);
+        color: white;
+    }
+
+    .challenge-item.ready-to-claim .challenge-status {
+        background: linear-gradient(45deg, #FFD700, #FFA500); /* Estrella Dorada/XP */
+        color: #1a1a1a;
+        font-size: 1.2rem;
+    }
+
+    .challenge-item.completed .challenge-status {
+        background-color: var(--color-success);
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .challenge-content {
+        flex-grow: 1;
+        margin-right: 1rem;
+    }
+
+    .challenge-name {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+    }
+
+    .challenge-reward {
+        font-size: 0.85rem;
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    /* === ESTILOS DEL BOTÓN === */
+    .claim-btn {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+        .claim-btn[disabled] {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+    .claimed-text {
+        color: var(--color-success);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
 
     /* Agregar esto a tu CSS existente */
     .user-indicator {

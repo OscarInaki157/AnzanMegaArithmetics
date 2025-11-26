@@ -1,4 +1,5 @@
-﻿using AnzanMegaArithmetics.Models;
+﻿using AnzanMegaArithmetics.Helpers;
+using AnzanMegaArithmetics.Models;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -16,5 +17,10 @@ namespace AnzanMegaArithmetics.Services
         public string ActualizarLicenciaUsuario(string nueva, int Id_Usuario);
         public string CrearNuevoUsuario(ActualizarUsuarioModel nuevo);
         public string EliminarUsuario(ActualizarUsuarioModel model);
+        public int ClaimChallengeReward(int userId, int retoId);
+        public List<DailyChallengeViewModel> GetUserDailyChallenges(int userId);
+        public List<DailyChallengeViewModel> GetMasterChallenges();
+        public string GetDBStringForCountOrTime(TipoActividadEnum tipo);
+        public bool ValidateChallengeCompletion(DailyChallengeViewModel reto, List<DataBase.PruebasDB> activities);
     }
 }

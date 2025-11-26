@@ -25,7 +25,37 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
+            List<DailyChallengeViewModel> dailyChallenges = usersDBService.GetUserDailyChallenges(userInfo.Id_Usuario);
+
+            ViewBag.DailyChallenges = dailyChallenges;
+
             return View(userInfo);
+        }
+
+
+        [HttpPost]
+        public IActionResult ClaimReward([FromForm] int retoId)
+        {
+            var userInfo = GetUserInfo();
+
+            if (userInfo == null || userInfo.Id_Usuario == 0)
+            {
+                TempData["ErrorMessage"] = "Usuario no autenticado. Por favor, inicia sesión de nuevo.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            int xpGanada = usersDBService.ClaimChallengeReward(userInfo.Id_Usuario, retoId);
+
+            if (xpGanada > 0)
+            {
+                TempData["SuccessMessage"] = $"¡Felicidades, {userInfo.Nombre}! Has reclamado la recompensa y ganado {xpGanada} XP.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "No se pudo reclamar la recompensa. Asegúrate de que el reto esté completado y no haya sido reclamado previamente.";
+            }
+
+            return RedirectToAction("MiPerfil", "Dashboard");
         }
 
         public IActionResult Ranking()

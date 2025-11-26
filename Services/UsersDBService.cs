@@ -1,4 +1,5 @@
-﻿using AnzanMegaArithmetics.Models;
+﻿using AnzanMegaArithmetics.Helpers;
+using AnzanMegaArithmetics.Models;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ namespace AnzanMegaArithmetics.Services
         {
             this._context = context;
         }
+
 
         public LoginResponseModel ValidateLogin(string user, string pass)
         {
@@ -585,5 +587,477 @@ namespace AnzanMegaArithmetics.Services
                 return "Error al eliminar el usuario: " + ex.Message;
             }
         }
+
+
+        //retos
+
+
+        public int ClaimChallengeReward(int userId, int retoId)
+        {
+            var retoACrear = GetMasterChallenges().FirstOrDefault(r => r.IdReto == retoId);
+            if (retoACrear == null) return 0;
+
+            var today = DateTime.Today.Date;
+
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.Id_Usuario == userId);
+            if (usuario == null) return 0; 
+
+            List<int> reclamadosHoy = new List<int>();
+
+            if (usuario.Fecha_Ultimo_Reclamo.Date == today)
+            {
+                reclamadosHoy = usuario.Retos_Reclamados_Hoy
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToList();
+            }
+            else
+            {
+
+                usuario.Retos_Reclamados_Hoy = string.Empty;
+            }
+
+            if (reclamadosHoy.Contains(retoId))
+            {
+                return 0; 
+            }
+
+            var userActivitiesToday = _context.Pruebas
+                .Where(a => a.Id_Usuario == userId && a.Fecha >= today)
+                .ToList();
+
+            bool isCompleted = ValidateChallengeCompletion(retoACrear, userActivitiesToday);
+
+            if (isCompleted)
+            {
+               
+                usuario.Experiencia_Total += retoACrear.RecompensaXP;
+
+                reclamadosHoy.Add(retoId);
+                usuario.Retos_Reclamados_Hoy = string.Join(",", reclamadosHoy);
+                usuario.Fecha_Ultimo_Reclamo = DateTime.Now;
+
+                _context.SaveChanges();
+
+                return retoACrear.RecompensaXP;
+            }
+
+            return 0;
+        }
+
+        public List<DailyChallengeViewModel> GetUserDailyChallenges(int userId)
+        {
+            var masterChallenges = GetMasterChallenges();
+            var today = DateTime.Today.Date;
+
+            // OBTENER ESTADO DEL USUARIO DESDE LA DB
+            var usuario = _context.Usuarios.FirstOrDefault(u => u.Id_Usuario == userId);
+            if (usuario == null) return new List<DailyChallengeViewModel>();
+
+            List<int> reclamadosHoy = new List<int>();
+            if (usuario.Fecha_Ultimo_Reclamo.Date == today)
+            {
+                reclamadosHoy = usuario.Retos_Reclamados_Hoy
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToList();
+            }
+
+            int seed = today.DayOfYear + today.Year;
+            var random = new Random(seed);
+            var dailyChallenges = masterChallenges.OrderBy(x => random.Next()).Take(4).ToList();
+
+            var userActivitiesToday = _context.Pruebas
+                .Where(a => a.Id_Usuario == userId && a.Fecha >= today)
+                .ToList();
+
+            foreach (var reto in dailyChallenges)
+            {
+                reto.EsCompletado = ValidateChallengeCompletion(reto, userActivitiesToday);
+                reto.FueReclamado = reclamadosHoy.Contains(reto.IdReto);
+            }
+
+            return dailyChallenges;
+        }
+
+        public List<DailyChallengeViewModel> GetMasterChallenges()
+        {
+            return new List<DailyChallengeViewModel>
+            {
+                // === 1. RETOS DE EFECTIVIDAD (Utilizan Efectividad100, 90, 80) ===
+                //fingermath
+                new DailyChallengeViewModel {
+                    IdReto = 1, Descripcion = "Obtén 100% de efectividad en cualquier prueba de Fingermath.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 2, Descripcion = "Obtén al menos 90% de efectividad en cualquier prueba de Fingermath.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 3, Descripcion = "Obtén al menos 80% de efectividad en cualquier prueba de Fingermath.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //soroban
+                new DailyChallengeViewModel {
+                    IdReto = 4, Descripcion = "Obtén 100% de efectividad en cualquier prueba de Soroban.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 5, Descripcion = "Obtén al menos 90% de efectividad en cualquier prueba de Soroban.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 6, Descripcion = "Obtén al menos 80% de efectividad en cualquier prueba de Soroban.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //suma resta
+                new DailyChallengeViewModel {
+                    IdReto = 7, Descripcion = "Obtén 100% de efectividad en una sesión de Suma y Resta.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 8, Descripcion = "Obtén al menos 90% de efectividad en una sesión de Suma y Resta.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 9, Descripcion = "Obtén al menos 80% de efectividad en en una sesión de Suma y Resta.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //numeros flash
+                new DailyChallengeViewModel {
+                    IdReto = 10, Descripcion = "Obtén 100% de efectividad en una sesión de Números Flash.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 11, Descripcion = "Obtén al menos 90% de efectividad en una sesión de Números Flash.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 12, Descripcion = "Obtén al menos 80% de efectividad en una sesión de Números Flash.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //tablas de multiplicar
+                new DailyChallengeViewModel {
+                    IdReto = 13, Descripcion = "Obtén 100% de efectividad en una prueba de Tablas de Multiplicar.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 14, Descripcion = "Obtén al menos 90% de efectividad en prueba de Tablas de Multiplicar.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 15, Descripcion = "Obtén al menos 80% de efectividad prueba de Tablas de Multiplicar.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //multiplicacion
+                new DailyChallengeViewModel {
+                    IdReto = 16, Descripcion = "Obtén 100% de efectividad en una prueba de Multiplicación.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 17, Descripcion = "Obtén al menos 90% de efectividad en prueba de Multiplicación.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 18, Descripcion = "Obtén al menos 80% de efectividad prueba de Multiplicación.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //calendario mental
+                 new DailyChallengeViewModel {
+                    IdReto = 19, Descripcion = "Obtén 100% de efectividad en una prueba de Calendario Mental.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 20, Descripcion = "Obtén al menos 90% de efectividad en prueba de Calendario Mental.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 21, Descripcion = "Obtén al menos 80% de efectividad prueba de Calendario Mental.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+                //raices
+                 new DailyChallengeViewModel {
+                    IdReto = 22, Descripcion = "Obtén 100% de efectividad en una prueba de Raices cuadradas.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 23, Descripcion = "Obtén al menos 90% de efectividad en prueba de Raices cuadradas.",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 24, Descripcion = "Obtén al menos 80% de efectividad prueba de Raices cuadradas.",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+               //potencias
+               new DailyChallengeViewModel {
+                    IdReto = 25, Descripcion = "Obtén 100% de efectividad en una prueba de Números al cuadrado.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.Efectividad100, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 26, Descripcion = "Obtén al menos 90% de efectividad en prueba de Números al cuadrado",
+                    RecompensaXP = 90, TipoActividad = TipoActividadEnum.Efectividad90, ValorObjetivo = 90
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 27, Descripcion = "Obtén al menos 80% de efectividad prueba de Números al cuadrado",
+                    RecompensaXP = 80, TipoActividad = TipoActividadEnum.Efectividad80, ValorObjetivo = 80
+                },
+
+                // === 2. RETOS DE CONTEO DE PRUEBAS COMPLETADAS (Utilizan CompletarPruebas...) ===
+                new DailyChallengeViewModel {
+                    IdReto = 28, Descripcion = "Completa 3 pruebas de Fingermath.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasFingermath, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 29, Descripcion = "Completa 3 pruebas de Soroban.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasSoroban, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 30, Descripcion = "Completa 3 pruebas de Suma y Resta.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasSumaResta, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 31, Descripcion = "Completa 3 pruebas de Números Flash.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasFlash, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 32, Descripcion = "Completa 3 pruebas de Tablas de Multiplicar.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasTablasMultiplicar, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 33, Descripcion = "Completa 3 pruebas de Multiplicación.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasMultiplicacion, ValorObjetivo = 3
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 34, Descripcion = "Completa 1 prueba de Competencia Multiplicación 3x3.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasCompetenciaMultiplicacion3x3, ValorObjetivo = 1
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 35, Descripcion = "Completa 1 prueba de Número Figura.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasNumeroFigura, ValorObjetivo = 1
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 36, Descripcion = "Completa 1 prueba de Cuadros de Velocidad en modo Práctica.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasCuadrosPractica, ValorObjetivo = 1
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 37, Descripcion = "Completa 1 prueba de Calendario Mental.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasCalendarioMental, ValorObjetivo = 1
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 38, Descripcion = "Completa 1 prueba de Calendario Mental en modo Competencia.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasCalendarioMentalCompetencia, ValorObjetivo = 1
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 39, Descripcion = "Completa 2 pruebas de Números al cuadrado.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasPotencias, ValorObjetivo = 2
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 40, Descripcion = "Completa 2 pruebas de Raices cuadradas.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasRaices, ValorObjetivo = 2
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 41, Descripcion = "Completa 1 prueba de Matemáticas con Dados.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.CompletarPruebasMatematicasconDados, ValorObjetivo = 1
+                },
+                // === 3. RETOS DE ACUMULACIÓN (Utilizan AcumularXP, AcumularPreguntasCorrectas) ===
+                new DailyChallengeViewModel {
+                    IdReto = 42, Descripcion = "Gana 500 Puntos de Experiencia (XP) hoy.",
+                    RecompensaXP = 150, TipoActividad = TipoActividadEnum.AcumularXP, ValorObjetivo = 500
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 43, Descripcion = "Gana 700 Puntos de Experiencia (XP) hoy.",
+                    RecompensaXP = 200, TipoActividad = TipoActividadEnum.AcumularXP, ValorObjetivo = 700
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 44, Descripcion = "Gana 800 Puntos de Experiencia (XP) hoy.",
+                    RecompensaXP = 250, TipoActividad = TipoActividadEnum.AcumularXP, ValorObjetivo = 800
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 45, Descripcion = "Gana 900 Puntos de Experiencia (XP) hoy.",
+                    RecompensaXP = 300, TipoActividad = TipoActividadEnum.AcumularXP, ValorObjetivo = 900
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 46, Descripcion = "Gana 1000 Puntos de Experiencia (XP) hoy.",
+                    RecompensaXP = 500, TipoActividad = TipoActividadEnum.AcumularXP, ValorObjetivo = 1000
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 47, Descripcion = "Responde correctamente un total de 50 preguntas hoy.",
+                    RecompensaXP = 200, TipoActividad = TipoActividadEnum.AcumularPreguntasCorrectas, ValorObjetivo = 50
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 48, Descripcion = "Responde correctamente un total de 100 preguntas hoy.",
+                    RecompensaXP = 300, TipoActividad = TipoActividadEnum.AcumularPreguntasCorrectas, ValorObjetivo = 100
+                },
+                new DailyChallengeViewModel {
+                    IdReto = 49, Descripcion = "Responde correctamente un total de 10 preguntas hoy.",
+                    RecompensaXP = 100, TipoActividad = TipoActividadEnum.AcumularPreguntasCorrectas, ValorObjetivo = 10
+                }
+
+                  //aqui poner más retos
+        
+            };
+        }
+
+        public string GetDBStringForCountOrTime(TipoActividadEnum tipo)
+        {
+            switch (tipo)
+            {
+                case TipoActividadEnum.CompletarPruebasFingermath:
+                case TipoActividadEnum.TiempoPruebasFingermath:
+                    return "Fingermath";
+
+                case TipoActividadEnum.CompletarPruebasSoroban:
+                case TipoActividadEnum.TiempoPruebasSoroban:
+                    return "Soroban";
+
+                case TipoActividadEnum.CompletarPruebasSumaResta:
+                case TipoActividadEnum.TiempoPruebasSumaResta:
+                    return "Suma Resta";
+
+                case TipoActividadEnum.CompletarPruebasFlash:
+                case TipoActividadEnum.TiempoPruebasFlash:
+                    return "Números Flash";
+
+                case TipoActividadEnum.CompletarPruebasTablasMultiplicar:
+                case TipoActividadEnum.TiempoPruebasTablasMultiplicar:
+                    return "Tablas de Multiplicar";
+
+                case TipoActividadEnum.CompletarPruebasMultiplicacion:
+                case TipoActividadEnum.TiempoPruebasMultiplicacion:
+                    return "Multiplicación";
+
+                case TipoActividadEnum.CompletarPruebasCompetenciaMultiplicacion3x3:
+                case TipoActividadEnum.TiempoPruebasCompetenciaMultiplicacion3x3:
+                    return "Competencia Multiplicación - 3x3";
+
+                case TipoActividadEnum.CompletarPruebasNumeroFigura:
+                case TipoActividadEnum.TiempoPruebasNumeroFigura:
+                    return "Número Figura";
+
+                case TipoActividadEnum.CompletarPruebasCuadrosPractica:
+                case TipoActividadEnum.TiempoPruebasCuadrosPractica:
+                    return "CuadrosPractica";
+
+                case TipoActividadEnum.CompletarPruebasCalendarioMental:
+                case TipoActividadEnum.TiempoPruebasCalendarioMental:
+                case TipoActividadEnum.CompletarPruebasCalendarioMentalCompetencia:
+                case TipoActividadEnum.TiempoPruebasCalendarioMentalCompetencia:
+                    return "Calendario Mental -";
+
+                case TipoActividadEnum.CompletarPruebasRaices:
+                case TipoActividadEnum.TiempoPruebasRaices:
+                    return "Raices -";
+
+                case TipoActividadEnum.CompletarPruebasPotencias:
+                case TipoActividadEnum.TiempoPruebasPotencias:
+                    return "Potencias -";
+
+                case TipoActividadEnum.CompletarPruebasMatematicasconDados:
+                case TipoActividadEnum.TiempoPruebasMatematicasconDados:
+                    return "Matemáticas con Dados";
+
+                default:
+                    
+                    return string.Empty;
+            }
+        }
+
+        public bool ValidateChallengeCompletion(DailyChallengeViewModel reto, List<DataBase.PruebasDB> activities)
+        {
+            // Filtrar solo las pruebas que se consideran completas o activas
+            var finalActivities = activities.Where(a => a.Activo == true).ToList();
+            var objetivo = reto.ValorObjetivo.GetValueOrDefault();
+
+            // Obtener la clave base para búsquedas
+            string tipoPruebaDB = GetDBStringForCountOrTime(reto.TipoActividad);
+
+            switch (reto.TipoActividad)
+            {
+                // ===========================================
+                // GRUPO 1: EFECTIVIDAD / ACIERTO (1, 2, 3)
+                // Regla: Encontrar al menos UNA prueba que cumpla el % de efectividad
+                // ===========================================
+                case TipoActividadEnum.Efectividad100:
+                case TipoActividadEnum.Efectividad90:
+                case TipoActividadEnum.Efectividad80:
+                    return finalActivities.Any(a =>
+                        // Usamos StartsWith() para incluir "Fingermath Lectura", etc.
+                        a.Tipo_Prueba.StartsWith(tipoPruebaDB) &&
+                        a.Total_Preguntas > 0 &&
+                        // Cálculo de efectividad
+                        ((double)a.Respuestas_Correctas / a.Total_Preguntas * 100) >= objetivo);
+
+
+                // ===========================================
+                // GRUPO 2: CONTEO DE PRUEBAS (4 - 17)
+                // Regla: Contar cuántas pruebas del tipo base hay
+                // ===========================================
+                case TipoActividadEnum.CompletarPruebasFingermath:
+                case TipoActividadEnum.CompletarPruebasSoroban:
+                case TipoActividadEnum.CompletarPruebasSumaResta:
+                case TipoActividadEnum.CompletarPruebasFlash:
+                case TipoActividadEnum.CompletarPruebasTablasMultiplicar:
+                case TipoActividadEnum.CompletarPruebasMultiplicacion:
+                case TipoActividadEnum.CompletarPruebasCompetenciaMultiplicacion3x3:
+                case TipoActividadEnum.CompletarPruebasNumeroFigura:
+                case TipoActividadEnum.CompletarPruebasCuadrosPractica:
+                case TipoActividadEnum.CompletarPruebasCalendarioMental:
+                case TipoActividadEnum.CompletarPruebasCalendarioMentalCompetencia:
+                case TipoActividadEnum.CompletarPruebasRaices:
+                case TipoActividadEnum.CompletarPruebasPotencias:
+                case TipoActividadEnum.CompletarPruebasMatematicasconDados:
+                    // Contar el número de pruebas que comienzan con la clave base.
+                    return finalActivities.Count(a =>
+                        a.Tipo_Prueba.StartsWith(tipoPruebaDB)) >= objetivo;
+
+
+                // ===========================================
+                // GRUPO 3: TIEMPO ACUMULADO (18 - 31)
+                // Regla: Sumar el tiempo total de las pruebas del tipo base
+                // ===========================================
+                case TipoActividadEnum.TiempoPruebasFingermath:
+                case TipoActividadEnum.TiempoPruebasSoroban:
+                case TipoActividadEnum.TiempoPruebasSumaResta:
+                case TipoActividadEnum.TiempoPruebasFlash:
+                case TipoActividadEnum.TiempoPruebasTablasMultiplicar:
+                case TipoActividadEnum.TiempoPruebasMultiplicacion:
+                case TipoActividadEnum.TiempoPruebasCompetenciaMultiplicacion3x3:
+                case TipoActividadEnum.TiempoPruebasNumeroFigura:
+                case TipoActividadEnum.TiempoPruebasCuadrosPractica:
+                case TipoActividadEnum.TiempoPruebasCalendarioMental:
+                case TipoActividadEnum.TiempoPruebasCalendarioMentalCompetencia:
+                case TipoActividadEnum.TiempoPruebasRaices:
+                case TipoActividadEnum.TiempoPruebasPotencias:
+                case TipoActividadEnum.TiempoPruebasMatematicasconDados:
+                    // Sumar los minutos de todas las pruebas que comienzan con la clave base.
+                    var totalTime = finalActivities
+                        .Where(a => a.Tipo_Prueba.StartsWith(tipoPruebaDB))
+                        .Sum(a => a.Tiempo.TotalMinutes);
+
+                    return totalTime >= objetivo;
+
+
+                // ===========================================
+                // GRUPO 4: VARIOS / ACUMULACIÓN GLOBAL (32, 33)
+                // Regla: Suma global de una columna específica
+                // ===========================================
+                case TipoActividadEnum.AcumularXP:
+                    // Sumar la ExperienciaAdquirida de todas las pruebas de hoy.
+                    var totalXP = finalActivities.Sum(a => a.ExperienciaAdquirida);
+                    return totalXP >= objetivo;
+
+                case TipoActividadEnum.AcumularPreguntasCorrectas:
+                    // Sumar las Respuestas_Correctas de todas las pruebas de hoy.
+                    var totalRespuestas = finalActivities.Sum(a => a.Respuestas_Correctas);
+                    return totalRespuestas >= objetivo;
+
+                default:
+                    return false;
+            }
+        }
+
+
+
     }
 }
