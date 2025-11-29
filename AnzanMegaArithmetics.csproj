@@ -30,6 +30,24 @@
     <None Remove="Content\Images\iconoMM.png" />
     <None Remove="Content\Images\im1bg.png" />
     <None Remove="Content\Images\im2.png" />
+    <None Remove="Content\Images\ListaBasica\10.png" />
+    <None Remove="Content\Images\ListaBasica\11.png" />
+    <None Remove="Content\Images\ListaBasica\12.png" />
+    <None Remove="Content\Images\ListaBasica\13.png" />
+    <None Remove="Content\Images\ListaBasica\14.png" />
+    <None Remove="Content\Images\ListaBasica\15.png" />
+    <None Remove="Content\Images\ListaBasica\16.png" />
+    <None Remove="Content\Images\ListaBasica\17.png" />
+    <None Remove="Content\Images\ListaBasica\18.png" />
+    <None Remove="Content\Images\ListaBasica\19.png" />
+    <None Remove="Content\Images\ListaBasica\2.png" />
+    <None Remove="Content\Images\ListaBasica\20.png" />
+    <None Remove="Content\Images\ListaBasica\4.png" />
+    <None Remove="Content\Images\ListaBasica\5.png" />
+    <None Remove="Content\Images\ListaBasica\6.png" />
+    <None Remove="Content\Images\ListaBasica\7.png" />
+    <None Remove="Content\Images\ListaBasica\8.png" />
+    <None Remove="Content\Images\ListaBasica\9.png" />
     <None Remove="Content\Images\logosr.png" />
     <None Remove="Content\Images\ManosF.gif" />
     <None Remove="Content\Images\MMLogo.png" />
@@ -43,6 +61,26 @@
     <None Remove="Content\Images\raices.gif" />
     <None Remove="Content\Images\SRicon.gif" />
     <None Remove="Content\Images\SRlottie.gif" />
+    <None Remove="Content\Images\ViajeAmerica\1.png" />
+    <None Remove="Content\Images\ViajeAmerica\10.png" />
+    <None Remove="Content\Images\ViajeAmerica\11.png" />
+    <None Remove="Content\Images\ViajeAmerica\12.png" />
+    <None Remove="Content\Images\ViajeAmerica\13.png" />
+    <None Remove="Content\Images\ViajeAmerica\14.png" />
+    <None Remove="Content\Images\ViajeAmerica\15.png" />
+    <None Remove="Content\Images\ViajeAmerica\16.png" />
+    <None Remove="Content\Images\ViajeAmerica\17.png" />
+    <None Remove="Content\Images\ViajeAmerica\18.png" />
+    <None Remove="Content\Images\ViajeAmerica\19.png" />
+    <None Remove="Content\Images\ViajeAmerica\2.png" />
+    <None Remove="Content\Images\ViajeAmerica\20.png" />
+    <None Remove="Content\Images\ViajeAmerica\3.png" />
+    <None Remove="Content\Images\ViajeAmerica\4.png" />
+    <None Remove="Content\Images\ViajeAmerica\5.png" />
+    <None Remove="Content\Images\ViajeAmerica\6.png" />
+    <None Remove="Content\Images\ViajeAmerica\7.png" />
+    <None Remove="Content\Images\ViajeAmerica\8.png" />
+    <None Remove="Content\Images\ViajeAmerica\9.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -115,6 +153,66 @@
     <EmbeddedResource Include="Content\Images\im2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\10.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\11.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\12.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\13.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\14.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\15.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\17.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\18.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\19.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\20.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\5.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\6.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\7.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\8.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ListaBasica\9.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\logosr.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -152,6 +250,66 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\SRlottie.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\10.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\11.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\12.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\13.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\14.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\15.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\17.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\18.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\19.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\20.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\5.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\6.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\7.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\8.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\ViajeAmerica\9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

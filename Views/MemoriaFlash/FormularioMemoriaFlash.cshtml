@@ -1,0 +1,475 @@
+﻿@model AnzanMegaArithmetics.Models.ConfMemoriaFlashModel
+@{
+    ViewBag.Title = "Memoria Flash";
+    Layout = "_LayoutMemoria";
+
+    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
+    var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
+    string velocidad = Model.VelocidadPreguntas;
+    velocidad = string.IsNullOrWhiteSpace(velocidad) ? "1.0" : velocidad.Replace(",", ".");
+}
+
+
+<form method="post" asp-controller="MemoriaFlash" asp-action="ConcentracionMemoriaFlash" id="formConfigSR" class="formulario-flash">
+
+    <div class="form-header">
+        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+        <h2>Ajustes Ejercicios Memoria Flash</h2>
+    </div>
+
+    <div class="form-grid">
+        <div class="form-column">
+
+            <div>
+                <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
+                <select name="cantidadEjercicios" required>
+                    @{
+                        var valores = new int[] { 5, 10, 15, 20 };
+                    }
+                    @foreach (var i in valores)
+                    {
+                        <option value="@i" selected="@(cantidad == i)">@i</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Categoría de los ejercicios:</label>
+                <select name="categoriaEjercicios" id="categoriaEjercicios">
+                    <option value="Lista básica" selected="@(Model.CategoriaEjercicios == "Lista básica")">Lista básica</option>
+                    <option value="Viaje a américa" selected="@(Model.CategoriaEjercicios == "Viaje a américa")">Viaje a américa</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Dígitos por ejercicio:</label>
+                <select name="DigitosEjercicios" id="DigitosEjercicios">
+                    <option value="1" selected="@(Model.DigitosEjercicios == 1)">1</option>
+                    <option value="2" selected="@(Model.DigitosEjercicios == 2)">2</option>
+                    <option value="3" selected="@(Model.DigitosEjercicios == 3)">3</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Tipo de pregunta:</label>
+                <select name="TipoPreguntas" id="TipoPreguntas">
+                    <option value="Números" selected="@(Model.TipoPreguntas == "Números")">Números</option>
+                    <option value="Figuras" selected="@(Model.TipoPreguntas == "Figuras")">Figuras</option>
+                </select>
+            </div>
+
+            <div id="controlColores" class="@(Model.TipoPreguntas == "Figuras" ? "hidden-field" : "")">
+                <label>Colores de los dígitos de las preguntas:</label>
+                <div class="contenedorColores">
+                    <div class="color">
+                        <label>Color A:</label>
+                        <select name="colorA" id="colorA">
+                            <option value="color1" selected="@(Model.ColorA == "color1")">Blanco (default)</option>
+                            <option value="color2" selected="@(Model.ColorA == "color2")">Verde (default)</option>
+                        </select>
+                    </div>
+                    <div class="color">
+                        <label>Color B:</label>
+                        <select name="colorB" id="colorB">
+                            <option value="color1" selected="@(Model.ColorB == "color1")">Blanco (default)</option>
+                            <option value="color2" selected="@(Model.ColorB == "color2")">Verde (default)</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="form-column">
+
+            <div>
+                <label>Velocidad de las preguntas:</label>
+                <div class="elslider">
+                    <input type="range" id="velocidadSlider" min="1" max="10" step="0.1" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
+                    <input type="number" id="velocidadInput" name="velocidadPreguntas" min="1" max="10" step="0.1" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
+                </div>
+            </div>
+
+            <div>
+                <label>Mostrar pareja de memoria:</label>
+                <select name="MostrarParejas" id="MostrarParejas">
+                    <option value="No" selected="@(Model.MostrarParejas == "No")">No</option>
+                    <option value="Número" selected="@(Model.MostrarParejas == "Número")">Mostrar número</option>
+                    <option value="Imagen" selected="@(Model.MostrarParejas == "Imagen")">Mostrar imagen</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Activar sonido:</label>
+                <div class="checks">
+                    <label><input type="radio" name="activarSonido" value="true" @(Model.ActivarSonido ? "checked" : "") /> Sí</label>
+                    <label><input type="radio" name="activarSonido" value="false" @(!Model.ActivarSonido ? "checked" : "") /> No</label>
+                </div>
+            </div>
+
+            <div>
+                <label>Tiempo de concentración:</label>
+                <select name="tiempoMeditacion" required>
+                    @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                    {
+                        <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">☄️ Iniciar ejercicios</button>
+            </div>
+
+        </div>
+
+    </div>
+</form>
+
+
+<style>
+
+    .hidden-field {
+        display: none !important;
+    }
+
+    .contenedorColores{
+        display:flex;
+        flex-direction:row;
+        margin-top: 0.6rem;
+    }
+
+    .color{
+        width:50%;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    }
+
+    form#formConfigSR input[type="range"] {
+        background-color: #292c4f;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+        width: 100%;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: white;
+        }
+
+
+    .formulario-flash {
+        max-width: 85%;
+        margin: 0 auto;
+        padding: 1.3rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
+    }
+
+
+    .checks {
+        flex-direction: row;
+        display: flex;
+        gap: 2rem;
+        padding: 0.5rem;
+        align-items: center;
+    }
+
+    .top-bar-config {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        max-width: 85%;
+        margin: -1rem auto 1rem auto;
+        padding: 0 1rem;
+    }
+
+        .top-bar-config h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: var(--color-light);
+        }
+
+    .form-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-column {
+        flex: 1 1 49%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    form#formConfigSR label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    form#formConfigSR select,
+    form#formConfigSR input[type="number"] {
+        width: 60%;
+        padding: 0.5rem 0.6rem;
+        border: none;
+        border-radius: 0.5rem;
+        background-color: #292c4f;
+        color: white;
+        font-size: 1rem;
+    }
+
+    form#formConfigSR input[type="radio"] {
+        accent-color: var(--color-primary);
+        transform: scale(1.1);
+    }
+
+    .btn.btn-primary {
+        background: #28a745;
+        color: white;
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+    }
+
+        .btn.btn-primary:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
+        }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+
+        .btn-dashboard i {
+            font-size: 1.1rem;
+        }
+
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-dashboard:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+    }
+
+    .dropdown-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.4rem;
+        color: #ccc;
+        user-select: none;
+    }
+
+    .dropdown-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #1b1e3c;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        margin-top: 6px;
+        z-index: 10;
+        display: none;
+        max-height: 180px;
+        overflow-y: auto;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .option {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        color: var(--color-light);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+        .option:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .option.special {
+            font-weight: bold;
+            background-color: #292c4f;
+            color: var(--color-primary);
+        }
+
+            .option.special:hover {
+                background-color: #3737e8;
+                color: white;
+            }
+
+    .input-error {
+        border: 2px solid var(--color-danger) !important;
+    }
+
+    .elslider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 60%;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+    @@media (max-width: 768px) {
+
+        .form-header {
+            flex-direction: column;
+        }
+
+        .form-grid {
+            flex-direction: column;
+        }
+
+        .btn-dashboard {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn.btn-primary {
+            font-size: 1rem;
+        }
+
+        .top-bar-config {
+            flex-direction: column-reverse;
+            align-items: center;
+            text-align: center;
+        }
+
+            .top-bar-config h2 {
+                width: 100%;
+            }
+
+            .top-bar-config .btn-dashboard {
+                width: auto;
+                margin: 0 auto;
+            }
+
+        form#formConfigSR select,
+        form#formConfigSR input[type="number"] {
+            width: 100%;
+        }
+
+        .elslider {
+            width: 100%;
+        }
+
+        .tag-input {
+            width: 100%;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function regresarAlDashboard() {
+            window.location.href = '@Url.Action("Memorizacion", "Dashboard")';
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const slider = document.getElementById("velocidadSlider");
+            const input = document.getElementById("velocidadInput");
+
+            slider.addEventListener("input", () => {
+                input.value = slider.value;
+            });
+
+            input.addEventListener("input", () => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val) && val >= 1 && val <= 10) {
+                    slider.value = val;
+                } else {
+                    input.value = Math.min(Math.max(val, 1), 10);
+                }
+            });
+
+            
+            const tipoPreguntasSelect = document.getElementById("TipoPreguntas");
+            const controlColoresDiv = document.getElementById("controlColores");
+
+            function toggleColores() {
+                if (tipoPreguntasSelect.value === "Números") {
+                    controlColoresDiv.classList.remove("hidden-field");
+                } else {
+                    controlColoresDiv.classList.add("hidden-field");
+                }
+            }
+
+            
+            tipoPreguntasSelect.addEventListener("change", toggleColores);
+
+            
+            toggleColores();
+
+        });
+    </script>
+}

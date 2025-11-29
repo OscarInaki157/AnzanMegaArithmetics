@@ -52,12 +52,6 @@
         </div>
     </div>
     <div class="user-info-card">
-        @*  <p><strong>Licencia @Model.Licencia</strong></p>
-        <p>Última conexión: @Model.Ultima_Cnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
             <div class="R3">
                 <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
@@ -86,6 +80,21 @@
 
 <div class="modulos-wrapper">
 
+    @* Memoria Flash *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/brain.gif" alt="Asociacion" />
+            </div>
+            <div class="modulo-text">
+                <h2>Memoria Flash</h2>
+                <p>Ejercicios de memoria Flash</p>
+            </div>
+            <a href="@Url.Action("FormularioMemoriaFlash", "MemoriaFlash")" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
 
     @* Asociacion nf *@
     <div class="modulo-card">
