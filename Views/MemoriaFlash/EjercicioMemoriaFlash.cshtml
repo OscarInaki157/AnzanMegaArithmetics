@@ -1,0 +1,543 @@
+﻿@model AnzanMegaArithmetics.Models.SesionMemoriaFlashModel
+@using System.Text.Json;
+@{
+    ViewBag.Title = "Memoria Flash";
+    Layout = "_LayoutMemoria";
+
+    var sesionJson = JsonSerializer.Serialize(Model);
+    int totalEjercicios = Model.Configuracion.CantidadEjercicios;
+    int ejercicioActual = 1;
+}
+
+<div class="top-bar">
+    <form method="post" action="/Flash/FinalizarDesdeEjercicio" class="form-fin">
+        <button type="submit" class="btn-finalizar">
+            ❌ <span>Finalizar</span>
+        </button>
+    </form>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div id="progreso-interno" class="progreso-interno" style="width:0%"></div>
+            <span id="progreso-texto" class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+    <div id="iconoSonido"
+         class="icono-sonido @(Model.Configuracion.ActivarSonido ? "activo" : "")">
+        @(Model.Configuracion.ActivarSonido ? "🔊" : "🔇")
+    </div>
+</div>
+
+<div class="flash-wrapper">
+
+    <div id="exercise-container" class="exercise-container">
+
+        <div id="pareja-imagen-display" class="pareja-section hidden">
+            @* Imagen de la pareja de memoria *@
+        </div>
+
+        <div class="main-content-wrapper">
+
+            <div id="pareja-id-display" class="pareja-id-section hidden">
+                @* ID del ejercicio *@
+            </div>
+
+            <div id="main-content" class="main-content-section numero-flash">
+                @* Dígitos o Figuras *@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .icono-sonido {
+        font-size: 1.6rem;
+        cursor: default;
+        transition: transform 0.3s;
+        user-select: none;
+    }
+
+        .icono-sonido.activo {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .form-fin {
+        margin: 0;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .digit-display.color1 {
+        color: var(--color-light);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+    }
+
+    .digit-display.color2 {
+        color: #28a745;
+        text-shadow: 0 0 15px rgba(124, 252, 181, 0.4);
+    }
+
+    .flash-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 7rem);
+        position: relative;
+    }
+
+    .exercise-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 1100px;
+        gap: 40px;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+
+    .main-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1;
+        height: 100%;
+    }
+
+    .pareja-section {
+        flex-shrink: 0;
+        width: 30%;
+        max-width: 300px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 300px;
+    }
+
+        .pareja-section img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.4); /* Tu color primario */
+        }
+
+    .pareja-id-section {
+        font-size: 3rem;
+        color: var(--color-primary);
+        font-weight: 700;
+        animation: fadeIn 0.3s;
+    }
+
+    .main-content-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .digit-display {
+        font-size: clamp(8rem, 15vw, 18rem);
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .figure-image {
+        width: 8rem;
+        height: 11rem;
+        object-fit: cover;
+        transform: scale(1.05);
+        animation: fadeIn 0.3s;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+
+    .numero-flash {
+        font-size: clamp(12rem, 23rem, 30rem);
+        font-weight: bold;
+        outline: none;
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* height: 100%; */
+        width: 100%;
+        /* margin-top: -8rem; */
+    }
+
+
+    @@keyframes bounce {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        100% {
+            transform: scale(1.15);
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @@media (max-width: 768px) {
+
+        .info-tiempo {
+            margin: 0 auto;
+        }
+
+        .btn-finalizar {
+            padding: 7px 7px;
+            font-size: 0.9rem;
+        }
+
+        .numero-flash {
+            font-size: 7.5rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // --- DATA DE LA SESIÓN ---
+        const sesionData = @Html.Raw(sesionJson);
+        const config = sesionData.Configuracion;
+        const ejercicios = sesionData.Ejercicios;
+        const totalEjercicios = ejercicios.length;
+
+        const CLASE_COLOR_A = "@Model.Configuracion.ColorA";
+        const CLASE_COLOR_B = "@Model.Configuracion.ColorB";
+
+        // --- REFERENCIAS DOM ---
+        const exerciseContainer = document.getElementById('exercise-container');
+        const parejaImagenDisplay = document.getElementById('pareja-imagen-display');
+        const parejaIdDisplay = document.getElementById('pareja-id-display');
+        const mainContent = document.getElementById('main-content');
+        const soundIcon = document.getElementById('iconoSonido');
+
+        // Referencias de la BARRA DE PROGRESO
+        const progresoInterno = document.getElementById('progreso-interno');
+        const progresoTexto = document.getElementById('progreso-texto');
+
+        // --- VARIABLES DE TIMING Y ESTADO ---
+        const velocidadStr = config.VelocidadPreguntas.replace(',', '.');
+        const tiempoPorEjercicio = parseFloat(velocidadStr) * 1000;
+
+        let tiempoInicio = null;
+        let ultimoIndiceMostrado = -1;
+        let esperaFinalizada = false;
+        let isSoundActive = config.ActivarSonido;
+
+        // --- AUDIO CONTEXT API ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function reproducirBeep() {
+            if (!isSoundActive) return;
+
+            if (audioCtx.state === "suspended") {
+                 audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // --- FUNCIÓN DE ACTUALIZACIÓN DE BARRA DE PROGRESO ---
+        function updateProgressBar(current, total) {
+            const porcentaje = Math.round((current / total) * 100);
+            progresoInterno.style.width = `${porcentaje}%`;
+            progresoTexto.textContent = `${current} / ${total}`;
+        }
+
+        // --- RENDERIZADO DINÁMICO ---
+                function renderExercise(ejercicio) {
+
+            // 1. Limpiar y Preparar
+            mainContent.innerHTML = '';
+            parejaImagenDisplay.innerHTML = '';
+            parejaIdDisplay.innerHTML = '';
+
+            parejaImagenDisplay.classList.add('hidden');
+            parejaIdDisplay.classList.add('hidden');
+
+            // 2. Renderizar Contenido Principal (Números vs Figuras)
+            const isNumbers = config.TipoPreguntas === "Números";
+
+            // Limpiamos la clase principal de color antes de renderizar
+            mainContent.className = `main-content-section numero-flash`;
+
+
+            if (isNumbers) {
+                const colorClaseEjercicio = ejercicio.ColorClase;
+
+                ejercicio.Digitos.forEach(digito => {
+                    const element = document.createElement('span');
+                    element.className = 'digit-display';
+
+                    element.classList.add(colorClaseEjercicio);
+
+                    element.textContent = digito.DigitoNumerico;
+                    mainContent.appendChild(element);
+                });
+            } else {
+                // Si son FIGURAS: Aplicamos la clase ColorClase al contenedor principal (si es necesario)
+                // y mostramos las figuras SIN aplicar clases de color a ellas mismas.
+
+                // Aplicamos la clase del ejercicio (solo se usa para figuras o si mainContent necesita la clase)
+                mainContent.classList.add(ejercicio.ColorClase);
+
+                ejercicio.Digitos.forEach(digito => {
+                    const img = document.createElement('img');
+                    img.className = 'figure-image';
+                    img.src = digito.DigitoImagenRuta;
+                    mainContent.appendChild(img);
+                });
+            }
+
+
+            // 3. Renderizar Pareja de Memoria
+            if (ejercicio.ParejaMemoriaRuta) {
+
+                if (config.MostrarParejas === "Número") {
+                    const idText = ejercicio.ParejaMemoriaRuta.replace('ID_', '');
+                    parejaIdDisplay.innerHTML = `<span>${idText}</span>`;
+                    parejaIdDisplay.classList.remove('hidden');
+                } else if (config.MostrarParejas === "Imagen") {
+                    parejaImagenDisplay.innerHTML = `<img src="${ejercicio.ParejaMemoriaRuta}" alt="Pareja ${ejercicio.Id_Ejercicio}">`;
+                    parejaImagenDisplay.classList.remove('hidden');
+                }
+            }
+
+            // 4. Actualizar barra superior, progreso y sonar
+            updateProgressBar(ejercicio.Id_Ejercicio, totalEjercicios);
+            reproducirBeep();
+
+            // Hacer visible el contenedor principal (opacidad a 1)
+            exerciseContainer.style.opacity = 1;
+        }
+
+        // Función para ocultar el contenido (dejar la pantalla "vacía")
+        function clearDisplay() {
+            exerciseContainer.style.opacity = 0;
+            mainContent.innerHTML = '';
+            parejaImagenDisplay.innerHTML = '';
+            parejaIdDisplay.innerHTML = '';
+        }
+
+        // --- BUCLE DE ANIMACIÓN (RAF) ---
+        function loop(timestamp) {
+            // Asegurar que tiempoInicio se inicialice solo una vez
+            if (!tiempoInicio) tiempoInicio = timestamp;
+
+            const elapsed = timestamp - tiempoInicio;
+            const index = Math.floor(elapsed / tiempoPorEjercicio);
+
+            if (index >= ejercicios.length) {
+                // FASE DE FINALIZACIÓN
+                if (!esperaFinalizada) {
+                    clearDisplay();
+                    esperaFinalizada = true;
+
+                    exerciseContainer.style.opacity = 1;
+                    updateProgressBar(totalEjercicios, totalEjercicios);
+
+                    setTimeout(() => {
+                        window.location.href = "@Url.Action("RespuestaMemoriaFlash", "MemoriaFlash")";
+                    }, 1000);
+                }
+                return;
+            }
+
+            // Usar la variable declarada correctamente: ultimoIndiceMostrado
+            if (index !== ultimoIndiceMostrado) {
+                renderExercise(ejercicios[index]);
+                ultimoIndiceMostrado = index;
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        // --- EVENTOS Y ACTIVACIÓN ---
+
+        function iniciarSesion() {
+            // Al iniciar la sesión, restablecemos tiempoInicio para la precisión.
+            tiempoInicio = null;
+            requestAnimationFrame(loop);
+        }
+
+        function toggleSonido() {
+            isSoundActive = !isSoundActive;
+            soundIcon.classList.toggle('activo', isSoundActive);
+            soundIcon.textContent = isSoundActive ? "🔊" : "🔇";
+        }
+
+        // Manejo del estado suspendido del AudioContext (usando cualquier interacción)
+        window.addEventListener("pointerdown", () => {
+             if (audioCtx.state === "suspended") {
+                 audioCtx.resume();
+             }
+        }, { once: true });
+
+        // INICIO AUTOMÁTICO AL CARGAR LA PÁGINA
+        window.onload = function () {
+             // Aseguramos que el progreso inicial sea 0/Total
+             updateProgressBar(0, totalEjercicios);
+             // Damos una pequeña pausa inicial (0.5s) y empezamos el loop
+             setTimeout(iniciarSesion, 500);
+        };
+
+        // Evento para el icono de sonido
+        soundIcon.addEventListener('click', toggleSonido);
+
+    </script>
+}

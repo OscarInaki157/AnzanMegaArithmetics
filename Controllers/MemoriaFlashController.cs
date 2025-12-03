@@ -2,6 +2,7 @@
 using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Controllers
@@ -77,10 +78,86 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult ConcentracionMemoriaFlash(ConfMemoriaFlashModel config) 
         {
+            //generar ejercicios
+            SesionMemoriaFlashModel sesion = new SesionMemoriaFlashModel
+            {
+                Configuracion = config,
+                Ejercicios = GenerarEjercicios(config)
+            };
+
+            //guardar en sesion
+            string sesionStr = JsonSerializer.Serialize(sesion);
+            HttpContext.Session.SetString("SesionMemoriaFlash", sesionStr);
+
             //datos concentracion
             ViewBag.TiempoMeditacion = config.TiempoMeditacion;
             ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
             return View();
+        }
+
+        private List<EjercicioMemoriaFlashModel> GenerarEjercicios(ConfMemoriaFlashModel config) 
+        {
+            List<EjercicioMemoriaFlashModel> ejercicios = new();
+            Random random = new();
+
+            //si no se van a mostrar parejas, no es necesario obtener el mapa
+            Dictionary<int, string> mapaParejas = null;
+
+            if (config.MostrarParejas != "No")
+            {
+                mapaParejas = ObtenerMapaParejas(config.CategoriaEjercicios);
+            }
+
+            int maxParejas = mapaParejas?.Count ?? 0;
+
+            for (int i = 1; i <= config.CantidadEjercicios; i++) 
+            {
+                int ejercicioNumeroCompleto = 0;
+                List<DigitoEjercicioMFModel> digitosEjercicio = new();
+                string valorNumericoStr = "";
+
+                for (int d = 0; d < config.DigitosEjercicios; d++) 
+                {
+                    int digito = random.Next(0, 10);
+                    valorNumericoStr += digito.ToString();
+
+                    digitosEjercicio.Add(new DigitoEjercicioMFModel 
+                    {
+                        DigitoNumerico = digito,
+                        DigitoImagenRuta = FigurasPorDigito[digito]
+                    });
+                }
+
+                int.TryParse(valorNumericoStr, out ejercicioNumeroCompleto);
+
+                string colorClase = (i % 2 != 0) ? config.ColorA : config.ColorB;
+                string parejaMemoriaRuta = null;
+
+
+                //si mostrar pareja se selecciona como numero, solo obtener el id
+                if (config.MostrarParejas == "Número")
+                {
+                    parejaMemoriaRuta = $"ID_{i}";
+                }
+                //si lapareja de memoria es imagen, obtener la ruta
+                else if (config.MostrarParejas == "Imagen" && mapaParejas != null && maxParejas > 0)
+                {
+                    int parejaId = (i % maxParejas == 0) ? maxParejas : i % maxParejas;
+                    parejaMemoriaRuta = mapaParejas[parejaId];
+                }
+
+                ejercicios.Add(new EjercicioMemoriaFlashModel
+                {
+                    Id_Ejercicio = i,
+                    EjercicioNumero = ejercicioNumeroCompleto,
+                    Digitos = digitosEjercicio,
+                    ColorClase = colorClase,
+                    ParejaMemoriaRuta = parejaMemoriaRuta
+                });
+
+            }
+
+            return ejercicios;
         }
 
         private readonly Dictionary<int, string> FigurasPorDigito = new Dictionary<int, string> 
@@ -145,10 +222,61 @@ namespace AnzanMegaArithmetics.Controllers
             { 20, "/Content/Images/ViajeAmerica/20.png"}
         };
 
+        private Dictionary<int, string> ObtenerMapaParejas(string categoria) 
+        {
+            switch (categoria) 
+            {
+                case "Lista básica":
+                    return ParejasListaBasica;
+                case "Viaje a américa":
+                    return ParejasViajeAmerica;
+                default:
+                    return ParejasListaBasica;
+            }
+        }
+
         [HttpGet]
         public IActionResult EjercicioMemoriaFlash() 
         {
-            return View();
+            string sesionStr = HttpContext.Session.GetString("SesionMemoriaFlash");
+
+            if (string.IsNullOrEmpty(sesionStr))
+            {
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            try 
+            {
+                SesionMemoriaFlashModel sesionDeserializada = JsonSerializer.Deserialize<SesionMemoriaFlashModel>(sesionStr);
+                return View(sesionDeserializada);
+            } catch 
+            {
+                HttpContext.Session.Remove("SesionMemoriaFlash");
+                HttpContext.Session.Remove("ConfigMemoriaFlash");
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult RespuestaMemoriaFlash()
+        {
+            string sesionStr = HttpContext.Session.GetString("SesionMemoriaFlash");
+
+            if (string.IsNullOrEmpty(sesionStr))
+            {
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            try
+            {
+                SesionMemoriaFlashModel sesionDeserializada = JsonSerializer.Deserialize<SesionMemoriaFlashModel>(sesionStr);
+                return View(sesionDeserializada);
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Session.Remove("SesionMemoriaFlash");
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
         }
 
 

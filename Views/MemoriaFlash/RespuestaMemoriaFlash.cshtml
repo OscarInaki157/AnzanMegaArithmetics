@@ -1,0 +1,534 @@
+﻿@model AnzanMegaArithmetics.Models.SesionMemoriaFlashModel
+@using System.Text.Json;
+@{
+    ViewBag.Title = "Respuestas Memoria Flash";
+    Layout = "_LayoutMemoria";
+
+    var ejerciciosJson = JsonSerializer.Serialize(Model.Ejercicios);
+    var configJson = JsonSerializer.Serialize(Model.Configuracion);
+}
+
+<div class="top-bar">
+    <form id="formRespuestas" method="post" action="@Url.Action("CalificarRespuestasFlash", "MemoriaFlash")" class="form-fin">
+        @* Los inputs ocultos se llenarán con JS antes de enviar *@
+        <button type="submit" class="btn-finalizar">
+            ✅ <span>Enviar Respuestas</span>
+        </button>
+    </form>
+</div>
+
+<div class="flash-wrapper-respuestas">
+
+    <div class="respuestas-navegacion-contenedor">
+
+        <button id="navAnterior" class="btn-navegacion" disabled>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        </button>
+
+        <div id="respuestasContenedor" class="respuestas-listado">
+            @* Contenedores de respuesta generados por JS *@
+        </div>
+
+        <button id="navSiguiente" class="btn-navegacion">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+        </button>
+    </div>
+
+    <div class="teclado-contenedor teclado-numerico">
+        <div class="fila">
+            <button type="button" class="tecla" data-valor="7">7</button>
+            <button type="button" class="tecla" data-valor="8">8</button>
+            <button type="button" class="tecla" data-valor="9">9</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla" data-valor="4">4</button>
+            <button type="button" class="tecla" data-valor="5">5</button>
+            <button type="button" class="tecla" data-valor="6">6</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla" data-valor="1">1</button>
+            <button type="button" class="tecla" data-valor="2">2</button>
+            <button type="button" class="tecla" data-valor="3">3</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla tecla-vacia"></button>
+            <button type="button" class="tecla" data-valor="0">0</button>
+            <button type="button" class="tecla borrar" id="teclaBorrar">⬅️</button>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background-color: var(--color-bg);
+        color: var(--text-color);
+    }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0.7rem 2rem;
+        background-color: #1b1e3c;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        border-radius: 25px;
+        margin-top: -2.3rem;
+        position: relative;
+        z-index: 10;
+        min-height: 50px;
+    }
+
+    .btn-finalizar {
+        background-color: #00ff88;
+        color: #1b1e3c;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #00e077;
+            transform: scale(1.05);
+        }
+
+    /* Estructura de dos columnas */
+    .flash-wrapper-respuestas {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Alinear arriba */
+        gap: 40px;
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* SECCIÓN IZQUIERDA: RESPUESTAS */
+    .respuestas-navegacion-contenedor {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+        max-width: 900px; /* Ancho suficiente para 5 columnas */
+        min-height: 400px;
+    }
+
+    .respuestas-listado {
+        flex-grow: 1;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        /* FUERZA LA MISMA ALTURA PARA TODAS LAS FILAS */
+        grid-auto-rows: 100px;
+        gap: 0.5rem;
+        width: 100%;
+        padding-right: 10px;
+    }
+
+    /* Estilo base de cada contenedor de respuesta */
+    .respuesta-contenedor {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 0.7rem;
+        border-radius: 12px;
+        border: 2px solid #3d405e;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        background-color: var(--color-card-bg);
+    }
+
+        .respuesta-contenedor:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.7);
+        }
+
+    .respuesta-titulo {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #b0b3d1;
+        text-align: center;
+    }
+
+    .respuesta-display {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-light, white);
+        letter-spacing: 5px;
+        line-height: 1.2;
+    }
+
+    /* Estilo de foco (Glow) */
+    .respuesta-contenedor.activo {
+        border-color: #00ff88;
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.7);
+        transform: scale(1.02);
+    }
+
+        .respuesta-contenedor.activo .respuesta-display {
+            color: #00ff88;
+        }
+
+    /* Botones de navegación */
+    .btn-navegacion {
+        background: #3d405e;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        flex-shrink: 0;
+    }
+
+        .btn-navegacion:hover:not(:disabled) {
+            background: #555877;
+        }
+
+        .btn-navegacion:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+    /* --- SECCIÓN DERECHA: TECLADO (NUEVO ESTILO) --- */
+    .teclado-contenedor.teclado-numerico {
+        /* Contenedor principal del teclado */
+        width: 300px;
+        max-width: 400px;
+        padding: 20px;
+        background-color: #1b1e3c;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .tecla {
+        flex: 1;
+        font-size: 3rem;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--color-primary); /* #4c4cff */
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        min-width: 50px;
+    }
+
+        .tecla.tecla-vacia {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .tecla.borrar {
+            background-color: var(--color-danger); /* #df312c */
+            font-size: 2.5rem;
+            padding: 1rem;
+        }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
+        .tecla.borrar:hover,
+        .tecla.borrar.presionada {
+            background-color: #ff6666 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+    /* Responsive */
+    @@media (max-width: 800px) {
+        .flash-wrapper-respuestas {
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            gap: 20px;
+        }
+
+        .respuestas-navegacion-contenedor {
+            width: 95%;
+            max-width: none;
+            order: 2; /* Después del teclado en móvil */
+        }
+
+        .respuestas-listado {
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 90px; /* Ligeramente más pequeño en móvil */
+            max-height: 50vh;
+        }
+
+        .respuesta-contenedor {
+            padding: 0.5rem;
+        }
+
+        .respuesta-titulo {
+            font-size: 1rem;
+        }
+
+        .respuesta-display {
+            font-size: 1.8rem;
+        }
+
+        .teclado-contenedor {
+            width: 95%;
+            max-width: 350px;
+            order: 1; /* Poner el teclado antes de la lista de respuestas en móvil */
+        }
+
+        .tecla {
+            font-size: 2.5rem;
+            padding: 0.8rem 1rem;
+        }
+    }
+</style>
+
+
+@section Scripts {
+    <script>
+        // --- DATA DE LA SESIÓN ---
+        const config = @Html.Raw(configJson);
+        const ejercicios = @Html.Raw(ejerciciosJson);
+        const totalEjercicios = ejercicios.length;
+        const longitudMaxima = config.DigitosEjercicios;
+
+        // --- REFERENCIAS DOM ---
+        const respuestasContenedor = document.getElementById('respuestasContenedor');
+        const navAnterior = document.getElementById('navAnterior');
+        const navSiguiente = document.getElementById('navSiguiente');
+        const teclas = document.querySelectorAll('.tecla');
+        const teclaBorrar = document.getElementById('teclaBorrar');
+        const formRespuestas = document.getElementById('formRespuestas');
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        let respuestasData = []; // Almacenará { id: 1, respuesta: '123' }
+        let indiceActivo = 0; // Índice del ejercicio actual (0 a N-1)
+
+        // Inicializa el arreglo de respuestas con cadenas vacías y los IDs de ejercicio
+        function inicializarRespuestas() {
+            ejercicios.forEach(ej => {
+                respuestasData.push({
+                    id: ej.Id_Ejercicio,
+                    respuesta: ''
+                });
+            });
+        }
+
+        // --- RENDERIZADO DINÁMICO DE CONTENEDORES ---
+        function renderizarRespuestas() {
+            respuestasContenedor.innerHTML = '';
+            respuestasData.forEach((data, index) => {
+                const contenedor = document.createElement('div');
+                contenedor.className = 'respuesta-contenedor';
+                contenedor.dataset.index = index;
+                contenedor.classList.toggle('activo', index === indiceActivo);
+
+                contenedor.innerHTML = `
+                    <span class="respuesta-titulo">EJERCICIO ${data.id}</span>
+                    <span class="respuesta-display">${data.respuesta || '–––'}</span>
+                `;
+
+                // Añadir evento para seleccionar al hacer clic
+                contenedor.addEventListener('click', () => {
+                    setIndiceActivo(index);
+                });
+
+                respuestasContenedor.appendChild(contenedor);
+            });
+        }
+
+        // --- MANEJO DE FOCO (ÍNDICE ACTIVO) ---
+        function setIndiceActivo(nuevoIndice) {
+            if (nuevoIndice < 0 || nuevoIndice >= totalEjercicios) return;
+
+            // 1. Quitar activo al anterior
+            const anteriorContenedor = document.querySelector(`.respuesta-contenedor[data-index="${indiceActivo}"]`);
+            if (anteriorContenedor) anteriorContenedor.classList.remove('activo');
+
+            indiceActivo = nuevoIndice;
+
+            // 2. Aplicar activo al nuevo
+            const nuevoContenedor = document.querySelector(`.respuesta-contenedor[data-index="${indiceActivo}"]`);
+            if (nuevoContenedor) nuevoContenedor.classList.add('activo');
+
+            // 3. Actualizar estado de botones de navegación
+            navAnterior.disabled = indiceActivo === 0;
+            navSiguiente.disabled = indiceActivo === totalEjercicios - 1;
+
+            // Desplazar la vista para que el elemento activo sea visible
+            if (nuevoContenedor) {
+                nuevoContenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // --- MANEJO DE TECLADO (INPUT) ---
+        function manejarInput(valor) {
+            let actual = respuestasData[indiceActivo];
+
+            if (valor === 'borrar') {
+                // Borrar el último dígito
+                actual.respuesta = actual.respuesta.slice(0, -1);
+            } else {
+                // Añadir el dígito si no se ha alcanzado la longitud máxima
+                if (actual.respuesta.length < longitudMaxima) {
+                    actual.respuesta += String(valor);
+
+                    // Comportamiento del foco: Pasar al siguiente ejercicio si se alcanza el máximo
+                    if (actual.respuesta.length === longitudMaxima) {
+                        setTimeout(() => {
+                            setIndiceActivo(indiceActivo + 1);
+                        }, 150); // Pequeña pausa para mejor UX
+                    }
+                }
+            }
+            // Re-renderizar el contenedor afectado
+            renderizarRespuestas();
+            setIndiceActivo(indiceActivo); // Mantiene el foco en el ejercicio correcto
+        }
+
+        // --- EVENTOS DEL TECLADO NUMÉRICO (USANDO EL NUEVO HTML) ---
+        teclas.forEach(tecla => {
+            tecla.addEventListener('click', () => {
+                const valor = tecla.dataset.valor;
+                
+                if (tecla.classList.contains('borrar')) {
+                    manejarInput('borrar');
+                } else if (valor) {
+                    manejarInput(valor);
+                }
+                
+                // Efecto visual
+                tecla.classList.add('presionada');
+                setTimeout(() => tecla.classList.remove('presionada'), 150);
+            });
+        });
+
+        // --- EVENTOS DE NAVEGACIÓN ---
+        navAnterior.addEventListener('click', () => {
+            setIndiceActivo(indiceActivo - 1);
+        });
+
+        navSiguiente.addEventListener('click', () => {
+            setIndiceActivo(indiceActivo + 1);
+        });
+        
+        // --- TECLADO FÍSICO ---
+        document.addEventListener('keydown', e => {
+            const teclaPresionada = e.key;
+
+            if (teclaPresionada >= '0' && teclaPresionada <= '9') {
+                manejarInput(teclaPresionada);
+
+                // Efecto visual en tecla virtual
+                const btn = Array.from(teclas)
+                    .find(b => b.dataset.valor === teclaPresionada);
+
+                if (btn) {
+                    btn.classList.add('presionada');
+                    setTimeout(() => btn.classList.remove('presionada'), 150);
+                }
+            }
+
+            if (teclaPresionada === 'Backspace') {
+                manejarInput('borrar');
+
+                // Efecto visual en tecla virtual (borrar)
+                const btnBorrar = document.querySelector('.tecla.borrar');
+                if (btnBorrar) {
+                    btnBorrar.classList.add('presionada');
+                    setTimeout(() => btnBorrar.classList.remove('presionada'), 150);
+                }
+                e.preventDefault();
+            }
+        });
+
+
+        // --- ENVÍO DE FORMULARIO (AJAX/Fetch) ---
+        formRespuestas.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 1. Construir el objeto JSON de respuestas
+            const respuestasFinal = respuestasData.map(data => ({
+                Id_Ejercicio: data.id,
+                // Parsear a entero, usando 0 si la respuesta está vacía 
+                RespuestaUsuario: parseInt(data.respuesta || '0', 10)
+            }));
+
+            // El payload debe coincidir con RespuestasSesionMFModel
+            const payload = { RespuestasIndividuales: respuestasFinal };
+
+            const submitButton = formRespuestas.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Enviando...';
+
+            try {
+                // 2. Enviar los datos al método POST del Controller
+                const response = await fetch(formRespuestas.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+   
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    const result = await response.json();
+                    
+                    if (result.redirectUrl) {
+                        window.location.href = result.redirectUrl;
+                    } else if (response.ok) {
+                        // Si el POST fue exitoso pero no redirigió (por ejemplo, si usa IActionResult)
+                        // forzamos la redirección a la vista de resultados.
+                        window.location.href = '@Url.Action("ResultadosMemoriaFlash", "MemoriaFlash")';
+                    } else {
+                        throw new Error('Error al calificar las respuestas.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error de red/fetch:', error);
+                alert('Ocurrió un error al enviar las respuestas. Por favor, intente de nuevo.');
+                submitButton.disabled = false;
+                submitButton.innerHTML = '✅ <span>Enviar Respuestas</span>';
+            }
+        });
+
+        window.onload = function() {
+            inicializarRespuestas();
+            renderizarRespuestas();
+            setIndiceActivo(0);
+        };
+
+    </script>
+}
