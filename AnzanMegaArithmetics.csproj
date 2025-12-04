@@ -50,6 +50,7 @@
     <None Remove="Content\Images\ListaBasica\9.png" />
     <None Remove="Content\Images\logosr.png" />
     <None Remove="Content\Images\ManosF.gif" />
+    <None Remove="Content\Images\memorias.gif" />
     <None Remove="Content\Images\MMLogo.png" />
     <None Remove="Content\Images\multicon.png" />
     <None Remove="Content\Images\multip.gif" />
@@ -217,6 +218,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\ManosF.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\memorias.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\MMLogo.png">

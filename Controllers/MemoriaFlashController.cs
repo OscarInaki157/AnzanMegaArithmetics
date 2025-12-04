@@ -21,6 +21,8 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult LimpiarYDashboard()
         {
             HttpContext.Session.Remove("ConfigMemoriaFlash");
+            HttpContext.Session.Remove("SesionMemoriaFlash");
+            HttpContext.Session.Remove("ResultadosMemoriaFlash");
 
             return RedirectToAction("Memorizacion","Dashboard");
         }
@@ -338,7 +340,6 @@ namespace AnzanMegaArithmetics.Controllers
                         ColorClase = ejercicioOriginal.ColorClase,
                         ParejaMemoriaRuta = ejercicioOriginal.ParejaMemoriaRuta,
 
-                        // Propiedades específicas de ResultadoEjercicioMFModel
                         RespuestaUsuario = respuestaUsuario.RespuestaUsuario,
                         EsCorrecto = esCorrecto,
                         Respondido = respondido
@@ -346,7 +347,26 @@ namespace AnzanMegaArithmetics.Controllers
                 }
             }
 
-            
+            int totalEjercicios = sesionOriginal.Ejercicios.Count;
+            int porcentajeGlobal = totalEjercicios > 0 ? (int)(((double)totalAciertos / totalEjercicios) * 100) : 0;
+            double velocidadPreguntas = double.Parse(sesionOriginal.Configuracion.VelocidadPreguntas);
+            double tiempoTotal = totalEjercicios * velocidadPreguntas;
+            string tipoPrueba = "Memoria Flash " + sesionOriginal.Configuracion.DigitosEjercicios + " digitos";
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+            // Guardar resultados en la base de datos
+            PruebasDBModel results = new PruebasDBModel
+            {
+                Id_Usuario = userId.Value,
+                Total_Preguntas = totalEjercicios,
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                Respuestas_Correctas = totalAciertos,
+                Fecha = DateTime.Now,
+                ExperienciaAdquirida = porcentajeGlobal,
+                Tipo_Prueba = tipoPrueba
+            };
+
+            bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
+
             ResultadosSesionMFModel resultadosFinales = new ResultadosSesionMFModel
             {
                 Configuracion = sesionOriginal.Configuracion,
@@ -377,6 +397,8 @@ namespace AnzanMegaArithmetics.Controllers
             try
             {
                 resultados = JsonSerializer.Deserialize<ResultadosSesionMFModel>(resultadosStr);
+                string configStr = JsonSerializer.Serialize(resultados.Configuracion);
+                HttpContext.Session.SetString("ConfigMemoriaFlash", configStr);
             }
             catch (Exception ex)
             {
@@ -385,6 +407,45 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             return View(resultados);
+        }
+
+
+        [HttpPost]
+        public IActionResult RepetirMemoriaFlash()
+        {
+            string resultadosStr = HttpContext.Session.GetString("ResultadosMemoriaFlash");
+
+            if (string.IsNullOrEmpty(resultadosStr))
+            {
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            try
+            {
+                ResultadosSesionMFModel resultadosAnteriores = JsonSerializer.Deserialize<ResultadosSesionMFModel>(resultadosStr);
+                ConfMemoriaFlashModel config = resultadosAnteriores.Configuracion;
+
+                SesionMemoriaFlashModel nuevaSesion = new SesionMemoriaFlashModel
+                {
+                    Configuracion = config,
+                    Ejercicios = GenerarEjercicios(config)
+                };
+
+                string sesionStr = JsonSerializer.Serialize(nuevaSesion);
+                HttpContext.Session.SetString("SesionMemoriaFlash", sesionStr);
+
+                HttpContext.Session.Remove("ResultadosMemoriaFlash");
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
+
+                return View("ConcentracionMemoriaFlash");
+            }
+            catch (Exception)
+            {
+                HttpContext.Session.Remove("ResultadosMemoriaFlash");
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
         }
 
 
