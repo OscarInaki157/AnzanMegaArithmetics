@@ -270,6 +270,7 @@ namespace AnzanMegaArithmetics.Controllers
             try
             {
                 SesionMemoriaFlashModel sesionDeserializada = JsonSerializer.Deserialize<SesionMemoriaFlashModel>(sesionStr);
+                ViewData["FigurasPorDigito"] = FigurasPorDigito;
                 return View(sesionDeserializada);
             }
             catch (Exception ex)
@@ -278,6 +279,115 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("FormularioMemoriaFlash");
             }
         }
+
+        [HttpPost]
+        public IActionResult CalificarRespuestasFlash(RespuestasSesionMFModel respuestasModel)
+        {
+            
+            string sesionStr = HttpContext.Session.GetString("SesionMemoriaFlash");
+
+            if (string.IsNullOrEmpty(sesionStr) || respuestasModel?.Respuestas == null || respuestasModel.Respuestas.Count == 0)
+            {
+                
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            SesionMemoriaFlashModel sesionOriginal;
+            try
+            {
+                sesionOriginal = JsonSerializer.Deserialize<SesionMemoriaFlashModel>(sesionStr);
+            }
+            catch
+            {
+                
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            
+            int totalAciertos = 0;
+            List<ResultadoEjercicioMFModel> resultadosDetalle = new List<ResultadoEjercicioMFModel>();
+
+            
+            var ejercicioMap = sesionOriginal.Ejercicios.ToDictionary(e => e.Id_Ejercicio, e => e);
+
+            // 3. Calificar cada respuesta del usuario
+            foreach (var respuestaUsuario in respuestasModel.Respuestas)
+            {
+                if (ejercicioMap.TryGetValue(respuestaUsuario.Id_Ejercicio, out var ejercicioOriginal))
+                {
+                    // La respuesta correcta es EjercicioNumero
+                    bool respondido = respuestaUsuario.RespuestaUsuario != -1;
+                    bool esCorrecto = false;
+
+                    if (respondido)
+                    {
+                        esCorrecto = (ejercicioOriginal.EjercicioNumero == respuestaUsuario.RespuestaUsuario);
+                    }
+
+                    if (esCorrecto)
+                    {
+                        totalAciertos++;
+                    }
+
+                    resultadosDetalle.Add(new ResultadoEjercicioMFModel
+                    {
+                        
+                        Id_Ejercicio = ejercicioOriginal.Id_Ejercicio,
+                        EjercicioNumero = ejercicioOriginal.EjercicioNumero,
+                        Digitos = ejercicioOriginal.Digitos,
+                        ColorClase = ejercicioOriginal.ColorClase,
+                        ParejaMemoriaRuta = ejercicioOriginal.ParejaMemoriaRuta,
+
+                        // Propiedades específicas de ResultadoEjercicioMFModel
+                        RespuestaUsuario = respuestaUsuario.RespuestaUsuario,
+                        EsCorrecto = esCorrecto,
+                        Respondido = respondido
+                    });
+                }
+            }
+
+            
+            ResultadosSesionMFModel resultadosFinales = new ResultadosSesionMFModel
+            {
+                Configuracion = sesionOriginal.Configuracion,
+                TotalEjercicios = sesionOriginal.Ejercicios.Count,
+                TotalAciertos = totalAciertos,
+                ResultadosEjercicios = resultadosDetalle
+            };
+
+            
+            string resultadosStr = JsonSerializer.Serialize(resultadosFinales);
+            HttpContext.Session.SetString("ResultadosMemoriaFlash", resultadosStr);
+
+            
+            return RedirectToAction("ResultadosMemoriaFlash");
+        }
+
+        [HttpGet]
+        public IActionResult ResultadosMemoriaFlash()
+        {
+            string resultadosStr = HttpContext.Session.GetString("ResultadosMemoriaFlash");
+
+            if (string.IsNullOrEmpty(resultadosStr))
+            {
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            ResultadosSesionMFModel resultados;
+            try
+            {
+                resultados = JsonSerializer.Deserialize<ResultadosSesionMFModel>(resultadosStr);
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Session.Remove("ResultadosMemoriaFlash");
+                return RedirectToAction("FormularioMemoriaFlash");
+            }
+
+            return View(resultados);
+        }
+
+
 
 
     }

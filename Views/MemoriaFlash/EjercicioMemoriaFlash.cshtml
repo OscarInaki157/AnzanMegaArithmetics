@@ -10,7 +10,7 @@
 }
 
 <div class="top-bar">
-    <form method="post" action="/Flash/FinalizarDesdeEjercicio" class="form-fin">
+    <form method="get" action="@Url.Action("RespuestaMemoriaFlash", "MemoriaFlash")" class="form-fin">
         <button type="submit" class="btn-finalizar">
             ❌ <span>Finalizar</span>
         </button>
@@ -521,7 +521,6 @@
             soundIcon.textContent = isSoundActive ? "🔊" : "🔇";
         }
 
-        // Manejo del estado suspendido del AudioContext (usando cualquier interacción)
         window.addEventListener("pointerdown", () => {
              if (audioCtx.state === "suspended") {
                  audioCtx.resume();
