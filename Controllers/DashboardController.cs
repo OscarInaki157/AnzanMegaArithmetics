@@ -204,22 +204,38 @@ namespace AnzanMegaArithmetics.Controllers
             }
         }
 
-        private string SetFraseBienvenida(string nombre)
+        private string SetFraseBienvenida(string nombreCompleto)
         {
-            string FraseBienvenida = string.Empty;
+            string primerNombre;
+            int indiceEspacio = nombreCompleto.IndexOf(' ');
+
+            if (indiceEspacio > 0)
+            {
+                primerNombre = nombreCompleto.Substring(0, indiceEspacio);
+            }
+            else
+            {
+                primerNombre = nombreCompleto;
+            }
+
+            if (string.IsNullOrEmpty(primerNombre))
+            {
+                primerNombre = "Usuario";
+            }
+
             var frases = new List<string>
             {
-                $"¡Hola {nombre}, bienvenido a Mentes México!",
-                $"¡{nombre}, hoy es un gran día para aprender!",
-                $"¡Tu mente es poderosa, {nombre}!",
-                $"¡Listo para un nuevo desafío, {nombre}!",
-                $"¡Vamos a hacer magia con los números, {nombre}!",
-                $"¡Cada clic te acerca a la maestría, {nombre}!"
+                $"¡Hola {primerNombre}, bienvenido a Mentes México!",
+                $"¡{primerNombre}, hoy es un gran día para aprender!",
+                $"¡Tu mente es poderosa, {primerNombre}!",
+                $"¡Listo para un nuevo desafío, {primerNombre}!",
+                $"¡Vamos a hacer magia con los números, {primerNombre}!",
+                $"¡Cada clic te acerca a la maestría, {primerNombre}!"
             };
 
             var random = new Random();
             int index = random.Next(frases.Count);
-            FraseBienvenida = frases[index];
+            string FraseBienvenida = frases[index];
 
             return FraseBienvenida;
         }

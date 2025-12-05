@@ -670,11 +670,10 @@
                 position: absolute;
                 bottom: 69%;
                 left: 55%;
-                width: 0;
-                height: 0;
-                border-left: 10px solid transparent;
-                border-right: 10px solid transparent;
-                border-top: 10px solid var(--color-primary);
+                width: 1rem;
+                height: 1rem;
+                background-color: var(--color-primary);
+                border-radius: 50%;
             }
 
         .character-section {
@@ -1553,13 +1552,13 @@
             });
 
             document.addEventListener('keydown', function(e) {
-                if (
-                    e.key === 'F12' ||
-                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                    (e.ctrlKey && e.key === 'U')
-                ) {
-                    e.preventDefault();
-                }
+                 if (
+                     e.key === 'F12' ||
+                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                     (e.ctrlKey && e.key === 'U')
+                 ) {
+                     e.preventDefault();
+                 }
             });
         });
     </script>
