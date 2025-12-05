@@ -10,6 +10,7 @@ namespace AnzanMegaArithmetics.Services
         public bool UltimaConexion(LoginResponseModel user);
         public List<RankingUsersModel> ObtenerRankingUsuarios(int cantidad = 0);
         public List<RankingSlideModel> ObtenerRankingsSlider(int cantidad = 10);
+        public RankingSlideModel ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10);
         public int ListarUsersTotales();
         public ListUsersModel ObtenerUsuarios();
         public string ActualizarUser(ActualizarUsuarioModel actualizar);

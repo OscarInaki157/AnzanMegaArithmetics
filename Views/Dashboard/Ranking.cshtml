@@ -51,7 +51,6 @@
     <div class="global-ranking-container" id="rankingCardContainer">
 
         <div class="ranking-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1rem;">
-
             <button class="slider-nav-btn" onclick="cambiarSlideDashboard(-1)">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
@@ -59,8 +58,13 @@
             <div style="text-align: center; flex: 1; overflow: hidden;">
                 <h2 class="ranking-title slide-anim" id="lblDashTitle" style="font-size: 1.5rem; margin: 0;">Cargando...</h2>
                 <div class="ranking-subtitle slide-anim" id="lblDashSubtitle" style="font-size: 0.85rem; color: #a0a0c0;">...</div>
-
                 <div id="dashDots" class="slider-dots" style="justify-content: center; margin-top: 5px; display: flex; gap: 4px;"></div>
+
+                <div id="dashFilters" class="ranking-filters" style="margin-top: 10px; display: flex; justify-content: center; gap: 8px;">
+                    <button class="filter-btn active" data-periodo="Global" onclick="filtrarRankingDashboard('Global', this)">Global</button>
+                    <button class="filter-btn" data-periodo="Mensual" onclick="filtrarRankingDashboard('Mensual', this)">Mensual</button>
+                    <button class="filter-btn" data-periodo="Semanal" onclick="filtrarRankingDashboard('Semanal', this)">Semanal</button>
+                </div>
             </div>
 
             <button class="slider-nav-btn" onclick="cambiarSlideDashboard(1)">
@@ -130,7 +134,10 @@
     // 1. Datos del Dashboard (Top 10) - Vienen directo del Controller
     let dashData = @Html.Raw(ViewBag.RankingJson ?? "[]");
     let dashIndex = 0;
+    let dashPeriodo = 'Global';
+    let dashCache = {};
 
+    let dashOriginalData = [];
     // 2. Datos del Modal (Top 50) - Se cargarán via AJAX
     let modalData = [];
     let modalIndex = 0;
@@ -139,10 +146,10 @@
     // --- AL INICIAR LA PÁGINA ---
     document.addEventListener("DOMContentLoaded", function() {
         if(dashData && dashData.length > 0) {
-            // Pre-procesar Ranking Original (1, 2, 3...)
             dashData.forEach(cat => {
                 cat.Datos.forEach((u, i) => u.RankOriginal = i + 1);
             });
+            dashOriginalData = JSON.parse(JSON.stringify(dashData));
             renderDashboard();
             generarDots('dashDots', dashData.length, dashIndex);
         } else {
@@ -158,17 +165,21 @@
         if(dashIndex >= dashData.length) dashIndex = 0;
         if(dashIndex < 0) dashIndex = dashData.length - 1;
 
+        dashPeriodo = 'Global';
+
+        // Resetear botones
+        document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('#dashFilters .filter-btn[data-periodo="Global"]').classList.add('active');
+
         renderDashboard();
         actualizarDots('dashDots', dashIndex);
     }
 
-        // ==========================================
+    // ==========================================
     // LÓGICA DEL DASHBOARD (SLIDER PEQUEÑO)
     // ==========================================
 
-    // Helper para generar el HTML del podio (reutilizado)
     function getPodiumHtml(u, cls, crown=false) {
-        // [Se mantiene exactamente igual que en el helper]
         return `<div class="podium-column ${cls}">
             <div class="podium-player-card">
                 ${crown ? '<div class="crown-icon">👑</div>' : ''}
@@ -178,6 +189,93 @@
             </div>
             <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
         </div>`;
+    }
+
+        // ==========================================
+    // LÓGICA DE FILTRADO AJAX (COMPLETA)
+    // ==========================================
+    function filtrarRankingDashboard(periodo, button) {
+        const catActual = dashData[dashIndex];
+        if (!catActual || !catActual.Titulo) return;
+
+        // 1. Marcar el botón activo
+        document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        // ⭐️ LÓGICA DE RESTAURACIÓN GLOBAL ⭐️
+        if (periodo === 'Global') {
+            // Si ya estamos en Global, no hacemos nada para evitar recarga innecesaria
+            if (dashPeriodo === 'Global') return;
+
+            dashPeriodo = 'Global'; // Establecer el estado
+
+            // Obtener el slide original (unfiltered) de la categoría actual desde la copia
+            const originalSlide = dashOriginalData[dashIndex];
+
+            // 1. Restaurar los Datos: Sobrescribir los datos modificados con los originales
+            catActual.Datos = originalSlide.Datos;
+
+            // 2. Restaurar el Título
+            catActual.Titulo = originalSlide.Titulo;
+            document.getElementById('lblDashTitle').innerText = catActual.Titulo;
+
+            renderDashboard();
+            return;
+        }
+   
+        if (dashPeriodo === periodo) return;
+
+
+        const actividadNombre = catActual.Titulo.replace('📊 ', '').replace('🌍 ', '').trim();
+        const cacheKey = `${actividadNombre}_${periodo}`;
+
+        dashPeriodo = periodo;
+
+        const container = document.getElementById('dashTableContainer');
+
+
+        // 3. Usar caché si está disponible
+        if (dashCache[cacheKey]) {
+            catActual.Datos = dashCache[cacheKey].Datos;
+            renderDashboard();
+            document.getElementById('lblDashTitle').innerText = dashCache[cacheKey].Titulo;
+            return;
+        }
+
+
+        // 4. Si no está en caché y no es Global, llamar a AJAX
+        container.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando...</div>';
+
+        fetch(`@Url.Action("ObtenerRankingFiltrado", "Dashboard")?periodo=${periodo}&actividad=${actividadNombre}&cantidad=10`)
+            .then(r => {
+                if (!r.ok) {
+                    // Manejar errores HTTP (como 404, 500)
+                    throw new Error(`Error HTTP: ${r.status}`);
+                }
+                return r.json();
+            })
+            .then(data => {
+                if (!data.Datos || data.Datos.length === 0) {
+                     container.innerHTML = '<div class="no-data" style="text-align:center; padding:1rem;">Aún no hay registros en este periodo.</div>';
+                     // Usar el título devuelto por C# (ej: "Fingermath Lectura (Mensual)")
+                     document.getElementById('lblDashTitle').innerText = data.Titulo || catActual.Titulo + ` (${periodo})`;
+                     return;
+                }
+                // Pre-procesar Ranking Filtrado (RankOriginal)
+                data.Datos.forEach((u, i) => u.RankOriginal = i + 1);
+
+                // Almacenar en el caché y actualizar los datos del slide activo
+                dashCache[cacheKey] = data;
+                catActual.Datos = data.Datos;
+
+                // Renderizar con los nuevos datos y actualizar el título
+                renderDashboard();
+                document.getElementById('lblDashTitle').innerText = data.Titulo;
+            })
+            .catch(e => {
+                container.innerHTML = `<div class="no-data">Error al cargar el ranking ${periodo}.</div>`;
+                console.error("Error al cargar ranking filtrado:", e);
+            });
     }
 
     function renderDashboard() {
@@ -412,6 +510,33 @@
 </script>
 
 <style>
+
+.ranking-filters {
+    margin-top: 10px;
+}
+
+.filter-btn {
+    background: rgba(76, 76, 255, 0.1);
+    border: 1px solid rgba(76, 76, 255, 0.5);
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(76, 76, 255, 0.3);
+}
+
+.filter-btn.active {
+    background: var(--color-primary, #4facfe);
+    border-color: var(--color-primary, #4facfe);
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
+}
+
     /* Estilos Optimizado para las Flechas de Navegación */
     .slider-nav-btn {
         /* Fondo semi-transparente para integrarse al ambiente oscuro */

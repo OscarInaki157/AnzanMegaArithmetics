@@ -200,6 +200,29 @@ namespace AnzanMegaArithmetics.Services
         {
             var slides = new List<RankingSlideModel>();
 
+            var ordenDeseado = new Dictionary<string, int>
+            {
+                { "🌍 Ranking Global", 1 },
+                { "Fingermath Lectura", 2 },
+                { "Fingermath Escritura", 3 },
+                { "Soroban Lectura", 4 },
+                { "Soroban Escritura", 5 },
+                { "Suma Resta", 6 },
+                { "Números Flash", 7 },
+                { "Tablas de Multiplicar", 8 },
+                { "Multiplicación", 9 },
+                { "Número Figura", 10 },
+                { "CalendarioMental - ", 11 },
+                { "Calendario Mental - Competencia", 12 },
+                { "Cuadros Práctica", 13 },
+                { "Potencias - ", 14 },
+                { "Potencias - Competencia", 15 },
+                { "Raíces - ", 16 },
+                { "Raíces - Competencia", 17 },
+            };
+
+            const int ORDEN_POR_DEFECTO = 100;
+
             try
             {
                 var globalUsers = _context.Usuarios
@@ -218,7 +241,13 @@ namespace AnzanMegaArithmetics.Services
                     })
                     .ToList();
 
-                slides.Add(new RankingSlideModel { Titulo = "🌍 Ranking Global", Datos = globalUsers });
+                var globalTitulo = "🌍 Ranking Global";
+                slides.Add(new RankingSlideModel
+                {
+                    Titulo = globalTitulo,
+                    Datos = globalUsers, 
+                    Orden = ordenDeseado.GetValueOrDefault(globalTitulo, ORDEN_POR_DEFECTO)
+                });
 
                 var actividades = _context.Pruebas
                     .Where(p => p.Activo)
@@ -242,12 +271,16 @@ namespace AnzanMegaArithmetics.Services
 
                 foreach (var act in actividades)
                 {
+                    int orden = ordenDeseado.GetValueOrDefault(act.NombreActividad, ORDEN_POR_DEFECTO);
+
                     slides.Add(new RankingSlideModel
                     {
                         Titulo = "📊 " + act.NombreActividad,
-                        Datos = act.TopUsuarios
+                        Datos = act.TopUsuarios,
+                        Orden = orden
                     });
                 }
+                slides = slides.OrderBy(s => s.Orden).ToList();
             }
             catch (Exception ex)
             {
@@ -256,6 +289,59 @@ namespace AnzanMegaArithmetics.Services
             }
 
             return slides;
+        }
+
+
+        public RankingSlideModel ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10) 
+        {
+            DateTime fechaInicio;
+            string tituloPeriodo;
+
+            if (periodo.Equals("Semanal", StringComparison.OrdinalIgnoreCase))
+            {
+                fechaInicio = DateTime.Today.AddDays(-7);
+                tituloPeriodo = "Semanal";
+            }
+            else if (periodo.Equals("Mensual", StringComparison.OrdinalIgnoreCase))
+            {
+                fechaInicio = DateTime.Today.AddDays(-30);
+                tituloPeriodo = "Mensual";
+            }
+            else
+            {
+                return new RankingSlideModel { Titulo = "Periodo no válido", Datos = new List<RankingUsersModel>() };
+            }
+
+            var baseQuery = _context.Pruebas.Where(p => p.Activo && p.Fecha >= fechaInicio);
+
+            if (!actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase))
+            {
+                baseQuery = baseQuery.Where(p => p.Tipo_Prueba.Equals(actividad));
+            }
+
+            var topUsuariosFiltrado = baseQuery
+            .GroupBy(p => p.Id_Usuario)
+            .Select(gUser => new RankingUsersModel
+            {
+                Id_Usuario = gUser.Key,
+                Nombre = gUser.FirstOrDefault().Usuario.Nombre,
+                Gamer_Tag = gUser.FirstOrDefault().Usuario.Gamer_Tag,
+                Exp = gUser.Sum(x => x.ExperienciaAdquirida)
+            })
+            .OrderByDescending(u => u.Exp)
+            .Take(cantidad)
+            .ToList();
+
+                string prefijo = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "🌍" : "📊";
+                string tituloFinal = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "Ranking Global" : actividad;
+
+
+                return new RankingSlideModel
+                {
+                    Titulo = $"{prefijo} {tituloFinal} ({tituloPeriodo})",
+                    Datos = topUsuariosFiltrado
+                };
+
         }
 
         //CRUD de usuarios para el panel de administración

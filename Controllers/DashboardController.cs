@@ -83,6 +83,23 @@ namespace AnzanMegaArithmetics.Controllers
             });
         }
 
+        [HttpGet]
+        public IActionResult ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10) 
+        {
+            if (string.IsNullOrEmpty(periodo) || string.IsNullOrEmpty(actividad))
+            {
+                return BadRequest(new { Datos = new List<RankingUsersModel>(), Titulo = "Error en la solicitud" });
+            }
+
+            RankingSlideModel slideFiltrado = usersDBService.ObtenerRankingFiltrado(periodo, actividad, cantidad);
+
+            return Json(slideFiltrado, new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null
+            });
+
+        }
+
         public IActionResult Dashboard()
         {
             var userInfo = GetUserInfo();
