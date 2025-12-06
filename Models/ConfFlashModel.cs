@@ -22,6 +22,7 @@ namespace AnzanMegaArithmetics.Models
         public int TiempoMeditacion { get; set; }
         [Required]
         public bool ActivarSonido { get; set; } = true;
-
+        public string ColorA { get; set; } = string.Empty;
+        public string ColorB { get; set; } = string.Empty;
     }
 }

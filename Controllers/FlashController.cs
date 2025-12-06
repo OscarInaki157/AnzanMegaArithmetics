@@ -70,7 +70,9 @@ namespace AnzanMegaArithmetics.Controllers
                 DigitosSuma = "1,2,3,4,5,6,7,8,9",
                 DigitosResta = "1,2,3,4,5,6,7,8,9",
                 MinDigitos = 1,
-                MaxDigitos = 1
+                MaxDigitos = 1,
+                ColorA = "color1",
+                ColorB = "color2"
             };
         }
 
@@ -249,6 +251,10 @@ namespace AnzanMegaArithmetics.Controllers
 
             var velocidad = TempData["VelocidadPreguntas"]?.ToString() ?? "1.0";
             var total = numeros.Count;
+
+            //colores
+            ViewBag.ColorA = config.ColorA;
+            ViewBag.ColorB = config.ColorB;
 
             ViewBag.Velocidad = float.Parse(velocidad, System.Globalization.CultureInfo.InvariantCulture);
             ViewBag.TotalEjercicios = total;

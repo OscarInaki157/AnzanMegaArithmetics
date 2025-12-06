@@ -4,6 +4,25 @@
     var velocidad = ViewBag.Velocidad;
     var totalEjercicios = ViewBag.TotalEjercicios;
     var secuenciaJson = ViewBag.Secuencia.ToString();
+
+    var colorA_key = ViewBag.ColorA as string ?? "color1";
+    var colorB_key = ViewBag.ColorB as string ?? "color2";
+
+    Func<string, (string hex, string rgb)> getColorMapping = (key) => key switch
+    {
+        "color1" => ("#ffffff", "255, 255, 255"),
+        "color2" => ("#28a745", "40, 167, 69"),
+        _ => ("#ffffff", "255, 255, 255")
+    };
+
+    var mappingA = getColorMapping(colorA_key);
+    var mappingB = getColorMapping(colorB_key);
+
+    var colorA_hex = mappingA.hex;
+    var shadowA_rgb = mappingA.rgb;
+
+    var colorB_hex = mappingB.hex;
+    var shadowB_rgb = mappingB.rgb;
 }
 
 <div class="top-bar">
@@ -29,6 +48,16 @@
 
 
 <style>
+
+    .color-a {
+        color: @colorA_hex;
+        text-shadow: 0 0 40px rgba( @shadowA_rgb, 0.9), 0 0 20px rgba( @shadowA_rgb, 0.7);
+    }
+
+    .color-b {
+        color: @colorB_hex;
+        text-shadow: 0 0 40px rgba( @shadowB_rgb, 0.9), 0 0 20px rgba( @shadowB_rgb, 0.7);
+    }
 
     body {
         background-color: var(--color-bg);
@@ -113,18 +142,6 @@
         text-align: center;
         padding: 1rem;
     }
-
-    .color-a {
-        color: var(--color-light);
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-    }
-
-    .color-b {
-        color: #28a745;
-        text-shadow: 0 0 15px rgba(124, 252, 181, 0.4);
-    }
-
-
 
     .flash-wrapper {
         flex: 1;

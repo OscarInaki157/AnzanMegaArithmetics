@@ -130,12 +130,26 @@
                 </select>
             </div>
 
-            <div>
-                <label>Colores:</label>
-                <select>
-                    <option>Default</option>
-                </select>
-            </div>
+                <div id="controlColores">
+                    <label>Colores de los dígitos:</label>
+                    <div class="contenedorColores">
+                        <div class="color">
+                            <label>Color A:</label>
+                            <select name="colorA" id="colorA">
+                                <option value="color1" selected="@(Model.ColorA == "color1")">Blanco (default)</option>
+                                <option value="color2" selected="@(Model.ColorA == "color2")">Verde (default)</option>
+                            </select>
+                        </div>
+                        <div class="color">
+                            <label>Color B:</label>
+                            <select name="colorB" id="colorB">
+                                <option value="color1" selected="@(Model.ColorB == "color1")">Blanco (default)</option>
+                                <option value="color2" selected="@(Model.ColorB == "color2")">Verde (default)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
 
             <div>
                 <button type="submit" class="btn btn-primary">⚡ Iniciar ejercicios</button>
@@ -150,6 +164,15 @@
 
 
 <style>
+
+    .contenedorColores{
+        display:flex;
+        flex-direction:row;
+    }
+
+    .color{
+        width:50%;
+    }
 
     body {
         background-color: var(--color-bg);
