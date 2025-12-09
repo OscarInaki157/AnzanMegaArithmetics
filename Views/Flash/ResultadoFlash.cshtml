@@ -25,13 +25,18 @@
 
     var barraColor = porcentajeGlobal >= 79 ? "#28a745" : porcentajeGlobal >= 49 ? "#ffc107" : "#dc3545";
     var textoResultado = !Model.Respondido ? "No respondiste" : (correcto ? "✅ ¡Correcto!" : "❌ Incorrecto");
+
+    var configStr = Context.Session.GetString("ConfFlash");
+    var config = string.IsNullOrEmpty(configStr)
+        ? new AnzanMegaArithmetics.Models.ConfFlashModel()
+        : System.Text.Json.JsonSerializer.Deserialize<AnzanMegaArithmetics.Models.ConfFlashModel>(configStr);
+
+    var modoFlash = config.ModoFlash;
 }
 
-@* <h1>📊 Resumen del Ejercicio</h1>
-<hr /> *@
-
 <div class="botones-centrados">
-    <form method="get" asp-action="FormularioFlash">
+    <form method="get" asp-action="RegresarAConfiguracion">
+        <input type="hidden" name="modo" value="@modoFlash" />
         <button type="submit" class="btn-dashboard btn-primary">⚙️ Configuración</button>
     </form>
     <form method="get" asp-action="Concentracion">

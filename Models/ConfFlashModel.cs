@@ -24,5 +24,11 @@ namespace AnzanMegaArithmetics.Models
         public bool ActivarSonido { get; set; } = true;
         public string ColorA { get; set; } = string.Empty;
         public string ColorB { get; set; } = string.Empty;
+        [Required]
+        public bool ActivarDictado { get; set; } = false;
+        [Required]
+        public bool MostrarNumeros { get; set; } = true;
+        [Required]
+        public string ModoFlash { get; set; } = string.Empty;
     }
 }

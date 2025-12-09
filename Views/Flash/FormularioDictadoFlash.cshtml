@@ -10,59 +10,67 @@
 
 <div id="contenedorConfiguracionFlash">
 
-<form method="post" action="/Flash/Concentracion" id="formConfigSR" class="formulario-flash">
+    <form method="post" action="/Flash/Concentracion" id="formConfigSR" class="formulario-flash">
 
-    <div class="form-header">
+        <div class="form-header">
             <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
                 <i class="fas fa-home"></i> Regresar al Dashboard
             </button>
-            <h2>Ajustes Números Flash</h2>
-    </div>
+            <h2>Ajustes Dictado Flash</h2>
+        </div>
 
         <div class="form-grid-three-columns">
-        <div class="form-column">
-            <div>
-                <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
-                <input type="number"
+            <div class="form-column">
+                <div>
+                    <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
+                    <input type="number"
                            name="cantidadEjercicios"
                            id="cantidadEjerciciosInput"
                            min="2"
                            max="100"
                            value="@(cantidad >= 2 && cantidad <= 100 ? cantidad : 5)"
                            required />
-            </div>
-
-            <div>
-                <label>Número mínimo de dígitos:</label>
-                <select name="minDigitos" id="minDigitosSelect">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
-                    }
-                </select>
-            </div>
-
-            <div>
-                <label>Número máximo de dígitos:</label>
-                <select name="maxDigitos" id="maxDigitosSelect">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
-                    }
-                </select>
-            </div>
-
-            <div>
-                <label>Velocidad entre números:</label>
-                <div class="elslider">
-                    <input type="range" id="velocidadSlider" min="0.1" max="10" step="0.1" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
-                    <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0.1" max="10" step="0.1" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
                 </div>
+
+                <div>
+                    <label>Número mínimo de dígitos:</label>
+                    <select name="minDigitos" id="minDigitosSelect">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <option value="@i" selected="@(Model.MinDigitos == i)">@i</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label>Número máximo de dígitos:</label>
+                    <select name="maxDigitos" id="maxDigitosSelect">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <option value="@i" selected="@(Model.MaxDigitos == i)">@i</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label>Velocidad entre números:</label>
+                    <div class="elslider">
+                        <input type="range" id="velocidadSlider" min="0.1" max="10" step="0.1" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
+                        <input type="number" id="velocidadInput" name="velocidadPreguntas" min="0.1" max="10" step="0.1" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
+                    </div>
+                </div>
+
+                <div>
+                    <label>Mostrar Números:</label>
+                    <div class="checks">
+                        <label><input type="radio" name="mostrarNumeros" id="mostrarSi" value="true" @(Model.MostrarNumeros ? "checked" : "") /> Sí</label>
+                        <label><input type="radio" name="mostrarNumeros" id="mostrarNo" value="false" @(!Model.MostrarNumeros ? "checked" : "") /> No</label>
+                    </div>
+                </div>
+
             </div>
 
-        </div>
-        
-        <div class="form-column">
+            <div class="form-column">
 
                 <div>
                     <label>Tipo de operación:</label>
@@ -107,31 +115,31 @@
                     </div>
                 </div>
 
-        </div>
+            </div>
 
-        <div class="form-column">
+            <div class="form-column">
+
+                <input type="hidden" name="activarSonido" value="false" />
 
                 <div>
-                    <label>Activar sonido:</label>
+                    <label>Activar dictado:</label>
                     <div class="checks">
-                        <label><input type="radio" name="activarSonido" value="true" @(Model.ActivarSonido ? "checked" : "") /> Sí</label>
-                        <label><input type="radio" name="activarSonido" value="false" @(!Model.ActivarSonido ? "checked" : "") /> No</label>
+                        <label><input type="radio" name="activarDictado" id="dictadoSi" value="true" @(Model.ActivarDictado ? "checked" : "") /> Sí</label>
+                        <label><input type="radio" name="activarDictado" id="dictadoNo" value="false" @(!Model.ActivarDictado ? "checked" : "") /> No</label>
                     </div>
                 </div>
-           
-                <input type="hidden" name="activarDictado" value="false" />
-                <input type="hidden" name="mostrarNumeros" value="True" />
-                <input type="hidden" name="modoFlash" value="Normal" />
 
-            <div>
-                <label>Tiempo de concentración:</label>
-                <select name="tiempoMeditacion" required>
-                    @foreach (var val in new[] { 0, 3, 5, 8, 10 })
-                    {
-                        <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
-                    }
-                </select>
-            </div>
+                <input type="hidden" name="modoFlash" value="Dictado" />
+
+                <div>
+                    <label>Tiempo de concentración:</label>
+                    <select name="tiempoMeditacion" required>
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                        }
+                    </select>
+                </div>
 
                 <div id="controlColores">
                     <label>Colores de los dígitos:</label>
@@ -154,27 +162,27 @@
 
                 </div>
 
-            <div>
-                <button type="submit" class="btn btn-primary">⚡ Iniciar ejercicios</button>
+                <div>
+                    <button type="submit" class="btn btn-primary">⚡ Iniciar ejercicios</button>
+                </div>
+
             </div>
 
         </div>
-
-    </div>
-</form>
+    </form>
 
 </div>
 
 
 <style>
 
-    .contenedorColores{
-        display:flex;
-        flex-direction:row;
+    .contenedorColores {
+        display: flex;
+        flex-direction: row;
     }
 
-    .color{
-        width:50%;
+    .color {
+        width: 50%;
     }
 
     body {
@@ -700,11 +708,11 @@
         // window.addEventListener('load', function () {
         //     const contenedor = document.getElementById('contenedorConfiguracionFlash');
         //     if (contenedor) {
-              
+
         //         contenedor.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        //         window.scrollBy(0, -40); 
-   
+        //         window.scrollBy(0, -40);
+
         //     }
         // });
 
@@ -727,6 +735,42 @@
         function regresarAlDashboard() {
             window.location.href = '@Url.Action("LimpiarFlashYDashboard", "Flash")';
         }
+
+                // -----------------------------------------------------------
+        // --- LÓGICA DE SINCRONIZACIÓN BIDIRECCIONAL ---
+        // -----------------------------------------------------------
+
+        function sincronizarReglas() {
+            // 1. Obtener el estado actual de los cuatro botones
+            const dictadoSi = document.getElementById("dictadoSi");
+            const dictadoNo = document.getElementById("dictadoNo");
+            const mostrarSi = document.getElementById("mostrarSi");
+            const mostrarNo = document.getElementById("mostrarNo");
+
+            // 2. Definir el estado prohibido
+            const ambosInactivos = dictadoNo.checked && mostrarNo.checked;
+
+            // 3. Aplicar la corrección si detectamos el estado prohibido
+            if (ambosInactivos) {
+                if (mostrarNo.checked) {
+                    dictadoSi.checked = true;
+                    dictadoNo.checked = false;
+                }
+
+                if (dictadoNo.checked) {
+                     mostrarSi.checked = true;
+                     mostrarNo.checked = false;
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", sincronizarReglas);
+
+        document.getElementById("dictadoSi").addEventListener("change", sincronizarReglas);
+        document.getElementById("dictadoNo").addEventListener("change", sincronizarReglas);
+
+        document.getElementById("mostrarSi").addEventListener("change", sincronizarReglas);
+        document.getElementById("mostrarNo").addEventListener("change", sincronizarReglas);
 
     </script>
 }

@@ -36,7 +36,6 @@
         🔊
     </div>
 
-
 @*     <div class="info-tiempo">
         <span>⏱ <span id="temporizador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
     </div> *@
@@ -232,17 +231,28 @@
 
 @section Scripts {
     <script>
+        // --- Variables de Configuración ---
         const numeros = @Html.Raw(ViewBag.Secuencia.ToString());
         const velocidad = parseFloat("@ViewBag.Velocidad");
         const tiempoPorNumero = velocidad * 1000;
         const activarSonido = @(((bool)ViewBag.ActivarSonido) ? "true" : "false");
+        const mostrarNumeros = @(((bool)ViewBag.MostrarNumeros) ? "true" : "false");
+        const activarDictado = @(((bool)ViewBag.ActivarDictado) ? "true" : "false");
 
-        let tiempoInicio = null;
-        let ultimoIndiceMostrado = -1;
-        let esperaFinalizada = false;
+        // --- Variables de Estado y Elementos ---
+        let indiceActual = -1;
+        let tiempoInicializado = false;
         const numeroFlash = document.getElementById("numeroFlash");
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance();
+        utterance.lang = 'es-MX';
+
+        const TTS_BASE_RATE = 1.75;
+
+        utterance.rate = Math.min(3.0, TTS_BASE_RATE / velocidad);
 
         function reproducirBeep() {
             const oscillator = audioCtx.createOscillator();
@@ -259,10 +269,24 @@
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        function mostrarNumero(i) {
-            const numero = numeros[i];
-            numeroFlash.textContent = numero >= 0 ? numero : `-${Math.abs(numero)}`;
+        function leerNumero(texto) {
+            if (synth && activarDictado) {
+                utterance.text = texto;
+                synth.speak(utterance);
+            }
+        }
 
+        function mostrarVisual(numero) {
+            if (mostrarNumeros) {
+                numeroFlash.textContent = numero >= 0 ? numero : `-${Math.abs(numero)}`;
+                numeroFlash.style.visibility = "visible";
+            } else {
+                numeroFlash.textContent = "";
+                numeroFlash.style.visibility = "hidden";
+            }
+        }
+
+        function actualizarColor(i) {
             if (i % 2 === 0) {
                 numeroFlash.classList.remove("color-b");
                 numeroFlash.classList.add("color-a");
@@ -270,67 +294,127 @@
                 numeroFlash.classList.remove("color-a");
                 numeroFlash.classList.add("color-b");
             }
-            if (activarSonido) {
-                reproducirBeep();
-            }
         }
 
-        function loop(timestamp) {
-            if (!tiempoInicio) tiempoInicio = timestamp;
+        function loopPorTiempo(timestamp) {
+            if (!tiempoInicializado) tiempoInicializado = timestamp;
 
-            const elapsed = timestamp - tiempoInicio;
+            const elapsed = timestamp - tiempoInicializado;
             const index = Math.floor(elapsed / tiempoPorNumero);
 
             if (index >= numeros.length) {
-                if (!esperaFinalizada) {
-                    // Oculta el número visualmente
-                    numeroFlash.textContent = "";
-                    
-                    esperaFinalizada = true;
-                    setTimeout(() => {
-                        window.location.href = "/Flash/RespuestaFlash";
-                    }, 500);
+                finalizarSecuencia();
+                return;
+            }
+
+            if (index !== indiceActual) {
+                const numero = numeros[index];
+
+                mostrarVisual(numero);
+                actualizarColor(index);
+
+                if (activarSonido) reproducirBeep();
+
+                if (activarDictado) {
+                    synth.cancel();
+                    leerNumero(numero.toString());
                 }
-                return; 
+
+                indiceActual = index;
             }
 
-            if (index !== ultimoIndiceMostrado) {
-                mostrarNumero(index);
-                ultimoIndiceMostrado = index;
+            requestAnimationFrame(loopPorTiempo);
+        }
+
+        function avanzarPorVoz() {
+            indiceActual++;
+
+            if (indiceActual >= numeros.length) {
+                finalizarSecuencia();
+                return;
             }
 
-            requestAnimationFrame(loop);
+            const numero = numeros[indiceActual];
+
+            mostrarVisual(numero);
+            actualizarColor(indiceActual);
+            leerNumero(numero.toString());
+        }
+
+        if (activarDictado) {
+            utterance.onend = () => {
+                setTimeout(avanzarPorVoz, 50);
+            };
+        }
+
+
+        function finalizarSecuencia() {
+            if (indiceActual === numeros.length - 1 || indiceActual === numeros.length) {
+                numeroFlash.textContent = "";
+                numeroFlash.style.visibility = "hidden";
+
+                if (synth) synth.cancel();
+
+                // Redireccionar
+                setTimeout(() => {
+                    window.location.href = "/Flash/RespuestaFlash";
+                }, 500);
+            }
+        }
+
+
+        function iniciarEjercicio() {
+            const iconoSonido = document.getElementById("iconoSonido");
+
+            if (activarDictado) {
+                iconoSonido.textContent = "🎤";
+                iconoSonido.classList.add("activo");
+            } else if (activarSonido) {
+                iconoSonido.textContent = "🔊";
+                iconoSonido.classList.add("activo");
+            } else {
+                iconoSonido.textContent = "🔇";
+                iconoSonido.classList.remove("activo");
+            }
+
+            if (!mostrarNumeros) {
+                numeroFlash.style.visibility = "hidden";
+            }
+
+            if (activarDictado) {
+                avanzarPorVoz();
+            } else {
+                requestAnimationFrame(loopPorTiempo);
+            }
         }
 
         window.onload = function () {
 
-            //toque falso
             window.addEventListener("pointerdown", () => {
                 if (audioCtx.state === "suspended") {
                     audioCtx.resume().then(() => {
-                        reproducirBeep(); // beep inicial fantasma
+                        if (activarSonido) reproducirBeep();
                     });
+                }
+                if (activarDictado && synth.speaking === false) {
+                    synth.speak(new SpeechSynthesisUtterance(""));
                 }
             }, { once: true });
 
-
             setTimeout(() => {
-
-                const iconoSonido = document.getElementById("iconoSonido");
-                if (activarSonido && iconoSonido) {
-                    iconoSonido.textContent = "🔊";
-                    iconoSonido.classList.add("activo");
+                if (activarDictado && synth.getVoices().length === 0) {
+                     synth.onvoiceschanged = () => {
+                         setTimeout(iniciarEjercicio, 500);
+                     };
                 } else {
-                    iconoSonido.textContent = "🔇";
+                    iniciarEjercicio();
                 }
-
-                requestAnimationFrame(loop);
-            }, 500); 
+            }, 500);
         };
 
         window.addEventListener("click", () => {
-        if (audioCtx.state === "suspended") {
-                audioCtx.resume();
+            if (audioCtx.state === "suspended") {
+                 audioCtx.resume();
             }
         }, { once: true });
 

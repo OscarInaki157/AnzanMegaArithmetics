@@ -27,11 +27,59 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpGet]
+        public IActionResult RegresarAConfiguracion(string modo) 
+        {
+            HttpContext.Session.Remove("SecuenciaNumeros");
+            HttpContext.Session.Remove("ResultadoFlash");
+            if (!string.IsNullOrEmpty(modo) && modo.Contains("ictado"))
+            {
+                return RedirectToAction("FormularioDictadoFlash");
+            }
+            else
+            {
+                return RedirectToAction("FormularioFlash");
+            }
+        }
+
+        [HttpGet]
         public IActionResult FormularioFlash()
         {
             var userId = HttpContext.Session.GetInt32("Id_Usuario");
 
             if (userId == null || userId == 0) 
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var configStr = HttpContext.Session.GetString("ConfFlash");
+
+            ConfFlashModel modelo;
+
+            if (!string.IsNullOrEmpty(configStr))
+            {
+                try
+                {
+                    modelo = JsonSerializer.Deserialize<ConfFlashModel>(configStr);
+                }
+                catch
+                {
+                    modelo = ObtenerConfiguracionPorDefecto();
+                }
+            }
+            else
+            {
+                modelo = ObtenerConfiguracionPorDefecto();
+            }
+
+            return View(modelo);
+        }
+
+        [HttpGet]
+        public IActionResult FormularioDictadoFlash()
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
             {
                 return RedirectToAction("Inicio", "Inicio");
             }
@@ -72,7 +120,9 @@ namespace AnzanMegaArithmetics.Controllers
                 MinDigitos = 1,
                 MaxDigitos = 1,
                 ColorA = "color1",
-                ColorB = "color2"
+                ColorB = "color2",
+                ActivarSonido = true,
+                ActivarDictado = false
             };
         }
 
@@ -256,6 +306,11 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.ColorA = config.ColorA;
             ViewBag.ColorB = config.ColorB;
 
+            //Dictado
+            ViewBag.ActivarDictado = config.ActivarDictado;
+            //Mostrar numeros
+            ViewBag.MostrarNumeros = config.MostrarNumeros;
+
             ViewBag.Velocidad = float.Parse(velocidad, System.Globalization.CultureInfo.InvariantCulture);
             ViewBag.TotalEjercicios = total;
             ViewBag.ActivarSonido = config.ActivarSonido;
@@ -384,6 +439,18 @@ namespace AnzanMegaArithmetics.Controllers
                 modelo = ObtenerConfiguracionPorDefecto();
             }
 
+            //tipo prueba
+            string tipoPrueba;
+
+            if (modelo.ModoFlash != null && modelo.ModoFlash.Contains("ictado")) 
+            {
+                tipoPrueba = "Dictado Flash";
+            }
+            else 
+            {
+                tipoPrueba = "Números Flash";
+            }
+
             TimeSpan tiempo;
             if (double.TryParse(modelo.VelocidadPreguntas, out double velocidadSegundos))
             {
@@ -408,7 +475,7 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = fueCorrecta ? 1 : 0,
                 Fecha = DateTime.Now,
                 ExperienciaAdquirida = porcentajeGlobal,
-                Tipo_Prueba = "Números Flash"
+                Tipo_Prueba = tipoPrueba
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
