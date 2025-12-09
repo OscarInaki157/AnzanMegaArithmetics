@@ -282,7 +282,7 @@
     /* Responsive */
     @@media (max-width: 800px) {
         .flash-wrapper-respuestas {
-            flex-direction: column;
+            flex-direction: column-reverse;
             align-items: center;
             padding: 20px 10px;
             gap: 20px;
@@ -319,12 +319,17 @@
         .teclado-contenedor {
             width: 95%;
             max-width: 350px;
-            order: 1; /* Poner el teclado antes de la lista de respuestas en móvil */
+            order: 1;
+            margin-top: 15rem;
         }
 
         .tecla {
             font-size: 2.5rem;
             padding: 0.8rem 1rem;
+        }
+
+        .btn-navegacion{
+            display: none;
         }
     }
 </style>
