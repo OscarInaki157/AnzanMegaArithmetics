@@ -36,9 +36,6 @@
         🔊
     </div>
 
-@*     <div class="info-tiempo">
-        <span>⏱ <span id="temporizador" class="contador">@velocidad.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)</span> s</span>
-    </div> *@
 </div>
 
 <div class="flash-wrapper">
@@ -269,9 +266,29 @@
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        function leerNumero(texto) {
+        // function leerNumero(texto) {
+        //     if (synth && activarDictado) {
+        //         utterance.text = texto;
+        //         synth.speak(utterance);
+        //     }
+        // }
+
+        function leerNumero(i, numero) {
             if (synth && activarDictado) {
-                utterance.text = texto;
+                let textoDictado = "";
+
+                if (i === 0) {
+                    textoDictado = numero.toString();
+                }
+                else if (numero > 0) {
+                    textoDictado = "más " + numero.toString();
+                }
+                else if (numero < 0) {
+                    textoDictado = numero.toString();
+                }
+
+                synth.cancel();
+                utterance.text = textoDictado;
                 synth.speak(utterance);
             }
         }
@@ -317,7 +334,7 @@
 
                 if (activarDictado) {
                     synth.cancel();
-                    leerNumero(numero.toString());
+                    leerNumero(index, numero);
                 }
 
                 indiceActual = index;
@@ -338,7 +355,7 @@
 
             mostrarVisual(numero);
             actualizarColor(indiceActual);
-            leerNumero(numero.toString());
+            leerNumero(indiceActual, numero);
         }
 
         if (activarDictado) {
