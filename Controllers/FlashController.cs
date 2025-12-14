@@ -31,6 +31,7 @@ namespace AnzanMegaArithmetics.Controllers
         {
             HttpContext.Session.Remove("SecuenciaNumeros");
             HttpContext.Session.Remove("ResultadoFlash");
+            HttpContext.Session.Remove("HistorialFlash");
             if (!string.IsNullOrEmpty(modo) && modo.Contains("ictado"))
             {
                 return RedirectToAction("FormularioDictadoFlash");
@@ -96,12 +97,12 @@ namespace AnzanMegaArithmetics.Controllers
                 }
                 catch
                 {
-                    modelo = ObtenerConfiguracionPorDefecto();
+                    modelo = ObtenerConfiguracionDictadoPorDefecto();
                 }
             }
             else
             {
-                modelo = ObtenerConfiguracionPorDefecto();
+                modelo = ObtenerConfiguracionDictadoPorDefecto();
             }
 
             return View(modelo);
@@ -126,10 +127,32 @@ namespace AnzanMegaArithmetics.Controllers
             };
         }
 
+        private ConfFlashModel ObtenerConfiguracionDictadoPorDefecto()
+        {
+            return new ConfFlashModel
+            {
+                CantidadEjercicios = 5,
+                VelocidadPreguntas = "2.0",
+                TiempoMeditacion = 3,
+                TipoOperacion = "suma",
+                DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                DigitosResta = "1,2,3,4,5,6,7,8,9",
+                MinDigitos = 1,
+                MaxDigitos = 1,
+                ColorA = "color1",
+                ColorB = "color2",
+                ActivarSonido = true,
+                ActivarDictado = true
+            };
+        }
+
 
         [HttpGet]
         public IActionResult Concentracion()
         {
+            HttpContext.Session.Remove("ResultadoFlash");
+            HttpContext.Session.Remove("SecuenciaNumeros");
+
             var configStr = HttpContext.Session.GetString("ConfFlash");
             if (string.IsNullOrEmpty(configStr))
                 return RedirectToAction("FormularioFlash");

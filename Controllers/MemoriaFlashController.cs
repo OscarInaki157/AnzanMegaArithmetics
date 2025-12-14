@@ -64,7 +64,7 @@ namespace AnzanMegaArithmetics.Controllers
         {
             return new ConfMemoriaFlashModel
             {
-                CantidadEjercicios = 5,
+                CantidadEjercicios = 20,
                 VelocidadPreguntas = "1",
                 CategoriaEjercicios = "Lista básica",
                 TipoPreguntas = "Números",
@@ -230,7 +230,7 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 case "Lista básica":
                     return ParejasListaBasica;
-                case "Viaje a américa":
+                case "Viaje a América":
                     return ParejasViajeAmerica;
                 default:
                     return ParejasListaBasica;
