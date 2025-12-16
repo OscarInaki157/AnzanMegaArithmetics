@@ -3,13 +3,21 @@
     ViewBag.Title = "Mi perfil";
     Layout = "_LayoutDashboard";
 
-    // Acceder a la lista de retos que pasamos desde el Controller
     var dailyChallenges = ViewBag.DailyChallenges as List<AnzanMegaArithmetics.Models.DailyChallengeViewModel>;
 
-    // Calcular el contador de retos completados
-    // NOTA: Para el contador superior, solo contamos los que fueron reclamados O están completados y listos para reclamar
     int retosCompletados = dailyChallenges?.Count(r => r.FueReclamado || r.EsCompletado) ?? 0;
     int totalRetos = dailyChallenges?.Count ?? 0;
+
+
+
+    string rangoNombre = Model.Rango_Actual ?? "Bronce I";
+    string rangoClase = "";
+    if (rangoNombre.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
+    else if (rangoNombre.Contains("Heroico", StringComparison.OrdinalIgnoreCase)) { rangoClase = "heroic"; }
+    else if (rangoNombre.Contains("Diamante", StringComparison.OrdinalIgnoreCase)) { rangoClase = "diamond"; }
+    else if (rangoNombre.Contains("Oro", StringComparison.OrdinalIgnoreCase)) { rangoClase = "gold"; }
+    else if (rangoNombre.Contains("Plata", StringComparison.OrdinalIgnoreCase)) { rangoClase = "silver"; }
+    else { rangoClase = "bronze"; }
 }
 
 <div class="user-top-info">
@@ -58,8 +66,8 @@
             <div class="R3">
                 <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
             </div>
-            <div class="R2">
-                <p class="txt"><strong>🎖️<br />Bronce I</strong></p>
+            <div class="R2 @rangoClase">
+                <p class="txt"><strong>🎖️<br />@Model.Rango_Actual</strong></p>
             </div>
             <div class="R1">
                 <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>

@@ -35,6 +35,14 @@ namespace AnzanMegaArithmetics.Services
 
                 if (userDB != null)
                 {
+                    string rangoCalculado = CalcularRango(userDB.Experiencia_Total);
+                    
+                    if (string.IsNullOrEmpty(userDB.Rango_Actual) || userDB.Rango_Actual != rangoCalculado)
+                    {
+                        userDB.Rango_Actual = rangoCalculado;
+                        _context.SaveChanges();
+                    }
+
                     response.Id_Usuario = userDB.Id_Usuario;
                     response.Nombre = userDB.Nombre;
                     response.Correo = userDB.Correo;
@@ -81,6 +89,7 @@ namespace AnzanMegaArithmetics.Services
                     response.Racha = userDB.Racha;
                     response.Exp = userDB.Experiencia_Total;
                     response.Ultima_Cnx = userDB.Ultima_Actividad;
+                    response.Rango_Actual = userDB.Rango_Actual;
 
                 }
                 else
@@ -123,6 +132,7 @@ namespace AnzanMegaArithmetics.Services
                         Racha = u.Racha,
                         Exp = u.Experiencia_Total,
                         Ultima_Cnx = u.Ultima_Actividad,
+                        Rango_Actual = u.Rango_Actual,
                         Licencia = u.UsuarioLicencias
                             .Where(ul => ul.Licencia != null)
                             .Select(ul => ul.Licencia.Nombre)
@@ -187,7 +197,8 @@ namespace AnzanMegaArithmetics.Services
                         .Select(uc => uc.Clase.Nombre)
                         .ToList(),
                     Exp = u.Experiencia_Total,
-                    Racha = u.Racha
+                    Racha = u.Racha,
+                    Rango_Actual = u.Rango_Actual
                 }).ToList();
             }
             catch (Exception ex)
@@ -240,7 +251,8 @@ namespace AnzanMegaArithmetics.Services
                         Gamer_Tag = u.Gamer_Tag,
                         Exp = u.Experiencia_Total,
                         Racha = u.Racha,
-                        Clases = u.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre).ToList()
+                        Clases = u.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre).ToList(),
+                        Rango_Actual = u.Rango_Actual
                     })
                     .ToList();
 
@@ -261,7 +273,8 @@ namespace AnzanMegaArithmetics.Services
                         Nombre = u.Nombre,
                         Gamer_Tag = u.Gamer_Tag,
                         Exp = u.Experiencia_Total,
-                        Racha = u.Racha
+                        Racha = u.Racha,
+                        Rango_Actual = u.Rango_Actual
                     })
                     .ToList();
 
@@ -316,7 +329,6 @@ namespace AnzanMegaArithmetics.Services
             return slides;
         }
 
-
         public RankingSlideModel ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10) 
         {
             DateTime fechaInicio;
@@ -351,7 +363,8 @@ namespace AnzanMegaArithmetics.Services
                 Id_Usuario = gUser.Key,
                 Nombre = gUser.FirstOrDefault().Usuario.Nombre,
                 Gamer_Tag = gUser.FirstOrDefault().Usuario.Gamer_Tag,
-                Exp = gUser.Sum(x => x.ExperienciaAdquirida)
+                Exp = gUser.Sum(x => x.ExperienciaAdquirida),
+                Rango_Actual = gUser.FirstOrDefault().Usuario.Rango_Actual,
             })
             .OrderByDescending(u => u.Exp)
             .Take(cantidad)
@@ -438,8 +451,10 @@ namespace AnzanMegaArithmetics.Services
                             .Select(uc => uc.Clase.Nombre)
                             .ToList(),
                         Racha = u.Racha,
+                        Rango_Actual = u.Rango_Actual,
                         Exp = u.Experiencia_Total,
                         Ultima_Cnx = u.Ultima_Actividad,
+                        
 
                         Licencia = u.UsuarioLicencias
                             .Where(ul => ul.Licencia != null)
@@ -472,10 +487,29 @@ namespace AnzanMegaArithmetics.Services
 
             try
             {
-                UsuariosDB usuarioDB = _context.Usuarios.FirstOrDefault(x => x.Id_Usuario == actualizar.Id_Usuario);
+                UsuariosDB usuarioDB = _context.Usuarios
+                                     .Include(u => u.Rol)
+                                     .FirstOrDefault(x => x.Id_Usuario == actualizar.Id_Usuario);
                 if (usuarioDB == null)
                 {
-                    return "Error al actualizar usuario";
+                    return "Error al actualizar usuario: Usuario no encontrado.";
+                }
+
+                string rolNombre = usuarioDB.Rol?.Rol ?? "Alumno";
+                bool esRolAvanzado = rolNombre.Contains("Profesor", StringComparison.OrdinalIgnoreCase) ||
+                                     rolNombre.Contains("Master", StringComparison.OrdinalIgnoreCase);
+
+                int nuevaExp = actualizar.Exp;
+                string nuevoRango;
+
+                if (esRolAvanzado && nuevaExp < 500000)
+                {
+                    nuevaExp = 500000;
+                    nuevoRango = "Materia Oscura I";
+                }
+                else
+                {
+                    nuevoRango = CalcularRango(nuevaExp);
                 }
 
                 // Actualizar los campos del usuario
@@ -486,7 +520,8 @@ namespace AnzanMegaArithmetics.Services
                 usuarioDB.Pass = actualizar.Pass;
                 usuarioDB.Activo = actualizar.Activo;
                 usuarioDB.Racha = actualizar.Racha;
-                usuarioDB.Experiencia_Total = actualizar.Exp;
+                usuarioDB.Experiencia_Total = nuevaExp;
+                usuarioDB.Rango_Actual = nuevoRango;
 
                 //actualizar clases
                 List<int> clases = actualizar.ClasesSeleccionadas;
@@ -610,6 +645,25 @@ namespace AnzanMegaArithmetics.Services
 
             try
             {
+
+                string rolNombre = _context.Roles
+                    .Where(r => r.Id_Rol == nuevo.Id_Rol)
+                    .Select(r => r.Rol)
+                    .FirstOrDefault() ?? "Alumno";
+
+                int xpInicial = nuevo.Exp;
+                string rangoAsignado = nuevo.Rango_Actual;
+
+                if ((rolNombre.Contains("Profesor", StringComparison.OrdinalIgnoreCase) || rolNombre.Contains("Master", StringComparison.OrdinalIgnoreCase)))
+                {
+                    xpInicial = 500000;
+                    rangoAsignado = "Materia Oscura I";
+                }
+                else
+                {
+                    rangoAsignado = CalcularRango(xpInicial);
+                }
+
                 //Insertar nuevo usuario
                 UsuariosDB usuariosDB = new UsuariosDB
                 {
@@ -620,8 +674,9 @@ namespace AnzanMegaArithmetics.Services
                     Pass = nuevo.Pass,
                     Activo = nuevo.Activo,
                     Racha = nuevo.Racha,
-                    Experiencia_Total = nuevo.Exp,
-                    Ultima_Actividad = DateTime.Now
+                    Experiencia_Total = xpInicial,
+                    Ultima_Actividad = DateTime.Now,
+                    Rango_Actual = rangoAsignado
                 };
 
                 _context.Usuarios.Add(usuariosDB);
@@ -697,6 +752,34 @@ namespace AnzanMegaArithmetics.Services
             {
                 return "Error al eliminar el usuario: " + ex.Message;
             }
+        }
+
+        private static readonly List<(string Nombre, int MinExp)> Rangos = new List<(string, int)>
+        {
+                ("Materia Oscura III", 1000001),
+                ("Materia Oscura II", 750000),
+                ("Materia Oscura I", 500000),
+                ("Heroico III", 300001),
+                ("Heroico II", 280001),
+                ("Heroico I", 260001),
+                ("Diamante III", 220001),
+                ("Diamante II", 200001),
+                ("Diamante I", 180001),
+                ("Oro III", 160001),
+                ("Oro II", 140001),
+                ("Oro I", 120001),
+                ("Plata III", 100001),
+                ("Plata II", 80001),
+                ("Plata I", 60001),
+                ("Bronce III", 40001),
+                ("Bronce II", 20001),
+                ("Bronce I", 0)
+        };
+
+        public string CalcularRango(int experienciaTotal)
+        {
+            var rangoEncontrado = Rangos.FirstOrDefault(r => experienciaTotal >= r.MinExp);
+            return rangoEncontrado.Nombre ?? "Bronce I";
         }
 
 

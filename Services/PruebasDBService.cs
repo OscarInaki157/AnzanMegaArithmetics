@@ -7,9 +7,11 @@ namespace AnzanMegaArithmetics.Services
     public class PruebasDBService : IPruebasDBService
     {
         private readonly AnzanMegaContext _context;
-        public PruebasDBService(AnzanMegaContext context) 
+        private readonly IUsersDBService _usersDBService;
+        public PruebasDBService(AnzanMegaContext context, IUsersDBService usersDBService)
         {
             this._context = context;
+            this._usersDBService = usersDBService;
         }
 
 
@@ -86,6 +88,9 @@ namespace AnzanMegaArithmetics.Services
                 CalcularRacha(usuario, model.Fecha);
 
                 usuario.Experiencia_Total += model.ExperienciaAdquirida;
+
+                ActualizarRangoUsuario(usuario);
+
                 _context.Usuarios.Update(usuario);
                 _context.Pruebas.Add(nuevaPrueba);
                 _context.SaveChanges();
@@ -125,6 +130,18 @@ namespace AnzanMegaArithmetics.Services
             else
             {
                 usuario.Racha = 1;
+            }
+        }
+
+        private void ActualizarRangoUsuario(UsuariosDB usuario)
+        {
+
+            string nuevoRango = _usersDBService.CalcularRango(usuario.Experiencia_Total);
+
+            if (usuario.Rango_Actual != nuevoRango)
+            {
+                usuario.Rango_Actual = nuevoRango;
+
             }
         }
 

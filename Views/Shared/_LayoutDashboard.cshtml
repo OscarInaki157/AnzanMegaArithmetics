@@ -1447,21 +1447,6 @@
                 };
             }
 
-            function actualizarRango() {
-                const rangoElement = document.querySelector('.R2 .txt strong');
-                const r2Element = document.querySelector('.R2');
-
-                if (rangoElement && r2Element) {
-                    const xp = @Model.Exp;
-                    const rango = determinarRango(xp);
-
-                    rangoElement.innerHTML = `🎖️<br />${rango.nombre}`;
-
-                    r2Element.className = 'R2';
-                    r2Element.classList.add(rango.clase);
-                }
-            }
-
             function animarBarraXP() {
                 const xpBar = document.getElementById('xp-progress-bar');
                 if (!xpBar) return;
@@ -1517,7 +1502,6 @@
                     animarBarraXP();
                 }
 
-                actualizarRango();
             }
 
             // Contador de XP con animación
@@ -1543,23 +1527,22 @@
                 }, 1000 / frameRate);
             }
 
-            actualizarRango();
             animarBarraXP();
 
             // Protección (opcional)
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            // });
 
-            document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-            });
+            // document.addEventListener('keydown', function(e) {
+            //      if (
+            //          e.key === 'F12' ||
+            //          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            //          (e.ctrlKey && e.key === 'U')
+            //      ) {
+            //          e.preventDefault();
+            //      }
+            // });
         });
     </script>
 

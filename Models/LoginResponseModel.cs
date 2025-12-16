@@ -14,6 +14,7 @@ namespace AnzanMegaArithmetics.Models
         //campos para la vista
         public int Racha { get; set; }
         public int Exp {  get; set; }
+        public string Rango_Actual { get; set; }
         public DateTime Ultima_Cnx { get; set; }
         public string Licencia { get; set; }
         public string Frase_Bienvenida { get; set; } = string.Empty;

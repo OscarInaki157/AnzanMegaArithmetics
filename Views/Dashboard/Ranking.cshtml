@@ -3,6 +3,16 @@
 @{
     ViewBag.Title = "Ranking";
     Layout = "_LayoutDashboard";
+
+
+    string rangoNombre = Model.Rango_Actual ?? "Bronce I";
+    string rangoClase = "";
+    if (rangoNombre.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
+    else if (rangoNombre.Contains("Heroico", StringComparison.OrdinalIgnoreCase)) { rangoClase = "heroic"; }
+    else if (rangoNombre.Contains("Diamante", StringComparison.OrdinalIgnoreCase)) { rangoClase = "diamond"; }
+    else if (rangoNombre.Contains("Oro", StringComparison.OrdinalIgnoreCase)) { rangoClase = "gold"; }
+    else if (rangoNombre.Contains("Plata", StringComparison.OrdinalIgnoreCase)) { rangoClase = "silver"; }
+    else { rangoClase = "bronze"; }
 }
 
 <div class="user-top-info">
@@ -32,7 +42,7 @@
     <div class="user-info-card">
         <div class="contenedorR">
             <div class="R3"><p class="txt"><strong>🔥<br />@Model.Racha</strong></p></div>
-            <div class="R2"><p class="txt"><strong>🎖️<br />Bronce I</strong></p></div>
+            <div class="R2 @rangoClase"><p class="txt"><strong>🎖️<br />@Model.Rango_Actual</strong></p></div>
             <div class="R1"><p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p></div>
         </div>
         <div class="xp-progress-container">

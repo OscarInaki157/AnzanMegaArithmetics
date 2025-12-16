@@ -105,6 +105,7 @@
             <div class="col-id">ID</div>
             <div class="col-rol">Rol</div>
             <div class="col-name">Nombre</div>
+            <div class="col-rango">Rango</div>
             <div class="col-email">Correo</div>
             <div class="col-gamertag">Gamertag</div>
             <div class="col-password">Contraseña</div>
@@ -133,6 +134,22 @@
                                 <div class="user-fullname">@usuario.Nombre</div>
                             </div>
                         </div>
+                    </div>
+
+                    @{
+                        string nombreRango = usuario.Rango_Actual ?? "Bronce I";
+                        string rangoClase = "bronze";
+
+                        if (nombreRango.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
+                        else if (nombreRango.Contains("Heroico", StringComparison.OrdinalIgnoreCase)) { rangoClase = "heroic"; }
+                        else if (nombreRango.Contains("Diamante", StringComparison.OrdinalIgnoreCase)) { rangoClase = "diamond"; }
+                        else if (nombreRango.Contains("Oro", StringComparison.OrdinalIgnoreCase)) { rangoClase = "gold"; }
+                        else if (nombreRango.Contains("Plata", StringComparison.OrdinalIgnoreCase)) { rangoClase = "silver"; }
+                        else { rangoClase = "bronze"; }
+                    }
+
+                    <div class="col-rango">
+                        <span class="rango-badge @rangoClase" title="@usuario.Rango_Actual">@usuario.Rango_Actual</span>
                     </div>
 
                     <div class="col-email">@usuario.Correo</div>
@@ -292,6 +309,15 @@
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="editRangoDisplay">Rango Actual:</label>
+                        <input type="text" id="editRangoDisplay" class="form-input" readonly value="">
+                        <input type="hidden" id="editRango" name="Rango_Actual" value="">
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="editLicencia">Licencia:</label>
                         <select id="editLicencia" name="Licencia" class="form-select" required>
                             @foreach (var lic in Model.Licencias)
@@ -415,7 +441,20 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="createRangoDisplay">Rango Inicial Asignado:</label>
+                        <input type="text" id="createRangoDisplay" class="form-input" readonly value="Bronce I">
+                        <input type="hidden" id="createRango" name="Rango_Actual" value="Bronce I">
+                    </div>
+
                     
+                </div>
+
+                <div class="form-group full-width">
+                    <p class="small-info-note">
+                        <i class="fas fa-info-circle"></i>
+                        Nota: Si es "Alumno", el rango inicial es **Bronce I** (0 XP) automaticamente. Si es "Profesor", se asigna a **Materia Oscura I** (500,000 XP) automáticamente. La XP se puede ajustar manualmente, lo que puede afectar el rango inicial (No recomendado al crear un nuevo usuario).
+                    </p>
                 </div>
 
                 <div class="form-group full-width">
@@ -1290,8 +1329,9 @@
         grid-template-columns: 
         minmax(50px, 60px) /* ID */
         minmax(70px, 80px) /* Rol */
-        minmax(150px, 1fr) /* Nombre */
-        minmax(170px, 1fr) /* Correo */
+        minmax(170px, 1fr) /* Nombre */
+        minmax(100px, 120px) /* Rango */
+        minmax(270px, 1fr) /* Correo */
         minmax(130px, 140px) /* Gamertag */
         minmax(130px, 140px) /* Contraseña */
         minmax(70px, 80px) /* Activo */
@@ -1323,8 +1363,9 @@
         grid-template-columns: 
         minmax(50px, 60px) /* ID */
         minmax(70px, 80px) /* Rol */
-        minmax(150px, 1fr) /* Nombre */
-        minmax(170px, 1fr) /* Correo */
+        minmax(170px, 1fr) /* Nombre */
+        minmax(100px, 120px) /* Rango */
+        minmax(270px, 1fr) /* Correo */
         minmax(130px, 140px) /* Gamertag */
         minmax(130px, 140px) /* Contraseña */
         minmax(70px, 80px) /* Activo */
@@ -1551,19 +1592,34 @@
         min-width: 80px;
     }
 
-        .rango-badge.bronze {
-            background: linear-gradient(135deg, #cd7f32, #a56c2c);
-            color: #fff;
+        .rango-badge.dark-matter {
+            background: linear-gradient(135deg, #2d1b69, #1a1033);
+            color: #00e6ff;
         }
 
-        .rango-badge.oro {
+        .rango-badge.heroic {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .rango-badge.diamond {
+            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+            color: #0066cc;
+        }
+
+        .rango-badge.gold {
             background: linear-gradient(135deg, #ffd700, #ffa500);
             color: #8b6508;
         }
 
-        .rango-badge.diamante {
-            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
-            color: #0066cc;
+        .rango-badge.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            color: #333;
+        }
+
+        .rango-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32, #a56c2c);
+            color: #fff;
         }
 
     .col-experiencia {
@@ -1728,8 +1784,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // === FILTROS Y BÚSQUEDA ===
     const claseFilter = document.getElementById('clase-filter');
     const rolFilter = document.getElementById('rol-filter');
-        const estadoFilter = document.getElementById('estado-filter');
-        const experienciaFilter = document.getElementById('experiencia-filter');
+    const estadoFilter = document.getElementById('estado-filter');
+    const experienciaFilter = document.getElementById('experiencia-filter');
     const userSearch = document.getElementById('user-search');
     const searchButton = document.querySelector('.search-button');
     const tableRows = document.querySelectorAll('.table-row');
@@ -2065,6 +2121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const userRow = btn.closest('.table-row');
             const rolTexto = userRow ? userRow.querySelector('.rol-badge').textContent.trim() : '';
+            const rangoActual = userRow ? userRow.querySelector('.rango-badge').textContent.trim() : 'Bronce I';
 
             // Convertir string de clases a array
             const userClases = clasesString ? clasesString.split(',') : [];
@@ -2111,6 +2168,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const rachaInput = document.getElementById('editRacha');
             if (rachaInput) rachaInput.value = racha || '0';
+
+            const rangoDisplay = document.getElementById('editRangoDisplay');
+            const rangoHidden = document.getElementById('editRango');
+
+            if (rangoDisplay) rangoDisplay.value = rangoActual;
+            if (rangoHidden) rangoHidden.value = rangoActual;
 
             const licenciaSelect = document.getElementById('editLicencia');
             if (licenciaSelect) licenciaSelect.value = licencia || 'Básica';
@@ -2469,6 +2532,13 @@ function limpiarFormularioCrear() {
     document.getElementById('createExp').value = '0';
     document.getElementById('createRacha').value = '0';
     document.getElementById('createLicencia').selectedIndex = 0;
+
+        const createRol = document.getElementById('createRol');
+        if (createRol && createRol.options.length > 0) {
+            createRol.selectedIndex = 0;
+        }
+
+            updateRangoOnCreate();
     
     // Limpiar checkboxes de clases
     document.querySelectorAll('.clase-checkbox-create').forEach(checkbox => {
@@ -2876,5 +2946,90 @@ function limpiarMensajesErrorCrear() {
         });
     }
 
+    const createRolSelect = document.getElementById('createRol');
+    const createExpInput = document.getElementById('createExp');
+    const createRangoDisplay = document.getElementById('createRangoDisplay');
+    const createRangoHidden = document.getElementById('createRango');
+
+       // La función original a modificar
+    function updateRangoOnCreate() {
+        const rol = createRolSelect ? createRolSelect.options[createRolSelect.selectedIndex].text : '';
+        const xp = parseInt(createExpInput.value) || 0;
+
+        let nuevoRangoNombre;
+
+        const esRolAvanzado = rol.includes('Profesor') || rol.includes('Master');
+
+        if (esRolAvanzado) {
+            nuevoRangoNombre = 'Materia Oscura I';
+            if (xp === 0) { createExpInput.value = 500000; }
+
+        }
+
+        else {
+            nuevoRangoNombre = determinarRango(xp);
+        }
+
+        if (createRangoDisplay) {
+            createRangoDisplay.value = nuevoRangoNombre;
+        }
+        if (createRangoHidden) {
+            createRangoHidden.value = nuevoRangoNombre;
+        }
+    }
+
+    if (createRolSelect) createRolSelect.addEventListener('change', updateRangoOnCreate);
+    if (createExpInput) createExpInput.addEventListener('input', updateRangoOnCreate);
+
+
+    const editExpInput = document.getElementById('editExp');
+    const editRangoDisplay = document.getElementById('editRangoDisplay');
+    const editRangoHidden = document.getElementById('editRango');
+
+    // Función para actualizar el Rango en la edición
+    function updateRangoOnEdit() {
+        const xp = parseInt(editExpInput.value) || 0;
+
+        // Reutilizamos la función determinarRango (debe estar disponible globalmente)
+        const nuevoRango = determinarRango(xp);
+
+        // Actualizar campos
+        if (editRangoDisplay) editRangoDisplay.value = nuevoRango;
+        if (editRangoHidden) editRangoHidden.value = nuevoRango;
+    }
+
+
+    // Event Listener para Experiencia en el Modal de Edición
+    if (editExpInput) {
+        editExpInput.addEventListener('input', updateRangoOnEdit);
+    }
+
 });
+
+
+    // Función auxiliar que debe estar en tu script (fuera del DOMContentLoaded)
+    function determinarRango(exp) {
+        const xp = parseInt(exp) || 0;
+
+        // Se recorre desde el rango más alto al más bajo
+        if (xp >= 1000001) return 'Materia Oscura III';
+        if (xp >= 750000) return 'Materia Oscura II';
+        if (xp >= 500000) return 'Materia Oscura I';
+        if (xp >= 300001) return 'Heroico III';
+        if (xp >= 280001) return 'Heroico II';
+        if (xp >= 260001) return 'Heroico I';
+        if (xp >= 220001) return 'Diamante III';
+        if (xp >= 200001) return 'Diamante II';
+        if (xp >= 180001) return 'Diamante I';
+        if (xp >= 160001) return 'Oro III';
+        if (xp >= 140001) return 'Oro II';
+        if (xp >= 120001) return 'Oro I';
+        if (xp >= 100001) return 'Plata III';
+        if (xp >= 80001) return 'Plata II';
+        if (xp >= 60001) return 'Plata I';
+        if (xp >= 40001) return 'Bronce III';
+        if (xp >= 20001) return 'Bronce II';
+
+        return 'Bronce I';
+    }
 </script>

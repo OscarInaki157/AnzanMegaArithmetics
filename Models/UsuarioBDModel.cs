@@ -12,6 +12,7 @@
         public List<string> Clases { get; set; } = new List<string>(); //lista de clases del usuario
         public int Racha { get; set; }
         public int Exp { get; set; }
+        public string Rango_Actual { get; set; }
         public DateTime Ultima_Cnx { get; set; }
         public string Licencia { get; set; } //nombre de la licencia activa del usuario linq obt
 

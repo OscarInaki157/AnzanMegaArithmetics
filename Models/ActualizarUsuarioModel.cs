@@ -13,6 +13,8 @@
         public int Racha { get; set; }
         public string Licencia { get; set; } = string.Empty;
 
+        public string Rango_Actual { get; set; } = string.Empty;
+
         //public DateTime? Fecha_Vencimiento_Licencia { get; set; }
 
         public List<int> ClasesSeleccionadas { get; set; } = new List<int>();

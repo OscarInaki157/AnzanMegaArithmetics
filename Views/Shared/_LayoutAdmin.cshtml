@@ -857,6 +857,11 @@
                         </form>
                     </li>
                     <li>
+                        <a href="@Url.Action("Ranking", "Dashboard")" id="Ranking">
+                            <i class="fa fa-certificate"></i> Ranking
+                        </a>
+                    </li>
+                    <li>
                         <a href="@Url.Action("MiPerfil", "Dashboard")" id="Perfil">
                             <i class="fas fa-user"></i> Mi perfil
                         </a>
@@ -1029,19 +1034,19 @@
 
             // Protección (opcional)
 
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            // });
 
-             document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-             });
+            //  document.addEventListener('keydown', function(e) {
+            //      if (
+            //          e.key === 'F12' ||
+            //          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            //          (e.ctrlKey && e.key === 'U')
+            //      ) {
+            //          e.preventDefault();
+            //      }
+            //  });
 
         });
     </script>

@@ -195,7 +195,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Exp = response.Exp,
                     Ultima_Cnx = response.Ultima_Cnx,
                     Licencia = response.Licencia,
-                    Frase_Bienvenida = FraseBienvenida
+                    Frase_Bienvenida = FraseBienvenida,
+                    Rango_Actual = response.Rango_Actual
                 };
             }
             catch (Exception)

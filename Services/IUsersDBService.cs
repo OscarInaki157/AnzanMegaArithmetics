@@ -18,6 +18,7 @@ namespace AnzanMegaArithmetics.Services
         public string ActualizarLicenciaUsuario(string nueva, int Id_Usuario);
         public string CrearNuevoUsuario(ActualizarUsuarioModel nuevo);
         public string EliminarUsuario(ActualizarUsuarioModel model);
+        public string CalcularRango(int experienciaTotal);
         public int ClaimChallengeReward(int userId, int retoId);
         public List<DailyChallengeViewModel> GetUserDailyChallenges(int userId);
         public List<DailyChallengeViewModel> GetMasterChallenges();
