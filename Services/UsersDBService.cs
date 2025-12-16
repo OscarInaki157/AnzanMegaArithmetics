@@ -308,28 +308,49 @@ namespace AnzanMegaArithmetics.Services
                     .Select(grupo => new
                     {
                         NombreActividad = grupo.Key,
-                        TopUsuarios = grupo.GroupBy(p => p.Id_Usuario)
-                                           .Select(gUser => new RankingUsersModel
-                                           {
-                                               Id_Usuario = gUser.Key,
-                                               Nombre = gUser.FirstOrDefault().Usuario.Nombre,
-                                               Gamer_Tag = gUser.FirstOrDefault().Usuario.Gamer_Tag,
-                                               Exp = gUser.Sum(x => x.ExperienciaAdquirida)
-                                           })
-                                           .OrderByDescending(u => u.Exp)
-                                           .Take(cantidad > 0 ? cantidad : 100)
-                                           .ToList()
+                        TopUsuariosIdsExp = grupo.GroupBy(p => p.Id_Usuario)
+                            .Select(gUser => new
+                            {
+                                Id_Usuario = gUser.Key,
+                                ExpTotal = gUser.Sum(x => x.ExperienciaAdquirida)
+                            })
+                            .OrderByDescending(u => u.ExpTotal)
+                            .Take(cantidad > 0 ? cantidad : 100)
+                            .ToList()
                     })
                     .ToList();
 
                 foreach (var act in actividades)
                 {
+                    var userIds = act.TopUsuariosIdsExp.Select(u => u.Id_Usuario).ToList();
+
+                    var userInfo = _context.Usuarios
+                        .Where(u => userIds.Contains(u.Id_Usuario))
+                        .Select(u => new { u.Id_Usuario, u.Nombre, u.Gamer_Tag, u.Rango_Actual })
+                        .ToList();
+
+                    var topUsuariosConRango = act.TopUsuariosIdsExp.Join(
+                        userInfo,
+                        top => top.Id_Usuario,
+                        info => info.Id_Usuario,
+                        (top, info) => new RankingUsersModel
+                        {
+                            Id_Usuario = top.Id_Usuario,
+                            Nombre = info.Nombre,
+                            Gamer_Tag = info.Gamer_Tag,
+                            Exp = top.ExpTotal,
+                            Racha = 0,
+                            Rango_Actual = info.Rango_Actual
+                        }
+                    ).ToList();
+
+
                     int orden = ordenDeseado.GetValueOrDefault(act.NombreActividad, ORDEN_POR_DEFECTO);
 
                     slides.Add(new RankingSlideModel
                     {
                         Titulo = "📊 " + act.NombreActividad,
-                        Datos = act.TopUsuarios,
+                        Datos = topUsuariosConRango,
                         Orden = orden
                     });
                 }
@@ -376,29 +397,45 @@ namespace AnzanMegaArithmetics.Services
                 baseQuery = baseQuery.Where(p => p.Tipo_Prueba.Equals(actividad));
             }
 
-            var topUsuariosFiltrado = baseQuery
-            .GroupBy(p => p.Id_Usuario)
-            .Select(gUser => new RankingUsersModel
-            {
-                Id_Usuario = gUser.Key,
-                Nombre = gUser.FirstOrDefault().Usuario.Nombre,
-                Gamer_Tag = gUser.FirstOrDefault().Usuario.Gamer_Tag,
-                Exp = gUser.Sum(x => x.ExperienciaAdquirida),
-                Rango_Actual = gUser.FirstOrDefault().Usuario.Rango_Actual,
-            })
-            .OrderByDescending(u => u.Exp)
-            .Take(cantidad)
-            .ToList();
-
-                string prefijo = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "🌍" : "📊";
-                string tituloFinal = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "Ranking Global" : actividad;
-
-
-                return new RankingSlideModel
+            var topUsuariosIdsExp = baseQuery
+                .GroupBy(p => p.Id_Usuario)
+                .Select(gUser => new
                 {
-                    Titulo = $"{prefijo} {tituloFinal} ({tituloPeriodo})",
-                    Datos = topUsuariosFiltrado
-                };
+                    Id_Usuario = gUser.Key,
+                    Exp = gUser.Sum(x => x.ExperienciaAdquirida)
+                })
+                .OrderByDescending(u => u.Exp)
+                .Take(cantidad)
+                .ToList();
+            var userIds = topUsuariosIdsExp.Select(u => u.Id_Usuario).ToList();
+            var userInfo = _context.Usuarios
+                .Where(u => userIds.Contains(u.Id_Usuario))
+                .Select(u => new { u.Id_Usuario, u.Nombre, u.Gamer_Tag, u.Rango_Actual })
+                .ToList();
+
+            var topUsuariosFiltrado = topUsuariosIdsExp.Join(
+                userInfo,
+                top => top.Id_Usuario,
+                info => info.Id_Usuario,
+                (top, info) => new RankingUsersModel
+                {
+                    Id_Usuario = top.Id_Usuario,
+                    Nombre = info.Nombre,
+                    Gamer_Tag = info.Gamer_Tag,
+                    Exp = top.Exp,
+                    Rango_Actual = info.Rango_Actual
+                }
+            ).ToList();
+
+            string prefijo = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "🌍" : "📊";
+            string tituloFinal = actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase) ? "Ranking Global" : actividad;
+
+
+            return new RankingSlideModel
+            {
+                Titulo = $"{prefijo} {tituloFinal} ({tituloPeriodo})",
+                Datos = topUsuariosFiltrado
+            };
 
         }
 

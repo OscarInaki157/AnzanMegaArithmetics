@@ -175,6 +175,12 @@
         if(dashIndex >= dashData.length) dashIndex = 0;
         if(dashIndex < 0) dashIndex = dashData.length - 1;
 
+        dashPeriodo = 'Global';
+
+        const originalSlide = dashOriginalData[dashIndex];
+        dashData[dashIndex].Datos = originalSlide.Datos;
+        dashData[dashIndex].Titulo = originalSlide.Titulo;
+
         document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
 
         const isRacha = dashData[dashIndex].Titulo.includes("Racha");
@@ -394,6 +400,9 @@
             const valueToDisplay = isRacha ? user.Racha : user.Exp;
             const valueUnit = isRacha ? ' Días' : ' XP';
 
+            const rankClass = getRankClassFromRankName(user.Rango_Actual);
+            const rankDisplay = user.Rango_Actual;
+
             const isMe = user.Id_Usuario === myUserId ? 'background: rgba(76, 76, 255, 0.15); border-left: 3px solid var(--color-primary);' : '';
             html += `
             <div class="list-row" style="padding: 0.8rem 1rem; grid-template-columns: 40px 1fr 100px; ${isMe}">
@@ -402,7 +411,9 @@
                     <div class="list-avatar-small" style="width:30px; height:30px;"><i class="fa-solid fa-user"></i></div>
                     <div class="list-info">
                         <span class="list-name" style="font-size:0.9rem;">${user.Nombre}</span>
-                        <span class="list-tag" style="font-size:0.7rem;">${user.Gamer_Tag || ''}</span>
+                        <span class="list-tag" style="font-size:0.7rem;">
+                            <span class="level-badge ${rankClass}" style="display: flex; justify-content: center; align-items: center; margin-top: 0.5rem; width: fit-content;">${rankDisplay}</span>
+                        </span>
                     </div>
                 </div>
                 <div class="list-xp-col" style="text-align:right;">
@@ -495,6 +506,7 @@
         construirTablaModal(cat.Filtrados);
     }
 
+
     // ==========================================
     // LÓGICA DEL MODAL (SIN PODIO)
     // ==========================================
@@ -525,6 +537,10 @@
             const xpText = `${formatNumber(valueToDisplay || 0)}${valueUnit}`;
             const pct = isRacha ? 0 : (u.Exp % 20000) * 100 / 20000;
 
+            // Rango desde el servidor
+            const rankClass = getRankClassFromRankName(u.Rango_Actual);
+            const rankDisplay = u.Rango_Actual;
+
             // Contenido de la columna de valor (solo valor si es racha, valor + barra si es XP)
             const valueContent = isRacha ?
                 `<div class="xp-text" style="font-size: 1rem; color: var(--color-primary);">${xpText}</div>` :
@@ -533,10 +549,10 @@
                 <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: ${pct}%"></div></div>
                 `;
 
-            // Columna de Badge (oculta si es racha)
+            // Columna de Badge (oculta si es racha) - CORREGIDO
             const badgeCol = isRacha ? '' : `
                 <div class="list-badge-col">
-                    <div class="level-badge ${getRankBadgeClass(u.Exp)}">${getRankName(u.Exp)}</div>
+                    <div class="level-badge ${rankClass}">${rankDisplay}</div>
                 </div>
             `;
             // FIN MANEJO CONDICIONAL
@@ -564,6 +580,16 @@
 
     // --- HELPERS ---
     function formatNumber(n) { return n ? n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0"; }
+
+    function getRankClassFromRankName(rankName) {
+        if (!rankName) return "bronze";
+        if (rankName.includes("Materia Oscura")) return "dark-matter";
+        if (rankName.includes("Heroico")) return "heroic";
+        if (rankName.includes("Diamante")) return "diamond";
+        if (rankName.includes("Oro")) return "gold";
+        if (rankName.includes("Plata")) return "silver";
+        return "bronze";
+    }
 
     function getPodiumHtml(u, cls, crown=false) {
 
@@ -612,9 +638,6 @@
             else d.classList.remove('active');
         });
     }
-
-    function getRankBadgeClass(exp) { if (exp >= 500000) return "dark-matter"; if (exp >= 260001) return "heroic"; if (exp >= 180001) return "diamond"; if (exp >= 120001) return "gold"; if (exp >= 60001) return "silver"; return "bronze"; }
-    function getRankName(exp) { if (exp > 1000000) return "☄️ Materia Oscura III"; if (exp >= 500000) return "☄️ Materia I"; if (exp >= 220001) return "💎 Diamante"; if (exp >= 120001) return "🥇 Oro"; if (exp >= 40001) return "🥉 Bronce"; return "🥉 Bronce I"; }
 
     window.onclick = function(event) {
         if (event.target == document.getElementById('modalRankingGlobal')) cerrarModalRanking();
