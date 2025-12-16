@@ -118,6 +118,21 @@
                 <button class="close-modal-btn" onclick="cerrarModalRanking()">&times;</button>
             </div>
 
+            <div id="modalFilters" class="ranking-filters" style="margin-bottom:1rem; display: flex; justify-content: center; gap: 8px;">
+                <button class="filter-btn active" data-periodo="Global"
+                        onclick="sincronizarFiltro('Global', this)">
+                    Global
+                </button>
+                <button class="filter-btn" data-periodo="Mensual"
+                        onclick="sincronizarFiltro('Mensual', this)">
+                    Mensual
+                </button>
+                <button class="filter-btn" data-periodo="Semanal"
+                        onclick="sincronizarFiltro('Semanal', this)">
+                    Semanal
+                </button>
+            </div>
+
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input type="text"
@@ -237,90 +252,138 @@
             </div>`;
     }
 
+     // ==========================================
+    // LÓGICA DE FILTRADO AJAX Y SINCRONIZACIÓN (CENTRAL)
     // ==========================================
-    // LÓGICA DE FILTRADO AJAX (COMPLETA)
-    // ==========================================
-    function filtrarRankingDashboard(periodo, button) {
+ 
+    function filtrarRankingDashboard(periodo, button, isModal = false) {
         const catActual = dashData[dashIndex];
         if (!catActual || !catActual.Titulo) return;
 
-        // 1. Marcar el botón activo
-        document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
+        // 1. Determinar la cantidad de registros a solicitar (10 para dash, 50 si el modal está abierto)
+        const modalAbierto = (document.getElementById('modalRankingGlobal').style.display === 'flex');
+        // Si el modal está abierto, pedimos el Top 50, si no, solo el Top 10 para el dashboard.
+        const cantidadSolicitada = modalAbierto ? 50 : 10;
+
+        // 1.1 Marcar el botón activo del DASHBOARD (Solo si viene del Dashboard directamente)
+        if (!isModal && button) {
+            document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
 
         // ⭐️ LÓGICA DE RESTAURACIÓN GLOBAL ⭐️
         if (periodo === 'Global') {
-            // Si ya estamos en Global, no hacemos nada para evitar recarga innecesaria
-            if (dashPeriodo === 'Global') return;
+            // Evita recargar si ya estamos en Global y no es una llamada de sincronización forzada desde el modal
+            if (dashPeriodo === 'Global' && !isModal) return;
 
-            dashPeriodo = 'Global'; // Establecer el estado
+            dashPeriodo = 'Global';
 
-            // Obtener el slide original (unfiltered) de la categoría actual desde la copia
             const originalSlide = dashOriginalData[dashIndex];
 
-            // 1. Restaurar los Datos: Sobrescribir los datos modificados con los originales
+            // Dashboard: Restaura el Top 10 original (Global)
             catActual.Datos = originalSlide.Datos;
-
-            // 2. Restaurar el Título
             catActual.Titulo = originalSlide.Titulo;
-            document.getElementById('lblDashTitle').innerText = catActual.Titulo;
 
             renderDashboard();
+
+            // === SINCRONIZACIÓN MODAL ===
+            if (rankingCompletoCargado && modalAbierto) {
+                // El modal debe usar la DATA GLOBAL COMPLETA (Top 50+) de su copia de seguridad inicial.
+                const modalOriginalData = modalData[modalIndex].Datos;
+
+                modalData[modalIndex].Filtrados = modalOriginalData;
+                renderModal();
+
+                // Asegurar que el filtro Global en el modal esté activo visualmente
+                document.querySelectorAll('#modalFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`#modalFilters .filter-btn[data-periodo="Global"]`).classList.add('active');
+            }
             return;
         }
-   
-        if (dashPeriodo === periodo) return;
 
+        // Si el periodo es el mismo Y la cantidad solicitada es Top 10, no recargamos.
+        // Se permite recargar si el filtro es el mismo pero se acaba de abrir el modal (isModal=true)
+        if (dashPeriodo === periodo && cantidadSolicitada === 10 && !isModal) return;
 
+        // 2. Establecer el nuevo periodo y preparar caché
         const actividadNombre = catActual.Titulo.replace('📊 ', '').replace('🌍 ', '').trim();
-        const cacheKey = `${actividadNombre}_${periodo}`;
-
+        // La clave de caché incluye la cantidad para diferenciar Top 10 Mensual de Top 50 Mensual.
+        const cacheKey = `${actividadNombre}_${periodo}_${cantidadSolicitada}`;
         dashPeriodo = periodo;
 
-        const container = document.getElementById('dashTableContainer');
+        const dashContainer = document.getElementById('dashTableContainer');
+        const modalContainer = document.getElementById('modalContentContainer');
 
 
         // 3. Usar caché si está disponible
         if (dashCache[cacheKey]) {
-            catActual.Datos = dashCache[cacheKey].Datos;
+            const dataFromCache = dashCache[cacheKey];
+
+            // DASHBOARD: Solo Top 10
+            catActual.Datos = dataFromCache.Datos.slice(0, 10);
             renderDashboard();
-            document.getElementById('lblDashTitle').innerText = dashCache[cacheKey].Titulo;
+            document.getElementById('lblDashTitle').innerText = dataFromCache.Titulo;
+
+            // === SINCRONIZACIÓN MODAL (desde caché) ===
+            if (rankingCompletoCargado && modalAbierto) {
+                 // MODAL: Usa todos los datos del caché (que serán 50 si se guardó así)
+                 modalData[modalIndex].Filtrados = dataFromCache.Datos;
+                 renderModal();
+            }
             return;
         }
 
+        // 4. Si no está en caché, llamar a AJAX y mostrar spinners
+        dashContainer.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando...</div>';
+        if (modalAbierto) {
+            modalContainer.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando datos completos...</div>';
+        }
 
-        // 4. Si no está en caché y no es Global, llamar a AJAX
-        container.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando...</div>';
-
-        fetch(`@Url.Action("ObtenerRankingFiltrado", "Dashboard")?periodo=${periodo}&actividad=${actividadNombre}&cantidad=10`)
+        // Llamada AJAX
+        fetch(`@Url.Action("ObtenerRankingFiltrado", "Dashboard")?periodo=${periodo}&actividad=${actividadNombre}&cantidad=${cantidadSolicitada}`)
             .then(r => {
-                if (!r.ok) {
-                    // Manejar errores HTTP (como 404, 500)
-                    throw new Error(`Error HTTP: ${r.status}`);
-                }
-                return r.json();
+                 if (!r.ok) {
+                     // Manejar errores HTTP
+                     throw new Error(`Error HTTP: ${r.status}`);
+                 }
+                 return r.json();
             })
             .then(data => {
-                if (!data.Datos || data.Datos.length === 0) {
-                     container.innerHTML = '<div class="no-data" style="text-align:center; padding:1rem;">Aún no hay registros en este periodo.</div>';
-                     // Usar el título devuelto por C# (ej: "Fingermath Lectura (Mensual)")
-                     document.getElementById('lblDashTitle').innerText = data.Titulo || catActual.Titulo + ` (${periodo})`;
-                     return;
-                }
-                // Pre-procesar Ranking Filtrado (RankOriginal)
-                data.Datos.forEach((u, i) => u.RankOriginal = i + 1);
+                 if (!data.Datos || data.Datos.length === 0) {
+                      // Manejo de no datos
+                      dashContainer.innerHTML = '<div class="no-data" style="text-align:center; padding:1rem;">Aún no hay registros en este periodo.</div>';
+                      document.getElementById('lblDashTitle').innerText = data.Titulo || catActual.Titulo + ` (${periodo})`;
+                      if (modalAbierto) {
+                          modalContainer.innerHTML = '<div class="no-data" style="text-align:center; padding:1rem;">Aún no hay registros en este periodo.</div>';
+                      }
+                      return;
+                 }
 
-                // Almacenar en el caché y actualizar los datos del slide activo
-                dashCache[cacheKey] = data;
-                catActual.Datos = data.Datos;
+                 // Pre-procesar Ranking Filtrado (RankOriginal)
+                 data.Datos.forEach((u, i) => u.RankOriginal = i + 1);
 
-                // Renderizar con los nuevos datos y actualizar el título
-                renderDashboard();
-                document.getElementById('lblDashTitle').innerText = data.Titulo;
+                 // Almacenar en la caché
+                 dashCache[cacheKey] = data;
+
+                 // DASHBOARD: Actualizar los datos del slide activo (solo Top 10)
+                 catActual.Datos = data.Datos.slice(0, 10);
+                 renderDashboard();
+                 document.getElementById('lblDashTitle').innerText = data.Titulo;
+
+                 // === SINCRONIZACIÓN MODAL (desde AJAX) ===
+                 if (rankingCompletoCargado && modalAbierto) {
+                     // MODAL: Usa todos los datos devueltos por la API (Top 50)
+                     modalData[modalIndex].Filtrados = data.Datos;
+                     renderModal();
+                 }
             })
             .catch(e => {
-                container.innerHTML = `<div class="no-data">Error al cargar el ranking ${periodo}.</div>`;
-                console.error("Error al cargar ranking filtrado:", e);
+                 // Manejo de errores de conexión/JSON
+                 dashContainer.innerHTML = `<div class="no-data">Error al cargar el ranking ${periodo}.</div>`;
+                 if (modalAbierto) {
+                     modalContainer.innerHTML = `<div class="no-data">Error al cargar el ranking completo ${periodo}.</div>`;
+                 }
+                 console.error("Error al cargar ranking filtrado:", e);
             });
     }
 
@@ -430,37 +493,71 @@
     // LÓGICA DEL MODAL (SLIDER GRANDE)
     // ==========================================
 
-    // Abre el modal y sincroniza con la categoría que estabas viendo
     function abrirModalDesdeDashboard() {
         const modal = document.getElementById('modalRankingGlobal');
         modal.style.display = 'flex';
 
-        // Sincronizar índice inicial
+        // 1. Sincronizar índice inicial del slide y limpiar búsqueda
         modalIndex = dashIndex;
+        document.getElementById('inputBusquedaRanking').value = "";
+
+        // 2. SINCRONIZAR FILTROS DEL MODAL con el estado actual del DASHBOARD (dashPeriodo)
+        document.querySelectorAll('#modalFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+        const modalActiveBtn = document.querySelector(`#modalFilters .filter-btn[data-periodo="${dashPeriodo}"]`);
+        if (modalActiveBtn) {
+            modalActiveBtn.classList.add('active');
+        }
+
+        // Obtenemos el botón del dashboard (aunque la función filtrar lo usará solo para activar el estilo)
+        const dashButton = document.querySelector(`#dashFilters .filter-btn[data-periodo="${dashPeriodo}"]`);
 
         if (!rankingCompletoCargado) {
+            // 3. Carga inicial del modal (ObtenerRankingJson trae la data Global Top 50+)
+            document.getElementById('modalContentContainer').innerHTML =
+                '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Cargando datos completos...</div>';
+
             fetch('@Url.Action("ObtenerRankingJson", "Dashboard")')
                 .then(r => r.json())
                 .then(data => {
+                    // Almacenar data global completa (base para el modal)
                     modalData = data.map(slide => {
                         const datosConRank = slide.Datos.map((u, i) => ({ ...u, RankOriginal: i + 1 }));
                         return {
                             Titulo: slide.Titulo,
-                            Datos: datosConRank,
-                            Filtrados: datosConRank
+                            Datos: datosConRank, // Data base completa (Global)
+                            Filtrados: datosConRank // Data que se muestra actualmente
                         };
                     });
                     rankingCompletoCargado = true;
                     generarDots('modalDots', modalData.length, modalIndex);
-                    renderModal();
+
+                    // Después de la carga inicial (GLOBAL TOP 50):
+                    // 3.1. Sincronizar con el filtro actual del Dashboard (si no es Global)
+                    if (dashPeriodo !== 'Global') {
+                         // Llamamos a filtrarRankingDashboard para cargar la data filtrada (Top 50)
+                         filtrarRankingDashboard(dashPeriodo, dashButton, /* isModal = */ true);
+                    } else {
+                         // Si es Global, usamos la data inicial que acabamos de cargar
+                         modalData[modalIndex].Filtrados = modalData[modalIndex].Datos;
+                         renderModal();
+                    }
                 })
                 .catch(e => {
-                    document.getElementById('modalContentContainer').innerHTML = '<p class="no-data">Error cargando datos.</p>';
+                     document.getElementById('modalContentContainer').innerHTML = '<p class="no-data">Error cargando datos.</p>';
+                     console.error("Error al cargar ranking completo:", e);
                 });
         } else {
-            // Si ya estaba cargado, solo actualizamos la vista al índice correcto
+            // 4. Si ya estaba cargado, sincronizar la vista del modal con el estado actual (dashPeriodo)
             generarDots('modalDots', modalData.length, modalIndex);
-            renderModal();
+
+            if (dashPeriodo !== 'Global') {
+                // Si el dashboard está filtrado, forzamos la recarga/uso de caché de los datos FILTRADOS (Top 50)
+                filtrarRankingDashboard(dashPeriodo, dashButton, /* isModal = */ true);
+            } else {
+                // Si es Global, mostramos la data Global sin filtrar (la copia de seguridad en modalData[modalIndex].Datos)
+                modalData[modalIndex].Filtrados = modalData[modalIndex].Datos;
+                renderModal();
+            }
         }
     }
 
@@ -641,6 +738,16 @@
 
     window.onclick = function(event) {
         if (event.target == document.getElementById('modalRankingGlobal')) cerrarModalRanking();
+    }
+
+   function sincronizarFiltro(periodo, button) {
+
+        document.querySelectorAll('#modalFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        const dashButton = document.querySelector(`#dashFilters .filter-btn[data-periodo="${periodo}"]`);
+
+        filtrarRankingDashboard(periodo, dashButton, true);
     }
 </script>
 
