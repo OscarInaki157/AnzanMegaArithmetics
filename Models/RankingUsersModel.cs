@@ -8,6 +8,6 @@
         public string Gamer_Tag { get; set; }
         public List<string> Clases { get; set; } = new List<string>(); //lista de clases del usuario
         public int Exp { get; set; }
-        public bool EsGlobal { get; set; }
+        public int Racha { get; set; }
     }
 }

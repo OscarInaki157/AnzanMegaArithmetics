@@ -165,11 +165,21 @@
         if(dashIndex >= dashData.length) dashIndex = 0;
         if(dashIndex < 0) dashIndex = dashData.length - 1;
 
-        dashPeriodo = 'Global';
-
-        // Resetear botones
         document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('#dashFilters .filter-btn[data-periodo="Global"]').classList.add('active');
+
+        const isRacha = dashData[dashIndex].Titulo.includes("Racha");
+
+        if (!isRacha) {
+            const activeBtn = document.querySelector(`#dashFilters .filter-btn[data-periodo="${dashPeriodo}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            } else {
+                dashPeriodo = 'Global';
+                document.querySelector('#dashFilters .filter-btn[data-periodo="Global"]').classList.add('active');
+            }
+        } else {
+            dashPeriodo = 'Global';
+        }
 
         renderDashboard();
         actualizarDots('dashDots', dashIndex);
@@ -180,6 +190,9 @@
     // ==========================================
 
     function getPodiumHtml(u, cls, crown=false) {
+
+        const isRacha = dashData[dashIndex] && dashData[dashIndex].Titulo.includes("Racha");
+
         let rankNumber = '';
         if (cls === 'first-place') {
             rankNumber = '1';
@@ -189,23 +202,26 @@
             rankNumber = '3';
         }
 
-        // Crear el HTML del número central
         const rankNumberHtml = rankNumber
             ? `<div class="podium-rank-number">${rankNumber}</div>`
             : '';
+
+        const valueToDisplay = isRacha ? (u.Racha || 0) : (u.Exp || 0);
+        const valueUnit = isRacha ? ' Días' : ' XP';
 
         return `<div class="podium-column ${cls}">
                 <div class="podium-player-card">
                     ${crown ? '<div class="crown-icon">👑</div>' : ''}
                     <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
                     <div class="podium-name">${u.Nombre}</div>
-                    <div class="podium-xp">${formatNumber(u.Exp)} XP</div>
+                    <div class="podium-xp">${formatNumber(valueToDisplay)}${valueUnit}</div>
                 </div>
-                ${rankNumberHtml}             <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
+                ${rankNumberHtml}
+                <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
             </div>`;
     }
 
-        // ==========================================
+    // ==========================================
     // LÓGICA DE FILTRADO AJAX (COMPLETA)
     // ==========================================
     function filtrarRankingDashboard(periodo, button) {
@@ -294,6 +310,28 @@
 
     function renderDashboard() {
         const cat = dashData[dashIndex];
+        const isRacha = cat.Titulo.includes("Racha"); // Detectamos el tipo de slide
+
+        // 1. GESTIÓN DE BOTONES DE FILTRO
+        const filterContainer = document.getElementById('dashFilters');
+        const filterButtons = filterContainer.querySelectorAll('.filter-btn');
+
+        if (isRacha) {
+            filterContainer.style.display = 'none';
+
+        } else {
+            // Mostrar los botones si no es Racha
+            filterContainer.style.display = 'flex';
+
+            // Asegurarse de que el botón activo actual esté marcado
+            filterButtons.forEach(btn => {
+                if (btn.dataset.periodo === dashPeriodo) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
 
         // 1. Separar TOP 3 del RESTO
         const top3 = cat.Datos.filter(u => u.RankOriginal <= 3);
@@ -306,7 +344,12 @@
 
         setTimeout(() => {
             tituloEl.innerText = cat.Titulo;
-            subEl.innerText = cat.Titulo.includes("Global") ? "Los jugadores con más experiencia total" : "Top jugadores en esta actividad";
+            // Subtítulo condicional
+            if (isRacha) {
+                subEl.innerText = "Los jugadores con la racha de días más larga";
+            } else {
+                subEl.innerText = cat.Titulo.includes("Global") ? "Los jugadores con más experiencia total" : "Top jugadores en esta actividad";
+            }
             tituloEl.style.opacity = 1; subEl.style.opacity = 1;
         }, 150);
 
@@ -318,7 +361,7 @@
             return;
         }
 
-        // 2. GENERAR EL PODIO (SOLO EN EL DASHBOARD)
+        // 2. GENERAR EL PODIO (ya usa getPodiumHtml, que ahora es condicional)
         if (top3.length > 0) {
             let p1 = top3.find(u => u.RankOriginal === 1);
             let p2 = top3.find(u => u.RankOriginal === 2);
@@ -331,13 +374,16 @@
             html += `</div>`;
         }
 
-        // 3. GENERAR LA LISTA (SOLO LOS PUESTOS DEL 4 al 10)
+        // 3. GENERAR LA LISTA (4 al 10)
         html += '<div class="ranking-list-container" style="padding: 0;">';
 
-        // Si no hay podio, mostramos al menos 10 filas, si hay podio, mostramos el resto.
         const jugadoresParaLista = top3.length === 0 ? cat.Datos : restOfPlayers;
 
         jugadoresParaLista.forEach(user => {
+            // Valores para la lista condicional
+            const valueToDisplay = isRacha ? user.Racha : user.Exp;
+            const valueUnit = isRacha ? ' Días' : ' XP';
+
             const isMe = user.Id_Usuario === myUserId ? 'background: rgba(76, 76, 255, 0.15); border-left: 3px solid var(--color-primary);' : '';
             html += `
             <div class="list-row" style="padding: 0.8rem 1rem; grid-template-columns: 40px 1fr 100px; ${isMe}">
@@ -350,7 +396,7 @@
                     </div>
                 </div>
                 <div class="list-xp-col" style="text-align:right;">
-                    <div class="xp-text">${formatNumber(user.Exp)} XP</div>
+                    <div class="xp-text">${formatNumber(valueToDisplay)}${valueUnit}</div>
                 </div>
             </div>`;
         });
@@ -439,28 +485,54 @@
         construirTablaModal(cat.Filtrados);
     }
 
-        // ==========================================
+    // ==========================================
     // LÓGICA DEL MODAL (SIN PODIO)
     // ==========================================
 
     function construirTablaModal(usuarios) {
         const container = document.getElementById('modalContentContainer');
+        const cat = modalData[modalIndex];
+        const isRacha = cat.Titulo.includes("Racha"); // Detectamos el tipo de slide
 
         if (!usuarios || usuarios.length === 0) {
             container.innerHTML = '<div class="loading-state">No hay resultados.</div>';
             return;
         }
 
-        // En el modal, solo queremos la lista completa.
         let html = '<div class="ranking-list-container" style="background:transparent; padding:0;">';
 
-        // La lista itera sobre TODOS los usuarios (del 1 al 50+)
-        usuarios.forEach(u => {
-             const isMe = u.Id_Usuario === myUserId ? 'current-user-row' : '';
-             const pct = (u.Exp % 20000) * 100 / 20000;
+        // Definir el estilo de la grilla (oculta la columna de badge si es racha)
+        const gridStyle = isRacha
+            ? 'grid-template-columns: 50px 1.5fr 1fr;'
+            : 'grid-template-columns: 50px 1.5fr 100px 1fr;';
 
-             html += `
-                <div class="list-row ${isMe}">
+        usuarios.forEach(u => {
+            const isMe = u.Id_Usuario === myUserId ? 'current-user-row' : '';
+
+            // MANEJO CONDICIONAL DE VALORES Y COLUMNAS
+            const valueToDisplay = isRacha ? u.Racha : u.Exp;
+            const valueUnit = isRacha ? ' Días' : ' XP';
+            const xpText = `${formatNumber(valueToDisplay || 0)}${valueUnit}`;
+            const pct = isRacha ? 0 : (u.Exp % 20000) * 100 / 20000;
+
+            // Contenido de la columna de valor (solo valor si es racha, valor + barra si es XP)
+            const valueContent = isRacha ?
+                `<div class="xp-text" style="font-size: 1rem; color: var(--color-primary);">${xpText}</div>` :
+                `
+                <div class="xp-text">${xpText}</div>
+                <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: ${pct}%"></div></div>
+                `;
+
+            // Columna de Badge (oculta si es racha)
+            const badgeCol = isRacha ? '' : `
+                <div class="list-badge-col">
+                    <div class="level-badge ${getRankBadgeClass(u.Exp)}">${getRankName(u.Exp)}</div>
+                </div>
+            `;
+            // FIN MANEJO CONDICIONAL
+
+            html += `
+                <div class="list-row ${isMe}" style="${gridStyle}">
                     <div class="list-rank">#${u.RankOriginal}</div>
                     <div class="list-player">
                         <div class="list-avatar-small"><i class="fa-solid fa-user"></i></div>
@@ -469,12 +541,9 @@
                             <span class="list-tag">${u.Gamer_Tag || '--'}</span>
                         </div>
                     </div>
-                    <div class="list-badge-col">
-                        <div class="level-badge ${getRankBadgeClass(u.Exp)}">${getRankName(u.Exp)}</div>
-                    </div>
-                    <div class="list-xp-col">
-                        <div class="xp-text">${formatNumber(u.Exp)} XP</div>
-                        <div class="exp-bar-bg"><div class="exp-bar-fill" style="width: ${pct}%"></div></div>
+                    ${badgeCol}
+                    <div class="list-xp-col" style="${isRacha ? 'text-align: right;' : ''}">
+                        ${valueContent}
                     </div>
                 </div>`;
         });
@@ -487,6 +556,9 @@
     function formatNumber(n) { return n ? n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0"; }
 
     function getPodiumHtml(u, cls, crown=false) {
+
+        const isRacha = dashData[dashIndex] && dashData[dashIndex].Titulo.includes("Racha");
+
         let rankNumber = '';
         if (cls === 'first-place') {
             rankNumber = '1';
@@ -496,19 +568,22 @@
             rankNumber = '3';
         }
 
-        // Crear el HTML del número central
         const rankNumberHtml = rankNumber
             ? `<div class="podium-rank-number">${rankNumber}</div>`
             : '';
+
+        const valueToDisplay = isRacha ? (u.Racha || 0) : (u.Exp || 0);
+        const valueUnit = isRacha ? ' Días' : ' XP';
 
         return `<div class="podium-column ${cls}">
                 <div class="podium-player-card">
                     ${crown ? '<div class="crown-icon">👑</div>' : ''}
                     <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
                     <div class="podium-name">${u.Nombre}</div>
-                    <div class="podium-xp">${formatNumber(u.Exp)} XP</div>
+                    <div class="podium-xp">${formatNumber(valueToDisplay)}${valueUnit}</div>
                 </div>
-                ${rankNumberHtml}             <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
+                ${rankNumberHtml}
+                <div class="podium-block">${crown ? '<div class="shine-effect"></div>' : ''}</div>
             </div>`;
     }
 
@@ -982,7 +1057,7 @@
 
     .podium-player-card {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 2.5rem;
         position: relative;
         width: 100%;
         display: flex;

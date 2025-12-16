@@ -186,7 +186,8 @@ namespace AnzanMegaArithmetics.Services
                         .Where(uc => uc.Clase != null)
                         .Select(uc => uc.Clase.Nombre)
                         .ToList(),
-                    Exp = u.Experiencia_Total
+                    Exp = u.Experiencia_Total,
+                    Racha = u.Racha
                 }).ToList();
             }
             catch (Exception ex)
@@ -203,23 +204,24 @@ namespace AnzanMegaArithmetics.Services
             var ordenDeseado = new Dictionary<string, int>
             {
                 { "🌍 Ranking Global", 1 },
-                { "Fingermath Lectura", 2 },
-                { "Fingermath Escritura", 3 },
-                { "Soroban Lectura", 4 },
-                { "Soroban Escritura", 5 },
-                { "Suma Resta", 6 },
-                { "Números Flash", 7 },
-                { "Dictado Flash", 8},
-                { "Tablas de Multiplicar", 9 },
-                { "Multiplicación", 10 },
-                { "Número Figura", 11 },
-                { "CalendarioMental - ", 12 },
-                { "Calendario Mental - Competencia", 13 },
-                { "Cuadros Práctica", 14 },
-                { "Potencias - ", 15 },
-                { "Potencias - Competencia", 16 },
-                { "Raíces - ", 17 },
-                { "Raíces - Competencia", 18 },
+                { "🔥 Racha de Días", 2 },
+                { "Fingermath Lectura", 3 },
+                { "Fingermath Escritura", 4 },
+                { "Soroban Lectura", 5 },
+                { "Soroban Escritura", 6 },
+                { "Suma Resta", 7 },
+                { "Números Flash", 8 },
+                { "Dictado Flash", 9},
+                { "Tablas de Multiplicar", 10 },
+                { "Multiplicación", 11 },
+                { "Número Figura", 12 },
+                { "CalendarioMental - ", 13 },
+                { "Calendario Mental - Competencia", 14 },
+                { "Cuadros Práctica", 15 },
+                { "Potencias - ", 16 },
+                { "Potencias - Competencia", 17 },
+                { "Raíces - ", 18 },
+                { "Raíces - Competencia", 19 },
             };
 
             const int ORDEN_POR_DEFECTO = 100;
@@ -237,7 +239,7 @@ namespace AnzanMegaArithmetics.Services
                         Correo = u.Correo,
                         Gamer_Tag = u.Gamer_Tag,
                         Exp = u.Experiencia_Total,
-                        // Si necesitas las clases:
+                        Racha = u.Racha,
                         Clases = u.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre).ToList()
                     })
                     .ToList();
@@ -248,6 +250,27 @@ namespace AnzanMegaArithmetics.Services
                     Titulo = globalTitulo,
                     Datos = globalUsers, 
                     Orden = ordenDeseado.GetValueOrDefault(globalTitulo, ORDEN_POR_DEFECTO)
+                });
+
+                var rachaUsers = _context.Usuarios
+                    .OrderByDescending(u => u.Racha)
+                    .Take(cantidad > 0 ? cantidad : 100)
+                    .Select(u => new RankingUsersModel
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Nombre = u.Nombre,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Exp = u.Experiencia_Total,
+                        Racha = u.Racha
+                    })
+                    .ToList();
+
+                var rachaTitulo = "🔥 Racha de Días";
+                slides.Add(new RankingSlideModel
+                {
+                    Titulo = rachaTitulo,
+                    Datos = rachaUsers,
+                    Orden = ordenDeseado.GetValueOrDefault(rachaTitulo, ORDEN_POR_DEFECTO)
                 });
 
                 var actividades = _context.Pruebas
@@ -281,6 +304,7 @@ namespace AnzanMegaArithmetics.Services
                         Orden = orden
                     });
                 }
+
                 slides = slides.OrderBy(s => s.Orden).ToList();
             }
             catch (Exception ex)
