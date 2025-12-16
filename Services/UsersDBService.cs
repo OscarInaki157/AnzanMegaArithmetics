@@ -170,12 +170,23 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        private List<int> GetRolesExcluidosIds()
+        {
+            return _context.Roles
+                .Where(r => r.Rol.Contains("Admin") || r.Rol == "Master" || r.Rol == "Profesor")
+                .Select(r => r.Id_Rol)
+                .ToList();
+        }
+
         public List<RankingUsersModel> ObtenerRankingUsuarios(int cantidad = 0)
         {
             List<RankingUsersModel> ranking = new List<RankingUsersModel>();
             try
             {
+                var rolesExcluidos = GetRolesExcluidosIds();
+
                 var query = _context.Usuarios
+                    .Where(u => !rolesExcluidos.Contains(u.Id_Rol))
                     .Include(u => u.Usuario_Clase)
                     .ThenInclude(uc => uc.Clase)
                     .OrderByDescending(u => u.Experiencia_Total)
@@ -239,7 +250,10 @@ namespace AnzanMegaArithmetics.Services
 
             try
             {
+                var rolesExcluidos = GetRolesExcluidosIds();
+
                 var globalUsers = _context.Usuarios
+                    .Where(u => !rolesExcluidos.Contains(u.Id_Rol))
                     .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
                     .OrderByDescending(u => u.Experiencia_Total)
                     .Take(cantidad > 0 ? cantidad : 100)
@@ -265,6 +279,7 @@ namespace AnzanMegaArithmetics.Services
                 });
 
                 var rachaUsers = _context.Usuarios
+                    .Where(u => !rolesExcluidos.Contains(u.Id_Rol))
                     .OrderByDescending(u => u.Racha)
                     .Take(cantidad > 0 ? cantidad : 100)
                     .Select(u => new RankingUsersModel
@@ -288,6 +303,7 @@ namespace AnzanMegaArithmetics.Services
 
                 var actividades = _context.Pruebas
                     .Where(p => p.Activo)
+                    .Where(p => p.Usuario != null && !rolesExcluidos.Contains(p.Usuario.Id_Rol))
                     .GroupBy(p => p.Tipo_Prueba)
                     .Select(grupo => new
                     {
@@ -349,7 +365,11 @@ namespace AnzanMegaArithmetics.Services
                 return new RankingSlideModel { Titulo = "Periodo no válido", Datos = new List<RankingUsersModel>() };
             }
 
-            var baseQuery = _context.Pruebas.Where(p => p.Activo && p.Fecha >= fechaInicio);
+            var rolesExcluidos = GetRolesExcluidosIds();
+
+            var baseQuery = _context.Pruebas
+                .Where(p => p.Activo && p.Fecha >= fechaInicio)
+                .Where(p => p.Usuario != null && !rolesExcluidos.Contains(p.Usuario.Id_Rol));
 
             if (!actividad.Equals("Ranking Global", StringComparison.OrdinalIgnoreCase))
             {
