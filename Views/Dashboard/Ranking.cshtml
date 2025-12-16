@@ -101,18 +101,18 @@
         <div class="custom-modal-header">
             <div class="header-top-row">
                 <div class="slider-header-container">
-                    <button class="slider-nav-btn" onclick="cambiarSlideModal(-1)">
+                    @* <button class="slider-nav-btn" onclick="cambiarSlideModal(-1)">
                         <i class="fa-solid fa-chevron-left"></i>
-                    </button>
+                    </button> *@
 
                     <div class="slider-title-wrapper">
                         <h3 id="lblModalTitle" class="slider-title">Ranking</h3>
-                        <div id="modalDots" class="slider-dots" style="justify-content:center; display:flex; gap:4px; margin-top:4px;"></div>
+                        @* <div id="modalDots" class="slider-dots" style="justify-content:center; display:flex; gap:4px; margin-top:4px;"></div> *@
                     </div>
 
-                    <button class="slider-nav-btn" onclick="cambiarSlideModal(1)">
+                    @* <button class="slider-nav-btn" onclick="cambiarSlideModal(1)">
                         <i class="fa-solid fa-chevron-right"></i>
-                    </button>
+                    </button> *@
                 </div>
 
                 <button class="close-modal-btn" onclick="cerrarModalRanking()">&times;</button>
@@ -501,6 +501,10 @@
         modalIndex = dashIndex;
         document.getElementById('inputBusquedaRanking').value = "";
 
+         const catActual = dashData[dashIndex]; // Ojo, usamos dashData, pero el título será el mismo que modalData[modalIndex].Titulo si está cargado
+         const isRacha = catActual && catActual.Titulo.includes("Racha");
+         document.getElementById('modalFilters').style.display = isRacha ? 'none' : 'flex';
+
         // 2. SINCRONIZAR FILTROS DEL MODAL con el estado actual del DASHBOARD (dashPeriodo)
         document.querySelectorAll('#modalFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
         const modalActiveBtn = document.querySelector(`#modalFilters .filter-btn[data-periodo="${dashPeriodo}"]`);
@@ -574,7 +578,21 @@
 
         // Limpiar búsqueda al cambiar
         document.getElementById('inputBusquedaRanking').value = "";
+
+
         modalData[modalIndex].Filtrados = modalData[modalIndex].Datos;
+        dashPeriodo = 'Global';
+
+         const isRacha = modalData[modalIndex].Titulo.includes("Racha");
+         document.getElementById('modalFilters').style.display = isRacha ? 'none' : 'flex';
+
+         if (!isRacha) {
+             document.querySelectorAll('#modalFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+             document.querySelector(`#modalFilters .filter-btn[data-periodo="Global"]`).classList.add('active');
+
+             document.querySelectorAll('#dashFilters .filter-btn').forEach(btn => btn.classList.remove('active'));
+             document.querySelector(`#dashFilters .filter-btn[data-periodo="Global"]`).classList.add('active');
+         }
 
         renderModal();
         actualizarDots('modalDots', modalIndex);
