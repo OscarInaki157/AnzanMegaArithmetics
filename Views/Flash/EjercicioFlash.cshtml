@@ -33,7 +33,7 @@
     </form>
 
     <div id="iconoSonido" class="icono-sonido">
-        🔊
+        
     </div>
 
 </div>
@@ -247,9 +247,10 @@
         const utterance = new SpeechSynthesisUtterance();
         utterance.lang = 'es-MX';
 
-        const TTS_BASE_RATE = 1.75;
+        const TTS_BASE_RATE = 2.6;
 
-        utterance.rate = Math.min(3.0, TTS_BASE_RATE / velocidad);
+        // utterance.rate = Math.min(3.0, TTS_BASE_RATE / velocidad);
+        utterance.rate = 2.5;
 
         function reproducirBeep() {
             const oscillator = audioCtx.createOscillator();
@@ -266,12 +267,7 @@
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        // function leerNumero(texto) {
-        //     if (synth && activarDictado) {
-        //         utterance.text = texto;
-        //         synth.speak(utterance);
-        //     }
-        // }
+        let tiempoInicioDictado = 0;
 
         function leerNumero(i, numero) {
             if (synth && activarDictado) {
@@ -289,6 +285,7 @@
 
                 synth.cancel();
                 utterance.text = textoDictado;
+                tiempoInicioDictado = performance.now();
                 synth.speak(utterance);
             }
         }
@@ -355,12 +352,29 @@
 
             mostrarVisual(numero);
             actualizarColor(indiceActual);
-            leerNumero(indiceActual, numero);
+
+            if (indiceActual >= 0) {
+                 leerNumero(indiceActual, numero);
+            }
         }
 
         if (activarDictado) {
+            
             utterance.onend = () => {
-                setTimeout(avanzarPorVoz, 50);
+                const tiempoFinDictado = performance.now();
+                const duracionRealDictado = tiempoFinDictado - tiempoInicioDictado;
+
+                const tiempoEsperado = tiempoPorNumero;
+
+                let retardoNecesario = tiempoEsperado - duracionRealDictado;
+
+                if (retardoNecesario < 50) {
+                    retardoNecesario = 50;
+                }
+
+                setTimeout(() => {
+                    avanzarPorVoz();
+                }, retardoNecesario);
             };
         }
 
@@ -400,6 +414,7 @@
 
             if (activarDictado) {
                 avanzarPorVoz();
+                leerNumero(indiceActual, numeros[indiceActual]);
             } else {
                 requestAnimationFrame(loopPorTiempo);
             }
