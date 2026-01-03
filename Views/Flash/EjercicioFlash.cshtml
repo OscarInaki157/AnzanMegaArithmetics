@@ -236,63 +236,70 @@
         const mostrarNumeros = @(((bool)ViewBag.MostrarNumeros) ? "true" : "false");
         const activarDictado = @(((bool)ViewBag.ActivarDictado) ? "true" : "false");
 
-        // --- Variables de Estado y Elementos ---
+        // --- Variables de Estado ---
         let indiceActual = -1;
         let tiempoInicializado = false;
+        let tiempoInicioDictado = 0;
         const numeroFlash = document.getElementById("numeroFlash");
 
+        // Audio y Síntesis
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
         const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance();
-        utterance.lang = 'es-MX';
 
-        const TTS_BASE_RATE = 2.6;
-
-        // utterance.rate = Math.min(3.0, TTS_BASE_RATE / velocidad);
-        utterance.rate = 2.5;
+        // --- FUNCIONES ---
 
         function reproducirBeep() {
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
             gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        let tiempoInicioDictado = 0;
-
         function leerNumero(i, numero) {
-            if (synth && activarDictado) {
-                let textoDictado = "";
+            if (!activarDictado || !synth) return;
 
-                if (i === 0) {
-                    textoDictado = numero.toString();
-                }
-                else if (numero > 0) {
-                    textoDictado = "más " + numero.toString();
-                }
-                else if (numero < 0) {
-                    textoDictado = numero.toString();
-                }
+            synth.cancel();
 
-                synth.cancel();
-                utterance.text = textoDictado;
-                tiempoInicioDictado = performance.now();
-                synth.speak(utterance);
-            }
+            const utterance = new SpeechSynthesisUtterance();
+            utterance.lang = 'es-MX';
+            utterance.rate = 0.8;
+            utterance.volume = 1.0;
+            utterance.text = numero.toString();
+
+            tiempoInicioDictado = performance.now();
+
+            let yaAvanzo = false;
+
+            const ejecutarAvance = () => {
+                if (!yaAvanzo) {
+                    yaAvanzo = true;
+                    const duracionReal = performance.now() - tiempoInicioDictado;
+                    let espera = tiempoPorNumero - duracionReal;
+                    if (espera < 50) espera = 50;
+                    setTimeout(avanzarSecuencia, espera);
+                }
+            };
+
+            utterance.onend = ejecutarAvance;
+
+            setTimeout(() => {
+                if (!yaAvanzo) {
+                    console.log("Safari/Browser encallado: Forzando avance.");
+                    ejecutarAvance();
+                }
+            }, tiempoPorNumero + 300);
+
+            synth.speak(utterance);
         }
 
         function mostrarVisual(numero) {
             if (mostrarNumeros) {
-                numeroFlash.textContent = numero >= 0 ? numero : `-${Math.abs(numero)}`;
+                numeroFlash.textContent = numero;
                 numeroFlash.style.visibility = "visible";
             } else {
                 numeroFlash.textContent = "";
@@ -301,46 +308,11 @@
         }
 
         function actualizarColor(i) {
-            if (i % 2 === 0) {
-                numeroFlash.classList.remove("color-b");
-                numeroFlash.classList.add("color-a");
-            } else {
-                numeroFlash.classList.remove("color-a");
-                numeroFlash.classList.add("color-b");
-            }
+            numeroFlash.classList.toggle("color-a", i % 2 === 0);
+            numeroFlash.classList.toggle("color-b", i % 2 !== 0);
         }
 
-        function loopPorTiempo(timestamp) {
-            if (!tiempoInicializado) tiempoInicializado = timestamp;
-
-            const elapsed = timestamp - tiempoInicializado;
-            const index = Math.floor(elapsed / tiempoPorNumero);
-
-            if (index >= numeros.length) {
-                finalizarSecuencia();
-                return;
-            }
-
-            if (index !== indiceActual) {
-                const numero = numeros[index];
-
-                mostrarVisual(numero);
-                actualizarColor(index);
-
-                if (activarSonido) reproducirBeep();
-
-                if (activarDictado) {
-                    synth.cancel();
-                    leerNumero(index, numero);
-                }
-
-                indiceActual = index;
-            }
-
-            requestAnimationFrame(loopPorTiempo);
-        }
-
-        function avanzarPorVoz() {
+        function avanzarSecuencia() {
             indiceActual++;
 
             if (indiceActual >= numeros.length) {
@@ -350,53 +322,32 @@
 
             const numero = numeros[indiceActual];
 
+            // UI
             mostrarVisual(numero);
             actualizarColor(indiceActual);
+            if (activarSonido) reproducirBeep();
 
-            if (indiceActual >= 0) {
-                 leerNumero(indiceActual, numero);
+            // Dictado
+            if (activarDictado) {
+                leerNumero(indiceActual, numero);
+            } else {
+                // Si no hay dictado, usamos un simple timeout basado en la velocidad
+                setTimeout(avanzarSecuencia, tiempoPorNumero);
             }
         }
-
-        if (activarDictado) {
-            
-            utterance.onend = () => {
-                const tiempoFinDictado = performance.now();
-                const duracionRealDictado = tiempoFinDictado - tiempoInicioDictado;
-
-                const tiempoEsperado = tiempoPorNumero;
-
-                let retardoNecesario = tiempoEsperado - duracionRealDictado;
-
-                if (retardoNecesario < 50) {
-                    retardoNecesario = 50;
-                }
-
-                setTimeout(() => {
-                    avanzarPorVoz();
-                }, retardoNecesario);
-            };
-        }
-
 
         function finalizarSecuencia() {
-            if (indiceActual === numeros.length - 1 || indiceActual === numeros.length) {
-                numeroFlash.textContent = "";
-                numeroFlash.style.visibility = "hidden";
+            numeroFlash.textContent = "";
+            numeroFlash.style.visibility = "hidden";
+            if (synth) synth.cancel();
 
-                if (synth) synth.cancel();
-
-                // Redireccionar
-                setTimeout(() => {
-                    window.location.href = "/Flash/RespuestaFlash";
-                }, 500);
-            }
+            setTimeout(() => {
+                window.location.href = "/Flash/RespuestaFlash";
+            }, 500);
         }
-
 
         function iniciarEjercicio() {
             const iconoSonido = document.getElementById("iconoSonido");
-
             if (activarDictado) {
                 iconoSonido.textContent = "🎤";
                 iconoSonido.classList.add("activo");
@@ -405,54 +356,33 @@
                 iconoSonido.classList.add("activo");
             } else {
                 iconoSonido.textContent = "🔇";
-                iconoSonido.classList.remove("activo");
             }
 
-            if (!mostrarNumeros) {
-                numeroFlash.style.visibility = "hidden";
-            }
-
-            if (activarDictado) {
-                avanzarPorVoz();
-                leerNumero(indiceActual, numeros[indiceActual]);
-            } else {
-                requestAnimationFrame(loopPorTiempo);
-            }
+            // Arrancamos
+            avanzarSecuencia();
         }
 
-        window.onload = function () {
+        // --- EVENTOS DE INICIO ---
 
+        window.onload = function () {
+            // Desbloquear audio en móviles/navegadores
             window.addEventListener("pointerdown", () => {
-                if (audioCtx.state === "suspended") {
-                    audioCtx.resume().then(() => {
-                        if (activarSonido) reproducirBeep();
-                    });
-                }
-                if (activarDictado && synth.speaking === false) {
-                    synth.speak(new SpeechSynthesisUtterance(""));
-                }
+                if (audioCtx.state === "suspended") audioCtx.resume();
+                // "Despertar" al sintetizador con un silencio
+                if (synth) synth.speak(new SpeechSynthesisUtterance(""));
             }, { once: true });
 
+            // Pequeña espera para asegurar que las voces carguen
             setTimeout(() => {
                 if (activarDictado && synth.getVoices().length === 0) {
-                     synth.onvoiceschanged = () => {
-                         setTimeout(iniciarEjercicio, 500);
-                     };
+                    synth.onvoiceschanged = iniciarEjercicio;
                 } else {
                     iniciarEjercicio();
                 }
             }, 500);
         };
-
-        window.addEventListener("click", () => {
-            if (audioCtx.state === "suspended") {
-                 audioCtx.resume();
-            }
-        }, { once: true });
-
     </script>
 }
-
 
 
 

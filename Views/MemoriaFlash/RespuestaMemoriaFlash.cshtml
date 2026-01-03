@@ -12,7 +12,9 @@
 
 <div class="top-bar">
     <form id="formRespuestas" method="post" action="@Url.Action("CalificarRespuestasFlash", "MemoriaFlash")" class="form-fin">
-        
+        <button type="submit" class="btn-finalizar2">
+            ❌  <span>Finalizar</span>
+        </button>
         <button type="submit" class="btn-finalizar">
             ✅ <span>Enviar Respuestas</span>
         </button>
@@ -62,10 +64,33 @@
 </div>
 
 <style>
-    /* CORRECCIÓN DE FONDO: Asegura que el body use el color de fondo correcto (el verde oliva, --color-bg) */
+    .btn-finalizar2 {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+
     body {
         background-color: var(--color-bg);
         color: var(--text-color);
+    }
+
+    .form-fin{
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
     }
 
     .top-bar {
@@ -281,6 +306,14 @@
 
     /* Responsive */
     @@media (max-width: 800px) {
+        .form-fin {
+            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: space-between;
+        }
+
         .flash-wrapper-respuestas {
             flex-direction: column-reverse;
             align-items: center;
