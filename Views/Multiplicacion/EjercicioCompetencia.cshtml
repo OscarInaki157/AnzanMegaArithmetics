@@ -503,25 +503,14 @@
                     let valorGuardado = respuestasUsuario[actual] || "";
 
 
-                    if (direccionRespuesta === "DerechaAIzquierda") {
-                        // Mostrar invertido al cargar
-                        inputActual.value = valorGuardado.split('').reverse().join('');
-                    } else {
-                        inputActual.value = valorGuardado;
-                    }
-
-                        // Mostrar visualmente invertido en mini input si es necesario
-                    if (direccionRespuesta === "DerechaAIzquierda") {
-                        miniInput.value = valorGuardado.split('').reverse().join('');
-                    } else {
-                        miniInput.value = valorGuardado;
-                    }
+                    inputActual.value = valorGuardado;
+                    miniInput.value = valorGuardado;
 
 
-                        if (direccionRespuesta === "DerechaAIzquierda") {
-                            document.getElementById("respuestaActual").style.direction = "rtl";
+                       if (direccionRespuesta === "DerechaAIzquierda") {
+                            inputActual.style.direction = "rtl";
                         } else {
-                            document.getElementById("respuestaActual").style.direction = "ltr";
+                            inputActual.style.direction = "ltr";
                         }
 
 
@@ -612,26 +601,16 @@
 
     function actualizarRespuesta() {
         const input = document.getElementById("respuestaActual");
-        let valorMostrado = input.value;
-
-        // Convertir lo que ve a valor lógico
-        let valorCrudo = direccionRespuesta === "DerechaAIzquierda"
-            ? valorMostrado.split('').reverse().join('').replace(/\D/g, '')
-            : valorMostrado.replace(/\D/g, '');
-
-        // Guardar la respuesta lógica
-        respuestasUsuario[actual] = valorCrudo;
-
-        // Mostrar invertido si es necesario
-        const valorVisual = direccionRespuesta === "DerechaAIzquierda"
-            ? valorCrudo.split('').reverse().join('')
-            : valorCrudo;
-
-        input.value = valorVisual;
-
-        // Mini input solo se usa para mostrar, así que va con visual
         const miniInput = document.getElementById(`respuestaMini_${actual}`);
-        miniInput.value = valorVisual;
+
+        // Lo que el usuario VE en el input principal (ej: 321)
+        let valorVisual = input.value;
+
+        // Lo replicamos en el mini input y en nuestro array
+        if (miniInput) {
+            miniInput.value = valorVisual;
+        }
+        respuestasUsuario[actual] = valorVisual;
     }
 
     renderEjercicio();
@@ -728,14 +707,16 @@
     });
 
     function copiarRespuestasAlFormulario() {
-        respuestasUsuario.forEach((resp, i) => {
-            const input = document.getElementById(`hiddenRespuesta_${i}`);
-            if (input) {
-                input.value = resp;
-                console.log(`Respuesta ${i}:`, resp);
+        respuestasUsuario.forEach((_, i) => {
+            const inputHidden = document.getElementById(`hiddenRespuesta_${i}`);
+            const miniInput = document.getElementById(`respuestaMini_${i}`);
+
+            if (inputHidden && miniInput) {
+                // Enviamos el valor visual (ej: 321) en lugar del lógico (123)
+                inputHidden.value = miniInput.value;
+                console.log(`Respuesta enviada ${i}:`, miniInput.value);
             }
         });
-
         return true;
     }
 
