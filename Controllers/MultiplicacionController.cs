@@ -711,6 +711,11 @@ namespace AnzanMegaArithmetics.Controllers
 
         private static string GenerarNumeroAleatorio(int digitos, Random rand)
         {
+            if (digitos == 1)
+            {
+                return rand.Next(3, 10).ToString();
+            }
+
             int min = (int)Math.Pow(10, digitos - 1);
             int max = (int)Math.Pow(10, digitos) - 1;
             return rand.Next(min, max + 1).ToString();
@@ -758,10 +763,22 @@ namespace AnzanMegaArithmetics.Controllers
             var rand = new Random();
             for (int i = 0; i < 10; i++)
             {
+                string multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand);
+                string multiplicador;
+
+                if (configNuevo.TipoPregunta == "2x1" && digitosMultiplicador == 1) 
+                {
+                    multiplicador = rand.Next(3,10).ToString();
+                }
+                else
+                {
+                    multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand);
+                }
+
                 ejercicios.Add(new EjercicioCompetenciaModel
                 {
-                    Multiplicando = GenerarNumeroAleatorio(digitosMultiplicando, rand),
-                    Multiplicador = GenerarNumeroAleatorio(digitosMultiplicador, rand),
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
                     FormatoPregunta = configNuevo.FormatoPregunta,
                     DireccionRespuesta = configNuevo.DireccionRespuesta
                 });

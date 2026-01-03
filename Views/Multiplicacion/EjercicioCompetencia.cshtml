@@ -167,7 +167,7 @@
     padding: 0.5rem;
     border-radius: 1rem;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     color: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
 }
@@ -686,6 +686,10 @@
     function ejercicioSiguiente() {
         if (actual < total - 1) {
             seleccionarEjercicio(actual + 1);
+        }
+        else{
+            copiarRespuestasAlFormulario();
+            document.getElementById("FormFinalizar").submit();
         }
     }
 
