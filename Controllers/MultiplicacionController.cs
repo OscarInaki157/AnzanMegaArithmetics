@@ -664,6 +664,9 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
+            HttpContext.Session.Remove("YaCargoMemorizada");
+            HttpContext.Session.Remove("EjerciciosMemorizada");
+
             HttpContext.Session.Remove("EjerciciosCompetencia");
             var json = HttpContext.Session.GetString("UltimaConfigCompetenciaMulti");
 

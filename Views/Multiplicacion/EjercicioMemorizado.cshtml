@@ -27,6 +27,10 @@
             <span>⏱ <span id="cronometro" class="contador">--:--</span></span>
         }
     </div>
+
+    <form method="get" asp-action="FormCompetenciaMulti">
+        <button type="submit" class="btn-finalizar">⚙️ Configuración</button>
+    </form>
     
     <button id="btnSaltarMemorizacion" type="button" class="btn-finalizar">
         ⏱️ <span class="btn-text">Finalizar tiempo</span>
@@ -189,7 +193,14 @@
         document.getElementById(`ejMini_${actual}`).classList.remove('activo');
 
         document.getElementById("respuestaActual").disabled = true;
-        siguienteEjercicio();
+
+
+        if (actual === ejercicios.length - 1) {
+            finalizar();
+        } else {
+            siguienteEjercicio();
+        }
+
     }
 
     function siguienteEjercicio() {
@@ -294,6 +305,7 @@
 </script>
 
 <style>
+
 
     .cerebro-marca {
         position: fixed;
