@@ -474,6 +474,7 @@
                     <div class="list-avatar-small" style="width:30px; height:30px;"><i class="fa-solid fa-user"></i></div>
                     <div class="list-info">
                         <span class="list-name" style="font-size:0.9rem;">${user.Nombre}</span>
+                        <span class="list-name" style="font-size:0.7rem; font-weight:500; font-style:italic;">${user.Gamer_Tag}</span>
                         <span class="list-tag" style="font-size:0.7rem;">
                             <span class="level-badge ${rankClass}" style="display: flex; justify-content: center; align-items: center; margin-top: 0.5rem; width: fit-content;">${rankDisplay}</span>
                         </span>
@@ -731,6 +732,7 @@
                     ${crown ? '<div class="crown-icon">👑</div>' : ''}
                     <div class="podium-avatar"><i class="fa-solid fa-user"></i></div>
                     <div class="podium-name">${u.Nombre}</div>
+                    <span class="list-name" style="font-size:0.7rem; font-weight:500; font-style:italic;">${u.Gamer_Tag}</span>
                     <div class="podium-xp">${formatNumber(valueToDisplay)}${valueUnit}</div>
                 </div>
                 ${rankNumberHtml}
@@ -1352,9 +1354,10 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
-        background-size: 200% 200%;
-        animation: shine 3s infinite;
+        background: linear-gradient(0deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+        background-size: 100% 200%;
+        animation: shine-vertical 3s infinite linear;
+        pointer-events: none;
     }
 
 
@@ -1438,6 +1441,16 @@
         background-position: -200% 0;
     }
 
+    }
+
+    @@keyframes shine-vertical {
+        0% {
+            background-position: 0% 150%; /* Empieza fuera por abajo */
+        }
+
+        100% {
+            background-position: 0% -50%; /* Termina fuera por arriba */
+        }
     }
     @@keyframes float {
         0%, 100%

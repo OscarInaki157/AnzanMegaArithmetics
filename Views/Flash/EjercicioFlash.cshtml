@@ -55,6 +55,12 @@
         text-shadow: 0 0 40px rgba( @shadowB_rgb, 0.9), 0 0 20px rgba( @shadowB_rgb, 0.7);
     }
 
+    .sombra-alterna {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 30px #ccff00, 0 0 50px rgba(204, 255, 0, 0.6), 0 0 70px rgba(204, 255, 0, 0.3);
+        transform: scale(1.05);
+        transition: transform 0.1s ease-out;
+    }
+
     body {
         background-color: var(--color-bg);
         color: var(--color-tex);
@@ -308,8 +314,21 @@
         }
 
         function actualizarColor(i) {
+            // 1. Detectamos si los colores seleccionados son el mismo
+            const colorA = "@colorA_key";
+            const colorB = "@colorB_key";
+            const sonIguales = (colorA === colorB);
+
+            // 2. Alternancia normal de clases
             numeroFlash.classList.toggle("color-a", i % 2 === 0);
             numeroFlash.classList.toggle("color-b", i % 2 !== 0);
+
+            // 3. Si son iguales, alternamos la sombra especial en los números impares
+            if (sonIguales) {
+                numeroFlash.classList.toggle("sombra-alterna", i % 2 !== 0);
+            } else {
+                numeroFlash.classList.remove("sombra-alterna");
+            }
         }
 
         function avanzarSecuencia() {
