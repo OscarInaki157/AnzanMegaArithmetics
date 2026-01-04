@@ -283,6 +283,7 @@
         width: 32rem;
         height: 32rem;
         margin: 0 auto;
+        transform: scale(1.2);
     }
 
     .svg-wrapper {
@@ -677,6 +678,136 @@
     </style>
 }
 
+@if (colorBrillo == 2)
+{
+    <style>
+        svg #dedo1.iluminado,
+        svg #dedo2.iluminado,
+        svg #dedo3.iluminado,
+        svg #dedo4.iluminado,
+        svg #dedo5.iluminado,
+        svg #dedo6.iluminado,
+        svg #dedo7.iluminado,
+        svg #dedo8.iluminado,
+        svg #dedo9.iluminado,
+        svg #dedo10.iluminado {
+            fill: #ccff00 !important;
+            background-color: #ccff00 !important;
+            filter: drop-shadow(0 0 8px #ccff00);
+            box-shadow: 0 0 12px #ccff00;
+            animation: radioactive-glow 1s ease-in-out infinite alternate;
+        }
+
+        @@keyframes radioactive-glow {
+            from
+
+        {
+            filter: brightness(1);
+        }
+
+        to {
+            filter: brightness(2) drop-shadow(0 0 15px #ccff00);
+        }
+
+        }
+
+        .punto.iluminado {
+            background-color: #ccff00 !important;
+            box-shadow: 0 0 10px #ccff00;
+        }
+    </style>
+}
+
+@if (colorBrillo == 3)
+{
+    <style>
+        svg #dedo1.iluminado,
+        svg #dedo2.iluminado,
+        svg #dedo3.iluminado,
+        svg #dedo4.iluminado,
+        svg #dedo5.iluminado,
+        svg #dedo6.iluminado,
+        svg #dedo7.iluminado,
+        svg #dedo8.iluminado,
+        svg #dedo9.iluminado,
+        svg #dedo10.iluminado {
+            fill: #a020f0 !important;
+            background-color: #a020f0 !important;
+            filter: drop-shadow(0 0 10px #a020f0);
+            box-shadow: 0 0 20px rgba(160, 32, 240, 0.7);
+            animation: aura-purple 3s ease-in-out infinite;
+        }
+
+        @@keyframes aura-purple {
+            0%, 100%
+
+        {
+            transform: scale(1);
+            opacity: 1;
+            filter: brightness(2);
+        }
+
+        50% {
+            filter: brightness(1);
+            transform: scale(1.003);
+            opacity: 0.9;
+        }
+
+        }
+
+        .punto.iluminado {
+            background-color: #a020f0 !important;
+            box-shadow: 0 0 10px #a020f0;
+        }
+    </style>
+}
+
+@if (colorBrillo == 4)
+{
+    <style>
+        svg #dedo1.iluminado,
+        svg #dedo2.iluminado,
+        svg #dedo3.iluminado,
+        svg #dedo4.iluminado,
+        svg #dedo5.iluminado,
+        svg #dedo6.iluminado,
+        svg #dedo7.iluminado,
+        svg #dedo8.iluminado,
+        svg #dedo9.iluminado,
+        svg #dedo10.iluminado {
+            fill: #00f2ff !important;
+            background-color: #00f2ff !important;
+            filter: drop-shadow(0 0 10px #00f2ff);
+            box-shadow: 0 0 15px #00f2ff;
+            animation: pulse-cyan 2s infinite;
+        }
+
+        @@keyframes pulse-cyan {
+            0%
+
+        {
+            filter: drop-shadow(0 0 5px #00f2ff);
+            box-shadow: 0 0 10px #00f2ff;
+        }
+
+        50% {
+            filter: drop-shadow(0 0 15px #00f2ff);
+            box-shadow: 0 0 25px #00f2ff;
+        }
+
+        100% {
+            filter: drop-shadow(0 0 5px #00f2ff);
+            box-shadow: 0 0 10px #00f2ff;
+        }
+
+        }
+
+        .punto.iluminado {
+            background-color: #00f2ff !important;
+            box-shadow: 0 0 10px #00f2ff;
+        }
+    </style>
+}
 
 <script>
  
