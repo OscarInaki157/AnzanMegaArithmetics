@@ -12,7 +12,7 @@
 <div class="top-bar">
     <form method="post" action="/Multiplicacion/FinalizarMemorizada" class="form-fin" id="FormFinalizar" onsubmit="return copiarRespuestasAlFormulario()">
         <button type="submit" class="btn-finalizar">
-            ❌ <span>Finalizar</span>
+            ✅ <span>Enviar respuestas</span>
         </button>
 
         @for (int i = 0; i < Model.Count; i++)
@@ -28,8 +28,8 @@
         }
     </div>
     
-    <button id="btnSaltarMemorizacion" type="button" class="btn-finalizar" style="background-color:#4c4cff; box-shadow:none;">
-        ▶️ <span class="btn-text">Finalizar Tiempo</span>
+    <button id="btnSaltarMemorizacion" type="button" class="btn-finalizar">
+        ⏱️ <span class="btn-text">Finalizar tiempo</span>
     </button>
 </div>
 
@@ -328,7 +328,6 @@
     }
 
     #btnSaltarMemorizacion:disabled {
-        background-color: #6c6cff !important;
         transform: none !important;
         box-shadow: none !important;
         opacity: 0.7;
@@ -341,7 +340,6 @@
     }
 
     #btnSaltarMemorizacion {
-        background-color: #4c4cff;
         color: white;
         padding: 0.6rem 1.2rem;
         border: none;
@@ -351,14 +349,15 @@
         font-family: inherit;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
         display: flex;
         align-items: center;
         gap: 0.4rem;
+        background-color: #00ff88;
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
     }
 
         #btnSaltarMemorizacion:hover {
-            background-color: #3737e8;
+            background-color: #00e077;
             transform: scale(1.05);
         }
 
@@ -544,23 +543,24 @@
     }
 
     .btn-finalizar {
-        background-color: #df312c;
+        background-color: #4c4cff;
         color: white;
-        padding: 0.6rem 1rem;
+        padding: 0.6rem 1.2rem;
         border: none;
         border-radius: 8px;
         font-size: 0.95rem;
         font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
     }
 
         .btn-finalizar:hover {
-            background-color: #b22222;
+            background-color: #3737e8;
             transform: scale(1.05);
         }
 
