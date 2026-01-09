@@ -251,5 +251,64 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         //raices cuadradas
+        //potencias
+        [HttpGet]
+        public IActionResult ConfigurarHojasEjerciciosPotencias()
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            ConfPotenciasModel config;
+            var configJson = HttpContext.Session.GetString("ConfPotencias");
+
+            if (string.IsNullOrEmpty(configJson))
+            {
+
+                config = new ConfPotenciasModel
+                {
+                    CantidadEjercicios = 10,
+                    NumeroInicial = 11,
+                    NumeroFinal = 19
+                };
+
+                HttpContext.Session.SetString("ConfPotencias", JsonSerializer.Serialize(config));
+            }
+            else
+            {
+                config = JsonSerializer.Deserialize<ConfPotenciasModel>(configJson);
+            }
+
+            return View(config);
+        }
+        [HttpPost]
+        public IActionResult HojaEjerciciosPotencias(ConfPotenciasModel config)
+        {
+            List<EjercicioPotenciasModel> ejercicios = GenerarEjerciciosPotencias(config);
+            return View(ejercicios);
+        }
+        private List<EjercicioPotenciasModel> GenerarEjerciciosPotencias(ConfPotenciasModel config)
+        {
+            List<EjercicioPotenciasModel> ejercicios = new();
+            Random rand = new Random();
+
+            for (int i = 0; i < config.CantidadEjercicios; i++)
+            {
+                int numeroBase = rand.Next(config.NumeroInicial, config.NumeroFinal + 1);
+
+                EjercicioPotenciasModel ejercicio = new EjercicioPotenciasModel
+                {
+                    Id_Ejercicio = i + 1,
+                    Numero_Base = numeroBase
+                };
+                ejercicios.Add(ejercicio);
+            }
+
+            return ejercicios;
+        }
+        //potencias
     }
 }
