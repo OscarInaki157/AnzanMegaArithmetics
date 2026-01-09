@@ -111,5 +111,72 @@ namespace AnzanMegaArithmetics.Controllers
 
 
         //Tablas de multiplicar
+        //Multiplicacion
+
+        [HttpGet]
+        public IActionResult ConfigurarHojasEjerciciosMultiplicacion()
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var configJson = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
+            ConfMultiModel modelo;
+
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                modelo = System.Text.Json.JsonSerializer.Deserialize<ConfMultiModel>(configJson);
+            }
+            else
+            {
+                modelo = new ConfMultiModel
+                {
+                    CantidadEjercicios = 5,
+                    FormatoPregunta = "Vertical",
+                    DigitosMultiplicando = "2",
+                    DigitosMultiplicador = "2",
+                    TiempoMeditacion = 3
+                };
+            }
+
+            return View(modelo);
+        }
+
+        [HttpPost]
+        public IActionResult HojaEjerciciosMultiplicacion(ConfMultiModel config) 
+        {
+            int total = config.CantidadEjercicios;
+            List<RMultiplicationModel> resultados = new List<RMultiplicationModel>();
+            Random rand = new Random();
+
+            for (int i = 1; i <= total; i++)
+            {
+                int multiplicando = GenerarNumero(rand, config.DigitosMultiplicando);
+                int multiplicador = GenerarNumero(rand, config.DigitosMultiplicador);
+
+                resultados.Add(new RMultiplicationModel
+                {
+                    Multiplicando = multiplicando,
+                    Multiplicador = multiplicador,
+                    RespuestaUsuario = 0,
+                    TiempoRespuesta = 0.0
+                });
+            }
+            ViewBag.FormatoPregunta = config.FormatoPregunta;
+            return View(resultados);
+        }
+
+        private int GenerarNumero(Random rng, string digitosPermitidos)
+        {
+            var digitos = digitosPermitidos.Split(',').Select(int.Parse).ToList();
+            int d = digitos[rng.Next(digitos.Count)];
+            int min = (int)Math.Pow(10, d - 1);
+            int max = (int)Math.Pow(10, d) - 1;
+            return rng.Next(min, max + 1);
+        }
+        //Multiplicacion
     }
 }
