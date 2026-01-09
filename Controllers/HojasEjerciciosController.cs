@@ -1,10 +1,12 @@
 ﻿using AnzanMegaArithmetics.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Controllers
 {
+    [Authorize]
     public class HojasEjerciciosController : Controller
     {
         //Tablas de multiplicar
@@ -178,5 +180,76 @@ namespace AnzanMegaArithmetics.Controllers
             return rng.Next(min, max + 1);
         }
         //Multiplicacion
+        //raices cuadradas
+        [HttpGet]
+        public IActionResult ConfigurarHojasEjerciciosRaices()
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            ConfRaicesModel config;
+            var configJson = HttpContext.Session.GetString("RaicesConf");
+
+            if (string.IsNullOrEmpty(configJson))
+            {
+
+                config = new ConfRaicesModel
+                {
+                    CantidadEjercicios = 5,
+                    TipoEjercicio = "2digitos"
+                };
+
+                HttpContext.Session.SetString("RaicesConf", JsonSerializer.Serialize(config));
+
+            }
+            else
+            {
+                config = JsonSerializer.Deserialize<ConfRaicesModel>(configJson);
+            }
+
+            return View(config);
+        }
+        [HttpPost]
+        public IActionResult HojaEjerciciosRaices(ConfRaicesModel config)
+        {
+            List<EjercicioRaicesModel> ejercicios = GenerarEjerciciosRaices(config);
+            return View(ejercicios);
+        }
+
+        private List<EjercicioRaicesModel> GenerarEjerciciosRaices(ConfRaicesModel config)
+        {
+            List<EjercicioRaicesModel> ejercicios = new();
+            Random rand = new Random();
+
+            for (int i = 0; i < config.CantidadEjercicios; i++)
+            {
+                EjercicioRaicesModel ejercicio = new EjercicioRaicesModel
+                {
+                    Id_Ejercicio = i + 1
+                };
+
+                if (config.TipoEjercicio.Contains("2"))
+                {
+                    int raiz = rand.Next(10, 99);
+                    ejercicio.Numero_Base = raiz * raiz;
+                }
+                else if (config.TipoEjercicio.Contains("3"))
+                {
+                    int raiz = rand.Next(100, 999);
+                    ejercicio.Numero_Base = raiz * raiz;
+                }
+
+                ejercicios.Add(ejercicio);
+
+            }
+
+            return ejercicios;
+        }
+
+        //raices cuadradas
     }
 }
