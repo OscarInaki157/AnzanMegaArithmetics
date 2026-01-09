@@ -1,0 +1,177 @@
+﻿@model AnzanMegaArithmetics.Models.LoginResponseModel
+@{
+    ViewBag.Title = "Hojas de Ejercicios";
+    Layout = "_LayoutDashboard";
+
+
+    string rangoNombre = Model.Rango_Actual ?? "Bronce I";
+    string rangoClase = "";
+    if (rangoNombre.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
+    else if (rangoNombre.Contains("Heroico", StringComparison.OrdinalIgnoreCase)) { rangoClase = "heroic"; }
+    else if (rangoNombre.Contains("Diamante", StringComparison.OrdinalIgnoreCase)) { rangoClase = "diamond"; }
+    else if (rangoNombre.Contains("Oro", StringComparison.OrdinalIgnoreCase)) { rangoClase = "gold"; }
+    else if (rangoNombre.Contains("Plata", StringComparison.OrdinalIgnoreCase)) { rangoClase = "silver"; }
+    else { rangoClase = "bronze"; }
+}
+
+
+<!-- Barra Superior - Información Personal -->
+<div class="user-top-info">
+    <div class="user-left-section">
+        <div class="user-name">
+            @Model.Nombre
+        </div>
+        <div class="user-meta-row">
+            <span class="gamertag">
+                <i class="fa-solid fa-gamepad"></i>
+                <strong>Gamertag:</strong> @Model.Gamer_Tag
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-id-card"></i>
+                <strong>Licencia:</strong> @Model.Licencia
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-landmark"></i>
+                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
+            </span>
+        </div>
+    </div>
+
+    <div class="user-right-section">
+        <div class="last-connection">
+            <i class="fa-solid fa-clock"></i>
+            Última conexión: @Model.Ultima_Cnx
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-top">
+    <div class="user-welcome-card">
+        <div class="welcome-container">
+            <div class="speech-bubble">
+                @Model.Frase_Bienvenida
+            </div>
+            <div class="character-section">
+                <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
+                <p class="character-name"><strong>Jerry</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="user-info-card">
+        <div class="contenedorR">
+            <div class="R3">
+                <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
+            </div>
+            <div class="R2 @rangoClase">
+                <p class="txt"><strong>🎖️<br />@Model.Rango_Actual</strong></p>
+            </div>
+            <div class="R1">
+                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>
+            </div>
+        </div>
+
+        <div class="xp-progress-container">
+            <div class="xp-bar">
+                <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
+            </div>
+            <div class="xp-next-level">
+                <i class="fas fa-arrow-up"></i>
+                <span id="xp-next-level-text">Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modulos-wrapper">
+
+    <!-- SUMA Y RESTA -->
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/SRlottie.gif" alt="Suma y Resta" />
+            </div>
+            <div class="modulo-text">
+                <h2>Suma y Resta</h2>
+                <p>Ejercicios</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Multiplicacion *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/multip.gif" alt="Soroban" />
+            </div>
+            <div class="modulo-text">
+                <h2>Multiplicación</h2>
+                <p>Tablas de multiplicar y competencia</p>
+            </div>
+            <button class="modulo-toggle" data-menu-id="multi-menu">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div id="multi-menu" class="modulo-menu">
+            <a href="@Url.Action("ConfigurarHojasEjerciciosTablas", "HojasEjercicios")">
+                <i class="fa-solid fa-x"></i> Tablas de multiplicar
+            </a>
+            <a href="#">
+                <i class="fa-solid fa-circle-xmark"></i> Multiplicación
+            </a>
+        </div>
+    </div>
+
+    @* Division *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img style="transform:rotate(45deg);" src="/Content/Images/division.gif" alt="Division" />
+            </div>
+            <div class="modulo-text">
+                <h2>División</h2>
+                <p>Ejercicios de división</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Raices *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/raices.gif" alt="potencias" />
+            </div>
+            <div class="modulo-text">
+                <h2>Números al cuadrado</h2>
+                <p>Ejercicios de potencias</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    @* Potencias *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/raices.gif" alt="potencias" />
+            </div>
+            <div class="modulo-text">
+                <h2>Raices cuadradas</h2>
+                <p>Ejercicios de raices cuadradas</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+</div>

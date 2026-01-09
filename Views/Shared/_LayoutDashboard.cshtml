@@ -1251,7 +1251,11 @@
                                 <i class="fa fa-graduation-cap"></i> Panel de conferencias
                             </a>
                         </li>
-                        <li><a href="#"><i class="fas fa-file-alt"></i> Hojas de Ejercicios</a></li>
+                        <li>
+                            <a href="@Url.Action("HojasEjercicios", "Dashboard")" id="Hojas">
+                                <i class="fas fa-file-alt"></i> Hojas de Ejercicios
+                            </a>
+                        </li>
                     }
                     @if (Model.Id_Rol == "Master")
                     {
@@ -1288,6 +1292,7 @@
             const perf = document.getElementById('Perfil');
             const admin = document.getElementById('admini');
             const rank = document.getElementById('Ranking');
+            const hojas = document.getElementById('Hojas');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -1329,6 +1334,11 @@
             if (pageTitle.includes('anking')) {
                 if (rank) {
                     rank.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('ojas')) {
+                if (rank) {
+                    hojas.classList.add('active');
                 }
             }
 

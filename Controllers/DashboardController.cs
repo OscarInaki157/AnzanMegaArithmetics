@@ -133,6 +133,17 @@ namespace AnzanMegaArithmetics.Controllers
             return View(userInfo);
         }
 
+        public IActionResult HojasEjercicios()
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            return View(userInfo);
+        }
+
         public IActionResult Memorizacion()
         {
             var userInfo = GetUserInfo();
