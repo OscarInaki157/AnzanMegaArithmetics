@@ -59,6 +59,7 @@
     <None Remove="Content\Images\Nosotros3.png" />
     <None Remove="Content\Images\parejas.gif" />
     <None Remove="Content\Images\ProfS.png" />
+    <None Remove="Content\Images\póker.gif" />
     <None Remove="Content\Images\raices.gif" />
     <None Remove="Content\Images\SRicon.gif" />
     <None Remove="Content\Images\SRlottie.gif" />
@@ -245,6 +246,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\ProfS.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\póker.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\raices.gif">

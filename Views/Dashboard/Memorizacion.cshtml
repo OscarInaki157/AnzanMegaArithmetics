@@ -75,11 +75,10 @@
 
         <div class="xp-progress-container">
             <div class="xp-bar">
+                <span id="xp-next-level-text" class="xp-text-overlay" style="color:white;">
+                    Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP
+                </span>
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
-            </div>
-            <div class="xp-next-level">
-                <i class="fas fa-arrow-up"></i>
-                <span id="xp-next-level-text">Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP</span>
             </div>
         </div>
 
@@ -89,22 +88,6 @@
 
 <div class="modulos-wrapper">
 
-    @* Memoria Flash *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/memorias.gif" alt="Asociacion" />
-            </div>
-            <div class="modulo-text">
-                <h2>Memoria Flash</h2>
-                <p>Ejercicios de memoria flash</p>
-            </div>
-            <a href="@Url.Action("FormularioMemoriaFlash", "MemoriaFlash")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-    </div>
-
     @* Asociacion nf *@
     <div class="modulo-card">
         <div class="modulo-header">
@@ -112,7 +95,7 @@
                 <img src="/Content/Images/brain.gif" alt="Asociacion" />
             </div>
             <div class="modulo-text">
-                <h2>Asociación Número - Figura</h2>
+                <h2>Relación Número a Figura</h2>
                 <p>Ejercicios de memoria asociativa</p>
             </div>
             <a href="@Url.Action("FormNumeroFigura", "Memorizacion")" class="modulo-link">
@@ -128,7 +111,7 @@
                 <img src="/Content/Images/parejas.gif" alt="Parejas" />
             </div>
             <div class="modulo-text">
-                <h2>Parejas de memoria</h2>
+                <h2>Rutas de memoria</h2>
                 <p>Ejercicios de memorización</p>
             </div>
             <a href="@Url.Action("FormParejasMemoria", "Memorizacion")" class="modulo-link">
@@ -137,6 +120,36 @@
         </div>
     </div>
 
+    @* Memoria Flash *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/memorias.gif" alt="Asociacion" />
+            </div>
+            <div class="modulo-text">
+                <h2>Memoria Números Flash</h2>
+                <p>Ejercicios de memoria flash</p>
+            </div>
+            <a href="@Url.Action("FormularioMemoriaFlash", "MemoriaFlash")" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
 
+    @* Memoria cartas *@
+    <div class="modulo-card">
+        <div class="modulo-header">
+            <div class="modulo-image">
+                <img src="/Content/Images/póker.gif" alt="Asociacion" />
+            </div>
+            <div class="modulo-text">
+                <h2>Memoria Cartas</h2>
+                <p>Ejercicios de memoria cartas</p>
+            </div>
+            <a href="#" class="modulo-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
 
 </div>

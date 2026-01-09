@@ -81,11 +81,10 @@
 
         <div class="xp-progress-container">
             <div class="xp-bar">
+                <span id="xp-next-level-text" class="xp-text-overlay" style="color:white;">
+                    Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP
+                </span>
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
-            </div>
-            <div class="xp-next-level">
-                <i class="fas fa-arrow-up"></i>
-                <span id="xp-next-level-text">Próximo nivel en: @(20000 - (Model.Exp % 20000)) XP</span>
             </div>
         </div>
 

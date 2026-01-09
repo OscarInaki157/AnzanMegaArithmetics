@@ -1,7 +1,7 @@
 ﻿@model AnzanMegaArithmetics.Models.ResultadosSesionMFModel
 @using AnzanMegaArithmetics.Models
 @{
-    ViewBag.Title = "Resultados Memoria Flash";
+    ViewBag.Title = "Resultados Memoria Números Flash";
     Layout = "_LayoutMemoria";
 
     var noRespondidos = Model.ResultadosEjercicios.Count(r => r.RespuestaUsuario == -1);
@@ -421,7 +421,7 @@
     }
 </style>
 
-<h1>🧠 Resultados de Memoria Flash</h1>
+<h1>🧠 Resultados de Memoria Números Flash</h1>
 <hr />
 
 <div class="botones-centrados">
