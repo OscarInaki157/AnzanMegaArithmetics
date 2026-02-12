@@ -311,13 +311,21 @@
     .rejilla-grid {
         display: grid;
         padding: 0rem 1rem 0 1rem;
+        width:fit-content;
+        height:fit-content;
+    }
+
+    .rejilla-container{
+        justify-content: center;
+        align-items: center;
+        display: flex;
     }
 
     .numero-celda {
-        padding: 0.2rem;
+        padding: 0.1rem 1.2rem;
         border: 1px solid #3a3a6b;
         text-align: center;
-        font-size: 1.6rem;
+        font-size: 2.1rem;
         font-weight: bold;
         background: linear-gradient(145deg, #4a4c7f, #3a3c6f);
         color: white;
@@ -424,6 +432,23 @@
 
         .progreso-texto {
             font-size: 0.8rem;
+        }
+
+        .ejercicio-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .panel-derecho {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .numero-celda {
+            padding: 0.1rem 0.6rem;
+            font-size: 1.7rem;
         }
 
     }
