@@ -91,6 +91,14 @@
                     <label>Cantidad de ejercicios:</label>
                     <input name="CantidadEjercicios" type="number" value="10" min="1" required />
                 </div>
+                <div>
+                    <label>Rango del dado multiplicador:</label>
+                    <select asp-for="RangoDados" class="form-control">
+                        <option value="1-12">Nivel Básico (1 - 12)</option>
+                        <option value="6-16">Nivel Medio (6 - 16)</option>
+                        <option value="11-20">Nivel Pro (11 - 20)</option>
+                    </select>
+                </div>
             </div>
             <div class="form-column">
                 <div>
@@ -533,30 +541,44 @@
         window.location.href = '@Url.Action("LimpiarYDashboard", "Dados")';
     }
 
-      function mostrarTab(id, btn) {
+    function mostrarTab(id, btn) {
         document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
         document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
 
-        document.getElementById(id).classList.add("active");
-        btn.classList.add("active");
-
-        // Guardar tab activo
-        localStorage.setItem("tabCompetenciaActivo", id);
+        const targetTab = document.getElementById(id);
+        if (targetTab) {
+            targetTab.classList.add("active");
+            btn.classList.add("active");
+            // Guardamos para persistencia en la misma sesión de navegador
+            localStorage.setItem("tabDadosActivo", id);
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        const lastTab = localStorage.getItem("tabCompetenciaActivo");
-        if (lastTab) {
-            const btnMap = {
-                "tab1": "Memoriad",
-                "tab2": "Mental",
-                "tab3": "Memorizada"
-            };
+        // 1. Leemos el valor que viene desde el Controller
+        const modoDesdeServidor = "@ViewBag.ModoActivo";
 
-            const match = Array.from(document.querySelectorAll(".tab-btn"))
-                .find(b => b.textContent.includes(btnMap[lastTab]));
+        // 2. Mapeamos el ModoJuego a la ID del tab correspondiente
+        const mapeoModos = {
+            "Aritmetica": "tab1",
+            "SumaFlash": "tab2",
+            "MultiSuma": "tab3"
+        };
 
-            if (match) mostrarTab(lastTab, match);
+        // 3. Intentamos obtener la ID por servidor, si no, por localStorage
+        let tabIdDestino = mapeoModos[modoDesdeServidor] || localStorage.getItem("tabDadosActivo") || "tab1";
+
+        // 4. Buscamos el botón que dispara ese tab para activarlo visualmente
+        const botones = document.querySelectorAll(".tab-btn");
+        let botonDestino;
+
+        if (tabIdDestino === "tab1") botonDestino = botones[0];
+        else if (tabIdDestino === "tab2") botonDestino = botones[1];
+        else if (tabIdDestino === "tab3") botonDestino = botones[2];
+
+        // 5. Activamos la pestaña
+        if (botonDestino) {
+            mostrarTab(tabIdDestino, botonDestino);
         }
     });
 </script>
