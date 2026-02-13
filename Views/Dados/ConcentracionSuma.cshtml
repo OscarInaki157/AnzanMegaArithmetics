@@ -1,0 +1,126 @@
+﻿@{
+    ViewBag.Title = "Concentración";
+    Layout = "_LayoutDados";
+}
+
+<div class="contenedor-meditacion">
+    <h1>🧘‍ Concéntrate</h1>
+    <p>La prueba comenzará en...</p>
+    <div id="contador">3</div>
+</div>
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .contenedor-meditacion {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        animation: fadeIn 1s ease-in-out;
+        color: var(--color-light);
+        padding: 1rem;
+    }
+
+        .contenedor-meditacion h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-light);
+        }
+
+        .contenedor-meditacion p {
+            font-size: 1.2rem;
+            color: #d1d1f0;
+            margin-bottom: 1.5rem;
+        }
+
+    #contador {
+        font-size: 8rem;
+        font-weight: bold;
+        color: white;
+        margin-top: 20px;
+        animation: pulse 1s infinite ease-in-out;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        #contador {
+            font-size: 5rem;
+        }
+
+        .contenedor-meditacion h1 {
+            font-size: 2rem;
+        }
+
+        .contenedor-meditacion p {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const tiempoMeditacion = parseInt("@ViewBag.TiempoMeditacion");
+
+        const contadorElemento = document.getElementById('contador');
+        let tiempoRestante = tiempoMeditacion;
+
+        const baseUrl = "@Url.Action("EjercicioSuma", "Dados")";
+
+        function actualizarContador() {
+            contadorElemento.textContent = tiempoRestante;
+            if (tiempoRestante <= 0) {
+                clearInterval(cuenta);
+                window.location.href = baseUrl;
+            } else {
+                tiempoRestante--;
+            }
+        }
+
+        const cuenta = setInterval(actualizarContador, 1000);
+        actualizarContador();
+
+        window.addEventListener("load", function () {
+            const meditacion = document.querySelector('.contenedor-meditacion');
+            if (meditacion) {
+                meditacion.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        });
+    </script>
+}

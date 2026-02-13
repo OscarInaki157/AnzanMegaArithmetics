@@ -1,16 +1,38 @@
-﻿@model AnzanMegaArithmetics.Models.EjercicioDadosModel
-@{
-    ViewBag.Title = "Ejercicio de Matemáticas con Dados";
+﻿@{
+    ViewBag.Title = "Suma Flash - Dados";
     Layout = "_LayoutDados";
 
     var ejercicioActual = ViewBag.EjercicioActual ?? 1;
     var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
     var tiempoRestante = ViewBag.TiempoRestante ?? 0;
-
     var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
 }
-
 <style>
+    .btn-saltar {
+        background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+        color: #1b1e3c;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
+        transition: all 0.2s;
+    }
+
+        .btn-saltar:hover:not(:disabled) {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .btn-saltar:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.5;
+        }
     .btn-dado-selector {
         background: transparent;
         border: none;
@@ -24,7 +46,7 @@
             height: 4.2rem;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
             transition: transform 0.2s;
-            border-radius:1rem;
+            border-radius: 1rem;
         }
 
         .btn-dado-selector:hover:not(.usado) img {
@@ -41,8 +63,9 @@
     .btn-retroceso {
         background: linear-gradient(135deg, #636e72, #2d3436) !important;
     }
+
     .input-respuesta {
-        width: 85%;
+        width: 50%;
         caret-color: transparent;
         padding: 0.6rem 1rem;
         font-size: 3.5rem;
@@ -195,7 +218,7 @@
         gap: 1.5rem;
         margin: 1rem 0;
         flex-wrap: wrap;
-        align-items:center;
+        align-items: center;
     }
 
     .dado {
@@ -216,46 +239,50 @@
 
     .dado-resultado-wrapper {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
         width: 8rem;
         height: 7rem;
     }
 
-    /* Ajuste de la imagen del dodecaedro */
     .dado-imagen-objetivo {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.5)); /* Brillo rojizo tipo Stranger Things */
-        transform: rotate(0deg); /* O la rotación que prefieras */
+        filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.5));
+        transition: all 0.5s ease;
     }
 
-    /* El número centrado */
     .numero-objetivo {
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%); /* Truco para centrado perfecto */
-
-        font-size: 2.5rem;
+        transform: translate(-50%, -50%);
+        font-size: 2.8rem;
         font-weight: 900;
-        color: white;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.4);
-        user-select: none;
-        pointer-events: none; /* Para que no interfiera con clics si fuera necesario */
+        color: #28a745; /* Verde para el éxito */
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        opacity: 0; /* OCULTO POR DEFECTO */
+        visibility: hidden;
+        transition: opacity 0.4s ease;
     }
 
+    /* ESTADO REVELADO */
+    .revelado .dado-imagen-objetivo {
+        filter: brightness(0.2) blur(8px);
+        transform: scale(0.8);
+    }
+
+    .revelado .numero-objetivo {
+        opacity: 1;
+        visibility: visible;
+    }
     .dado-imagen {
         width: 4.2rem;
         height: 4.2rem;
         object-fit: contain;
         filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         transition: transform 0.2s ease;
-        border-radius:1rem;
-        transform:rotate(20deg);
-
+        border-radius: 1rem;
+        transform: rotate(20deg);
     }
 
     .dado-label {
@@ -514,201 +541,138 @@
 </style>
 
 <div class="top-bar">
-    <button type="button" onclick="enviarYFinalizar(event)" class="btn-finalizar">
-        ❌ <span>Finalizar</span>
+    <button type="button" onclick="location.href='/Dados/ResultadosSuma'" class="btn-finalizar" style="background:#df312c; color:white; border:none; padding:10px; border-radius:10px; cursor:pointer;">
+        ❌ Finalizar
     </button>
 
-    <div class="barra-progreso-contenedor">
+    <div style="flex:1; max-width:400px; margin: 0 20px;">
         <div class="barra-progreso">
             <div class="progreso-interno" style="width:@porcentaje%"></div>
             <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
         </div>
     </div>
 
-    <div class="info-tiempo">
-        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span></span>
+    <div class="info-tiempo" style="color:white; font-size:1.5rem; font-weight:bold;">
+        ⏱ <span id="contadorTiempo">@tiempoRestante</span>
     </div>
 </div>
 
 <div class="ejercicio-wrapper">
-    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
-    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
-
-    <!-- DADOS -->
     <div class="dados-container">
-        @for (int i = 0; i < Model.Dados.Length; i++)
+        @foreach (var dado in Model.Dados)
         {
-            <div class="dado-container">
-                <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png"
-                     alt="Dado @Model.Dados[i]"
-                     class="dado-imagen" />
-            </div>
+            <img src="~/Content/Images/Dados/dado@(dado).png" class="dado-imagen" />
         }
-        <div class="dado-container">
-            <div class="dado-resultado-wrapper">
-                <img src="~/Content/Images/Dados/Demogorgon.png" alt="Objetivo" class="dado-imagen-objetivo" />
 
-                <span class="numero-objetivo">@Model.Dado_Resultado</span>
-            </div>
+        <div class="dado-resultado-wrapper" id="targetWrapper">
+            <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
+            <span class="numero-objetivo">@Model.Dado_Resultado</span>
         </div>
     </div>
 
-    <p class="instruccion">Usa los botones para construir tu operación matemática</p>
+    <p class="instruccion">Resultado:</p>
 
-    <div class="botones-container">
-        <div class="botones-numeros">
-            @for (int i = 0; i < Model.Dados.Length; i++)
-            {
-                <button type="button"
-                        class="btn-dado-selector"
-                        id="btn-dado-@i"
-                        onclick="seleccionarDado(@Model.Dados[i], @i)">
-                    <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" alt="Dado @Model.Dados[i]" />
-                </button>
-            }
-        </div>
+    <input type="number"
+           id="inputRespuesta"
+           class="input-expresion"
+           autocomplete="off"
+           autofocus />
 
-        <div class="botones-operadores">
-            <button type="button" class="btn-operador" onclick="agregarOperador('+')">+</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador('-')">-</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador('*')">×</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador('/')">÷</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador('^')">^</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador('(')">(</button>
-            <button type="button" class="btn-operador" onclick="agregarOperador(')')">)</button>
-        </div>
-    </div>
-
-    <!-- FORMULARIO DE RESPUESTA -->
-    <div class="formulario-respuesta">
-        <input type="text"
-               id="expresionMatematica"
-               class="input-expresion"
-               readonly />
-
-        <button type="button" class="btn-limpiar" onclick="limpiarExpresion()">Limpiar</button>
-        <button type="button" class="btn-enviar" onclick="enviarRespuesta()">Enviar</button>
-    </div>
+    <button type="button" id="btnSaltar" class="btn-saltar"
+            onclick="saltarEjercicio()"
+            @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+        ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
+    </button>
 </div>
 
 @section Scripts {
     <script>
-        let tiempoInicioEjercicio = Date.now();
-        let tiempoRestanteGlobal = @tiempoRestante;
-        let temporizadorGlobalInterval;
+        let tiempoInicio = Date.now();
+        let tiempoRestante = @tiempoRestante;
+        const totalCorrecto = @Model.Dado_Resultado;
 
-        let indicesUsados = [];
-
-        function formatearTiempo(segundosTotales) {
-            const minutos = Math.floor(segundosTotales / 60);
-            const segundos = segundosTotales % 60;
-            // padStart asegura que si segundos es 5, se vea "05"
-            return `${minutos}:${segundos.toString().padStart(2, '0')}`;
+        // Función de conversión mm:ss
+        function formatearTiempo(totalSegundos) {
+            if (totalSegundos < 0) totalSegundos = 0;
+            const minutos = Math.floor(totalSegundos / 60);
+            const segundos = totalSegundos % 60;
+            const mStr = minutos < 10 ? '0' + minutos : minutos;
+            const sStr = segundos < 10 ? '0' + segundos : segundos;
+            return `${mStr}:${sStr}`;
         }
 
-        function actualizarTemporizadorGlobal() {
-            if (tiempoRestanteGlobal > 0) {
-                tiempoRestanteGlobal--;
+        function saltarEjercicio() {
+            const btn = document.getElementById('btnSaltar');
+            btn.disabled = true; // Evitar doble click
 
-                // Actualizamos el texto con el nuevo formato
-                const contadorEl = document.getElementById('contadorTiempoRestante');
-                if (contadorEl) {
-                    contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
-                }
+            const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
 
-                if (tiempoRestanteGlobal <= 0) {
-                    clearInterval(temporizadorGlobalInterval);
-                    window.location.href = '/Dados/ResultadosDados';
-                }
+            // Enviamos los datos indicando que es un salto
+            enviarDatos(null, tiempoRespuesta, true);
+        }
+
+        // FIX: El ID debe coincidir con el del HTML (contadorTiempo)
+        const displayReloj = document.getElementById('contadorTiempo');
+
+        // Inicializar el texto del reloj de inmediato
+        displayReloj.textContent = formatearTiempo(tiempoRestante);
+
+        const timer = setInterval(() => {
+            tiempoRestante--;
+            displayReloj.textContent = formatearTiempo(tiempoRestante);
+
+            if (tiempoRestante <= 0) {
+                clearInterval(timer);
+                location.href = '/Dados/ResultadosSuma';
             }
-        }
+        }, 1000);
 
-        function enviarYFinalizar(event) {
-            event.preventDefault();
-            clearInterval(temporizadorGlobalInterval);
-            window.location.href = '/Dados/ResultadosDados';
-        }
+        const input = document.getElementById('inputRespuesta');
+        const wrapper = document.getElementById('targetWrapper');
 
-        // CAMBIO: Nombre de función coincide con el onclick del HTML
-        function seleccionarDado(numero, index) {
-            if (indicesUsados.includes(index)) return;
+        input.addEventListener('input', function() {
+            const valor = parseInt(this.value);
+            if (valor === totalCorrecto) {
+                this.readOnly = true;
+                this.style.boxShadow = "0 0 25px rgba(40, 167, 69, 0.7)";
+                wrapper.classList.add('revelado');
 
-            const input = document.getElementById('expresionMatematica');
-            const btn = document.getElementById('btn-dado-' + index);
+                const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
 
-            input.value += numero;
-
-            // Marcar como usado
-            indicesUsados.push(index);
-            if (btn) {
-                btn.classList.add('usado');
-                // No uses btn.disabled = true si quieres que el hover:not(.usado) funcione bien
-                btn.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    enviarDatos(valor, tiempoRespuesta);
+                }, 1100);
             }
-        }
+        });
 
-        function agregarOperador(operador) {
-            const input = document.getElementById('expresionMatematica');
-            input.value += ' ' + operador + ' ';
-        }
-
-        function limpiarExpresion() {
-            document.getElementById('expresionMatematica').value = '';
-            indicesUsados = [];
-
-            // CAMBIO: Selector corregido para usar la clase .btn-dado-selector
-            document.querySelectorAll('.btn-dado-selector').forEach(btn => {
-                btn.classList.remove('usado');
-                btn.style.pointerEvents = 'auto';
-            });
-        }
-
-        function enviarRespuesta() {
-            const expresion = document.getElementById('expresionMatematica').value.trim();
-
-            if (!expresion) {
-                alert('Por favor, construye una operación matemática');
-                return;
-            }
-
-            const tiempoFin = Date.now();
-            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
-
+        function enviarDatos(respuesta, tiempo, esSalto = false) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/Dados/EjercicioDados';
+            form.action = '/Dados/EjercicioSuma';
 
-            const inputExpresion = document.createElement('input');
-            inputExpresion.type = 'hidden';
-            inputExpresion.name = 'respuestaUsuario';
-            inputExpresion.value = expresion;
-            form.appendChild(inputExpresion);
+            const rInput = document.createElement('input');
+            rInput.type = 'hidden'; rInput.name = 'respuestaUsuario';
+            rInput.value = respuesta === null ? 0 : respuesta; // 0 o null si es salto
+            form.appendChild(rInput);
 
-            const inputTiempo = document.createElement('input');
-            inputTiempo.type = 'hidden';
-            inputTiempo.name = 'tiempoRespuesta';
-            inputTiempo.value = tiempoRespuesta.toFixed(2);
-            form.appendChild(inputTiempo);
+            const tInput = document.createElement('input');
+            tInput.type = 'hidden'; tInput.name = 'tiempoRespuesta';
+            tInput.value = tiempo;
+            form.appendChild(tInput);
+
+            const sInput = document.createElement('input');
+            sInput.type = 'hidden'; sInput.name = 'tiempoRestanteActual';
+            sInput.value = tiempoRestante;
+            form.appendChild(sInput);
+
+            // FLAG DE SALTO
+            const saltoInput = document.createElement('input');
+            saltoInput.type = 'hidden'; saltoInput.name = 'esSalto';
+            saltoInput.value = esSalto;
+            form.appendChild(saltoInput);
 
             document.body.appendChild(form);
             form.submit();
-
-            clearInterval(temporizadorGlobalInterval);
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            tiempoInicioEjercicio = Date.now();
-            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                enviarRespuesta();
-            }
-            if (e.key === 'Escape') {
-                limpiarExpresion();
-            }
-        });
     </script>
 }

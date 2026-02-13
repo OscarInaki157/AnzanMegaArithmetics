@@ -4,63 +4,141 @@
     Layout = "_LayoutDados";
 }
 
-<div id="contenedorConfiguracionFlash">
+<div class="top-bar-config">
+    <form method="get" asp-controller="Dados" asp-action="LimpiarYDashboard">
+        <button type="submit" class="btn-dashboard">
+            <i class="fas fa-home"></i> Regresar al dashboard
+        </button>
+    </form>
+    <h2 style="color:white">Matemáticas con dados</h2>
+</div>
 
-    <form method="post" action="/Dados/ConcentracionDados" id="formConfigSR" class="formulario-flash">
+<div class="tabs">
+    <div class="tab-buttons">
+        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)">Tradicional</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)">Suma dados</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)">Multi-Suma dados</button>
+    </div>
 
-        <div class="form-header">
-            <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
-                <i class="fas fa-home"></i> Regresar al Dashboard
-            </button>
-            <h2>Ajustes Matemáticas con Dados</h2>
-        </div>
-
-        <div class="form-grid-three-columns">
+    <form method="post" asp-action="ConcentracionDados" class="formulario-flash tab-content active" id="tab1">
+        <input type="hidden" name="ModoJuego" value="Aritmetica" />
+        <div class="form-grid">
             <div class="form-column">
-
                 <div>
-                    <label asp-for="CantidadEjercicios">Cantidad de ejercicios:</label>
-                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
-                    <span asp-validation-for="CantidadEjercicios" class="text-danger"></span>
+                    <label>Cantidad de ejercicios:</label>
+                    <input name="CantidadEjercicios" type="number" value="10" min="1" required />
                 </div>
-
                 <div>
-                    <label asp-for="TiempoTotal">Minutos para contestar todos los ejercicios:</label>
-                    <input asp-for="TiempoTotal" type="number" min="1" max="40" required />
-                    <span asp-validation-for="TiempoTotal" class="validation-error"></span>
-
+                    <label>Modo de operación:</label>
+                    <select name="UsaJerarquia" required>
+                        <option value="true">Con Jerarquía</option>
+                        <option value="false">Sin Jerarquía</option>
+                    </select>
                 </div>
-
             </div>
-
             <div class="form-column">
-
                 <div>
-                    <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
-                    <select asp-for="TiempoMeditacion" required>
+                    <label>Minutos para contestar:</label>
+                    <input name="TiempoTotal" type="number" value="5" min="1" max="40" required />
+                </div>
+                <div>
+                    <label>Tiempo de concentración:</label>
+                    <select name="TiempoMeditacion">
                         @foreach (var val in new[] { 0, 3, 5, 8, 10 })
                         {
-                            <option value="@val">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
                         }
                     </select>
                 </div>
-
-
-                <div>
-                    <button type="submit" class="btn btn-primary">⚡ Iniciar ejercicios</button>
-                </div>
-
             </div>
-
         </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem">⚡ Iniciar ejercicios</button>
     </form>
 
+    <form method="post" asp-action="ConcentracionSuma" class="formulario-flash tab-content" id="tab2">
+        <input type="hidden" name="ModoJuego" value="SumaFlash" />
+        <div class="form-grid">
+            <div class="form-column">
+                <div>
+                    <label>Cantidad de ejercicios:</label>
+                    <input name="CantidadEjercicios" type="number" value="10" min="1" required />
+                </div>
+            </div>
+            <div class="form-column">
+                <div>
+                    <label>Minutos para contestar:</label>
+                    <input name="TiempoTotal" type="number" value="5" min="1" required />
+                </div>
+                <div>
+                    <label>Tiempo de concentración:</label>
+                    <select name="TiempoMeditacion">
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">🚀 Iniciar ejercicios</button>
+    </form>
+
+    <form method="post" asp-action="ConcentracionMulti" class="formulario-flash tab-content" id="tab3">
+        <input type="hidden" name="ModoJuego" value="MultiSuma" />
+        <div class="form-grid">
+            <div class="form-column">
+                <div>
+                    <label>Cantidad de ejercicios:</label>
+                    <input name="CantidadEjercicios" type="number" value="10" min="1" required />
+                </div>
+            </div>
+            <div class="form-column">
+                <div>
+                    <label>Minutos para contestar:</label>
+                    <input name="TiempoTotal" type="number" value="5" min="1" required />
+                </div>
+                <div>
+                    <label>Tiempo de concentración:</label>
+                    <select name="TiempoMeditacion">
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">🧠 Iniciar ejercicios</button>
+    </form>
 </div>
 
 <style>
+
     body {
         background-color: var(--color-bg);
         color: var(--color-tex);
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    }
+
+    form#formConfigSR input[type="range"] {
+        background-color: #292c4f;
+    }
+
+
+    .formulario-flash {
+        max-width: 100%;
+        margin: 1rem auto 2rem auto;
+        padding: 1.3rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
     }
 
     .top-bar-config {
@@ -77,51 +155,8 @@
             margin: 0;
             font-size: clamp(1.4rem, 2vw, 1.7rem);
             font-weight: 600;
+            color: var(--color-light);
         }
-
-    .form-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #444;
-    }
-
-        .form-header h2 {
-            margin: 0;
-            font-size: clamp(1.4rem, 2vw, 1.7rem);
-            font-weight: 600;
-        }
-
-    form#formConfigSR input[type="range"] {
-        background-color: #292c4f;
-    }
-
-    .formulario-flash {
-        max-width: 95%;
-        margin: 0 auto;
-        padding: 1.3rem;
-        border-radius: 1rem;
-        background-color: var(--bg-color);
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-        animation: fadeIn 0.4s ease;
-        margin-top: -1.5rem;
-    }
-
-    .checks {
-        flex-direction: row;
-        display: flex;
-        gap: 2rem;
-        padding: 0.5rem;
-        align-items: center;
-    }
-
-    .form-grid-three-columns {
-        display: flex;
-        gap: 2rem;
-        justify-content: space-between;
-    }
 
     .form-grid {
         display: flex;
@@ -129,23 +164,22 @@
     }
 
     .form-column {
-        flex: 1;
-        min-width: 0;
+        flex: 1 1 49%;
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
 
-    form#formConfigSR label {
+    .formulario-flash label {
         display: block;
         margin-bottom: 0.4rem;
         font-weight: 600;
         font-size: 1rem;
     }
 
-    form#formConfigSR select,
-    form#formConfigSR input[type="number"] {
-        width: 70%;
+    .formulario-flash select,
+    .formulario-flash input[type="number"] {
+        width: 60%;
         padding: 0.5rem 0.6rem;
         border: none;
         border-radius: 0.5rem;
@@ -154,59 +188,13 @@
         font-size: 1rem;
     }
 
-    form#formConfigSR input[type="radio"] {
+    .formulario-flash input[type="radio"] {
         accent-color: var(--color-primary);
         transform: scale(1.1);
     }
 
-    /* Estilos para los radio buttons de rangos */
-    .rango-options {
-        margin: 1rem 0;
-    }
-
-    .radio-group {
-        display: flex;
-        flex-direction: row;
-        gap: 0.8rem;
-        margin-top: 0.5rem;
-    }
-
-    .radio-option {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        background-color: rgba(41, 44, 79, 0.3);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px solid transparent;
-    }
-
-        .radio-option:hover {
-            background-color: rgba(41, 44, 79, 0.6);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .radio-option.selected {
-            background-color: rgba(76, 76, 255, 0.3);
-            border-color: var(--color-primary);
-            box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
-        }
-
-        .radio-option label {
-            margin-bottom: 0;
-            cursor: pointer;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .radio-option input[type="radio"] {
-            margin: 0;
-        }
-
     .btn.btn-primary {
-        background: #28a745;
+        background-color: var(--color-primary);
         color: white;
         padding: 0.9rem 1.5rem;
         font-size: 1.1rem;
@@ -214,17 +202,15 @@
         border: none;
         border-radius: 0.6rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-        letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
     }
 
         .btn.btn-primary:hover {
-            background: #2ecc71;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
+            background-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
         }
 
     .btn-dashboard {
@@ -242,6 +228,7 @@
         align-items: center;
         gap: 0.6rem;
     }
+
 
         .btn-dashboard i {
             font-size: 1.1rem;
@@ -267,7 +254,7 @@
         position: relative;
         cursor: pointer;
         min-height: 48px;
-        width: 70%;
+        width: 60%;
     }
 
     .tags-container {
@@ -285,15 +272,17 @@
         align-items: center;
         font-size: 0.9rem;
         font-weight: 500;
+        transition: all 0.2s ease;
         cursor: pointer;
-        transition: all 0.25s ease-in-out;
     }
 
         .tag:hover {
             background-color: var(--color-primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(76, 76, 255, 0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+            transition: all 0.2s ease;
         }
+
 
         .tag .remove {
             margin-left: 8px;
@@ -357,8 +346,9 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        width: 70%;
+        width: 60%;
     }
+
 
     @@keyframes fadeIn {
         from {
@@ -372,15 +362,122 @@
         }
     }
 
-    @@media (max-width: 768px) {
-        .form-grid-three-columns {
-            flex-direction: column;
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 3rem;
+        height: 2rem;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
-        .form-header {
+            .switch input[type="checkbox"] {
+                z-index: 1;
+                width: 100%;
+                height: 100%;
+            }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 1.5rem;
+            width: 1.5rem;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: var(--color-primary);
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(1rem);
+        }
+
+    .estado-texto {
+        font-weight: bold;
+        font-size: 1rem;
+        color: var(--color-light);
+    }
+
+    .tabs {
+        width: 85%;
+        margin-top: 2rem;
+        justify-self: center;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 3px solid var(--bg-color);
+    }
+
+    .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        background-color: #292c4f;
+    }
+
+        .tab-btn:hover {
+            background-color: var(--bg-color);
+            box-shadow: 0 -2px 0 var(--bg-color);
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-color);
+            box-shadow: 0 -2px 0 var(--bg-color);
+        }
+
+    .tab-content {
+        display: none;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
+
+
+    @@media (max-width: 768px) {
+        .form-grid {
             flex-direction: column;
-            gap: 1rem;
-            text-align: center;
         }
 
         .btn-dashboard {
@@ -392,16 +489,23 @@
             font-size: 1rem;
         }
 
-        form#formConfigSR select,
-        form#formConfigSR input[type="number"] {
-            width: 100%;
-        }
-
         .top-bar-config {
-            flex-direction: column;
+            flex-direction: column-reverse;
+            align-items: center;
+            text-align: center;
         }
 
-        .tag-input {
+            .top-bar-config h2 {
+                width: 100%;
+            }
+
+            .top-bar-config .btn-dashboard {
+                width: auto;
+                margin: 0 auto;
+            }
+
+        .formulario-flash select,
+        .formulario-flash input[type="number"] {
             width: 100%;
         }
 
@@ -409,22 +513,50 @@
             width: 100%;
         }
 
-        .radio-group {
-            gap: 0.5rem;
+        .tag-input {
+            width: 100%;
         }
 
-        .radio-option {
-            padding: 0.4rem;
+        .switch {
+            width: 5rem;
         }
 
-        .radio-group {
-            flex-direction: column;
+        input:checked + .slider:before {
+            transform: translateX(1rem);
         }
     }
 </style>
+
 
 <script>
     function regresarAlDashboard() {
         window.location.href = '@Url.Action("LimpiarYDashboard", "Dados")';
     }
+
+      function mostrarTab(id, btn) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+
+        document.getElementById(id).classList.add("active");
+        btn.classList.add("active");
+
+        // Guardar tab activo
+        localStorage.setItem("tabCompetenciaActivo", id);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const lastTab = localStorage.getItem("tabCompetenciaActivo");
+        if (lastTab) {
+            const btnMap = {
+                "tab1": "Memoriad",
+                "tab2": "Mental",
+                "tab3": "Memorizada"
+            };
+
+            const match = Array.from(document.querySelectorAll(".tab-btn"))
+                .find(b => b.textContent.includes(btnMap[lastTab]));
+
+            if (match) mostrarTab(lastTab, match);
+        }
+    });
 </script>

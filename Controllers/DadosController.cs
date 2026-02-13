@@ -105,9 +105,24 @@ namespace AnzanMegaArithmetics.Controllers
 
             for (int i = 0; i < config.CantidadEjercicios; i++)
             {
-                int resultado = _random.Next(1, 13);
+                int[] dados = new int[5];
+                int resultado;
 
-                int[] dados = GenerarDadosConSolucion(resultado);
+                if (config.ModoJuego == "SumaFlash")
+                {
+                    // Lógica Modo 2: Generamos los dados primero, el resultado es la SUMA
+                    for (int j = 0; j < 5; j++)
+                    {
+                        dados[j] = _random.Next(1, 7);
+                    }
+                    resultado = dados.Sum();
+                }
+                else
+                {
+                    // Lógica Modo 1: Definimos el objetivo y buscamos dados que lo resuelvan
+                    resultado = _random.Next(1, 13);
+                    dados = GenerarDadosConSolucion(resultado);
+                }
 
                 ejercicios.Add(new EjercicioDadosModel
                 {
@@ -214,6 +229,8 @@ namespace AnzanMegaArithmetics.Controllers
                 var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
                 var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
                 var tiempoRestante = HttpContext.Session.GetInt32("DadosTiempoRestante") ?? 0;
+                var configJson = HttpContext.Session.GetString("DadosConf");
+                var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
 
                 if (string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(respuestasJson))
                 {
@@ -234,7 +251,7 @@ namespace AnzanMegaArithmetics.Controllers
                 respuesta.Respuesta_Usuario = respuestaUsuario;
                 respuesta.Tiempo_Respuesta = tiempoRespuesta;
 
-                respuesta.Es_Correcta = ValidarRespuestaMatematica(respuestaUsuario, ejercicio.Dados, ejercicio.Dado_Resultado);
+                respuesta.Es_Correcta = ValidarRespuestaMatematica(respuestaUsuario, ejercicio.Dados, ejercicio.Dado_Resultado, config.UsaJerarquia);
                 respuesta.DadosUtilizados = ContarDadosUtilizados(respuestaUsuario, ejercicio.Dados);
 
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
@@ -323,7 +340,7 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = (int)porcentajeAcierto,
-                    Tipo_Prueba = "Matemáticas con Dados"
+                    Tipo_Prueba = "Matemáticas con Dados tradicional"
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
@@ -338,9 +355,9 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpGet]
-        public IActionResult RepetirDados() 
+        public IActionResult RepetirDados()
         {
-            try 
+            try
             {
                 var configJson = HttpContext.Session.GetString("DadosConf");
 
@@ -351,10 +368,8 @@ namespace AnzanMegaArithmetics.Controllers
 
                 var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
 
-                //generar ejercicios
                 List<EjercicioDadosModel> ejercicios = GenerarEjerciciosDados(config);
 
-                //generar respuestas
                 List<RespuestaDadosModel> respuestas = ejercicios.Select(e => new RespuestaDadosModel
                 {
                     Id_Ejercicio = e.Id_Ejercicio,
@@ -364,44 +379,46 @@ namespace AnzanMegaArithmetics.Controllers
                     DadosUtilizados = 0
                 }).ToList();
 
-                //guardar en session
-                HttpContext.Session.SetString("DadosConf", JsonSerializer.Serialize(config));
                 HttpContext.Session.SetString("DadosEjercicios", JsonSerializer.Serialize(ejercicios));
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
                 HttpContext.Session.SetInt32("EjercicioActualDados", 1);
-
                 HttpContext.Session.SetInt32("DadosTiempoRestante", config.TiempoTotal * 60);
                 HttpContext.Session.SetString("DadosInicioTiempo", DateTime.Now.ToString());
+                HttpContext.Session.SetInt32("DadosSaltosUsados", 0);
 
                 ViewBag.TiempoMeditacion = config.TiempoMeditacion;
-                return View("ConcentracionDados");
+
+                if (config.ModoJuego == "SumaFlash")
+                {
+                    return View("ConcentracionSuma");
+                }
+                else
+                {
+                    return View("ConcentracionDados");
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return RedirectToAction("FormularioDados");
             }
         }
 
-        private bool ValidarRespuestaMatematica(string respuestaUsuario, int[] dados, int resultadoEsperado)
+        private bool ValidarRespuestaMatematica(string respuestaUsuario, int[] dados, int resultadoEsperado, bool usaJerarquia)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(respuestaUsuario))
-                    return false;
+                if (string.IsNullOrWhiteSpace(respuestaUsuario)) return false;
 
                 string expresion = respuestaUsuario.Trim().Replace(" ", "");
 
-                if (!EsExpresionValida(expresion, dados))
-                    return false;
+                if (!EsExpresionValida(expresion, dados)) return false;
 
-                double resultadoCalculado = EvaluarExpresion(expresion);
+                
+                double resultadoCalculado = EvaluarExpresion(expresion, usaJerarquia);
 
                 return Math.Abs(resultadoCalculado - resultadoEsperado) < 0.0001;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
         private bool EsExpresionValida(string expresion, int[] dados)
@@ -459,27 +476,53 @@ namespace AnzanMegaArithmetics.Controllers
             return numeros;
         }
 
-        private double EvaluarExpresion(string expresion)
+        private double EvaluarExpresion(string expresion, bool usaJerarquia)
         {
             try
             {
                 expresion = expresion.Replace("×", "*").Replace("÷", "/");
 
-                if (expresion.Contains('^'))
+                if (usaJerarquia)
                 {
-                    return EvaluarExpresionConPotencias(expresion);
+                    // LÓGICA ESTÁNDAR (MATEMÁTICA)
+                    if (expresion.Contains('^')) return EvaluarExpresionConPotencias(expresion);
+
+                    var dataTable = new System.Data.DataTable();
+                    return Convert.ToDouble(dataTable.Compute(expresion, ""));
                 }
                 else
                 {
-                    var dataTable = new System.Data.DataTable();
-                    var valor = dataTable.Compute(expresion, "");
-                    return Convert.ToDouble(valor);
+                    // LÓGICA LINEAL (CALCULADORA BÁSICA)
+                    return EvaluarLineal(expresion);
                 }
             }
-            catch
+            catch { throw new Exception("Error en la expresión"); }
+        }
+
+        private double EvaluarLineal(string expresion)
+        {
+            // Usamos Regex para separar números y operadores manteniendo el orden
+            var tokens = System.Text.RegularExpressions.Regex.Matches(expresion, @"(\d+)|([\+\-\*\/\^])");
+
+            if (tokens.Count == 0) return 0;
+
+            double resultado = double.Parse(tokens[0].Value);
+
+            for (int i = 1; i < tokens.Count; i += 2)
             {
-                throw new Exception("Expresión matemática inválida");
+                string op = tokens[i].Value;
+                double siguienteNum = double.Parse(tokens[i + 1].Value);
+
+                switch (op)
+                {
+                    case "+": resultado += siguienteNum; break;
+                    case "-": resultado -= siguienteNum; break;
+                    case "*": resultado *= siguienteNum; break;
+                    case "/": resultado /= siguienteNum; break;
+                    case "^": resultado = Math.Pow(resultado, siguienteNum); break;
+                }
             }
+            return resultado;
         }
 
         private double EvaluarExpresionConPotencias(string expresion)
@@ -555,7 +598,227 @@ namespace AnzanMegaArithmetics.Controllers
         private int ContarDadosUtilizados(string respuesta, int[] dados)
         {
             var numerosUsados = ExtraerNumerosDeExpresion(respuesta);
-            return numerosUsados.Distinct().Count();
+            return numerosUsados.Count();
         }
+
+        //segundo modo
+        [HttpPost]
+        public IActionResult ConcentracionSuma(ConfDadosModel config)
+        {
+            try
+            {
+                // Forzamos el modo de juego para que el generador sepa qué hacer
+                config.ModoJuego = "SumaFlash";
+
+                // 1. Generar los ejercicios (Asegúrate de que GenerarEjerciciosDados use config.ModoJuego)
+                List<EjercicioDadosModel> ejercicios = GenerarEjerciciosDados(config);
+
+                // 2. Generar la lista de respuestas iniciales
+                List<RespuestaDadosModel> respuestas = ejercicios.Select(e => new RespuestaDadosModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = string.Empty,
+                    Es_Correcta = false,
+                    Tiempo_Respuesta = 0,
+                    DadosUtilizados = 0
+                }).ToList();
+
+                // 3. Guardar en session de forma independiente
+                HttpContext.Session.SetInt32("DadosSaltosUsados", 0);
+                HttpContext.Session.SetString("DadosConf", JsonSerializer.Serialize(config));
+                HttpContext.Session.SetString("DadosEjercicios", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualDados", 1);
+
+                // Convertir minutos a segundos para el contador
+                HttpContext.Session.SetInt32("DadosTiempoRestante", config.TiempoTotal * 60);
+                HttpContext.Session.SetString("DadosInicioTiempo", DateTime.Now.ToString());
+
+                // 4. Pasar el tiempo de meditación a la vista
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+
+                // Retorna la vista ConcentracionSuma.cshtml
+                return View();
+            }
+            catch (Exception ex)
+            {
+                // Si algo falla, regresamos al formulario de configuración
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioSuma()
+        {
+            try
+            {
+                // 1. Recuperar datos esenciales de la sesión
+                var configJson = HttpContext.Session.GetString("DadosConf");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+
+                if (string.IsNullOrEmpty(configJson) || string.IsNullOrEmpty(ejerciciosJson))
+                {
+                    return RedirectToAction("FormularioDados");
+                }
+
+                // 2. Deserializar
+                List<EjercicioDadosModel> ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                ConfDadosModel config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
+
+                // 3. Obtener el índice actual (por defecto 1)
+                int ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
+
+                // 4. ¿Ya terminó todos los ejercicios?
+                if (ejercicioActual > ejercicios.Count)
+                {
+                    return RedirectToAction("ResultadosSuma"); // Redirige a la vista de resultados de este modo
+                }
+
+                // 5. Validar tiempo restante
+                int tiempoRestante = HttpContext.Session.GetInt32("DadosTiempoRestante") ?? 0;
+                if (tiempoRestante <= 0)
+                {
+                    return RedirectToAction("ResultadosSuma");
+                }
+
+                // 6. Obtener el ejercicio específico
+                EjercicioDadosModel ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
+
+                if (ejercicio == null)
+                {
+                    return RedirectToAction("FormularioDados");
+                }
+
+                // 7. Preparar ViewBag para la UI (Barra de progreso, timer, etc.)
+                ViewBag.EjercicioActual = ejercicioActual;
+                ViewBag.TotalEjercicios = ejercicios.Count;
+                ViewBag.TiempoRestante = tiempoRestante;
+                ViewBag.ModoJuego = config.ModoJuego;
+                ViewBag.SaltosUsados = HttpContext.Session.GetInt32("DadosSaltosUsados") ?? 0;
+
+                // Retornamos la vista específica para Suma
+                return View(ejercicio);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult EjercicioSuma(int respuestaUsuario, double tiempoRespuesta, int tiempoRestanteActual, bool esSalto = false)
+        {
+            try
+            {
+                // 1. Recuperamos los datos
+                var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+                var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
+                var saltosUsados = HttpContext.Session.GetInt32("DadosSaltosUsados") ?? 0;
+
+                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson))
+                    return RedirectToAction("FormularioDados");
+
+                var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
+                var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                var ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
+                var respuesta = respuestas.FirstOrDefault(r => r.Id_Ejercicio == ejercicioActual);
+
+                if (esSalto && saltosUsados < 2)
+                {
+                    // Lógica de Salto
+                    respuesta.Respuesta_Usuario = string.Empty; // Queda como "No respondió"
+                    respuesta.Es_Correcta = false;
+                    respuesta.Tiempo_Respuesta = tiempoRespuesta;
+
+                    saltosUsados++;
+                    HttpContext.Session.SetInt32("DadosSaltosUsados", saltosUsados);
+                }
+                else
+                {
+                    // Lógica de respuesta normal
+                    respuesta.Respuesta_Usuario = respuestaUsuario.ToString();
+                    respuesta.Tiempo_Respuesta = tiempoRespuesta;
+                    respuesta.Es_Correcta = (respuestaUsuario == ejercicio.Dado_Resultado);
+                }
+
+                HttpContext.Session.SetInt32("DadosTiempoRestante", tiempoRestanteActual);
+
+                // Guardamos respuestas y avanzamos
+                HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
+
+                if (ejercicioActual + 1 > ejercicios.Count || tiempoRestanteActual <= 0)
+                {
+                    return RedirectToAction("ResultadosSuma");
+                }
+
+                return RedirectToAction("EjercicioSuma");
+            }
+            catch
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResultadosSuma()
+        {
+            try
+            {
+                var userId = HttpContext.Session.GetInt32("Id_Usuario");
+                var configJson = HttpContext.Session.GetString("DadosConf");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+                var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
+
+                if (string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(respuestasJson))
+                    return RedirectToAction("FormularioDados");
+
+                var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
+                var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
+
+                // --- LÓGICA DE CONTEO ---
+                int totalCorrectas = respuestas.Count(r => r.Es_Correcta);
+                // Se considera "No respondió" si el string está vacío o es null
+                int noRespondidas = respuestas.Count(r => string.IsNullOrEmpty(r.Respuesta_Usuario));
+                int incorrectas = ejercicios.Count - totalCorrectas - noRespondidas;
+
+                double tiempoTotal = respuestas.Sum(r => r.Tiempo_Respuesta);
+                double promedio = respuestas.Where(r => r.Tiempo_Respuesta > 0).DefaultIfEmpty().Average(r => r?.Tiempo_Respuesta ?? 0);
+                double porcentajeCalculado = ejercicios.Count > 0 ? (totalCorrectas * 100.0) / ejercicios.Count : 0;
+                // Preparar el ViewModel para la vista (puedes usar el mismo de Dados o uno nuevo)
+                var viewModel = new ResDadosViewModel
+                {
+                    Ejercicios = ejercicios,
+                    Respuestas = respuestas,
+                    TotalCorrectas = totalCorrectas,
+                    TotalIncorrectas = incorrectas,
+                    TotalSinResponder = noRespondidas,
+                    TiempoTotal = tiempoTotal,
+                    TiempoPromedio = promedio,
+                    Configuracion = config,
+                    PorcentajeAcierto = porcentajeCalculado
+                };
+
+                // Guardar en DB antes de limpiar sesión
+                PruebasDBModel record = new PruebasDBModel
+                {
+                    Id_Usuario = userId ?? 0,
+                    Total_Preguntas = ejercicios.Count,
+                    Respuestas_Correctas = totalCorrectas,
+                    Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                    Fecha = DateTime.Now,
+                    Tipo_Prueba = "Matemáticas con Dados suma",
+                    ExperienciaAdquirida = totalCorrectas * 5 // Lógica de XP
+                };
+                _pruebasDBService.GuardarPrueba(record);
+
+                return View(viewModel);
+            }
+            catch { return RedirectToAction("FormularioDados"); }
+        }
+
+
     }
 }

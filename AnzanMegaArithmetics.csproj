@@ -22,6 +22,13 @@
     <None Remove="Content\Images\Calendario.gif" />
     <None Remove="Content\Images\contacto.png" />
     <None Remove="Content\Images\dados.gif" />
+    <None Remove="Content\Images\Dados\dado1.png" />
+    <None Remove="Content\Images\Dados\dado2.png" />
+    <None Remove="Content\Images\Dados\dado3.png" />
+    <None Remove="Content\Images\Dados\dado4.png" />
+    <None Remove="Content\Images\Dados\dado5.png" />
+    <None Remove="Content\Images\Dados\dado6.png" />
+    <None Remove="Content\Images\Dados\Demogorgon.png" />
     <None Remove="Content\Images\division.gif" />
     <None Remove="Content\Images\Flashicon.gif" />
     <None Remove="Content\Images\icon-abacus.png" />
@@ -129,6 +136,27 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\dados.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado5.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\dado6.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Dados\Demogorgon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\division.gif">

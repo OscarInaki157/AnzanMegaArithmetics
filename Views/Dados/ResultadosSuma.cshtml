@@ -1,7 +1,7 @@
 ﻿@using AnzanMegaArithmetics.Models
 @model ResDadosViewModel
 @{
-    ViewBag.Title = "Resumen de Ejercicios de Dados";
+    ViewBag.Title = "Resultados Suma Flash";
     Layout = "_LayoutDados";
 
     var total = Model.Ejercicios.Count;
@@ -9,7 +9,10 @@
     var incorrectos = Model.TotalIncorrectas;
     var noRespondidos = Model.TotalSinResponder;
     var porcentaje = Model.PorcentajeAcierto;
+
+    // Lógica de color de la barra según desempeño
     string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
+
     var tiempoTotal = Model.TiempoTotal;
     var tiempoPromedio = Model.TiempoPromedio;
 }
@@ -462,18 +465,16 @@
     }
 </style>
 
-<h1>🎲 Resumen Matemáticas con dados</h1>
+<h1>🚀 Resultados Matemáticas con dados Suma</h1>
 <hr />
 
 <div class="botones-centrados">
     <form method="get" asp-action="FormularioDados" asp-controller="Dados">
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
-
     <form method="get" asp-action="RepetirDados" asp-controller="Dados">
         <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
-
     <form method="get" asp-action="LimpiarYDashboard" asp-controller="Dados">
         <button type="submit" class="btn-secondary">🏠 Dashboard</button>
     </form>
@@ -520,57 +521,31 @@
 <div class="grid-acordeones">
     @for (int i = 0; i < Model.Ejercicios.Count; i++)
     {
-        var ejercicio = Model.Ejercicios[i];
-        var respuesta = Model.Respuestas[i];
-        var colorClass = string.IsNullOrEmpty(respuesta.Respuesta_Usuario) ? "no-respondio" : respuesta.Es_Correcta ? "correcto" : "incorrecto";
-        var estado = string.IsNullOrEmpty(respuesta.Respuesta_Usuario) ? "No respondió" : respuesta.Es_Correcta ? "✅ Correcto" : "❌ Incorrecto";
+        var ej = Model.Ejercicios[i];
+        var res = Model.Respuestas[i];
+
+        // Determinación de clase y estado según lo solicitado
+        var colorClass = string.IsNullOrEmpty(res.Respuesta_Usuario) ? "no-respondio" : res.Es_Correcta ? "correcto" : "incorrecto";
+        var estado = string.IsNullOrEmpty(res.Respuesta_Usuario) ? "No respondió" : res.Es_Correcta ? "✅ Correcto" : "❌ Incorrecto";
 
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>
-            <div>
-                <!-- Dados del ejercicio -->
+            <div class="detalle-ejercicio">
                 <div class="dados-mini">
-                    @for (int j = 0; j < ejercicio.Dados.Length; j++)
+                    @foreach (var d in ej.Dados)
                     {
-                        <div class="dado-mini">@ejercicio.Dados[j]</div>
-                    }
-                    <div class="dado-mini dado-resultado-mini">@ejercicio.Dado_Resultado</div>
-                </div>
-
-                <!-- Expresión matemática del usuario -->
-                <div class="expresion-matematica">
-                    <strong>Tu operación:</strong><br />
-                    @if (string.IsNullOrEmpty(respuesta.Respuesta_Usuario))
-                    {
-                        <span class="sin-respuesta">No respondió</span>
-                    }
-                    else
-                    {
-                        @respuesta.Respuesta_Usuario
+                        <div class="dado-mini">@d</div>
                     }
                 </div>
 
-                <!-- Resultado esperado -->
+                <p>🎯 <strong>Suma correcta:</strong> @ej.Dado_Resultado</p>
                 <p>
-                    🎯 <strong>Resultado esperado:</strong><br />
-                    <span class="respuesta-correcta">@ejercicio.Dado_Resultado</span>
+                    👤 <strong>Tu respuesta:</strong>
+                    <span style="color:@(res.Es_Correcta ? "#28a745" : "#dc3545")">
+                        @(string.IsNullOrEmpty(res.Respuesta_Usuario) ? "---" : res.Respuesta_Usuario)
+                    </span>
                 </p>
-
-                <!-- Estadísticas -->
-                <p>⏱️ <strong>Tiempo respuesta:</strong><br /> @respuesta.Tiempo_Respuesta.ToString("0.00")s</p>
-
-                @if (!string.IsNullOrEmpty(respuesta.Respuesta_Usuario))
-                {
-                    <p>🎲 <strong>Dados utilizados:</strong><br /> @respuesta.DadosUtilizados de 5</p>
-                }
-
-                @if (!string.IsNullOrEmpty(respuesta.Respuesta_Usuario) && !respuesta.Es_Correcta)
-                {
-                    <p>
-                        📊 <strong>Estado:</strong><br />
-                        <span class="respuesta-incorrecta">La operación no da el resultado correcto</span>
-                    </p>
-                }
+                <p>⏱️ <strong>Tiempo:</strong> @res.Tiempo_Respuesta.ToString("0.00")s</p>
             </div>
         </details>
     }
