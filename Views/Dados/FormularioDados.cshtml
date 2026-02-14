@@ -16,8 +16,8 @@
 <div class="tabs">
     <div class="tab-buttons">
         <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)">Tradicional</button>
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)">Suma dados</button>
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)">Multi-Suma dados</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)">Suma</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)">Multi-Suma</button>
     </div>
 
     <form method="post" asp-action="ConcentracionDados" class="formulario-flash tab-content active" id="tab1">
@@ -42,11 +42,11 @@
                     <input name="TiempoTotal" type="number" value="5" min="1" max="40" required />
                 </div>
                 <div>
-                    <label>Tiempo de concentración:</label>
-                    <select name="TiempoMeditacion">
+                    <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
+                    <select asp-for="TiempoMeditacion" required>
                         @foreach (var val in new[] { 0, 3, 5, 8, 10 })
                         {
-                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
+                            <option value="@val">@val @(val == 0 ? "(sin concentración)" : "")</option>
                         }
                     </select>
                 </div>
@@ -70,11 +70,11 @@
                     <input name="TiempoTotal" type="number" value="5" min="1" required />
                 </div>
                 <div>
-                    <label>Tiempo de concentración:</label>
-                    <select name="TiempoMeditacion">
+                    <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
+                    <select asp-for="TiempoMeditacion" required>
                         @foreach (var val in new[] { 0, 3, 5, 8, 10 })
                         {
-                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
+                            <option value="@val">@val @(val == 0 ? "(sin concentración)" : "")</option>
                         }
                     </select>
                 </div>
@@ -106,11 +106,11 @@
                     <input name="TiempoTotal" type="number" value="5" min="1" required />
                 </div>
                 <div>
-                    <label>Tiempo de concentración:</label>
-                    <select name="TiempoMeditacion">
+                    <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
+                    <select asp-for="TiempoMeditacion" required>
                         @foreach (var val in new[] { 0, 3, 5, 8, 10 })
                         {
-                            <option value="@val">@val @(val == 0 ? "(Sin concentración)" : "segundos")</option>
+                            <option value="@val">@val @(val == 0 ? "(sin concentración)" : "")</option>
                         }
                     </select>
                 </div>
@@ -202,23 +202,23 @@
     }
 
     .btn.btn-primary {
-        background-color: var(--color-primary);
         color: white;
-        padding: 0.9rem 1.5rem;
+        padding: 1.2rem 1rem;
         font-size: 1.1rem;
         font-weight: bold;
         border: none;
-        border-radius: 0.6rem;
+        border-radius: 0.5rem;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
         width: 100%;
-        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        background: #28a745;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
     }
 
         .btn.btn-primary:hover {
-            background-color: var(--color-primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
         }
 
     .btn-dashboard {

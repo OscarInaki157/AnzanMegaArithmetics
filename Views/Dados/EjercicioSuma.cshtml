@@ -8,6 +8,110 @@
     var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
 }
 <style>
+
+    /* estilos para ejercicio y teclado */
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+    }
+
+    .respuesta-left{
+        /* flex: 1 1 400px;
+        max-width: 600px; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .teclado-numerico {
+        flex: 1 1 400px;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .tecla i {
+        font-size: 1.5rem;
+    }
+
+
+    .tecla {
+        flex: 1;
+        font-size: 2rem;
+        padding: 1rem 1.5rem 1rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--color-primary);
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+
+        .tecla.borrar {
+            background-color: var(--color-danger);
+            font-size: 1.5rem;
+            padding: 1rem;
+        }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
+        .tecla.enter {
+            background-color: #28a745;
+            font-size: 2.5rem;
+            padding: 1rem;
+        }
+
+            .tecla.enter:hover,
+            .tecla.enter.presionada {
+                background-color: #2ecc71 !important;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            }
+
+
+        .tecla:hover {
+            background-color: #a6a6ff;
+        }
+
+        .tecla.borrar:hover,
+        .tecla.borrar.presionada {
+            background-color: #ff6666 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+    /* estilos para ejercicio y teclado */
+
     .btn-saltar {
         background: linear-gradient(135deg, #f1c40f, #d4ac0d);
         color: #1b1e3c;
@@ -19,6 +123,7 @@
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
         transition: all 0.2s;
+        margin-top: 1rem;
     }
 
         .btn-saltar:hover:not(:disabled) {
@@ -205,11 +310,7 @@
         font-weight: 500;
     }
 
-    .ejercicio-wrapper {
-        margin: 0 auto;
-        text-align: center;
-        padding: 1rem;
-    }
+    
 
     /* ESTILOS PARA DADOS */
     .dados-container {
@@ -537,6 +638,16 @@
         .botones-numeros, .botones-operadores {
             gap: 0.8rem;
         }
+
+        .ejercicio-wrapper {
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
+
     }
 </style>
 
@@ -558,83 +669,96 @@
 </div>
 
 <div class="ejercicio-wrapper">
-    <div class="dados-container">
-        @foreach (var dado in Model.Dados)
-        {
-            <img src="~/Content/Images/Dados/dado@(dado).png" class="dado-imagen" />
-        }
+    <div class="respuesta-left">
+        <p class="instruccion"><strong>Suma</strong> los dados y escribe la respuesta correcta debajo</p>
+        <div class="dados-container">
+            @foreach (var dado in Model.Dados)
+            {
+                <img src="~/Content/Images/Dados/dado@(dado).png" class="dado-imagen" />
+            }
 
-        <div class="dado-resultado-wrapper" id="targetWrapper">
-            <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
-            <span class="numero-objetivo">@Model.Dado_Resultado</span>
+            <div class="dado-resultado-wrapper" id="targetWrapper">
+                <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
+                <span class="numero-objetivo">@Model.Dado_Resultado</span>
+            </div>
         </div>
+
+        <p class="instruccion">Resultado:</p>
+
+        <input type="number"
+               id="inputRespuesta"
+               class="input-expresion"
+               inputmode="none"
+               autocomplete="off"
+               autofocus
+               />
+
+        <button type="button" id="btnSaltar" class="btn-saltar"
+                onclick="saltarEjercicio()"
+                @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+            ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
+        </button>
     </div>
+    <div class="teclado-numerico">
+        <div class="fila">
+            <button type="button" class="tecla">7</button>
+            <button type="button" class="tecla">8</button>
+            <button type="button" class="tecla">9</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">4</button>
+            <button type="button" class="tecla">5</button>
+            <button type="button" class="tecla">6</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">1</button>
+            <button type="button" class="tecla">2</button>
+            <button type="button" class="tecla">3</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">0</button>
+            <button type="button" class="tecla borrar">🗑️</button>
+        </div>
 
-    <p class="instruccion">Resultado:</p>
-
-    <input type="number"
-           id="inputRespuesta"
-           class="input-expresion"
-           autocomplete="off"
-           autofocus />
-
-    <button type="button" id="btnSaltar" class="btn-saltar"
-            onclick="saltarEjercicio()"
-            @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
-        ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
-    </button>
+    </div>
+    
 </div>
 
 @section Scripts {
     <script>
+        // 1. Variables Globales
         let tiempoInicio = Date.now();
         let tiempoRestante = @tiempoRestante;
         const totalCorrecto = @Model.Dado_Resultado;
-
-        // Función de conversión mm:ss
-        function formatearTiempo(totalSegundos) {
-            if (totalSegundos < 0) totalSegundos = 0;
-            const minutos = Math.floor(totalSegundos / 60);
-            const segundos = totalSegundos % 60;
-            const mStr = minutos < 10 ? '0' + minutos : minutos;
-            const sStr = segundos < 10 ? '0' + segundos : segundos;
-            return `${mStr}:${sStr}`;
-        }
-
-        function saltarEjercicio() {
-            const btn = document.getElementById('btnSaltar');
-            btn.disabled = true; // Evitar doble click
-
-            const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
-
-            // Enviamos los datos indicando que es un salto
-            enviarDatos(null, tiempoRespuesta, true);
-        }
-
-        // FIX: El ID debe coincidir con el del HTML (contadorTiempo)
+        const input = document.getElementById('inputRespuesta');
+        const wrapper = document.getElementById('targetWrapper');
         const displayReloj = document.getElementById('contadorTiempo');
 
-        // Inicializar el texto del reloj de inmediato
+        // 2. Temporizador
         displayReloj.textContent = formatearTiempo(tiempoRestante);
-
         const timer = setInterval(() => {
             tiempoRestante--;
             displayReloj.textContent = formatearTiempo(tiempoRestante);
-
             if (tiempoRestante <= 0) {
                 clearInterval(timer);
                 location.href = '/Dados/ResultadosSuma';
             }
         }, 1000);
 
-        const input = document.getElementById('inputRespuesta');
-        const wrapper = document.getElementById('targetWrapper');
+        function formatearTiempo(totalSegundos) {
+            if (totalSegundos < 0) totalSegundos = 0;
+            const minutos = Math.floor(totalSegundos / 60);
+            const segundos = totalSegundos % 60;
+            return `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+        }
 
-        input.addEventListener('input', function() {
-            const valor = parseInt(this.value);
+        // 3. Lógica de Validación (Centralizada)
+        function verificarRespuesta() {
+            const valor = parseInt(input.value);
             if (valor === totalCorrecto) {
-                this.readOnly = true;
-                this.style.boxShadow = "0 0 25px rgba(40, 167, 69, 0.7)";
+                // Bloquear para evitar múltiples envíos
+                input.readOnly = true;
+                input.style.boxShadow = "0 0 25px rgba(40, 167, 69, 0.7)";
                 wrapper.classList.add('revelado');
 
                 const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
@@ -643,33 +767,113 @@
                     enviarDatos(valor, tiempoRespuesta);
                 }, 1100);
             }
+        }
+
+        // Escuchar cambios manuales (teclado físico real)
+        input.addEventListener('input', verificarRespuesta);
+
+        // 4. Teclado Numérico en Pantalla (Virtual)
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.classList.contains('borrar')) {
+                    input.value = input.value.slice(0, -1);
+                }
+                else if (btn.classList.contains('enter')) {
+                    verificarRespuesta(); // Forzar validación al dar click en verde
+                }
+                else {
+                    const numero = btn.textContent.trim();
+                    // Solo agregar si es un número
+                    if (!isNaN(numero)) {
+                        input.value += numero;
+                    }
+                }
+
+                // IMPORTANTE: Disparar la validación después de cada click
+                verificarRespuesta();
+                input.focus();
+
+                // Efecto visual de presionado
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 150);
+            });
         });
+
+        // 5. Teclado Físico (Eventos de sistema)
+        document.addEventListener('keydown', e => {
+            // Si el input está en readOnly (porque ya acertó), no hacemos nada
+            if (input.readOnly) return;
+
+            const tecla = e.key;
+
+            // --- MANEJO DE NÚMEROS ---
+            if (tecla >= '0' && tecla <= '9') {
+                e.preventDefault(); // Evita que el navegador intente escribirlo por su cuenta
+                input.value += tecla;
+                verificarRespuesta(); // Llamamos a la validación manualmente
+
+                // Animación de la tecla virtual
+                const btn = Array.from(document.querySelectorAll('.tecla'))
+                                 .find(b => b.textContent.trim() === tecla);
+                if (btn) {
+                    btn.classList.add('presionada');
+                    setTimeout(() => btn.classList.remove('presionada'), 150);
+                }
+            }
+
+            // --- MANEJO DE ENTER ---
+            if (tecla === 'Enter') {
+                e.preventDefault();
+                verificarRespuesta();
+
+                const btnEnter = document.querySelector('.tecla.enter');
+                if (btnEnter) {
+                    btnEnter.classList.add('presionada');
+                    setTimeout(() => btnEnter.classList.remove('presionada'), 150);
+                }
+            }
+
+            // --- MANEJO DE BACKSPACE (BORRAR) ---
+            if (tecla === 'Backspace') {
+                e.preventDefault();
+                input.value = input.value.slice(0, -1);
+                verificarRespuesta();
+
+                const btnBorrar = document.querySelector('.tecla.borrar');
+                if (btnBorrar) {
+                    btnBorrar.classList.add('presionada');
+                    setTimeout(() => btnBorrar.classList.remove('presionada'), 150);
+                }
+            }
+        });
+
+        // 6. Funciones de Envío
+        function saltarEjercicio() {
+            const btn = document.getElementById('btnSaltar');
+            btn.disabled = true;
+            const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
+            enviarDatos(null, tiempoRespuesta, true);
+        }
 
         function enviarDatos(respuesta, tiempo, esSalto = false) {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '/Dados/EjercicioSuma';
 
-            const rInput = document.createElement('input');
-            rInput.type = 'hidden'; rInput.name = 'respuestaUsuario';
-            rInput.value = respuesta === null ? 0 : respuesta; // 0 o null si es salto
-            form.appendChild(rInput);
+            const data = {
+                respuestaUsuario: respuesta === null ? 0 : respuesta,
+                tiempoRespuesta: tiempo,
+                tiempoRestanteActual: tiempoRestante,
+                esSalto: esSalto
+            };
 
-            const tInput = document.createElement('input');
-            tInput.type = 'hidden'; tInput.name = 'tiempoRespuesta';
-            tInput.value = tiempo;
-            form.appendChild(tInput);
-
-            const sInput = document.createElement('input');
-            sInput.type = 'hidden'; sInput.name = 'tiempoRestanteActual';
-            sInput.value = tiempoRestante;
-            form.appendChild(sInput);
-
-            // FLAG DE SALTO
-            const saltoInput = document.createElement('input');
-            saltoInput.type = 'hidden'; saltoInput.name = 'esSalto';
-            saltoInput.value = esSalto;
-            form.appendChild(saltoInput);
+            for (const key in data) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = data[key];
+                form.appendChild(hiddenField);
+            }
 
             document.body.appendChild(form);
             form.submit();

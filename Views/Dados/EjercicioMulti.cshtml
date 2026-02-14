@@ -10,23 +10,148 @@
 }
 
 <style>
-    .bloque-suma {
-        display: flex;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.05);
-        padding: 15px;
-        border-radius: 15px;
+    /* Clase para resaltar el éxito de la respuesta */
+    .input-expresion.correcto {
+        border-color: #28a745 !important;
+        color: #065f46 !important;
+        box-shadow: 0 0 30px rgba(40, 167, 69, 0.8) !important;
+        transform: scale(1.02);
+        transition: all 0.2s ease-in-out;
     }
-    .operacion-container {
+
+    /* Opcional: una pequeña animación de pulso verde */
+    @@keyframes pulsoVerde {
+        0%
+
+    {
+        box-shadow: 0 0 0px rgba(40, 167, 69, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 35px rgba(40, 167, 69, 0.9);
+    }
+
+    100% {
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.7);
+    }
+
+    }
+
+    .input-expresion.correcto {
+        animation: pulsoVerde 1s infinite;
+    }
+    .multiplicador-frontal {
+        position: relative;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.3s ease;
+    }
+
+    /* estilos para ejercicio y teclado */
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 1.5rem;
-        margin: 2rem 0;
-        flex-wrap: wrap;
+        flex-direction: row;
     }
+
+    .respuesta-left {
+        /* flex: 1 1 400px;
+            max-width: 600px; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .teclado-numerico {
+        flex: 1 1 400px;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .tecla i {
+        font-size: 1.5rem;
+    }
+
+
+    .tecla {
+        flex: 1;
+        font-size: 2rem;
+        padding: 1rem 1.5rem 1rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--color-primary);
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+
+        .tecla.borrar {
+            background-color: var(--color-danger);
+            font-size: 1.5rem;
+            padding: 1rem;
+        }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
+        .tecla.enter {
+            background-color: #28a745;
+            font-size: 2.5rem;
+            padding: 1rem;
+        }
+
+            .tecla.enter:hover,
+            .tecla.enter.presionada {
+                background-color: #2ecc71 !important;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            }
+
+
+        .tecla:hover {
+            background-color: #a6a6ff;
+        }
+
+        .tecla.borrar:hover,
+        .tecla.borrar.presionada {
+            background-color: #ff6666 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+    /* estilos para ejercicio y teclado */
+
     .btn-saltar {
         background: linear-gradient(135deg, #f1c40f, #d4ac0d);
         color: #1b1e3c;
@@ -38,6 +163,7 @@
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
         transition: all 0.2s;
+        margin-top: 1rem;
     }
 
         .btn-saltar:hover:not(:disabled) {
@@ -225,11 +351,7 @@
         font-weight: 500;
     }
 
-    .ejercicio-wrapper {
-        margin: 0 auto;
-        text-align: center;
-        padding: 1rem;
-    }
+
 
     /* ESTILOS PARA DADOS */
     .dados-container {
@@ -257,22 +379,6 @@
         transform: rotate(25deg);
     }
 
-    .dado-virtual {
-        width: 4.5rem;
-        height: 4.5rem;
-        background: #ffffff; /* Blanco sólido */
-        color: #1b1e3c; /* Texto oscuro */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        font-weight: 900;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        border: 3px solid #f1c40f; /* Borde dorado característico */
-    }
-
-    /* 2. ELIMINACIÓN DE ANIMACIONES Y SOMBRAS AL ACERTAR */
     .dado-resultado-wrapper {
         position: relative;
         width: 10rem;
@@ -291,23 +397,13 @@
         z-index: 1;
     }
 
-    .multiplicador-frontal {
-        position: relative;
-        z-index: 5; /* Por encima de todo */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.3s ease;
-    }
-
     .numero-objetivo {
         position: relative;
         z-index: 10;
         font-size: 3rem;
         font-weight: 900;
-        color: #ffffff; /* Verde siempre visible */
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        /* Quitamos el hidden y el opacity 0 */
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         visibility: visible !important;
         opacity: 1 !important;
     }
@@ -584,6 +680,15 @@
         .botones-numeros, .botones-operadores {
             gap: 0.8rem;
         }
+
+        .ejercicio-wrapper {
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .progreso-texto {
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -605,45 +710,81 @@
 </div>
 
 <div class="ejercicio-wrapper">
-    <div class="operacion-container">
-        <div class="bloque-suma">
-            @for (int i = 0; i < 5; i++)
-            {
-                <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" class="dado-imagen" />
-            }
-        </div>
+    <div class="respuesta-left">
+        <p class="instruccion"><strong>Suma</strong> los 5 dados y después <strong>multiplica</strong> por el último dado</p>
+        <div class="dados-container">
 
-        <div class="dado-resultado-wrapper" id="targetWrapper">
-            <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
+             @for (int i = 0; i < 5; i++)
+             {
+                 <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" class="dado-imagen" />
+             }
+            
 
-            <div class="multiplicador-frontal">
-                <div class="numero-objetivo">@Model.Dados[5]</div>
+            <div class="dado-resultado-wrapper" id="targetWrapper">
+                <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
+
+                <div class="multiplicador-frontal">
+                    <div class="numero-objetivo">@Model.Dados[5]</div>
+                </div>
             </div>
         </div>
+
+        
+        <p class="instruccion">Resultado:</p>
+        <input type="number" 
+            id="inputRespuesta"
+            class="input-expresion"
+            autocomplete="off"
+            autofocus />
+
+         <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
+             @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+             ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
+         </button>
+        
     </div>
 
-    <div style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:2rem;">
-        <input type="number" id="inputRespuesta" class="input-expresion" autocomplete="off" autofocus />
+    <div class="teclado-numerico">
+        <div class="fila">
+            <button type="button" class="tecla">7</button>
+            <button type="button" class="tecla">8</button>
+            <button type="button" class="tecla">9</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">4</button>
+            <button type="button" class="tecla">5</button>
+            <button type="button" class="tecla">6</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">1</button>
+            <button type="button" class="tecla">2</button>
+            <button type="button" class="tecla">3</button>
+        </div>
+        <div class="fila">
+            <button type="button" class="tecla">0</button>
+            <button type="button" class="tecla borrar">🗑️</button>
+        </div>
 
-        <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
-                @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
-            ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
-        </button>
     </div>
+    
 </div>
 
 @section Scripts {
     <script>
+        // 1. Variables Globales y DOM
         let tiempoInicio = Date.now();
         let tiempoRestante = @tiempoRestante;
         const totalCorrecto = @Model.Dado_Resultado;
+        const input = document.getElementById('inputRespuesta');
+        const wrapper = document.getElementById('targetWrapper');
         const displayReloj = document.getElementById('contadorTiempo');
 
+        // 2. Temporizador mm:ss
         function formatearTiempo(seg) {
             if (seg < 0) seg = 0;
             const m = Math.floor(seg / 60);
             const s = seg % 60;
-            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         displayReloj.textContent = formatearTiempo(tiempoRestante);
@@ -657,24 +798,98 @@
             }
         }, 1000);
 
-        function saltarEjercicio() {
-            document.getElementById('btnSaltar').disabled = true;
-            enviarDatos(null, (Date.now() - tiempoInicio) / 1000, true);
-        }
+        // 3. Lógica de Validación Centralizada
+        function verificarRespuesta() {
+            if (input.readOnly) return;
 
-        const input = document.getElementById('inputRespuesta');
-        const wrapper = document.getElementById('targetWrapper');
+            const valor = parseInt(input.value);
+            if (valor === totalCorrecto) {
+                input.readOnly = true;
 
-        input.addEventListener('input', function() {
-            if (parseInt(this.value) === totalCorrecto) {
-                this.readOnly = true;
-                this.style.boxShadow = "0 0 25px rgba(40, 167, 69, 0.7)";
+                // AGREGAR CLASE DE ÉXITO
+                input.classList.add('correcto');
+
+                // El resto de tu lógica se mantiene igual
                 wrapper.classList.add('revelado');
+
+                const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
+
                 setTimeout(() => {
-                    enviarDatos(this.value, (Date.now() - tiempoInicio) / 1000);
+                    enviarDatos(input.value, tiempoRespuesta);
                 }, 1100);
             }
+        }
+
+        // 4. Teclado Virtual (Clics en pantalla)
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (input.readOnly) return;
+
+                if (btn.classList.contains('borrar')) {
+                    input.value = input.value.slice(0, -1);
+                } else {
+                    const num = btn.textContent.trim();
+                    if (!isNaN(num)) {
+                        input.value += num;
+                    }
+                }
+
+                verificarRespuesta();
+                input.focus();
+
+                // Animación visual
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 150);
+            });
         });
+
+        // 5. Teclado Físico (Eventos de PC)
+        document.addEventListener('keydown', e => {
+            if (input.readOnly) return;
+
+            const tecla = e.key;
+
+            // Manejo de números
+            if (tecla >= '0' && tecla <= '9') {
+                e.preventDefault(); // Prevenir duplicados
+                input.value += tecla;
+                verificarRespuesta();
+
+                const btn = Array.from(document.querySelectorAll('.tecla'))
+                                 .find(b => b.textContent.trim() === tecla);
+                if (btn) {
+                    btn.classList.add('presionada');
+                    setTimeout(() => btn.classList.remove('presionada'), 150);
+                }
+            }
+
+            // Manejo de borrar
+            if (tecla === 'Backspace') {
+                e.preventDefault();
+                input.value = input.value.slice(0, -1);
+                verificarRespuesta();
+
+                const btnBorrar = document.querySelector('.tecla.borrar');
+                if (btnBorrar) {
+                    btnBorrar.classList.add('presionada');
+                    setTimeout(() => btnBorrar.classList.remove('presionada'), 150);
+                }
+            }
+
+            // Manejo de Enter (por si el usuario quiere validar manualmente)
+            if (tecla === 'Enter') {
+                e.preventDefault();
+                verificarRespuesta();
+            }
+        });
+
+        // 6. Funciones de Envío y Saltar
+        function saltarEjercicio() {
+            const btn = document.getElementById('btnSaltar');
+            btn.disabled = true;
+            const tiempoRespuesta = (Date.now() - tiempoInicio) / 1000;
+            enviarDatos(null, tiempoRespuesta, true);
+        }
 
         function enviarDatos(resp, tiempo, salto = false) {
             const form = document.createElement('form');
@@ -690,7 +905,9 @@
 
             for (let key in fields) {
                 const inp = document.createElement('input');
-                inp.type = 'hidden'; inp.name = key; inp.value = fields[key];
+                inp.type = 'hidden';
+                inp.name = key;
+                inp.value = fields[key];
                 form.appendChild(inp);
             }
 
