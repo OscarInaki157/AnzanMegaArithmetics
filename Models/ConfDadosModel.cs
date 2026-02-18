@@ -9,5 +9,6 @@
         public string ModoJuego { get; set; } = "Aritmetica";
         public bool UsaJerarquia { get; set; } = true;
         public string RangoDados { get; set; }
+        public int MultiplicadorLibre { get; set; }
     }
 }

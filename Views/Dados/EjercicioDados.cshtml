@@ -415,8 +415,8 @@
         }
 
     .btn-limpiar {
-        padding: 1rem 3rem;
-        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #ff4d4d, #df312c); /* Rojo vibrante */
         color: white;
         border: none;
         border-radius: 15px;
@@ -424,13 +424,41 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(76, 76, 255, 0.4);
+        box-shadow: 0 6px 20px rgba(223, 49, 44, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
         .btn-limpiar:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(76, 76, 255, 0.6);
-            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+            box-shadow: 0 8px 25px rgba(223, 49, 44, 0.6);
+            background: linear-gradient(135deg, #ff5e5e, #ff2a24);
+        }
+
+    .btn-reset-all {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #f1c40f, #f39c12); /* Amarillo / Naranja */
+        color: #1b1e3c; /* Texto oscuro para mejor contraste sobre amarillo */
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(241, 196, 15, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-reset-all:hover {
+            box-shadow: 0 8px 25px rgba(241, 196, 15, 0.5);
+            background: linear-gradient(135deg, #ffdb1f, #f1c40f);
+        }
+
+        .btn-reset-all:active {
+            transform: scale(0.95);
         }
 
     .instruccion {
@@ -586,129 +614,181 @@
                class="input-expresion"
                readonly />
 
-        <button type="button" class="btn-limpiar" onclick="limpiarExpresion()">Limpiar</button>
+        <button type="button" class="btn-limpiar" onclick="limpiarExpresion()">
+            <i class="fas fa-backspace"></i>
+        </button>
+
+        <button type="button" class="btn-reset-all" title="Limpiar todo" onclick="resetearTodo()">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+
         <button type="button" class="btn-enviar" onclick="enviarRespuesta()">Enviar</button>
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        let tiempoInicioEjercicio = Date.now();
-        let tiempoRestanteGlobal = @tiempoRestante;
-        let temporizadorGlobalInterval;
+<script>
+    // --- Variables de Estado ---
+    let tiempoInicioEjercicio = Date.now();
+    let tiempoRestanteGlobal = @tiempoRestante;
+    let temporizadorGlobalInterval;
 
-        let indicesUsados = [];
+    let indicesUsados = []; // Rastrea qué dados están bloqueados
+    let historial = [];    // Guarda cada paso: { tipo: 'dado'|'operador', valor: string, index: number|null }
 
-        function formatearTiempo(segundosTotales) {
-            const minutos = Math.floor(segundosTotales / 60);
-            const segundos = segundosTotales % 60;
-            // padStart asegura que si segundos es 5, se vea "05"
-            return `${minutos}:${segundos.toString().padStart(2, '0')}`;
-        }
+    // --- Lógica del Temporizador ---
+    function formatearTiempo(segundosTotales) {
+        const minutos = Math.floor(segundosTotales / 60);
+        const segundos = segundosTotales % 60;
+        return `${minutos}:${segundos.toString().padStart(2, '0')}`;
+    }
 
-        function actualizarTemporizadorGlobal() {
-            if (tiempoRestanteGlobal > 0) {
-                tiempoRestanteGlobal--;
+    function actualizarTemporizadorGlobal() {
+        if (tiempoRestanteGlobal > 0) {
+            tiempoRestanteGlobal--;
 
-                // Actualizamos el texto con el nuevo formato
-                const contadorEl = document.getElementById('contadorTiempoRestante');
-                if (contadorEl) {
-                    contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
-                }
+            const contadorEl = document.getElementById('contadorTiempoRestante');
+            if (contadorEl) {
+                contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
+            }
 
-                if (tiempoRestanteGlobal <= 0) {
-                    clearInterval(temporizadorGlobalInterval);
-                    window.location.href = '/Dados/ResultadosDados';
-                }
+            if (tiempoRestanteGlobal <= 0) {
+                clearInterval(temporizadorGlobalInterval);
+                window.location.href = '/Dados/ResultadosDados';
             }
         }
+    }
 
-        function enviarYFinalizar(event) {
-            event.preventDefault();
-            clearInterval(temporizadorGlobalInterval);
-            window.location.href = '/Dados/ResultadosDados';
+    function enviarYFinalizar(event) {
+        if (event) event.preventDefault();
+        clearInterval(temporizadorGlobalInterval);
+        window.location.href = '/Dados/ResultadosDados';
+    }
+
+    // --- Lógica de Construcción de Operación ---
+    function seleccionarDado(numero, index) {
+        if (indicesUsados.includes(index)) return;
+
+        const input = document.getElementById('expresionMatematica');
+        const btn = document.getElementById('btn-dado-' + index);
+
+        // Registrar en historial
+        historial.push({
+            tipo: 'dado',
+            valor: numero.toString(),
+            index: index
+        });
+
+        // Actualizar UI
+        indicesUsados.push(index);
+        input.value = historial.map(h => h.valor).join('');
+
+        if (btn) {
+            btn.classList.add('usado');
+            btn.style.pointerEvents = 'none';
         }
+    }
 
-        // CAMBIO: Nombre de función coincide con el onclick del HTML
-        function seleccionarDado(numero, index) {
-            if (indicesUsados.includes(index)) return;
+    function agregarOperador(operador) {
+        const input = document.getElementById('expresionMatematica');
+        const valorOperador = ' ' + operador + ' ';
 
-            const input = document.getElementById('expresionMatematica');
-            const btn = document.getElementById('btn-dado-' + index);
+        // Registrar en historial
+        historial.push({
+            tipo: 'operador',
+            valor: valorOperador,
+            index: null
+        });
 
-            input.value += numero;
+        // Actualizar UI
+        input.value = historial.map(h => h.valor).join('');
+    }
 
-            // Marcar como usado
-            indicesUsados.push(index);
+    // Función de borrado "Normal" (Backspace)
+    function limpiarExpresion() {
+        if (historial.length === 0) return;
+
+        // 1. Obtener el último elemento
+        const ultimoMovimiento = historial.pop();
+
+        // 2. Si era un dado, liberarlo visualmente y del array de uso
+        if (ultimoMovimiento.tipo === 'dado') {
+            const idx = ultimoMovimiento.index;
+            indicesUsados = indicesUsados.filter(i => i !== idx);
+
+            const btn = document.getElementById('btn-dado-' + idx);
             if (btn) {
-                btn.classList.add('usado');
-                // No uses btn.disabled = true si quieres que el hover:not(.usado) funcione bien
-                btn.style.pointerEvents = 'none';
-            }
-        }
-
-        function agregarOperador(operador) {
-            const input = document.getElementById('expresionMatematica');
-            input.value += ' ' + operador + ' ';
-        }
-
-        function limpiarExpresion() {
-            document.getElementById('expresionMatematica').value = '';
-            indicesUsados = [];
-
-            // CAMBIO: Selector corregido para usar la clase .btn-dado-selector
-            document.querySelectorAll('.btn-dado-selector').forEach(btn => {
                 btn.classList.remove('usado');
                 btn.style.pointerEvents = 'auto';
-            });
+            }
         }
 
-        function enviarRespuesta() {
-            const expresion = document.getElementById('expresionMatematica').value.trim();
+        // 3. Reconstruir el input con lo que queda en el historial
+        const input = document.getElementById('expresionMatematica');
+        input.value = historial.map(h => h.valor).join('');
+    }
 
-            if (!expresion) {
-                alert('Por favor, construye una operación matemática');
-                return;
-            }
+    // Función opcional para borrar TODO de una vez (si la necesitas)
+    function resetearTodo() {
+        historial = [];
+        indicesUsados = [];
+        document.getElementById('expresionMatematica').value = '';
+        document.querySelectorAll('.btn-dado-selector').forEach(btn => {
+            btn.classList.remove('usado');
+            btn.style.pointerEvents = 'auto';
+        });
+    }
 
-            const tiempoFin = Date.now();
-            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
+    // --- Envío de Datos ---
+    function enviarRespuesta() {
+        const expresion = document.getElementById('expresionMatematica').value.trim();
 
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/Dados/EjercicioDados';
+        // if (!expresion) {
+        //     alert('Por favor, construye una operación matemática');
+        //     return;
+        // }
 
-            const inputExpresion = document.createElement('input');
-            inputExpresion.type = 'hidden';
-            inputExpresion.name = 'respuestaUsuario';
-            inputExpresion.value = expresion;
-            form.appendChild(inputExpresion);
+        const tiempoFin = Date.now();
+        const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
 
-            const inputTiempo = document.createElement('input');
-            inputTiempo.type = 'hidden';
-            inputTiempo.name = 'tiempoRespuesta';
-            inputTiempo.value = tiempoRespuesta.toFixed(2);
-            form.appendChild(inputTiempo);
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/Dados/EjercicioDados';
 
-            document.body.appendChild(form);
-            form.submit();
+        const inputExpresion = document.createElement('input');
+        inputExpresion.type = 'hidden';
+        inputExpresion.name = 'respuestaUsuario';
+        inputExpresion.value = expresion;
+        form.appendChild(inputExpresion);
 
-            clearInterval(temporizadorGlobalInterval);
+        const inputTiempo = document.createElement('input');
+        inputTiempo.type = 'hidden';
+        inputTiempo.name = 'tiempoRespuesta';
+        inputTiempo.value = tiempoRespuesta.toFixed(2);
+        form.appendChild(inputTiempo);
+
+        document.body.appendChild(form);
+        form.submit();
+
+        clearInterval(temporizadorGlobalInterval);
+    }
+
+    // --- Inicialización y Atajos de Teclado ---
+    document.addEventListener('DOMContentLoaded', function() {
+        tiempoInicioEjercicio = Date.now();
+        temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            enviarRespuesta();
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            tiempoInicioEjercicio = Date.now();
-            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                enviarRespuesta();
-            }
-            if (e.key === 'Escape') {
-                limpiarExpresion();
-            }
-        });
-    </script>
-}
+        if (e.key === 'Escape') {
+            resetearTodo(); // Escape borra todo
+        }
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            limpiarExpresion(); // Borrado uno por uno
+        }
+    });
+</script>

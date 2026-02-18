@@ -2,6 +2,11 @@
 @{
     ViewBag.Title = "Matemáticas con Dados";
     Layout = "_LayoutDados";
+
+    if (Model.TiempoMeditacion == 0)
+    {
+        Model.TiempoMeditacion = 3;
+    }
 }
 
 <div class="top-bar-config">
@@ -93,11 +98,16 @@
                 </div>
                 <div>
                     <label>Rango del dado multiplicador:</label>
-                    <select asp-for="RangoDados" class="form-control">
+                    <select asp-for="RangoDados" class="form-control" id="selectRangoMulti" onchange="toggleMultiLibre()">
                         <option value="1-12">Nivel Básico (1 - 12)</option>
                         <option value="6-16">Nivel Medio (6 - 16)</option>
                         <option value="11-20">Nivel Pro (11 - 20)</option>
+                        <option value="Libre">Libre (Manual)</option>
                     </select>
+                </div>
+                <div id="containerMultiLibre" style="display:none; margin-top: 1rem;">
+                    <label>Multiplicador personalizado (1 - 100):</label>
+                    <input asp-for="MultiplicadorLibre" type="number" value="7" min="1" max="100" />
                 </div>
             </div>
             <div class="form-column">
@@ -541,6 +551,21 @@
         window.location.href = '@Url.Action("LimpiarYDashboard", "Dados")';
     }
 
+       function toggleMultiLibre() {
+        const select = document.getElementById('selectRangoMulti');
+        const container = document.getElementById('containerMultiLibre');
+
+        // Validamos que ambos elementos existan antes de hacer nada
+        if (select && container) {
+            if (select.value === 'Libre') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+    }
+
+
     function mostrarTab(id, btn) {
         document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
         document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
@@ -555,6 +580,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        toggleMultiLibre();
         // 1. Leemos el valor que viene desde el Controller
         const modoDesdeServidor = "@ViewBag.ModoActivo";
 

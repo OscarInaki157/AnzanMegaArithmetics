@@ -96,8 +96,9 @@ namespace AnzanMegaArithmetics.Controllers
             List<EjercicioDadosModel> ejercicios = new();
             Random _random = new Random();
 
-            // Lógica de Rangos para el Multiplicador (Modo 3)
-            int minMult = 1, maxMult = 13; // Por defecto 1-12
+            int minMult = 1, maxMult = 13;
+            bool esLibre = config.RangoDados == "Libre";
+
             if (config.RangoDados == "6-16") { minMult = 6; maxMult = 17; }
             else if (config.RangoDados == "11-20") { minMult = 11; maxMult = 21; }
 
@@ -116,7 +117,7 @@ namespace AnzanMegaArithmetics.Controllers
                             dados[j] = _random.Next(1, 7);
                             sumaParcial += dados[j];
                         }
-                        dados[5] = _random.Next(minMult, maxMult);
+                        dados[5] = esLibre ? config.MultiplicadorLibre : _random.Next(minMult, maxMult);
                         resultado = sumaParcial * dados[5];
                         break;
 
@@ -262,11 +263,11 @@ namespace AnzanMegaArithmetics.Controllers
                     return RedirectToAction("FormularioDados");
                 }
 
-                respuesta.Respuesta_Usuario = respuestaUsuario;
+                respuesta.Respuesta_Usuario = respuestaUsuario ?? string.Empty;
                 respuesta.Tiempo_Respuesta = tiempoRespuesta;
 
-                respuesta.Es_Correcta = ValidarRespuestaMatematica(respuestaUsuario, ejercicio.Dados, ejercicio.Dado_Resultado, config.UsaJerarquia);
-                respuesta.DadosUtilizados = ContarDadosUtilizados(respuestaUsuario, ejercicio.Dados);
+                respuesta.Es_Correcta = ValidarRespuestaMatematica(respuesta.Respuesta_Usuario, ejercicio.Dados, ejercicio.Dado_Resultado, config.UsaJerarquia);
+                respuesta.DadosUtilizados = ContarDadosUtilizados(respuesta.Respuesta_Usuario, ejercicio.Dados);
 
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
 
@@ -318,8 +319,9 @@ namespace AnzanMegaArithmetics.Controllers
                 var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
 
                 int correctas = respuestas.Count(r => r.Es_Correcta);
-                int incorrectas = respuestas.Count(r => !r.Es_Correcta);
-                int sinResponder = ejercicios.Count - respuestas.Count(r => string.IsNullOrEmpty(r.Respuesta_Usuario));
+                
+                int sinResponder = respuestas.Count(r => string.IsNullOrEmpty(r.Respuesta_Usuario));
+                int incorrectas = ejercicios.Count - correctas - sinResponder;
 
                 double porcentajeAcierto = ejercicios.Count > 0 ? (correctas * 100.0) / ejercicios.Count : 0;
                 double tiempoPromedio = respuestas.Where(r => r.Tiempo_Respuesta > 0).DefaultIfEmpty().Average(r => r?.Tiempo_Respuesta ?? 0);
