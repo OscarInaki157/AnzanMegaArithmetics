@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="x-icon" href="/Content/Images/iconoMM.png" />
+    <script src="https://kit.fontawesome.com/521fff03dd.js" crossorigin="anonymous"></script>
+    <title>@ViewData["Title"] - Mentes México</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            color: var(--text-color);
+            user-select: none;
+        }
+
+        html, body {
+            overflow-x: hidden;
+        }
+
+        :root {
+            --bg-color: #010f36;
+            --text-color: white;
+            --text-light: #d1d1f0;
+            --color-bg: #a5696d;
+            --color-card-bg: #1b1e3c;
+            --color-primary: #4c4cff;
+            --color-primary-dark: #3737e8;
+            --color-light: #d1d1f0;
+            --color-text: #d1d1f0;
+            --color-accent: #6233b8;
+            --color-danger: #df312c;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Eliminar flechas en inputs type="number" en Chrome, Safari, Edge */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        /* Eliminar flechas en Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+
+        /* ========== HEADER ========== */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: var(--bg-color);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .logo-title {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .logo-group img {
+                height: 3.5rem;
+            }
+
+            .logo-group h1 {
+                font-size: 1.5rem;
+                margin: 0;
+                color: var(--text-color);
+            }
+
+        /* ========== MAIN ========== */
+        .main-content {
+            margin-top: 6.5rem;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        /* ========== FOOTER ========== */
+        .page-footer {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+            .footer-links div {
+                text-align: center;
+            }
+
+            .footer-links h4 {
+                margin-bottom: 0.5rem;
+                color: var(--text-color);
+            }
+
+            .footer-links a {
+                display: block;
+                color: var(--text-light);
+                text-decoration: none;
+                margin: 0.2rem 0;
+            }
+
+                .footer-links a:hover {
+                    text-decoration: underline;
+                }
+
+        .copyright {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @@media (max-width: 768px) {
+            .logo-title {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            .logo-group {
+                flex-grow: 1;
+            }
+
+                .logo-group h1 {
+                    font-size: 1rem;
+                }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header class="page-header">
+        <div class="logo-title">
+            <div class="logo-group">
+                <img src="/Content/Images/MMlogo.png" alt="Logo Mentes México" />
+                <h1>MENTES MÉXICO</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== MAIN ========== -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="page-footer">
+        <div class="footer-links">
+            <div>
+                <h4>Recursos</h4>
+                <a href="#">Guías</a>
+                <a href="#">Tutoriales</a>
+            </div>
+            <div>
+                <h4>Legal</h4>
+                <a href="#">Política de privacidad</a>
+                <a href="#">Términos de servicio</a>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2025 Mentes México. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+<script>
+    // medio proteger
+      // document.addEventListener('contextmenu', function (e) {
+      //     e.preventDefault();
+      // });
+
+      // document.addEventListener('keydown', function (e) {
+      //     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+      //                          e.preventDefault();
+      //     }
+      // });
+</script>
+

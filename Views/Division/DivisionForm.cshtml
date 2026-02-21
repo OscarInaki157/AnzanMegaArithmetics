@@ -1,0 +1,448 @@
+﻿@model AnzanMegaArithmetics.Models.ConfDivModel
+@{
+    ViewBag.Title = "División";
+    Layout = "_LayoutDivision";
+
+    var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
+    var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
+    string velocidad = Model.VelocidadPreguntas;
+    velocidad = string.IsNullOrWhiteSpace(velocidad) ? "1.0" : velocidad.Replace(",", ".");
+    string formato = Model.FormatoPregunta;
+    string direccion = Model.DireccionRespuesta;
+}
+
+
+<form method="post" asp-controller="Division" asp-action="ConcentracionDivision" id="formConfigMultiplicacion" class="formulario-flash">
+
+    <div class="form-header">
+        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+            <i class="fas fa-home"></i> Regresar al Dashboard
+        </button>
+        <h2>Ajustes División</h2>
+    </div>
+
+
+    <div class="form-grid">
+        <div class="form-column">
+            <div>
+                <label>Número de ejercicios:</label>
+                <select name="CantidadEjercicios" required>
+                    @for (int i = 1; i <= 30; i++)
+                    {
+                        if (i <= 10 || i % 5 == 0)
+                        {
+                            <option value="@i" selected="@(cantidad == i)">@i</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Formato de la pregunta:</label>
+                <select name="FormatoPregunta">
+                    <option value="Galera" selected="@(formato == "Galera")">Galera</option>
+                    <option value="XY" selected="@(formato == "XY")">X / Y</option>
+                    <option value="Obelo" selected="@(formato == "Obelo")">Óbelo</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Dirección de la respuesta:</label>
+                <select name="DireccionRespuesta">
+                    <option value="DerechaAIzquierda" selected="@(direccion == "DerechaAIzquierda")">Derecha a Izquierda</option>
+                    <option value="IzquierdaADerecha" selected="@(direccion == "IzquierdaADerecha")">Izquierda a Derecha</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Velocidad de las preguntas:</label>
+                <div class="elslider">
+                    <input type="range" id="velocidadSlider" min="0" max="240" step="0.5" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
+                    <input type="number" id="velocidadInput" name="VelocidadPreguntas" min="0" max="240" step="0.5" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-column">
+            <div>
+                <label>Tipo de ejercicio:</label>
+                <select name="TipoEjercicio">
+                    <option value="exacta" selected="@(formato == "exacta")">exacta</option>
+                    <option value="inexacta" selected="@(formato == "inexacta")">inexacta</option>
+                </select>
+            </div>
+            <div>
+                <label>Tipo de pregunta (dígitos):</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select name="DigitosDividendo" required>
+                        @for (int i = 1; i <= 8; i++)
+                        {
+                            <option value="@i" selected="@(Model.DigitosDividendo == i.ToString())">@i</option>
+                        }
+                    </select>
+                    <span>/</span>
+                    <select name="DigitosDivisor" required>
+                        @for (int i = 1; i <= 8; i++)
+                        {
+                            <option value="@i" selected="@(Model.DigitosDivisor == i.ToString())">@i</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label>Tiempo de concentración:</label>
+                <select name="TiempoMeditacion" required>
+                    @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                    {
+                        <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">🧠 Iniciar ejercicios</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<style>
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    h2 {
+        text-align: center;
+        color: var(--color-light);
+        font-weight: 600;
+        font-size: clamp(1.4rem, 2vw, 1.7rem);
+    }
+
+    form#formConfigMultiplicacion input[type="range"] {
+        background-color: #292c4f;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+        width: 100%;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: white;
+        }
+
+
+    .formulario-flash {
+        max-width: 85%;
+        margin: 0 auto;
+        padding: 1.3rem;
+        border-radius: 1rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        animation: fadeIn 0.4s ease;
+    }
+
+    .top-bar-config {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        max-width: 85%;
+        margin: -1rem auto 1rem auto;
+        padding: 0 1rem;
+    }
+
+        .top-bar-config h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color: var(--color-light);
+        }
+
+    .form-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-column {
+        flex: 1 1 49%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    form#formConfigMultiplicacion label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    form#formConfigMultiplicacion select,
+    form#formConfigMultiplicacion input[type="number"] {
+        width: 60%;
+        padding: 0.5rem 0.6rem;
+        border: none;
+        border-radius: 0.5rem;
+        background-color: #292c4f;
+        color: white;
+        font-size: 1rem;
+    }
+
+    form#formConfigMultiplicacion input[type="radio"] {
+        accent-color: var(--color-primary);
+        transform: scale(1.1);
+    }
+
+    .btn.btn-primary {
+        background: #28a745;
+        color: white;
+        padding: 0.9rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 0.6rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
+    }
+
+        .btn.btn-primary:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.5);
+        }
+
+    .btn-dashboard {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+
+        .btn-dashboard i {
+            font-size: 1.1rem;
+        }
+
+    .dashboard-button-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-dashboard:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
+    }
+
+    .tag-input {
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background-color: #292c4f;
+        position: relative;
+        cursor: pointer;
+        min-height: 48px;
+        width: 60%;
+    }
+
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+        .tag:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+
+
+        .tag .remove {
+            margin-left: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    .dropdown-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.4rem;
+        color: #ccc;
+        user-select: none;
+    }
+
+    .dropdown-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #1b1e3c;
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        margin-top: 6px;
+        z-index: 10;
+        display: none;
+        max-height: 180px;
+        overflow-y: auto;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .option {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        color: var(--color-light);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+        .option:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .option.special {
+            font-weight: bold;
+            background-color: #292c4f;
+            color: var(--color-primary);
+        }
+
+            .option.special:hover {
+                background-color: #3737e8;
+                color: white;
+            }
+
+    .input-error {
+        border: 2px solid var(--color-danger) !important;
+    }
+
+    .elslider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 60%;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+    @@media (max-width: 768px) {
+        .form-header {
+            flex-direction: column;
+        }
+
+        .form-grid {
+            flex-direction: column;
+        }
+
+        .btn-dashboard {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn.btn-primary {
+            font-size: 1rem;
+        }
+
+        .top-bar-config {
+            flex-direction: column-reverse;
+            align-items: center;
+            text-align: center;
+        }
+
+            .top-bar-config h2 {
+                width: 100%;
+            }
+
+            .top-bar-config .btn-dashboard {
+                width: auto;
+                margin: 0 auto;
+            }
+
+        form#formConfigMultiplicacion select,
+        form#formConfigMultiplicacion input[type="number"] {
+            width: 100%;
+        }
+
+        .elslider {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    function regresarAlDashboard() {
+             window.location.href = '@Url.Action("Dashboard", "Dashboard")';
+     }
+    // Setup del slider
+    document.addEventListener("DOMContentLoaded", () => {
+        const slider = document.getElementById("velocidadSlider");
+        const input = document.getElementById("velocidadInput");
+
+        slider.addEventListener("input", () => {
+            input.value = slider.value;
+        });
+
+        input.addEventListener("input", () => {
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val >= 0.1 && val <= 10) {
+                slider.value = val;
+            } else {
+                input.value = Math.min(Math.max(val, 0.1), 10);
+            }
+        });
+    });
+
+</script>
