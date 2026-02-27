@@ -43,8 +43,8 @@
             </div>
             <div class="form-column">
                 <div>
-                    <label>Minutos para contestar:</label>
-                    <input name="TiempoTotal" type="number" value="5" min="1" max="40" required />
+                    <label>Minutos para contestar (0 = Sin límite):</label>
+                    <input name="TiempoTotal" type="number" value="5" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
@@ -68,11 +68,20 @@
                     <label>Cantidad de ejercicios:</label>
                     <input name="CantidadEjercicios" type="number" value="10" min="1" required />
                 </div>
+                <div>
+                    <label asp-for="NumeroDados">Cantidad de dados a sumar:</label>
+                    <select asp-for="NumeroDados" required>
+                        @for (int i = 5; i <= 15; i++)
+                        {
+                            <option value="@i">@i dados</option>
+                        }
+                    </select>
+                </div>
             </div>
             <div class="form-column">
                 <div>
-                    <label>Minutos para contestar:</label>
-                    <input name="TiempoTotal" type="number" value="5" min="1" required />
+                    <label>Minutos para contestar (0 = Sin límite):</label>
+                    <input name="TiempoTotal" type="number" value="5" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
@@ -112,8 +121,8 @@
             </div>
             <div class="form-column">
                 <div>
-                    <label>Minutos para contestar:</label>
-                    <input name="TiempoTotal" type="number" value="5" min="1" required />
+                    <label>Minutos para contestar (0 = Sin límite):</label>
+                    <input name="TiempoTotal" type="number" value="5" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>

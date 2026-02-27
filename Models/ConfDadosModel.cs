@@ -10,5 +10,6 @@
         public bool UsaJerarquia { get; set; } = true;
         public string RangoDados { get; set; }
         public int MultiplicadorLibre { get; set; }
+        public int NumeroDados { get; set; }
     }
 }

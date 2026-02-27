@@ -7,6 +7,7 @@
     var tiempoRestante = ViewBag.TiempoRestante ?? 0;
     var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
 }
+
 <style>
 
     /* estilos para ejercicio y teclado */
@@ -315,11 +316,18 @@
     /* ESTILOS PARA DADOS */
     .dados-container {
         display: flex;
+        flex-wrap: wrap; /* Permite el salto de línea */
         justify-content: center;
-        gap: 1.5rem;
-        margin: 1rem 0;
-        flex-wrap: wrap;
         align-items: center;
+        gap: 1rem;
+        max-width: 900px; /* Suficiente para 6 elementos (5 dados + objetivo) */
+        margin: 1rem auto;
+    }
+
+    .line-break {
+        width: 100%;
+        height: 0;
+        margin: 0;
     }
 
     .dado {
@@ -376,6 +384,7 @@
         opacity: 1;
         visibility: visible;
     }
+
     .dado-imagen {
         width: 4.2rem;
         height: 4.2rem;
@@ -383,7 +392,7 @@
         filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         transition: transform 0.2s ease;
         border-radius: 1rem;
-        transform: rotate(20deg);
+        transform: rotate(10deg);
     }
 
     .dado-label {
@@ -564,7 +573,7 @@
     .instruccion {
         font-size: 1.2rem;
         color: #d1d1f0;
-        margin: 1rem 0;
+        margin: 0.2rem 0;
         text-align: center;
     }
 
@@ -612,12 +621,25 @@
         justify-content: center;
         text-align: center;
     }
+    .resultados{
+        display: flex;
+        flex-direction: column;
+    }
 
     @@media (max-width: 768px) {
         .dado {
             width: 60px;
             height: 60px;
             font-size: 2rem;
+        }
+
+        .dado-imagen {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        .line-break {
+            display: none; /* En móvil dejamos que el wrap sea natural por espacio */
         }
 
         .btn-numero, .btn-operador {
@@ -632,7 +654,8 @@
         }
 
         .dados-container {
-            gap: 1rem;
+            gap: 0.5rem;
+            margin:0;
         }
 
         .botones-numeros, .botones-operadores {
@@ -646,6 +669,10 @@
 
         .progreso-texto {
             font-size: 0.8rem;
+        }
+
+        .instruccion {
+            margin: 0.5rem 0;
         }
 
     }
@@ -663,8 +690,8 @@
         </div>
     </div>
 
-    <div class="info-tiempo" style="color:white; font-size:1.5rem; font-weight:bold;">
-        ⏱ <span id="contadorTiempo">@tiempoRestante</span>
+    <div class="info-tiempo">
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@(tiempoRestante == 0 ? "∞" : tiempoRestante.ToString())</span></span>
     </div>
 </div>
 
@@ -672,9 +699,14 @@
     <div class="respuesta-left">
         <p class="instruccion"><strong>Suma</strong> los dados y escribe la respuesta correcta debajo</p>
         <div class="dados-container">
-            @foreach (var dado in Model.Dados)
+            @for (int i = 0; i < Model.Dados.Length; i++)
             {
-                <img src="~/Content/Images/Dados/dado@(dado).png" class="dado-imagen" />
+                <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" class="dado-imagen" />
+
+                if ((i + 1) % 5 == 0 && (i + 1) < Model.Dados.Length)
+                {
+                    <div class="line-break"></div>
+                }
             }
 
             <div class="dado-resultado-wrapper" id="targetWrapper">
@@ -683,21 +715,22 @@
             </div>
         </div>
 
-        <p class="instruccion">Resultado:</p>
+        <div class="resultados">
+            <p class="instruccion">Resultado:</p>
 
-        <input type="number"
-               id="inputRespuesta"
-               class="input-expresion"
-               inputmode="none"
-               autocomplete="off"
-               autofocus
-               />
+            <input type="number"
+                   id="inputRespuesta"
+                   class="input-expresion"
+                   inputmode="none"
+                   autocomplete="off" />
 
-        <button type="button" id="btnSaltar" class="btn-saltar"
-                onclick="saltarEjercicio()"
-                @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
-            ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
-        </button>
+            <button type="button" id="btnSaltar" class="btn-saltar"
+                    onclick="saltarEjercicio()"
+                    @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+                ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
+            </button>
+        </div>
+        
     </div>
     <div class="teclado-numerico">
         <div class="fila">
@@ -732,18 +765,30 @@
         const totalCorrecto = @Model.Dado_Resultado;
         const input = document.getElementById('inputRespuesta');
         const wrapper = document.getElementById('targetWrapper');
-        const displayReloj = document.getElementById('contadorTiempo');
+        const displayReloj = document.getElementById('contadorTiempoRestante');
+        const esTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const esInfinito = (tiempoRestante === 0);
+
+        if (!esTactil) {
+            input.focus();
+        }
 
         // 2. Temporizador
-        displayReloj.textContent = formatearTiempo(tiempoRestante);
-        const timer = setInterval(() => {
-            tiempoRestante--;
+        if (esInfinito) {
+            displayReloj.textContent = "∞";
+            displayReloj.style.fontSize = "2.2rem"; // Para que se vea bien el símbolo
+        } else {
             displayReloj.textContent = formatearTiempo(tiempoRestante);
-            if (tiempoRestante <= 0) {
-                clearInterval(timer);
-                location.href = '/Dados/ResultadosSuma';
-            }
-        }, 1000);
+            const timer = setInterval(() => {
+                tiempoRestante--;
+                displayReloj.textContent = formatearTiempo(tiempoRestante);
+
+                if (tiempoRestante <= 0) {
+                    clearInterval(timer);
+                    location.href = '/Dados/ResultadosSuma';
+                }
+            }, 1000);
+        }
 
         function formatearTiempo(totalSegundos) {
             if (totalSegundos < 0) totalSegundos = 0;

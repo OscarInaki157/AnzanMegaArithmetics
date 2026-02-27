@@ -705,7 +705,12 @@
     </div>
 
     <div class="info-tiempo" style="color:white; font-size:1.5rem; font-weight:bold;">
-        ⏱ <span id="contadorTiempo">--:--</span>
+        <span>
+            ⏱
+            <span id="contadorTiempo" class="contador" style="@(tiempoRestante == 0 ? "font-size: 2.2rem;" : "")">
+                @(tiempoRestante == 0 ? "∞" : tiempoRestante.ToString())
+            </span>
+        </span>
     </div>
 </div>
 
@@ -779,6 +784,8 @@
         const wrapper = document.getElementById('targetWrapper');
         const displayReloj = document.getElementById('contadorTiempo');
 
+        const esInfinito = (tiempoRestante === 0);
+
         // 2. Temporizador mm:ss
         function formatearTiempo(seg) {
             if (seg < 0) seg = 0;
@@ -787,16 +794,21 @@
             return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
-        displayReloj.textContent = formatearTiempo(tiempoRestante);
-
-        const timer = setInterval(() => {
-            tiempoRestante--;
+        if (esInfinito) {
+            displayReloj.textContent = "∞";
+            displayReloj.style.fontSize = "2.2rem"; // Ajuste visual para el símbolo
+        } else {
             displayReloj.textContent = formatearTiempo(tiempoRestante);
-            if (tiempoRestante <= 0) {
-                clearInterval(timer);
-                location.href = '/Dados/ResultadosMulti';
-            }
-        }, 1000);
+            const timer = setInterval(() => {
+                tiempoRestante--;
+                displayReloj.textContent = formatearTiempo(tiempoRestante);
+
+                if (tiempoRestante <= 0) {
+                    clearInterval(timer);
+                    location.href = '/Dados/ResultadosMulti';
+                }
+            }, 1000);
+        }
 
         // 3. Lógica de Validación Centralizada
         function verificarRespuesta() {

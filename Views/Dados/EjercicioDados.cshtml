@@ -318,13 +318,11 @@
         height: 4.5rem;
         /* Fondo oscuro semi-transparente para el efecto cristal */
         background: rgba(41, 44, 79, 0.8);
-        color: #ff6b6b; /* El color del símbolo será el que brille */
-
+        color: #ff6b6b;
         border: 2px solid rgba(255, 107, 107, 0.4);
         border-radius: 15px;
         font-size: 2.2rem;
         font-weight: 800;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -520,10 +518,20 @@
             font-size: 2rem;
         }
 
+        .dado-imagen {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        .btn-dado-selector img {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
         .btn-numero, .btn-operador {
-            width: 50px;
-            height: 50px;
-            font-size: 1.5rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            font-size: 2rem;
         }
 
         .input-expresion {
@@ -537,6 +545,24 @@
 
         .botones-numeros, .botones-operadores {
             gap: 0.8rem;
+        }
+
+        .formulario-respuesta{
+            flex-direction:row;
+        }
+
+        .btn-limpiar {
+            width:30%;
+        }
+
+        .btn-reset-all {
+            width: 30%;
+        }
+
+        .btn-enviar {
+            padding: 1rem 1rem;
+            font-size: 1.5rem;
+            width: 30%;
         }
     }
 </style>
@@ -554,7 +580,7 @@
     </div>
 
     <div class="info-tiempo">
-        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span></span>
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@(tiempoRestante == 0 ? "∞" : tiempoRestante.ToString())</span></span>
     </div>
 </div>
 
@@ -631,32 +657,42 @@
     let tiempoInicioEjercicio = Date.now();
     let tiempoRestanteGlobal = @tiempoRestante;
     let temporizadorGlobalInterval;
-
+    const input = document.getElementById('expresionMatematica');
     let indicesUsados = []; // Rastrea qué dados están bloqueados
     let historial = [];    // Guarda cada paso: { tipo: 'dado'|'operador', valor: string, index: number|null }
+    const esInfinito = (tiempoRestanteGlobal === 0);
+
+    const esTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        if (!esTactil) {
+            input.focus();
+        }
 
     // --- Lógica del Temporizador ---
     function formatearTiempo(segundosTotales) {
-        const minutos = Math.floor(segundosTotales / 60);
-        const segundos = segundosTotales % 60;
+        const seg = Math.max(0, segundosTotales); // Evita números negativos
+        const minutos = Math.floor(seg / 60);
+        const segundos = seg % 60;
         return `${minutos}:${segundos.toString().padStart(2, '0')}`;
     }
 
     function actualizarTemporizadorGlobal() {
-        if (tiempoRestanteGlobal > 0) {
-            tiempoRestanteGlobal--;
+            // Si es infinito, no restamos nada
+            if (esInfinito) return;
 
-            const contadorEl = document.getElementById('contadorTiempoRestante');
-            if (contadorEl) {
-                contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
-            }
+            if (tiempoRestanteGlobal > 0) {
+                tiempoRestanteGlobal--;
+                const contadorEl = document.getElementById('contadorTiempoRestante');
+                if (contadorEl) {
+                    contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
+                }
 
-            if (tiempoRestanteGlobal <= 0) {
-                clearInterval(temporizadorGlobalInterval);
-                window.location.href = '/Dados/ResultadosDados';
+                if (tiempoRestanteGlobal <= 0) {
+                    clearInterval(temporizadorGlobalInterval);
+                    window.location.href = '/Dados/ResultadosDados';
+                }
             }
         }
-    }
 
     function enviarYFinalizar(event) {
         if (event) event.preventDefault();
@@ -774,9 +810,23 @@
 
     // --- Inicialización y Atajos de Teclado ---
     document.addEventListener('DOMContentLoaded', function() {
-        tiempoInicioEjercicio = Date.now();
-        temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
-    });
+         tiempoInicioEjercicio = Date.now();
+         const contadorEl = document.getElementById('contadorTiempoRestante');
+
+         if (esInfinito) {
+             // Mostramos el símbolo de infinito y no iniciamos el Interval
+             if (contadorEl) {
+                 contadorEl.textContent = "∞";
+                 contadorEl.style.fontSize = "2.2rem"; // Un poco más grande para que destaque
+             }
+         } else {
+             // Modo normal con cuenta regresiva
+             if (contadorEl) {
+                 contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
+             }
+             temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+         }
+     });
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {

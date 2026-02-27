@@ -122,9 +122,9 @@ namespace AnzanMegaArithmetics.Controllers
                         break;
 
                     case "SumaFlash":
-                        // MODO 2: Suma simple de 5 dados (1-6)
-                        dados = new int[5];
-                        for (int j = 0; j < 5; j++)
+                        int cantidadASumar = config.NumeroDados > 0 ? config.NumeroDados : 5;
+                        dados = new int[cantidadASumar];
+                        for (int j = 0; j < cantidadASumar; j++)
                         {
                             dados[j] = _random.Next(1, 7);
                         }
@@ -213,7 +213,7 @@ namespace AnzanMegaArithmetics.Controllers
 
                 int tiempoRestante = HttpContext.Session.GetInt32("DadosTiempoRestante") ?? 0;
 
-                if (tiempoRestante <= 0)
+                if (config.TiempoTotal > 0 && tiempoRestante <= 0)
                 {
                     return RedirectToAction("ResultadosDados");
                 }
@@ -271,7 +271,7 @@ namespace AnzanMegaArithmetics.Controllers
 
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
 
-                if (tiempoRestante > 0)
+                if (config.TiempoTotal > 0 && tiempoRestante > 0)
                 {
                     tiempoRestante = Math.Max(0, tiempoRestante - (int)Math.Ceiling(tiempoRespuesta));
                 }
@@ -279,7 +279,7 @@ namespace AnzanMegaArithmetics.Controllers
                 HttpContext.Session.SetInt32("DadosTiempoRestante", tiempoRestante);
                 HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
 
-                if (ejercicioActual + 1 > ejercicios.Count || tiempoRestante <= 0)
+                if (ejercicioActual + 1 > ejercicios.Count || (config.TiempoTotal > 0 && tiempoRestante <= 0))
                 {
                     return RedirectToAction("ResultadosDados");
                 }
@@ -696,7 +696,9 @@ namespace AnzanMegaArithmetics.Controllers
 
                 // 5. Validar tiempo restante
                 int tiempoRestante = HttpContext.Session.GetInt32("DadosTiempoRestante") ?? 0;
-                if (tiempoRestante <= 0)
+
+                // Permitir 0 si es modo infinito
+                if (config.TiempoTotal > 0 && tiempoRestante <= 0)
                 {
                     return RedirectToAction("ResultadosSuma");
                 }
@@ -735,12 +737,14 @@ namespace AnzanMegaArithmetics.Controllers
                 var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
                 var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
                 var saltosUsados = HttpContext.Session.GetInt32("DadosSaltosUsados") ?? 0;
+                var configJson = HttpContext.Session.GetString("DadosConf");
 
-                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson))
+                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(configJson))
                     return RedirectToAction("FormularioDados");
 
                 var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
                 var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                ConfDadosModel config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
                 var ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
                 var respuesta = respuestas.FirstOrDefault(r => r.Id_Ejercicio == ejercicioActual);
 
@@ -768,7 +772,9 @@ namespace AnzanMegaArithmetics.Controllers
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
                 HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
 
-                if (ejercicioActual + 1 > ejercicios.Count || tiempoRestanteActual <= 0)
+                // Aquí ya recibes tiempoRestanteActual desde el JS de la vista
+                // Solo validamos la salida
+                if (ejercicioActual + 1 > ejercicios.Count || (config.TiempoTotal > 0 && tiempoRestanteActual <= 0))
                 {
                     return RedirectToAction("ResultadosSuma");
                 }
@@ -899,7 +905,7 @@ namespace AnzanMegaArithmetics.Controllers
                 int saltosUsados = HttpContext.Session.GetInt32("DadosSaltosUsados") ?? 0;
 
                 // 2. Validar fin de juego o tiempo agotado
-                if (ejercicioActual > ejercicios.Count || tiempoRestante <= 0)
+                if (ejercicioActual > ejercicios.Count || (tiempoRestante <= 0 && config.TiempoTotal > 0))
                     return RedirectToAction("ResultadosMulti");
 
                 // 3. Obtener el ejercicio específico
@@ -927,13 +933,14 @@ namespace AnzanMegaArithmetics.Controllers
                 var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
                 var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
                 var saltosUsados = HttpContext.Session.GetInt32("DadosSaltosUsados") ?? 0;
+                var configJson = HttpContext.Session.GetString("DadosConf");
 
-                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson))
+                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(configJson))
                     return RedirectToAction("FormularioDados");
 
                 var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
                 var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
-
+                var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
                 var ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
                 var respuesta = respuestas.FirstOrDefault(r => r.Id_Ejercicio == ejercicioActual);
 
@@ -964,8 +971,10 @@ namespace AnzanMegaArithmetics.Controllers
                 HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
 
                 // Redirección final
-                if (ejercicioActual + 1 > ejercicios.Count || tiempoRestanteActual <= 0)
+                if (ejercicioActual + 1 > ejercicios.Count || (config.TiempoTotal > 0 && tiempoRestanteActual <= 0))
+                {
                     return RedirectToAction("ResultadosMulti");
+                }
 
                 return RedirectToAction("EjercicioMulti");
             }
