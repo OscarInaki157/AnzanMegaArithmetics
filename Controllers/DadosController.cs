@@ -43,7 +43,16 @@ namespace AnzanMegaArithmetics.Controllers
 
             if (string.IsNullOrEmpty(configJson))
             {
-                config = new ConfDadosModel { ModoJuego = "Aritmetica"};
+                config = new ConfDadosModel
+                {
+                    ModoJuego = "Aritmetica",
+                    CantidadEjercicios = 20,
+                    TiempoTotal = 3,
+                    TiempoMeditacion = 3,
+                    TipoPrueba = "Matemáticas con Dados tradicional",
+                    UsaJerarquia = false,
+                    MultiplicadorLibre = 7
+                };
             }
             else
             {

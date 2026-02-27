@@ -2,11 +2,6 @@
 @{
     ViewBag.Title = "Matemáticas con Dados";
     Layout = "_LayoutDados";
-
-    if (Model.TiempoMeditacion == 0)
-    {
-        Model.TiempoMeditacion = 3;
-    }
 }
 
 <div class="top-bar-config">
@@ -31,11 +26,11 @@
             <div class="form-column">
                 <div>
                     <label>Cantidad de ejercicios:</label>
-                    <input name="CantidadEjercicios" type="number" value="20" min="1" required />
+                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
                 </div>
                 <div>
                     <label>Modo de operación:</label>
-                    <select name="UsaJerarquia" required>
+                    <select asp-for="UsaJerarquia" required>
                         <option value="false">Sin Jerarquía</option>
                         <option value="true">Con Jerarquía</option>
                     </select>
@@ -44,7 +39,7 @@
             <div class="form-column">
                 <div>
                     <label>Minutos para contestar (0 = Sin límite):</label>
-                    <input name="TiempoTotal" type="number" value="3" min="0" max="40" required />
+                    <input asp-for="TiempoTotal" type="number" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
@@ -66,7 +61,7 @@
             <div class="form-column">
                 <div>
                     <label>Cantidad de ejercicios:</label>
-                    <input name="CantidadEjercicios" type="number" value="20" min="1" required />
+                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
                 </div>
                 <div>
                     <label asp-for="NumeroDados">Cantidad de dados a sumar:</label>
@@ -81,7 +76,7 @@
             <div class="form-column">
                 <div>
                     <label>Minutos para contestar (0 = Sin límite):</label>
-                    <input name="TiempoTotal" type="number" value="3" min="0" max="40" required />
+                    <input asp-for="TiempoTotal" type="number" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
@@ -103,7 +98,7 @@
             <div class="form-column">
                 <div>
                     <label>Cantidad de ejercicios:</label>
-                    <input name="CantidadEjercicios" type="number" value="10" min="1" required />
+                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
                 </div>
                 <div>
                     <label>Rango del dado multiplicador:</label>
@@ -116,13 +111,13 @@
                 </div>
                 <div id="containerMultiLibre" style="display:none; margin-top: 1rem;">
                     <label>Multiplicador personalizado (1 - 100):</label>
-                    <input asp-for="MultiplicadorLibre" type="number" value="7" min="1" max="100" />
+                    <input asp-for="MultiplicadorLibre" type="number" min="1" max="100" />
                 </div>
             </div>
             <div class="form-column">
                 <div>
                     <label>Minutos para contestar (0 = Sin límite):</label>
-                    <input name="TiempoTotal" type="number" value="3" min="0" max="40" required />
+                    <input asp-for="TiempoTotal" type="number" min="0" max="40" required />
                 </div>
                 <div>
                     <label asp-for="TiempoMeditacion">Tiempo de concentración:</label>
