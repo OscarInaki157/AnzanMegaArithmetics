@@ -96,11 +96,11 @@ namespace AnzanMegaArithmetics.Controllers
             List<EjercicioDadosModel> ejercicios = new();
             Random _random = new Random();
 
-            int minMult = 1, maxMult = 13;
+            int minMult = 2, maxMult = 11;
             bool esLibre = config.RangoDados == "Libre";
 
-            if (config.RangoDados == "6-16") { minMult = 6; maxMult = 17; }
-            else if (config.RangoDados == "11-20") { minMult = 11; maxMult = 21; }
+            if (config.RangoDados == "9-16") { minMult = 9; maxMult = 17; }
+            else if (config.RangoDados == "15-24") { minMult = 15; maxMult = 24; }
 
             for (int i = 0; i < config.CantidadEjercicios; i++)
             {
