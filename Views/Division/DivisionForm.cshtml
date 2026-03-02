@@ -49,8 +49,8 @@
             <div>
                 <label>Dirección de la respuesta:</label>
                 <select name="DireccionRespuesta">
-                    <option value="DerechaAIzquierda" selected="@(direccion == "DerechaAIzquierda")">Derecha a Izquierda</option>
                     <option value="IzquierdaADerecha" selected="@(direccion == "IzquierdaADerecha")">Izquierda a Derecha</option>
+                    <option value="DerechaAIzquierda" selected="@(direccion == "DerechaAIzquierda")">Derecha a Izquierda</option>
                 </select>
             </div>
 
@@ -66,25 +66,31 @@
         <div class="form-column">
             <div>
                 <label>Tipo de ejercicio:</label>
-                <select name="TipoEjercicio">
-                    <option value="exacta" selected="@(formato == "exacta")">exacta</option>
-                    <option value="inexacta" selected="@(formato == "inexacta")">inexacta</option>
+                <select name="TipoEjercicio" id="tipoEjercicio">
+                    <option value="exacta" selected="@(Model.TipoEjercicio == "exacta")">Exacta</option>
+                    <option value="inexacta" selected="@(Model.TipoEjercicio == "inexacta")">Inexacta</option>
                 </select>
             </div>
             <div>
-                <label>Tipo de pregunta (dígitos):</label>
+                <label>Tipo de pregunta (dígitos dividendo / divisor):</label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <select name="DigitosDividendo" required>
+                    <select name="DigitosDividendo" id="selectDividendo" required>
                         @for (int i = 1; i <= 8; i++)
                         {
-                            <option value="@i" selected="@(Model.DigitosDividendo == i.ToString())">@i</option>
+                            <option value="@i" selected="@(Model.DigitosDividendo == i.ToString())">
+                                @i @(i == 1 ? "dígito" : "dígitos")
+                            </option>
                         }
                     </select>
-                    <span>/</span>
-                    <select name="DigitosDivisor" required>
+
+                    <span> entre </span>
+
+                    <select name="DigitosDivisor" id="selectDivisor" required>
                         @for (int i = 1; i <= 8; i++)
                         {
-                            <option value="@i" selected="@(Model.DigitosDivisor == i.ToString())">@i</option>
+                            <option value="@i" selected="@(Model.DigitosDivisor == i.ToString())">
+                                @i @(i == 1 ? "dígito" : "dígitos")
+                            </option>
                         }
                     </select>
                 </div>
@@ -428,6 +434,9 @@
      }
     // Setup del slider
     document.addEventListener("DOMContentLoaded", () => {
+        const tipoEjercicio = document.getElementById("tipoEjercicio");
+        const selectDividendo = document.getElementById("selectDividendo");
+        const selectDivisor = document.getElementById("selectDivisor");
         const slider = document.getElementById("velocidadSlider");
         const input = document.getElementById("velocidadInput");
 
@@ -443,6 +452,83 @@
                 input.value = Math.min(Math.max(val, 0.1), 10);
             }
         });
+
+        function validarYCorregir(e) {
+            const esExacta = tipoEjercicio.value === "exacta";
+
+            if (!esExacta) {
+                habilitarTodas(selectDividendo);
+                habilitarTodas(selectDivisor);
+                return;
+            }
+
+            let valDividendo = parseInt(selectDividendo.value);
+            let valDivisor = parseInt(selectDivisor.value);
+            let huboCambio = false;
+
+            // 1. Regla de Oro: Dividendo < Divisor (en dígitos)
+            // Caso límite: Si dividendo es 8, no hay divisor > 8. Bajamos dividendo a 7.
+            if (valDividendo === 8) {
+                selectDividendo.value = "7";
+                valDividendo = 7;
+                huboCambio = true;
+            }
+
+            // 2. Si el dividendo es mayor o igual al divisor, subimos el divisor
+            if (valDividendo >= valDivisor) {
+                selectDivisor.value = (valDividendo + 1).toString();
+                valDivisor = valDividendo + 1;
+                huboCambio = true;
+            }
+
+            // 3. Feedback visual (Bloqueo de opciones inválidas)
+            actualizarOpcionesDisponibles(selectDividendo, (v) => v >= valDivisor);
+            actualizarOpcionesDisponibles(selectDivisor, (v) => v <= valDividendo);
+
+            // Si el sistema corrigió algo, aplicamos el destello visual
+            if (huboCambio) {
+                aplicarEfecto(selectDividendo);
+                aplicarEfecto(selectDivisor);
+            }
+        }
+
+        function actualizarOpcionesDisponibles(select, conditionFn) {
+            Array.from(select.options).forEach(opt => {
+                const val = parseInt(opt.value);
+                if (conditionFn(val)) {
+                    opt.disabled = true;
+                    opt.style.opacity = "0.3";
+                } else {
+                    opt.disabled = false;
+                    opt.style.opacity = "1";
+                }
+            });
+        }
+
+        function habilitarTodas(select) {
+            Array.from(select.options).forEach(opt => {
+                opt.disabled = false;
+                opt.style.opacity = "1";
+            });
+        }
+
+        function aplicarEfecto(el) {
+            el.classList.remove('autoflash');
+            void el.offsetWidth; // Trigger reflow para reiniciar animación
+            el.classList.add('autoflash');
+        }
+
+        // Listeners
+        tipoEjercicio.addEventListener("change", validarYCorregir);
+        selectDividendo.addEventListener("change", validarYCorregir);
+        selectDivisor.addEventListener("change", validarYCorregir);
+
+        // Ejecución inicial para asegurar consistencia al cargar
+        validarYCorregir();
+
+
     });
+
+
 
 </script>

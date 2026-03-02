@@ -72,7 +72,7 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     CantidadEjercicios = 5,
                     FormatoPregunta = "galera",
-                    DireccionRespuesta = "DerechaAIzquierda",
+                    DireccionRespuesta = "IzquierdaADerecha",
                     VelocidadPreguntas = "0.0",
                     DigitosDividendo = "2",
                     DigitosDivisor = "2",

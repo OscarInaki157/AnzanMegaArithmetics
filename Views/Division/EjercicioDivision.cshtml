@@ -74,7 +74,6 @@
                        id="inputRespuesta"
                        autocomplete="off"
                        class="input-respuesta"
-                       autofocus
                        oninput="this.value = this.value.replace(/[^0-9.,]/g, '').replace(',', '.')"
                        @(direccion == "DerechaAIzquierda" ? "dir=\"rtl\"" : "") />
 
@@ -148,6 +147,7 @@
         color: #000000;
         box-shadow: 0 0 20px rgba(76, 76, 255, 0.4);
         letter-spacing: 0.2rem;
+        caret-color: transparent;
     }
 
 
@@ -712,9 +712,21 @@
         const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
         const direccionRespuesta = "@direccion";
 
+        function enfocarSinTeclado(el) {
+            if (!el) return;
+            const modoOriginal = el.inputMode;
+            el.inputMode = "none"; // Desactiva temporalmente el teclado
+            el.focus();
+
+            setTimeout(() => {
+                el.inputMode = modoOriginal; // Restaura el modo original (decimal)
+            }, 100);
+        }
+
         window.addEventListener('load', () => {
             tiempoInicio = Date.now();
-            inputRespuesta?.focus();
+            // Usamos la nueva función en lugar de .focus() directo
+            enfocarSinTeclado(inputRespuesta);
         });
 
         form.addEventListener("submit", function(e) {
@@ -786,10 +798,13 @@
         document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
+
             superior.addEventListener("click", () => {
                 superior.classList.toggle("activa");
-                inputRespuesta.focus();
+                // CAMBIO AQUÍ:
+                enfocarSinTeclado(inputRespuesta);
             });
+
             inferiores.forEach((bead, i) => {
                 bead.addEventListener("click", () => {
                     const activar = !bead.classList.contains("activa");
@@ -798,7 +813,8 @@
                             b.classList.toggle("activa", activar);
                         }
                     });
-                    inputRespuesta.focus();
+                    // CAMBIO AQUÍ:
+                    enfocarSinTeclado(inputRespuesta);
                 });
             });
         });
