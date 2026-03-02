@@ -142,6 +142,8 @@ namespace AnzanMegaArithmetics.Controllers
             int digitosDividendo = int.Parse(config.DigitosDividendo);
             int digitosDivisor = int.Parse(config.DigitosDivisor);
 
+            // Calculamos rangos mínimos y máximos
+            // Ejemplo: 2 dígitos -> min 10, max 99
             int minDiv = (int)Math.Pow(10, digitosDividendo - 1);
             int maxDiv = (int)Math.Pow(10, digitosDividendo) - 1;
 
@@ -150,23 +152,40 @@ namespace AnzanMegaArithmetics.Controllers
 
             for (int i = 0; i < config.CantidadEjercicios; i++)
             {
-                int dividendo = random.Next(minDiv, maxDiv + 1);
+                // 1. Generamos números base asegurando que no sean 0 
+                // (el mínimo de 1 dígito es 1, así que minDiv siempre es >= 1)
                 int divisor = random.Next(minDvr, maxDvr + 1);
+                int dividendo = random.Next(minDiv, maxDiv + 1);
 
-                if (config.TipoEjercicio == "exacta")
+                // 2. Aplicamos lógica de "Exacta" SOLO si es matemáticamente posible 
+                // tener un cociente entero >= 1 (es decir, Dividendo >= Divisor)
+                if (config.TipoEjercicio == "exacta" && maxDiv >= divisor)
                 {
                     int cociente = dividendo / divisor;
-    
                     if (cociente == 0) cociente = 1;
 
                     int nuevoDividendo = divisor * cociente;
 
-                    if (nuevoDividendo < minDiv) nuevoDividendo += divisor;
+                    // Ajuste para no salirnos del rango de dígitos
+                    while (nuevoDividendo > maxDiv && nuevoDividendo > divisor)
+                    {
+                        nuevoDividendo -= divisor;
+                    }
 
-                    if (nuevoDividendo > maxDiv) nuevoDividendo -= divisor;
+                    // Si después del ajuste el número es menor al mínimo de dígitos, 
+                    // volvemos a subirlo un escalón
+                    if (nuevoDividendo < minDiv)
+                    {
+                        nuevoDividendo += divisor;
+                    }
 
                     dividendo = nuevoDividendo;
                 }
+
+                // 3. Blindaje Final: Si por algún motivo extraño (como rangos imposibles) 
+                // llegara a ser 0, forzamos el mínimo valor del rango.
+                if (dividendo == 0) dividendo = minDiv;
+                if (divisor == 0) divisor = minDvr;
 
                 lista.Add(new RDivisionModel
                 {

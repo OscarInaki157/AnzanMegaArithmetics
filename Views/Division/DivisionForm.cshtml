@@ -453,44 +453,63 @@
             }
         });
 
-        function validarYCorregir(e) {
-            const esExacta = tipoEjercicio.value === "exacta";
+            function validarYCorregir(e) {
+        const esExacta = tipoEjercicio.value === "exacta";
 
-            if (!esExacta) {
-                habilitarTodas(selectDividendo);
-                habilitarTodas(selectDivisor);
-                return;
-            }
-
-            let valDividendo = parseInt(selectDividendo.value);
-            let valDivisor = parseInt(selectDivisor.value);
-            let huboCambio = false;
-
-            // 1. Regla de Oro: Dividendo < Divisor (en dígitos)
-            // Caso límite: Si dividendo es 8, no hay divisor > 8. Bajamos dividendo a 7.
-            if (valDividendo === 8) {
-                selectDividendo.value = "7";
-                valDividendo = 7;
-                huboCambio = true;
-            }
-
-            // 2. Si el dividendo es mayor o igual al divisor, subimos el divisor
-            if (valDividendo >= valDivisor) {
-                selectDivisor.value = (valDividendo + 1).toString();
-                valDivisor = valDividendo + 1;
-                huboCambio = true;
-            }
-
-            // 3. Feedback visual (Bloqueo de opciones inválidas)
-            actualizarOpcionesDisponibles(selectDividendo, (v) => v >= valDivisor);
-            actualizarOpcionesDisponibles(selectDivisor, (v) => v <= valDividendo);
-
-            // Si el sistema corrigió algo, aplicamos el destello visual
-            if (huboCambio) {
-                aplicarEfecto(selectDividendo);
-                aplicarEfecto(selectDivisor);
-            }
+        if (!esExacta) {
+            habilitarTodas(selectDividendo);
+            habilitarTodas(selectDivisor);
+            return;
         }
+
+        let valDividendo = parseInt(selectDividendo.value);
+        let valDivisor = parseInt(selectDivisor.value);
+        let huboCambio = false;
+
+        // REGLA: Dígitos Dividendo > Dígitos Divisor
+
+        // 1. Caso límite inferior: Si el Dividendo es 1, no puede ser mayor que nada.
+        // Lo subimos a 2 para que el divisor pueda ser 1.
+        if (valDividendo === 1) {
+            selectDividendo.value = "2";
+            valDividendo = 2;
+            huboCambio = true;
+        }
+
+        // 2. Caso límite superior: Si el Divisor es 8, no hay dividendo mayor.
+        // Bajamos el divisor a 7.
+        if (valDivisor === 8) {
+            selectDivisor.value = "7";
+            valDivisor = 7;
+            huboCambio = true;
+        }
+
+        // 3. Autocorrección: Si el divisor es >= al dividendo, ajustamos.
+        if (valDivisor >= valDividendo) {
+            // Si el usuario movió el divisor, subimos el dividendo
+            if (e && e.target.id === "selectDivisor") {
+                selectDividendo.value = (valDivisor + 1).toString();
+                valDividendo = valDivisor + 1;
+            } else {
+                // Si el usuario movió el dividendo (o cambió el modo), bajamos el divisor
+                selectDivisor.value = (valDividendo - 1).toString();
+                valDivisor = valDividendo - 1;
+            }
+            huboCambio = true;
+        }
+
+        // 4. Bloqueo de opciones (Feedback visual de UI/UX)
+        // En el Dividendo: bloqueamos todo lo que sea <= al Divisor actual
+        actualizarOpcionesDisponibles(selectDividendo, (v) => v <= valDivisor);
+
+        // En el Divisor: bloqueamos todo lo que sea >= al Dividendo actual
+        actualizarOpcionesDisponibles(selectDivisor, (v) => v >= valDividendo);
+
+        if (huboCambio) {
+            aplicarEfecto(selectDividendo);
+            aplicarEfecto(selectDivisor);
+        }
+    }
 
         function actualizarOpcionesDisponibles(select, conditionFn) {
             Array.from(select.options).forEach(opt => {
