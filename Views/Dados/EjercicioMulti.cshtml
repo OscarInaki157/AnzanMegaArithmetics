@@ -736,11 +736,10 @@
 
         
         <p class="instruccion">Resultado:</p>
-        <input type="number" 
-            id="inputRespuesta"
-            class="input-expresion"
-            autocomplete="off"
-            autofocus />
+        <input type="text"
+               id="inputRespuesta"
+               class="input-expresion"
+               autocomplete="off" />
 
          <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
              @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
@@ -847,7 +846,7 @@
                 }
 
                 verificarRespuesta();
-                input.focus();
+                // input.focus();
 
                 // Animación visual
                 btn.classList.add('presionada');

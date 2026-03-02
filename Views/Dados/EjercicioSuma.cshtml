@@ -718,10 +718,9 @@
         <div class="resultados">
             <p class="instruccion">Resultado:</p>
 
-            <input type="number"
+            <input type="text"
                    id="inputRespuesta"
                    class="input-expresion"
-                   inputmode="none"
                    autocomplete="off" />
 
             <button type="button" id="btnSaltar" class="btn-saltar"
@@ -768,10 +767,6 @@
         const displayReloj = document.getElementById('contadorTiempoRestante');
         const esTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         const esInfinito = (tiempoRestante === 0);
-
-        if (!esTactil) {
-            input.focus();
-        }
 
         // 2. Temporizador
         if (esInfinito) {
@@ -836,7 +831,7 @@
 
                 // IMPORTANTE: Disparar la validación después de cada click
                 verificarRespuesta();
-                input.focus();
+                // input.focus();
 
                 // Efecto visual de presionado
                 btn.classList.add('presionada');
