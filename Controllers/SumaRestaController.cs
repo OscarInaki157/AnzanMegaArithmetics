@@ -69,6 +69,45 @@ namespace AnzanMegaArithmetics.Controllers
             config.CantidadEjercicios = Math.Max(1, config.CantidadEjercicios);
             config.TiempoMeditacion = Math.Max(0, config.TiempoMeditacion);
 
+            if (config.ValorMaximo > 0)
+            {
+                // Calculamos el valor más bajo posible que se puede generar con los 'MinDigitos' pedidos
+                // Ejemplo: Si pide mínimo 2 dígitos, el valor más bajo es 10. Si pide 3, es 100.
+                long valorMinimoPosible = config.MinDigitos > 1 ? (long)Math.Pow(10, config.MinDigitos - 1) : 1;
+
+                // 1. Regla Básica: ¿El mínimo de dígitos exige un número mayor al Valor Máximo?
+                if (valorMinimoPosible > config.ValorMaximo)
+                {
+                    TempData["ErrorMessage"] = $"Configuración imposible: Pides números de mínimo {config.MinDigitos} dígitos (el menor es {valorMinimoPosible}), pero tu Valor Máximo es apenas {config.ValorMaximo}.";
+                    return View("FormularioSR", config);
+                }
+
+                // 2. Regla de Suma: ¿El total de operaciones excede el máximo incluso usando los números más pequeños?
+                if (config.TipoOperacion == "suma" || config.TipoOperacion == "ambos")
+                {
+                    long sumaMinimaAbsoluta = config.NumeroOperaciones * valorMinimoPosible;
+
+                    if (config.TipoOperacion == "suma" && sumaMinimaAbsoluta > config.ValorMaximo)
+                    {
+                        TempData["ErrorMessage"] = $"Matemáticamente imposible: {config.NumeroOperaciones} números de al menos {config.MinDigitos} dígitos sumarán como mínimo {sumaMinimaAbsoluta}, superando tu límite de {config.ValorMaximo}.";
+                        return View("FormularioSR", config);
+                    }
+                }
+
+                // 3. Regla de Resta: Para no bajar de 0, el primer número debe poder soportar todas las restas siguientes
+                if (config.TipoOperacion == "resta")
+                {
+                    // El total mínimo que le vamos a restar al primer número
+                    long restasMinimasAbsolutas = (config.NumeroOperaciones - 1) * valorMinimoPosible;
+
+                    if (restasMinimasAbsolutas > config.ValorMaximo)
+                    {
+                        TempData["ErrorMessage"] = $"Matemáticamente imposible: Para hacer {config.NumeroOperaciones - 1} restas de {config.MinDigitos} dígitos sin bajar de cero, el primer número debe ser mayor a {restasMinimasAbsolutas}, superando tu límite de {config.ValorMaximo}.";
+                        return View("FormularioSR", config);
+                    }
+                }
+            }
+
             TempData["CantidadEjercicios"] = config.CantidadEjercicios;
             TempData["NumeroOperaciones"] = config.NumeroOperaciones;
             TempData["MinDigitos"] = config.MinDigitos;
@@ -142,180 +181,134 @@ namespace AnzanMegaArithmetics.Controllers
             var numeros = new List<long>();
             var operaciones = new List<string>();
 
-            var listaSuma = GenerarNumerosValidos(sumaPermitidos, minDig, maxDig, valorMaximo);
-            var listaResta = GenerarNumerosValidos(restaPermitidos, minDig, maxDig, valorMaximo);
-
-            if (listaSuma.Count == 0 && tipoOperacion != "resta")
-                listaSuma = sumaPermitidos.Select(d => int.Parse(d)).ToList();
-
-            if (listaResta.Count == 0 && tipoOperacion != "suma")
-                listaResta = restaPermitidos.Select(d => int.Parse(d)).ToList();
-
             bool operacionesDirectas = directaSuma || directaResta || (tipoOperacion == "ambos" && directaSuma && directaResta);
+            bool esSoloResta = tipoOperacion == "resta";
 
-            // Verificar si solo hay un dígito permitido para el tipo de operación
-            bool soloUnDigitoPermitido = false;
-            string digitoPermitidoOriginal = "";
-            string[] digitosRelevantes = tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos;
-            if (digitosRelevantes.Length == 1 && digitosRelevantes[0].Length == 1)
+
+
+            // 1. Calcular el Ancla (aprox. 60% del máximo)
+            long anchorValue = 0;
+            int posAncla = -1;
+
+            if (valorMaximo > 0)
             {
-                soloUnDigitoPermitido = true;
-                digitoPermitidoOriginal = digitosRelevantes[0];
+                double varianza = 0.55 + (random.NextDouble() * 0.10);
+                anchorValue = (long)(valorMaximo * varianza);
+                if (anchorValue < 1) anchorValue = 1;
+
+                posAncla = usarMax ? 0 : random.Next(0, numOperaciones);
             }
 
-            for (int intento = 0; intento < 100; intento++)
+            for (int intento = 0; intento < 300; intento++)
             {
                 numeros.Clear();
                 operaciones.Clear();
+                long acumulado = 0;
+                bool intentoValido = true;
 
-                // 1. Generación del primer número
-                long primerValor;
-                bool esSoloResta = tipoOperacion == "resta";
-
-                // Caso especial: si solo hay un dígito permitido, generar primer número con dígitos aleatorios
-                if (soloUnDigitoPermitido)
+                // Respetamos estrictamente el loop por el número de operaciones solicitadas
+                for (int i = 0; i < numOperaciones; i++)
                 {
-                    // Para el primer número, usar TODOS los dígitos permitidos (1-9) para crear variedad
-                    string[] todosDigitos = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-
-                    if (esSoloResta)
+                    // A. DETERMINAR OPERADOR ESTRICTO
+                    string op = "+";
+                    if (i > 0)
                     {
-                        // Para restas, asegurar que el primer número sea suficientemente grande
-                        int digitosPrimerNumero = Math.Min(maxDig + 2, 10); // Un poco más de dígitos
-                        primerValor = GenerarNumeroNormal(
-                            digitosPrimerNumero,
-                            digitosPrimerNumero,
-                            valorMaximo,
-                            todosDigitos, // Usar todos los dígitos para variedad
-                            random);
-
-                        // Asegurar adicionalmente que sea mayor que cualquier posible resta posterior
-                        long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
-                        long restaTotalEstimada = maxPosibleResta * (numOperaciones - 1);
-                        if (primerValor <= restaTotalEstimada)
-                        {
-                            primerValor = restaTotalEstimada + random.Next(1, 10000);
-                        }
-                    }
-                    else if (tipoOperacion == "ambos")
-                    {
-                        
-                        int digitosExtra = Math.Min(maxDig + 2, 10); // Máximo 10 dígitos
-                        primerValor = GenerarNumeroNormal(
-                            digitosExtra,
-                            digitosExtra,
-                            valorMaximo,
-                            todosDigitos, // Usar todos los dígitos
-                            random);
-
-                        long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
-                        long restaTotalEstimada = maxPosibleResta * (numOperaciones / 2); // Estimación conservadora
-                        if (primerValor <= restaTotalEstimada)
-                        {
-                            primerValor = restaTotalEstimada + random.Next(1, 10000);
-                        }
+                        if (tipoOperacion == "suma") op = "+";
+                        else if (tipoOperacion == "resta") op = "-";
+                        else op = random.Next(0, 2) == 0 ? "+" : "-"; // "ambos"
                     }
 
-                    else if (usarMax && valorMaximo > 0)
+                    // B. DETERMINAR DÍGITOS PERMITIDOS SEGÚN POSICIÓN
+                    string[] digitosParaGenerar;
+                    if (i == 0)
                     {
-                        // Usar valor máximo como base con todos los dígitos
-                        primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo,
-                            minDig,
-                            maxDig,
-                            todosDigitos, random);
+                        digitosParaGenerar = new[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
                     }
                     else
                     {
-                        // Generación normal con todos los dígitos para variedad
-                        primerValor = GenerarNumeroNormal(
-                            minDig,
-                            maxDig,
-                            valorMaximo,
-                            todosDigitos, // Usar todos los dígitos
-                            random);
-                    }
-                }
-                else if (esSoloResta)
-                {
-                    // Para restas, asegurar que el primer número sea suficientemente grande
-                    int digitosPrimerNumero = Math.Min(maxDig + 2, 10); // No más de 10 dígitos
-                    primerValor = GenerarNumeroNormal(
-                        digitosPrimerNumero, // Usar más dígitos que el máximo permitido
-                        digitosPrimerNumero,
-                        valorMaximo,
-                        restaPermitidos,
-                        random);
 
-                    // Asegurar adicionalmente que sea mayor que cualquier posible resta posterior
-                    long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
-                    if (primerValor <= maxPosibleResta)
-                    {
-                        primerValor += maxPosibleResta;
-                    }
-                }
-                else if (usarMax && valorMaximo > 0)
-                {
-                    // Usar valor máximo como base
-                    primerValor = GenerarPrimerNumeroCercanoAlMaximo(valorMaximo, minDig, maxDig,
-                                                   tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos,
-                                                   random);
-                }
-                else
-                {
-                    // Generación normal
-                    primerValor = GenerarNumeroNormal(minDig, maxDig, valorMaximo,
-                                                   tipoOperacion == "resta" ? restaPermitidos : sumaPermitidos,
-                                                   random);
-                }
+                        digitosParaGenerar = op == "+" ? sumaPermitidos : restaPermitidos;
 
-                numeros.Add(primerValor);
-                operaciones.Add("+");
-
-                for (int i = 1; i < numOperaciones; i++)
-                {
-                    string op = tipoOperacion switch
-                    {
-                        "suma" => "+",
-                        "resta" => "-",
-                        "ambos" => random.Next(0, 2) == 0 ? "+" : "-",
-                        _ => "+"
-                    };
-
-                    long nuevoNumero;
-                    if (operacionesDirectas)
-                    {
-                        // Para números siguientes, usar el dígito permitido original si aplica
-                        string[] digitosParaOperacion = op == "+" ? sumaPermitidos : restaPermitidos;
-                        if (soloUnDigitoPermitido)
+                        if (digitosParaGenerar.Length == 1 && digitosParaGenerar[0] != "0")
                         {
-                            digitosParaOperacion = new[] { digitoPermitidoOriginal };
+                            digitosParaGenerar = new[] { digitosParaGenerar[0], "0" };
+                        }
+                    }
+
+                    long nuevoNumero = 0;
+
+                    // CASO 1: ES LA POSICIÓN DEL ANCLA Y HAY VALOR MÁXIMO
+                    if (valorMaximo > 0 && i == posAncla)
+                    {
+                        nuevoNumero = anchorValue;
+
+                        // Intentar salvar el signo si es "ambos", pero si es estrictamente "suma" o "resta", no se cambia
+                        if (i > 0 && tipoOperacion == "ambos")
+                        {
+                            if (op == "+" && acumulado + nuevoNumero > valorMaximo) op = "-";
+                            if (op == "-" && acumulado - nuevoNumero < 0) op = "+";
                         }
 
-                        nuevoNumero = GenerarNumeroParaOperacionDirecta(
-                            digitosParaOperacion,
-                            minDig, maxDig, valorMaximo,
-                            numeros, operaciones, op, random);
+                        if ((op == "+" && acumulado + nuevoNumero > valorMaximo) ||
+                            (op == "-" && acumulado - nuevoNumero < 0))
+                        {
+                            intentoValido = false; break;
+                        }
                     }
+                    // CASO 2: NÚMERO NORMAL (Ajustado al acumulador)
                     else
                     {
-                        // Para números siguientes, usar el dígito permitido original si aplica
-                        string[] digitosParaOperacion = op == "+" ? sumaPermitidos : restaPermitidos;
-                        if (soloUnDigitoPermitido)
+                        long topeMaximo = 0;
+                        if (valorMaximo > 0)
                         {
-                            digitosParaOperacion = new[] { digitoPermitidoOriginal };
+                            topeMaximo = op == "+" ? valorMaximo - acumulado : acumulado;
                         }
 
-                        nuevoNumero = GenerarNumeroNormal(minDig, maxDig, valorMaximo,
-                                                          digitosParaOperacion,
-                                                          random);
+                        if (valorMaximo > 0)
+                        {
+                            long valorMinimoPosible = minDig > 1 ? (long)Math.Pow(10, minDig - 1) : 1;
+                            if (topeMaximo < valorMinimoPosible) { intentoValido = false; break; }
+                        }
+
+                        long maxParaGenerar = valorMaximo > 0 ? topeMaximo : 0;
+
+                        // Condición especial de protección: Si es el primer número, no hay máximo global, y hay restas
+                        if (i == 0 && valorMaximo == 0 && (tipoOperacion == "resta" || tipoOperacion == "ambos"))
+                        {
+                            long maxPosibleResta = (long)Math.Pow(10, maxDig) - 1;
+                            long restaEstimada = maxPosibleResta * numOperaciones;
+
+                            nuevoNumero = GenerarNumeroNormal(minDig, Math.Min(maxDig + 2, 10), 0, digitosParaGenerar, random);
+
+                            // Si el número generado es muy pequeño para soportar futuras restas, lo inflamos
+                            if (nuevoNumero <= restaEstimada)
+                            {
+                                nuevoNumero += restaEstimada + random.Next(1, 1000);
+                            }
+                        }
+                        else
+                        {
+                            if (operacionesDirectas && i > 0) // El primero rara vez necesita FingerMath porque es base
+                            {
+                                nuevoNumero = GenerarNumeroParaOperacionDirecta(digitosParaGenerar, minDig, maxDig, maxParaGenerar, numeros, operaciones, op, random);
+                            }
+                            else
+                            {
+                                nuevoNumero = GenerarNumeroNormal(minDig, maxDig, maxParaGenerar, digitosParaGenerar, random);
+                            }
+                        }
+
+                        if (valorMaximo > 0 && nuevoNumero > topeMaximo) { intentoValido = false; break; }
                     }
 
                     numeros.Add(nuevoNumero);
                     operaciones.Add(op);
+                    acumulado += (op == "+") ? nuevoNumero : -nuevoNumero;
+
+                    if (acumulado < 0) { intentoValido = false; break; }
                 }
 
-                long resultado = CalcularResultado(numeros, operaciones);
-                if (resultado >= 0 && (!esSoloResta || resultado > 0))
+                if (intentoValido && acumulado >= 0 && (!esSoloResta || acumulado > 0))
                 {
                     if (!operacionesDirectas || OperacionDirectaEsValida(numeros, operaciones))
                     {
@@ -341,73 +334,15 @@ namespace AnzanMegaArithmetics.Controllers
             return View();
         }
 
-        private long GenerarPrimerNumeroCercanoAlMaximo(long valorMaximo, int minDig, int maxDig,
-                                       string[] digitosPermitidos, Random random)
-        {
-            if (minDig == 1 && maxDig == 1)
-            {
-                var digitosValidos = digitosPermitidos
-                    .Where(d => d.Length == 1 && d != "0")
-                    .Select(int.Parse)
-                    .Where(n => n <= valorMaximo)
-                    .ToList();
-
-                return digitosValidos.Any() ? digitosValidos[random.Next(digitosValidos.Count)] : 1;
-            }
-
-            string maxStr = valorMaximo.ToString();
-            string numeroStr = "";
-
-            // Asegurar que tenga al menos minDig dígitos
-            int digitosGenerados = 0;
-
-            for (int i = 0; i < Math.Max(minDig, maxStr.Length); i++)
-            {
-                char maxDigito = i < maxStr.Length ? maxStr[i] : '9';
-                var permitidos = digitosPermitidos.Select(d => d[0])
-                                       .Where(d => d <= maxDigito)
-                                       .ToArray();
-
-                if (permitidos.Any())
-                {
-                    char digito = permitidos[random.Next(permitidos.Length)];
-                    numeroStr += digito;
-                    digitosGenerados++;
-                }
-                else
-                {
-                    var maxPermitido = digitosPermitidos.Select(d => d[0])
-                                            .Where(d => d < maxDigito)
-                                            .DefaultIfEmpty('0')
-                                            .Max();
-                    numeroStr += maxPermitido;
-                    digitosGenerados++;
-                }
-
-                // Si ya tenemos minDig dígitos y hemos alcanzado la longitud máxima, salir
-                if (digitosGenerados >= minDig && (i >= maxStr.Length - 1 || digitosGenerados >= maxDig))
-                    break;
-            }
-
-            // Si aún no tenemos suficientes dígitos, completar
-            while (digitosGenerados < minDig)
-            {
-                numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
-                digitosGenerados++;
-            }
-
-            // Si tenemos más dígitos que el máximo, truncar
-            if (numeroStr.Length > maxDig)
-            {
-                numeroStr = numeroStr.Substring(0, maxDig);
-            }
-
-            return long.Parse(numeroStr);
-        }
-
         private long GenerarNumeroNormal(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos, Random random)
         {
-            // Si minDig y maxDig son 1, manejamos como caso especial
+            if (valorMaximo > 0)
+            {
+                int maxDigitosPosibles = valorMaximo.ToString().Length;
+                maxDig = Math.Min(maxDig, maxDigitosPosibles);
+                minDig = Math.Min(minDig, maxDig);
+            }
+
             if (minDig == 1 && maxDig == 1)
             {
                 var digitosValidos = digitosPermitidos
@@ -419,59 +354,61 @@ namespace AnzanMegaArithmetics.Controllers
                 return digitosValidos.Any() ? digitosValidos[random.Next(digitosValidos.Count)] : 1;
             }
 
-            // Para otros casos, aseguramos que el número tenga exactamente minDig dígitos
-            string numeroStr = "";
+            long numero = 0;
+            int intentos = 0;
 
-            // Primer dígito no puede ser cero
-            var primerosDigitos = digitosPermitidos.Where(d => d != "0").ToArray();
-            if (!primerosDigitos.Any()) primerosDigitos = new[] { "1" };
-            numeroStr += primerosDigitos[random.Next(primerosDigitos.Length)];
-
-            // Resto de dígitos (aseguramos que tenga exactamente minDig dígitos)
-            for (int i = 1; i < minDig; i++)
+            do
             {
-                numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
-            }
+                string numeroStr = "";
+                var primerosDigitos = digitosPermitidos.Where(d => d != "0").ToArray();
+                if (!primerosDigitos.Any()) primerosDigitos = new[] { "1" };
 
-            // Si maxDig > minDig, podemos agregar dígitos adicionales al azar
-            int digitosAdicionales = random.Next(0, maxDig - minDig + 1);
-            for (int i = 0; i < digitosAdicionales; i++)
-            {
-                numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
-            }
+                numeroStr += primerosDigitos[random.Next(primerosDigitos.Length)];
 
-            long numero = long.Parse(numeroStr);
+                for (int i = 1; i < minDig; i++)
+                {
+                    numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
+                }
 
-            // Ajustar según valor máximo si está configurado
+                int digitosAdicionales = random.Next(0, maxDig - minDig + 1);
+                for (int i = 0; i < digitosAdicionales; i++)
+                {
+                    numeroStr += digitosPermitidos[random.Next(digitosPermitidos.Length)];
+                }
+
+                numero = long.Parse(numeroStr);
+                intentos++;
+
+            } while (valorMaximo > 0 && numero > valorMaximo && intentos < 20);
+
             if (valorMaximo > 0 && numero > valorMaximo)
             {
-                return GenerarNumeroNormal(minDig, Math.Min(maxDig, valorMaximo.ToString().Length),
-                       valorMaximo, digitosPermitidos, random);
+                long baseMin = (long)Math.Pow(10, minDig - 1);
+                long techo = Math.Max(baseMin, valorMaximo);
+                return (long)(random.NextDouble() * (techo - baseMin) + baseMin);
             }
 
             return numero;
         }
 
         private long GenerarNumeroParaOperacionDirecta(string[] digitosPermitidos, int minDig, int maxDig, long valorMaximo,
-                                     List<long> numerosExist, List<string> operacionesExist,
-                                     string nuevaOperacion, Random random)
+                                             List<long> numerosExist, List<string> operacionesExist,
+                                             string nuevaOperacion, Random random)
         {
-            // Primero intentar con el nuevo método FingerMath
             for (int intento = 0; intento < 50; intento++)
             {
                 long numero = GenerarNumeroFingerMath(minDig, maxDig, valorMaximo, digitosPermitidos,
                                                     numerosExist, operacionesExist, nuevaOperacion, random);
 
-                var nuevosNumeros = new List<long>(numerosExist) { numero };
-                var nuevasOperaciones = new List<string>(operacionesExist) { nuevaOperacion };
-
-                if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones))
+                if (numero > 0)
                 {
-                    return numero;
+                    var nuevosNumeros = new List<long>(numerosExist) { numero };
+                    var nuevasOperaciones = new List<string>(operacionesExist) { nuevaOperacion };
+
+                    if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones)) return numero;
                 }
             }
 
-            // Si falla, intentar con el método normal (pero asegurando minDig)
             for (int intento = 0; intento < 50; intento++)
             {
                 long numero = GenerarNumeroNormal(minDig, maxDig, valorMaximo, digitosPermitidos, random);
@@ -479,99 +416,53 @@ namespace AnzanMegaArithmetics.Controllers
                 var nuevosNumeros = new List<long>(numerosExist) { numero };
                 var nuevasOperaciones = new List<string>(operacionesExist) { nuevaOperacion };
 
-                if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones))
-                {
-                    return numero;
-                }
+                if (OperacionDirectaEsValida(nuevosNumeros, nuevasOperaciones)) return numero;
             }
 
-            // Como último recurso, usar números seguros
-            if (nuevaOperacion == "+")
-            {
-                return GenerarNumeroSeguroSuma(digitosPermitidos, minDig, random);
-            }
-            else
-            {
-                return GenerarNumeroSeguroResta(numerosExist.Last(), minDig, random);
-            }
+            if (nuevaOperacion == "+") return GenerarNumeroSeguroSuma(digitosPermitidos, minDig, valorMaximo, random);
+            else return GenerarNumeroSeguroResta(valorMaximo, minDig, random);
         }
 
-        private long GenerarNumeroSeguroSuma(string[] digitosPermitidos, int minDig, Random random)
+        private long GenerarNumeroSeguroSuma(string[] digitosPermitidos, int minDig, long valorMaximo, Random random)
         {
-            // Generar número con exactamente minDig dígitos, todos entre 1-4
-            string numeroStr = "";
-
-            // Primer dígito (1-4)
-            numeroStr += random.Next(1, 5).ToString();
-
-            // Resto de dígitos (0-4)
-            for (int i = 1; i < minDig; i++)
+            if (valorMaximo > 0)
             {
-                numeroStr += random.Next(0, 5).ToString();
+                int maxDigitosPosibles = valorMaximo.ToString().Length;
+                minDig = Math.Min(minDig, maxDigitosPosibles);
             }
 
-            return long.Parse(numeroStr);
-        }
-
-        private long GenerarNumeroSeguroResta(long ultimoNumero, int minDig, Random random)
-        {
-            // Asegurarnos de no restar más de lo posible
-            long maxResta = Math.Min(ultimoNumero - 1, (long)Math.Pow(10, minDig) - 1);
-
-            if (maxResta <= 0) return 1;
-
-            // Generar número con exactamente minDig dígitos
-            long numero = (long)Math.Pow(10, minDig - 1) + random.Next(0, (int)Math.Pow(10, minDig - 1));
-            return Math.Min(numero, maxResta);
-        }
-
-        private long GenerarNumeroConLongitud(string[] digitosPermitidos, int longitudDeseada, int maxDig, long valorMaximo, Random random)
-        {
-            int longitud = Math.Min(longitudDeseada, maxDig);
-            string numeroStr = "";
-
-            // Primer dígito no puede ser cero y priorizamos dígitos que funcionen con FingerMath
-            var primerosDigitos = digitosPermitidos.Where(d => d != "0")
-                                                  .OrderBy(d => Math.Abs(int.Parse(d) - 3)) // Prioriza dígitos cercanos a 3
-                                                  .ToArray();
-
-            if (!primerosDigitos.Any()) primerosDigitos = new[] { "1" };
-            numeroStr += primerosDigitos[random.Next(Math.Min(3, primerosDigitos.Length))]; // Elige entre los 3 más cercanos a 3
-
-            // Resto de dígitos - priorizando valores que no compliquen FingerMath
-            for (int i = 1; i < longitud; i++)
-            {
-                var digitosPosibles = digitosPermitidos.OrderBy(d =>
-                   Math.Abs(int.Parse(d) - 2)).ToArray(); // Prioriza dígitos cercanos a 2
-                numeroStr += digitosPosibles[random.Next(Math.Min(3, digitosPosibles.Length))];
-            }
+            string numeroStr = random.Next(1, 5).ToString();
+            for (int i = 1; i < minDig; i++) numeroStr += random.Next(0, 5).ToString();
 
             long numero = long.Parse(numeroStr);
-
-            // Ajustar según valor máximo
-            if (valorMaximo > 0 && numero > valorMaximo)
-            {
-                string maxStr = valorMaximo.ToString();
-                if (numeroStr.Length > maxStr.Length)
-                {
-                    numeroStr = numeroStr.Substring(0, maxStr.Length);
-                    numero = long.Parse(numeroStr);
-                }
-            }
-
+            if (valorMaximo > 0 && numero > valorMaximo) return Math.Max(1, valorMaximo);
             return numero;
+        }
+
+        private long GenerarNumeroSeguroResta(long acumuladoDisponible, int minDig, Random random)
+        {
+            long maxResta = Math.Min(acumuladoDisponible, (long)Math.Pow(10, minDig) - 1);
+            if (maxResta <= 0) return 0;
+            long numero = (long)Math.Pow(10, minDig - 1) + random.Next(0, (int)Math.Pow(10, minDig - 1));
+            return Math.Min(numero, maxResta);
         }
 
         private long GenerarNumeroFingerMath(int minDig, int maxDig, long valorMaximo, string[] digitosPermitidos,
                            List<long> numerosExist, List<string> operacionesExist,
                            string nuevaOperacion, Random random)
         {
+            if (valorMaximo > 0)
+            {
+                int maxDigitosPosibles = valorMaximo.ToString().Length;
+                maxDig = Math.Min(maxDig, maxDigitosPosibles);
+                minDig = Math.Min(minDig, maxDig);
+            }
+
             int columnas = maxDig;
             string numeroStr = "";
             bool[] pulgarUsadoPorColumna = new bool[columnas];
             int[] acumuladoPorColumna = new int[columnas];
 
-            // Calcular estado actual de cada columna
             for (int col = 0; col < columnas; col++)
             {
                 foreach (var (num, op) in numerosExist.Zip(operacionesExist, (n, o) => (n, o)))
@@ -581,29 +472,19 @@ namespace AnzanMegaArithmetics.Controllers
 
                     if (op == "+")
                     {
-                        if (digito >= 5)
-                        {
-                            pulgarUsadoPorColumna[col] = true;
-                            digito -= 5;
-                        }
+                        if (digito >= 5) { pulgarUsadoPorColumna[col] = true; digito -= 5; }
                         acumuladoPorColumna[col] += digito;
                     }
                     else
                     {
-                        if (digito >= 5)
-                        {
-                            pulgarUsadoPorColumna[col] = false;
-                            digito -= 5;
-                        }
+                        if (digito >= 5) { pulgarUsadoPorColumna[col] = false; digito -= 5; }
                         acumuladoPorColumna[col] -= digito;
                     }
                 }
             }
 
-            // Generar cada dígito considerando las restricciones de su columna
             for (int col = 0; col < columnas; col++)
             {
-                // Obtener dígitos posibles ordenados de menor a mayor (priorizando dígitos bajos)
                 var digitosPosibles = digitosPermitidos.Select(d => int.Parse(d))
                     .Where(d => {
                         bool usarPulgar = d >= 5;
@@ -612,67 +493,37 @@ namespace AnzanMegaArithmetics.Controllers
                         if (nuevaOperacion == "+")
                         {
                             if (usarPulgar && pulgarUsadoPorColumna[col]) return false;
-
                             int nuevoAcumulado = acumuladoPorColumna[col] + valorDigito;
                             bool nuevoPulgar = pulgarUsadoPorColumna[col] || usarPulgar;
-
-                            if (nuevoPulgar)
-                                return nuevoAcumulado <= 4; // Máximo 9 (5+4)
-                            else
-                                return nuevoAcumulado <= 4; // Máximo 4
+                            return nuevoAcumulado <= 4;
                         }
                         else
                         {
                             if (usarPulgar && !pulgarUsadoPorColumna[col]) return false;
-
                             int nuevoAcumulado = acumuladoPorColumna[col] - valorDigito;
-                            bool nuevoPulgar = pulgarUsadoPorColumna[col] && !usarPulgar;
-
-                            return nuevoAcumulado >= 0; // No puede quedar negativo
+                            return nuevoAcumulado >= 0;
                         }
-                    })
-                    .OrderBy(d => d) // Priorizar dígitos más pequeños
-                    .ToList();
+                    }).OrderBy(d => d).ToList();
 
-                if (!digitosPosibles.Any())
-                {
-                    // Si no hay dígitos posibles, usar el más seguro posible
-                    if (nuevaOperacion == "+")
-                        digitosPosibles = new List<int> { 1, 2, 3, 4 };
-                    else
-                        digitosPosibles = new List<int> { 1, 2, 3, 4 };
-                }
+                if (!digitosPosibles.Any()) digitosPosibles = new List<int> { 1, 2, 3, 4 };
 
-                // Elegir aleatoriamente, pero con mayor probabilidad para dígitos bajos
                 int index;
                 if (digitosPosibles.Count > 3)
                 {
-                    // Usar distribución triangular para favorecer números bajos
                     double r = random.NextDouble();
                     index = (int)Math.Floor(digitosPosibles.Count * (1 - Math.Sqrt(1 - r)));
                 }
-                else
-                {
-                    index = random.Next(digitosPosibles.Count);
-                }
+                else index = random.Next(digitosPosibles.Count);
 
-                int digitoSeleccionado = digitosPosibles[index];
-                numeroStr = digitoSeleccionado.ToString() + numeroStr;
+                numeroStr = digitosPosibles[index].ToString() + numeroStr;
             }
 
-            // Asegurar mínimo de dígitos y valor máximo
-            while (numeroStr.Length < minDig)
-                numeroStr = "1" + numeroStr;
-
-            if (numeroStr.Length > maxDig)
-                numeroStr = numeroStr.Substring(0, maxDig);
+            while (numeroStr.Length < minDig) numeroStr = "1" + numeroStr;
+            if (numeroStr.Length > maxDig) numeroStr = numeroStr.Substring(0, maxDig);
 
             long numero = long.Parse(numeroStr);
 
-            if (valorMaximo > 0 && numero > valorMaximo)
-                return GenerarNumeroFingerMath(minDig, maxDig, valorMaximo, digitosPermitidos,
-                                             numerosExist, operacionesExist, nuevaOperacion, random);
-
+            if (valorMaximo > 0 && numero > valorMaximo) return -1;
             return numero;
         }
 
@@ -681,11 +532,9 @@ namespace AnzanMegaArithmetics.Controllers
             int maxLength = numeros.Max(n => n.ToString().Length);
             var numerosStr = numeros.Select(n => n.ToString().PadLeft(maxLength, '0')).ToList();
 
-            // Primero verificar que el resultado total no sea negativo (para restas)
             long resultadoTotal = CalcularResultado(numeros, operaciones);
             if (resultadoTotal < 0) return false;
 
-            // Validar cada columna individualmente
             for (int columna = 0; columna < maxLength; columna++)
             {
                 int acumulado = 0;
@@ -698,52 +547,29 @@ namespace AnzanMegaArithmetics.Controllers
 
                     if (esSuma)
                     {
-                        // Reglas para suma
                         if (digito >= 5)
                         {
-                            if (pulgarAbajo) return false; // No se puede sumar otro pulgar
+                            if (pulgarAbajo) return false;
                             pulgarAbajo = true;
                             digito -= 5;
                         }
-
                         acumulado += digito;
-
-                        // Validar límites
-                        if (pulgarAbajo)
-                        {
-                            if (acumulado > 4) return false; // Máximo 9 (5+4)
-                        }
-                        else
-                        {
-                            if (acumulado > 4) return false; // Máximo 4 dedos
-                        }
+                        if (acumulado > 4) return false;
                     }
                     else
                     {
-                        // Reglas para resta
                         if (digito >= 5)
                         {
-                            if (!pulgarAbajo) return false; // No se puede restar pulgar si no está
+                            if (!pulgarAbajo) return false;
                             pulgarAbajo = false;
                             digito -= 5;
                         }
-
                         acumulado -= digito;
-                        if (acumulado < 0) return false; // No puede quedar negativo
-
-                        // Validar límites después de restar
-                        if (pulgarAbajo)
-                        {
-                            if (acumulado > 4) return false;
-                        }
-                        else
-                        {
-                            if (acumulado > 4) return false;
-                        }
+                        if (acumulado < 0) return false;
+                        if (acumulado > 4) return false;
                     }
                 }
             }
-
             return true;
         }
 
@@ -756,41 +582,6 @@ namespace AnzanMegaArithmetics.Controllers
             }
             return resultado;
         }
-
-        private List<int> GenerarNumerosValidos(string[] digitosPermitidos, int minDig, int maxDig, long valorMax)
-        {
-            var resultados = new HashSet<int>();
-            var digitos = digitosPermitidos.Distinct().ToArray();
-
-            for (int longitud = minDig; longitud <= maxDig; longitud++)
-            {
-                foreach (var combinacion in ProductoCartesiano(digitos, longitud))
-                {
-                    var numStr = string.Concat(combinacion);
-                    if (numStr.StartsWith("0")) continue;
-
-                    int num = int.Parse(numStr);
-                    if (valorMax > 0 && (long)num > valorMax) continue;
-
-                    resultados.Add(num);
-                }
-            }
-
-            return resultados.OrderBy(n => n).ToList();
-        }
-
-        private IEnumerable<IEnumerable<string>> ProductoCartesiano(string[] elementos, int longitud)
-        {
-            IEnumerable<IEnumerable<string>> resultado = new[] { Enumerable.Empty<string>() };
-
-            for (int i = 0; i < longitud; i++)
-            {
-                resultado = resultado.SelectMany(seq => elementos.Select(e => seq.Append(e)));
-            }
-
-            return resultado;
-        }
-
 
 
         [HttpPost]
@@ -835,7 +626,7 @@ namespace AnzanMegaArithmetics.Controllers
                 RespuestaCorrecta = resultadoCorrecto,
                 OperacionTexto = operacionTexto,
                 Respondido = respondio,
-                TiempoRespuesta = respondio ? tiempoSegundos : 0
+                TiempoRespuesta = tiempoSegundos
             });
 
 
@@ -946,7 +737,7 @@ namespace AnzanMegaArithmetics.Controllers
                 RespuestaCorrecta = resultadoCorrecto,
                 OperacionTexto = operacionTexto,
                 Respondido = respondio,
-                TiempoRespuesta = respondio ? tiempoSegundos : 0
+                TiempoRespuesta = tiempoSegundos
             });
 
             int ejerciciosRealizados = resultados.Count;

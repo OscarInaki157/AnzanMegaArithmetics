@@ -416,9 +416,6 @@
     }
 </style>
 
-@* <h1>📊 Resumen de Ejercicios Suma y Resta</h1>
-<hr />
- *@
 <div class="botones-centrados">
     <form method="get" asp-action="FormularioSR">
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
@@ -463,14 +460,14 @@
     </div>
 
     <div class="container-barrap">
-        <p>🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
+        <p style="font-size:1.1rem;">🎯 Porcentaje de éxito: <strong>@porcentaje%</strong></p>
 
         <div class="barra-progreso" style="width: 100%; max-width: 300px;">
             <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
         <div id="estrellas" class="estrellas-container"></div>
 
-        <p style="margin-top:10px; color: #d1d1f0;">
+        <p style="margin-top:10px; color: #d1d1f0; font-size:1.1rem;">
             ⏱ <strong>Tiempo promedio de respuesta:</strong> @promedio.ToString("0.00") s
         </p>
 
