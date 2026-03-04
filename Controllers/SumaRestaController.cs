@@ -194,7 +194,12 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 double varianza = 0.55 + (random.NextDouble() * 0.10);
                 anchorValue = (long)(valorMaximo * varianza);
-                if (anchorValue < 1) anchorValue = 1;
+
+                long limiteMaxPorDigitos = (long)Math.Pow(10, maxDig) - 1;
+                long limiteMinPorDigitos = minDig > 1 ? (long)Math.Pow(10, minDig - 1) : 1;
+
+                if (anchorValue > limiteMaxPorDigitos) anchorValue = limiteMaxPorDigitos;
+                if (anchorValue < limiteMinPorDigitos) anchorValue = limiteMinPorDigitos;
 
                 posAncla = usarMax ? 0 : random.Next(0, numOperaciones);
             }
