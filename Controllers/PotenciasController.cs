@@ -48,6 +48,7 @@ namespace AnzanMegaArithmetics.Controllers
                     CantidadEjercicios = 10,
                     NumeroInicial = 11,
                     NumeroFinal = 19,
+                    RangosSeleccionados = "11-19",
                     TiempoTotal = 5,
                     TiempoMeditacion = 3,
                     TipoPrueba = "Práctica"
@@ -100,14 +101,40 @@ namespace AnzanMegaArithmetics.Controllers
             }
         }
 
-        private List<EjercicioPotenciasModel> GenerarEjerciciosPotencias(ConfPotenciasModel config) 
+        private List<EjercicioPotenciasModel> GenerarEjerciciosPotencias(ConfPotenciasModel config)
         {
             List<EjercicioPotenciasModel> ejercicios = new();
             Random rand = new Random();
 
-            for (int i=0; i<config.CantidadEjercicios; i++) 
+            // 2.1 Convertir el string "11-19,31-69" en una lista de tuplas matemáticas (min, max)
+            List<(int min, int max)> rangosDisponibles = new List<(int, int)>();
+
+            // Si por alguna razón RangosSeleccionados está vacío, usamos el 11-19 por defecto
+            string rangosString = string.IsNullOrEmpty(config.RangosSeleccionados)
+                                    ? "11-19"
+                                    : config.RangosSeleccionados;
+
+            var paresDeRangos = rangosString.Split(',');
+            foreach (var par in paresDeRangos)
             {
-                int numeroBase = rand.Next(config.NumeroInicial, config.NumeroFinal + 1);
+                var limites = par.Split('-');
+                if (limites.Length == 2 && int.TryParse(limites[0], out int min) && int.TryParse(limites[1], out int max))
+                {
+                    rangosDisponibles.Add((min, max));
+                }
+            }
+
+            // Fallback por si todos los rangos fallaron
+            if (!rangosDisponibles.Any()) rangosDisponibles.Add((11, 19));
+
+            // 2.2 Crear los ejercicios saltando entre los rangos seleccionados al azar
+            for (int i = 0; i < config.CantidadEjercicios; i++)
+            {
+                // Elige un rango al azar de los seleccionados
+                var rangoElegido = rangosDisponibles[rand.Next(rangosDisponibles.Count)];
+
+                // Genera el número base dentro de ese rango
+                int numeroBase = rand.Next(rangoElegido.min, rangoElegido.max + 1);
 
                 EjercicioPotenciasModel ejercicio = new EjercicioPotenciasModel
                 {
@@ -360,6 +387,7 @@ namespace AnzanMegaArithmetics.Controllers
                     CantidadEjercicios = 50,
                     NumeroInicial = 10,
                     NumeroFinal = 130,
+                    RangosSeleccionados = "10-130",
                     TiempoTotal = 1,
                     TiempoMeditacion = 3,
                     TipoPrueba = "Competencia"

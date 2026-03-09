@@ -25,30 +25,28 @@
                 </div>
 
                 <div class="rango-options">
-                    <label>Rango de números:</label>
+                    <label>Rango de números (puedes elegir varios):</label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="rango11-19" name="rangoPredefinido" value="11-19" checked>
+                            <input type="checkbox" id="rango11-19" class="rango-cb" value="11-19" checked>
                             <label for="rango11-19">11-19</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="rango21-29" name="rangoPredefinido" value="21-29">
+                            <input type="checkbox" id="rango21-29" class="rango-cb" value="21-29">
                             <label for="rango21-29">21-29</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="rango31-69" name="rangoPredefinido" value="31-69">
+                            <input type="checkbox" id="rango31-69" class="rango-cb" value="31-69">
                             <label for="rango31-69">31-69</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="rango71-130" name="rangoPredefinido" value="71-130">
+                            <input type="checkbox" id="rango71-130" class="rango-cb" value="71-130">
                             <label for="rango71-130">71-130</label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Campos ocultos para los valores reales -->
-                <input asp-for="NumeroInicial" type="hidden" id="numeroInicial" value="11" />
-                <input asp-for="NumeroFinal" type="hidden" id="numeroFinal" value="19" />
+                <input asp-for="RangosSeleccionados" type="hidden" id="rangosSeleccionados" value="11-19" />
 
             </div>
 
@@ -454,48 +452,52 @@
         window.location.href = '@Url.Action("LimpiarYDashboard", "Potencias")';
     }
 
-       document.addEventListener('DOMContentLoaded', function() {
-        const radioButtons = document.querySelectorAll('input[name="rangoPredefinido"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.rango-cb');
         const radioOptions = document.querySelectorAll('.radio-option');
-        const numeroInicialInput = document.getElementById('numeroInicial');
-        const numeroFinalInput = document.getElementById('numeroFinal');
+        const rangosInput = document.getElementById('rangosSeleccionados');
 
-        function actualizarRango() {
-            const radioSeleccionado = document.querySelector('input[name="rangoPredefinido"]:checked');
-            if (radioSeleccionado) {
-                const valores = radioSeleccionado.value.split('-');
-                numeroInicialInput.value = valores[0];
-                numeroFinalInput.value = valores[1];
+        function actualizarRangos(e) {
+            const seleccionados = document.querySelectorAll('.rango-cb:checked');
 
-                // Actualizar clases visuales
-                radioOptions.forEach(option => {
-                    option.classList.remove('selected');
-                });
-
-                const selectedOption = radioSeleccionado.closest('.radio-option');
-                if (selectedOption) {
-                    selectedOption.classList.add('selected');
-                }
+            // Validación: Obligar a tener al menos 1 seleccionado
+            if (seleccionados.length === 0) {
+                if(e && e.target) e.target.checked = true;
+                return;
             }
+
+            // Obtener todos los valores seleccionados separados por coma
+            const valores = Array.from(seleccionados).map(cb => cb.value);
+            rangosInput.value = valores.join(',');
+
+            // Actualizar clases visuales (color azul al clickear)
+            radioOptions.forEach(option => {
+                const cb = option.querySelector('.rango-cb');
+                if(cb.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
         }
 
-        // Agregar event listeners a los radio buttons
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', actualizarRango);
+        // Agregar event listeners
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', actualizarRangos);
         });
 
-        // Agregar event listeners a los contenedores completos
         radioOptions.forEach(option => {
             option.addEventListener('click', function(e) {
-                const radio = this.querySelector('input[type="radio"]');
-                if (radio && !radio.checked) {
-                    radio.checked = true;
-                    actualizarRango();
+                // Si el click no fue directo en el input o label, forzamos el click en el checkbox
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
+                    const cb = this.querySelector('.rango-cb');
+                    cb.checked = !cb.checked;
+                    actualizarRangos({ target: cb });
                 }
             });
         });
 
         // Inicializar con el valor por defecto
-        actualizarRango();
+        actualizarRangos();
     });
 </script>
