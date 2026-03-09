@@ -11,6 +11,83 @@
 }
 
 <style>
+    /* --- ESTILOS TECLADO VIRTUAL --- */
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .tecla {
+        flex: 1;
+        font-size: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        background-color: #4c4cff;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70px;
+    }
+
+        .tecla.borrar {
+            background-color: #df312c;
+            font-size: 1.5rem;
+        }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
+        .tecla.borrar:hover,
+        .tecla.borrar.presionada {
+            background-color: #ff6666 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+    .tecla-vacia {
+        flex: 1;
+        background: transparent;
+        border: none;
+        pointer-events: none;
+    }
+
+    /* Evita que el celular ponga gris el input en readonly */
+    .input-respuesta-potencia[readonly] {
+        background-color: #292c4f !important;
+        color: white !important;
+        opacity: 1 !important;
+        -webkit-text-fill-color: white !important;
+    }
+
+    /* Contenedor para alinear Ejercicio y Teclado */
+    .contenedor-ejercicio-teclado {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 4rem;
+        width: 100%;
+        max-width: 900px;
+    }
     .input-respuesta {
         width: 85%;
         caret-color: transparent;
@@ -410,7 +487,7 @@
     </div>
 
     <div class="info-tiempo">
-        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span> s</span>
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@tiempoRestante</span></span>
     </div>
 </div>
 
@@ -419,26 +496,51 @@
     <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
 
     <div class="areaej">
-        <div class="Ejercicio">
+        <div class="contenedor-ejercicio-teclado">
 
-            <div class="potencia-grande">
-                <span class="base-numero">@Model.Numero_Base</span>
-                <span class="exponente">2</span>
+            <div class="Ejercicio">
+                <div class="potencia-grande">
+                    <span class="base-numero">@Model.Numero_Base</span>
+                    <span class="exponente">2</span>
+                </div>
+
+                <form method="post" action="/Potencias/EjercicioPotencias" class="formulario-respuesta" id="formRespuesta">
+                    <input type="tel"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           name="respuestaUsuario"
+                           class="input-respuesta-potencia"
+                           autocomplete="off" />
+
+                    <button type="submit" class="btn-enviar-potencia">
+                        Enviar Respuesta
+                    </button>
+                </form>
             </div>
 
-            <form method="post" action="/Potencias/EjercicioPotencias" class="formulario-respuesta" id="formRespuesta">
-                
-                <input type="number"
-                       name="respuestaUsuario"
-                       class="input-respuesta-potencia"
-                       step="any"
-                       autocomplete="off"
-                       autofocus />
+            <div class="teclado-numerico">
+                <div class="fila">
+                    <button type="button" class="tecla">7</button>
+                    <button type="button" class="tecla">8</button>
+                    <button type="button" class="tecla">9</button>
+                </div>
+                <div class="fila">
+                    <button type="button" class="tecla">4</button>
+                    <button type="button" class="tecla">5</button>
+                    <button type="button" class="tecla">6</button>
+                </div>
+                <div class="fila">
+                    <button type="button" class="tecla">1</button>
+                    <button type="button" class="tecla">2</button>
+                    <button type="button" class="tecla">3</button>
+                </div>
+                <div class="fila">
+                    <div class="tecla-vacia"></div>
+                    <button type="button" class="tecla">0</button>
+                    <button type="button" class="tecla borrar">🗑️</button>
+                </div>
+            </div>
 
-                <button type="submit" class="btn-enviar-potencia">
-                    Enviar Respuesta
-                </button>
-            </form>
         </div>
     </div>
 </div>
@@ -449,10 +551,19 @@
         let tiempoRestanteGlobal = @tiempoRestante;
         let temporizadorGlobalInterval;
 
+        // --- FUNCIÓN PARA FORMATEAR EL TIEMPO ---
+        function formatearTiempo(totalSegundos) {
+            if (totalSegundos <= 0) return "00:00";
+            const minutos = Math.floor(totalSegundos / 60);
+            const segundos = totalSegundos % 60;
+            return minutos.toString().padStart(2, '0') + ':' + segundos.toString().padStart(2, '0');
+        }
+
+        // --- LÓGICA DEL TEMPORIZADOR ---
         function actualizarTemporizadorGlobal() {
             if (tiempoRestanteGlobal > 0) {
                 tiempoRestanteGlobal--;
-                document.getElementById('contadorTiempoRestante').textContent = tiempoRestanteGlobal;
+                document.getElementById('contadorTiempoRestante').textContent = formatearTiempo(tiempoRestanteGlobal);
 
                 if (tiempoRestanteGlobal <= 0) {
                     clearInterval(temporizadorGlobalInterval);
@@ -468,11 +579,9 @@
         }
 
         document.getElementById('formRespuesta').addEventListener('submit', function(e) {
-            
             const tiempoFin = Date.now();
             const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
 
-            
             const inputTiempo = document.createElement('input');
             inputTiempo.type = 'hidden';
             inputTiempo.name = 'tiempoRespuesta';
@@ -480,21 +589,58 @@
             this.appendChild(inputTiempo);
 
             clearInterval(temporizadorGlobalInterval);
-
         });
 
+        // --- LÓGICA DE FOCO Y TECLADO VIRTUAL ---
+        function enfocarInputRespuesta() {
+            const input = document.querySelector('.input-respuesta-potencia');
+            if (!input) return;
+
+            const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            if (esTouch) {
+                input.setAttribute('readonly', 'readonly'); // Bloquea teclado móvil nativo
+                input.blur(); // Quita el foco
+            } else {
+                input.removeAttribute('readonly'); // Permite teclado de PC
+                input.focus();
+            }
+        }
+
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.querySelector('.input-respuesta-potencia');
+
+                if (btn.classList.contains('borrar')) {
+                    input.value = input.value.slice(0, -1);
+                } else {
+                    const numero = btn.textContent.trim();
+                    if (!isNaN(numero)) {
+                        input.value += numero;
+                    }
+                }
+
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 150);
+
+                enfocarInputRespuesta();
+            });
+        });
+
+        // --- INICIALIZACIÓN AL CARGAR LA PÁGINA ---
         document.addEventListener('DOMContentLoaded', function() {
             tiempoInicioEjercicio = Date.now();
 
-            const inputRespuesta = document.querySelector('.input-respuesta-potencia');
-            if (inputRespuesta) {
-                inputRespuesta.focus();
-                inputRespuesta.select();
-            }
+            // Forzamos el formato inicial
+            document.getElementById('contadorTiempoRestante').textContent = formatearTiempo(tiempoRestanteGlobal);
 
             temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+
+            // Evaluamos el dispositivo
+            enfocarInputRespuesta();
         });
 
+        // --- SOPORTE PARA TECLADO FÍSICO ---
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
