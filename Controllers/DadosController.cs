@@ -119,15 +119,16 @@ namespace AnzanMegaArithmetics.Controllers
                 switch (config.ModoJuego)
                 {
                     case "MultiSuma":
-                        dados = new int[6];
+                        int cantidadASumarMulti = config.NumeroDados > 0 ? config.NumeroDados : 5;
+                        dados = new int[cantidadASumarMulti + 1];
                         int sumaParcial = 0;
-                        for (int j = 0; j < 5; j++)
+                        for (int j = 0; j < cantidadASumarMulti; j++)
                         {
                             dados[j] = _random.Next(1, 7);
                             sumaParcial += dados[j];
                         }
-                        dados[5] = esLibre ? config.MultiplicadorLibre : _random.Next(minMult, maxMult);
-                        resultado = sumaParcial * dados[5];
+                        dados[cantidadASumarMulti] = esLibre ? config.MultiplicadorLibre : _random.Next(minMult, maxMult);
+                        resultado = sumaParcial * dados[cantidadASumarMulti];
                         break;
 
                     case "SumaFlash":
@@ -866,6 +867,8 @@ namespace AnzanMegaArithmetics.Controllers
                 // 2. Generamos la lista de ejercicios bajo las nuevas reglas
                 List<EjercicioDadosModel> ejercicios = GenerarEjerciciosDados(config);
 
+                int totalDadosMulti = (config.NumeroDados > 0 ? config.NumeroDados : 5) + 1;
+
                 // 3. Inicializamos las respuestas vacías
                 List<RespuestaDadosModel> respuestas = ejercicios.Select(e => new RespuestaDadosModel
                 {
@@ -873,7 +876,7 @@ namespace AnzanMegaArithmetics.Controllers
                     Respuesta_Usuario = string.Empty,
                     Es_Correcta = false,
                     Tiempo_Respuesta = 0,
-                    DadosUtilizados = 6 // En este modo siempre se consideran los 6
+                    DadosUtilizados = totalDadosMulti
                 }).ToList();
 
                 // 4. Persistencia en Sesión
@@ -971,7 +974,7 @@ namespace AnzanMegaArithmetics.Controllers
                     }
 
                     respuesta.Tiempo_Respuesta = tiempoRespuesta;
-                    respuesta.DadosUtilizados = 6; // En MultiSuma siempre son 6
+                    respuesta.DadosUtilizados = (config.NumeroDados > 0 ? config.NumeroDados : 5) + 1;
                 }
 
                 // Sincronizar tiempo y avanzar

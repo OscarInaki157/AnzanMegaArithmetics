@@ -101,6 +101,15 @@
                     <input asp-for="CantidadEjercicios" type="number" min="1" required />
                 </div>
                 <div>
+                    <label asp-for="NumeroDados">Cantidad de dados a sumar:</label>
+                    <select asp-for="NumeroDados" required>
+                        @for (int i = 5; i <= 15; i++)
+                        {
+                            <option value="@i">@i dados</option>
+                        }
+                    </select>
+                </div>
+                <div>
                     <label>Rango del dado multiplicador:</label>
                     <select asp-for="RangoDados" class="form-control" id="selectRangoMulti" onchange="toggleMultiLibre()">
                         <option value="2-11">Nivel Básico (2 - 11)</option>

@@ -24,6 +24,7 @@
     .respuesta-left{
         /* flex: 1 1 400px;
         max-width: 600px; */
+        width:70%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -31,26 +32,21 @@
     }
 
     .teclado-numerico {
-        flex: 1 1 400px;
-        max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .teclado-numerico {
+        flex: 1 1;
         display: flex;
         flex-direction: column;
         gap: 1.2rem;
         width: 100%;
-        max-width: 400px;
+        align-items: end;
+        justify-content: center;
     }
+
 
     .fila {
         display: flex;
         gap: 1rem;
         justify-content: center;
+        align-items: center;
     }
 
     .tecla i {
@@ -116,15 +112,18 @@
     .btn-saltar {
         background: linear-gradient(135deg, #f1c40f, #d4ac0d);
         color: #1b1e3c;
-        padding: 0.6rem 1rem;
+        padding: 0.6rem 0.2rem;
         border: none;
-        border-radius: 8px;
-        font-size: 0.95rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
         font-weight: bold;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
         transition: all 0.2s;
-        margin-top: 1rem;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+
     }
 
         .btn-saltar:hover:not(:disabled) {
@@ -627,6 +626,13 @@
     }
 
     @@media (max-width: 768px) {
+        .teclado-numerico {
+            align-items: center;
+        }
+        .respuesta-left {
+            width: 100%;
+        }
+        
         .dado {
             width: 60px;
             height: 60px;
@@ -718,16 +724,16 @@
         <div class="resultados">
             <p class="instruccion">Resultado:</p>
 
-            <input type="text"
+            <input type="tel"
                    id="inputRespuesta"
                    class="input-expresion"
                    autocomplete="off" />
 
-            <button type="button" id="btnSaltar" class="btn-saltar"
+           @*  <button type="button" id="btnSaltar" class="btn-saltar"
                     onclick="saltarEjercicio()"
                     @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
                 ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
-            </button>
+            </button> *@
         </div>
         
     </div>
@@ -748,6 +754,11 @@
             <button type="button" class="tecla">3</button>
         </div>
         <div class="fila">
+            <button type="button" id="btnSaltar" class="btn-saltar"
+                    onclick="saltarEjercicio()"
+                    @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+                ⏭️ <br />Saltar (@(2 - ViewBag.SaltosUsados))
+            </button>
             <button type="button" class="tecla">0</button>
             <button type="button" class="tecla borrar">🗑️</button>
         </div>

@@ -10,6 +10,11 @@
 }
 
 <style>
+    .line-break {
+        width: 100%;
+        height: 0;
+        margin: 0;
+    }
     /* Clase para resaltar el éxito de la respuesta */
     .input-expresion.correcto {
         border-color: #28a745 !important;
@@ -63,6 +68,7 @@
     .respuesta-left {
         /* flex: 1 1 400px;
             max-width: 600px; */
+        width:70%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -70,20 +76,13 @@
     }
 
     .teclado-numerico {
-        flex: 1 1 400px;
-        max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .teclado-numerico {
+        flex: 1 1;
         display: flex;
         flex-direction: column;
         gap: 1.2rem;
         width: 100%;
-        max-width: 400px;
+        align-items: end;
+        justify-content: center;
     }
 
     .fila {
@@ -155,15 +154,17 @@
     .btn-saltar {
         background: linear-gradient(135deg, #f1c40f, #d4ac0d);
         color: #1b1e3c;
-        padding: 0.6rem 1rem;
+        padding: 0.6rem 0.2rem;
         border: none;
-        border-radius: 8px;
-        font-size: 0.95rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
         font-weight: bold;
         cursor: pointer;
         box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
         transition: all 0.2s;
-        margin-top: 1rem;
+        justify-content: center;
+        align-items: center;
+        display: flex;
     }
 
         .btn-saltar:hover:not(:disabled) {
@@ -656,6 +657,13 @@
     }
 
     @@media (max-width: 768px) {
+        .teclado-numerico {
+            align-items: center;
+        }
+
+        .respuesta-left {
+            width: 100%;
+        }
         .dado {
             width: 60px;
             height: 60px;
@@ -716,35 +724,42 @@
 
 <div class="ejercicio-wrapper">
     <div class="respuesta-left">
-        <p class="instruccion"><strong>Suma</strong> los 5 dados y después <strong>multiplica</strong> por el último dado</p>
+        <p class="instruccion"><strong>Suma</strong> los dados y después <strong>multiplica</strong> por el último dado</p>
         <div class="dados-container">
 
-             @for (int i = 0; i < 5; i++)
-             {
-                 <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" class="dado-imagen" />
-             }
-            
+            @* Iteramos todos los dados MENOS el último (que es el multiplicador) *@
+            @for (int i = 0; i < Model.Dados.Length - 1; i++)
+            {
+                <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png" class="dado-imagen" />
+
+                @* Hacemos salto de línea cada 5 dados para mantener el diseño limpio *@
+                if ((i + 1) % 5 == 0 && (i + 1) < (Model.Dados.Length - 1))
+                {
+                    <div class="line-break"></div>
+                }
+            }
 
             <div class="dado-resultado-wrapper" id="targetWrapper">
                 <img src="~/Content/Images/Dados/Demogorgon.png" class="dado-imagen-objetivo" />
 
                 <div class="multiplicador-frontal">
-                    <div class="numero-objetivo">@Model.Dados[5]</div>
+                    @* Pintamos dinámicamente el ÚLTIMO dado del array como multiplicador *@
+                    <div class="numero-objetivo">@Model.Dados[Model.Dados.Length - 1]</div>
                 </div>
             </div>
         </div>
 
         
         <p class="instruccion">Resultado:</p>
-        <input type="text"
+        <input type="tel"
                id="inputRespuesta"
                class="input-expresion"
                autocomplete="off" />
 
-         <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
+         @* <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
              @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
              ⏭️ Saltar (@(2 - ViewBag.SaltosUsados))
-         </button>
+         </button> *@
         
     </div>
 
@@ -765,6 +780,10 @@
             <button type="button" class="tecla">3</button>
         </div>
         <div class="fila">
+            <button type="button" id="btnSaltar" class="btn-saltar" onclick="saltarEjercicio()"
+                    @(ViewBag.SaltosUsados >= 2 ? "disabled" : "")>
+                ⏭️ <br />Saltar (@(2 - ViewBag.SaltosUsados))
+            </button>
             <button type="button" class="tecla">0</button>
             <button type="button" class="tecla borrar">🗑️</button>
         </div>

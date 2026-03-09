@@ -21,9 +21,12 @@
     .operacion-multi-desglose{
     display:flex;
     }
-    .bloque-suma-mini{
+
+    .bloque-suma-mini {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
     }
     body {
         background-color: var(--color-bg);
@@ -536,15 +539,18 @@
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>
             <div style="padding: 15px; background-color: #1b1e3c; color: #d1d1f0;">
-                <div class="operacion-multi-desglose">
+                <div class="operacion-multi-desglose" style="align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div class="bloque-suma-mini">
-                        @for (int d = 0; d < 5; d++)
+
+                        @for (int d = 0; d < ej.Dados.Length - 1; d++)
                         {
                             <div class="dado-mini">@ej.Dados[d]</div>
                         }
                     </div>
-                    <div class="simbolo-mini">×</div>
-                    <div class="dado-mini multiplicador-mini">@ej.Dados[5]</div>
+
+                    <div class="simbolo-mini" style="font-weight: bold; font-size: 1.2rem;">×</div>
+
+                    <div class="dado-mini multiplicador-mini">@ej.Dados[ej.Dados.Length - 1]</div>
                 </div>
 
                 <p>🎯 <strong>Resultado esperado:</strong> @ej.Dado_Resultado</p>
