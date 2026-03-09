@@ -12,6 +12,66 @@
 
 <style>
 
+    /* --- ESTILOS TECLADO VIRTUAL --- */
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        width: 100%;
+        max-width: 320px;
+        margin: 2rem auto;
+        justify-content: center;
+    }
+
+    .fila {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .tecla {
+        flex: 1;
+        font-size: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        border: none;
+        background-color: #4c4cff;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70px;
+    }
+
+        .tecla.borrar {
+            background-color: #df312c;
+            font-size: 1.5rem;
+        }
+
+        .tecla:hover,
+        .tecla.presionada {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+            background-color: #a6a6ff !important;
+        }
+
+        .tecla.borrar:hover,
+        .tecla.borrar.presionada {
+            background-color: #ff6666 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
+    .tecla-vacia {
+        flex: 1;
+        background: transparent;
+        border: none;
+        pointer-events: none;
+    }
+
     body {
         background-color: var(--color-bg);
         color: var(--color-tex);
@@ -982,6 +1042,7 @@
             <div class="tabs">
                 <button class="tab-btn active" onclick="mostrarTab('soroban')">🧮 Soroban</button>
                 <button class="tab-btn" onclick="mostrarTab('manos')">✋ Manos</button>
+                <button class="tab-btn" onclick="mostrarTab('teclado')">⌨️ Teclado</button>
             </div>
             <div class="tab-content active" id="tab-soroban">
                 <div id="contenedorSoroban">
@@ -1068,7 +1129,30 @@
                     
                 </div>
             </div>
-            
+            <div class="tab-content" id="tab-teclado">
+                <div class="teclado-numerico">
+                    <div class="fila">
+                        <button type="button" class="tecla">7</button>
+                        <button type="button" class="tecla">8</button>
+                        <button type="button" class="tecla">9</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">4</button>
+                        <button type="button" class="tecla">5</button>
+                        <button type="button" class="tecla">6</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">1</button>
+                        <button type="button" class="tecla">2</button>
+                        <button type="button" class="tecla">3</button>
+                    </div>
+                    <div class="fila">
+                        <div class="tecla-vacia"></div>
+                        <button type="button" class="tecla">0</button>
+                        <button type="button" class="tecla borrar">🗑️</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -1127,16 +1211,26 @@
             return false; 
         }
 
-        function mostrarTab(tab) {
-            sessionStorage.setItem("tabSeleccionadoSR", tab);
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                function mostrarTab(tab) {
+                    sessionStorage.setItem("tabSeleccionadoSR", tab);
+                    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
-            document.getElementById(`tab-${tab}`).classList.add('active');
+                    document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
+                    document.getElementById(`tab-${tab}`).classList.add('active');
 
-            enfocarInputRespuesta();
-        }
+                    // --- MAGIA PARA OCULTAR EL TECLADO NATIVO ---
+                    const input = document.querySelector("input[name='respuesta']");
+                    const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+                    if (tab === 'teclado' && esTouch) {
+                        input.setAttribute('readonly', 'readonly'); // Bloquea el teclado del celular
+                    } else {
+                        input.removeAttribute('readonly'); // Permite el teclado del celular en Soroban o Manos
+                    }
+
+                    enfocarInputRespuesta();
+                }
 
         document.querySelectorAll(".tab-btn").forEach(btn => {
             btn.addEventListener("click", e => {
@@ -1284,25 +1378,52 @@
 
             // Restaurar tab seleccionado
             const tabGuardado = sessionStorage.getItem("tabSeleccionadoSR");
-            if (tabGuardado === "soroban") {
-                mostrarTab("soroban");
-            } else {
-                mostrarTab("manos");
-            }
+        if (tabGuardado === "soroban") {
+            mostrarTab("soroban");
+        } else if (tabGuardado === "teclado") {
+            mostrarTab("teclado");
+        } else {
+            mostrarTab("manos"); // Por defecto
+        }
         });
 
-    function enfocarInputRespuesta() {
-    const input = document.querySelector("input[name='respuesta']");
-    if (!input) return;
+        function enfocarInputRespuesta() {
+                const input = document.querySelector("input[name='respuesta']");
+                if (!input) return;
 
-    const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    // Solo enfocamos automáticamente en desktop
-    if (!esTouch) {
-        input.focus();
-    }
-}
+                if (!esTouch) {
+                    input.focus(); // En PC enfocamos para que usen su teclado físico
+                } else {
+                    input.blur(); // En móvil quitamos el foco para que NO salga el teclado de Android/iOS
+                }
+            }
 
+        // --- Lógica del Teclado Virtual ---
+                document.querySelectorAll('.tecla').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const input = document.querySelector("input[name='respuesta']");
+
+                        if (btn.classList.contains('borrar')) {
+                            // Borrar el último dígito
+                            input.value = input.value.slice(0, -1);
+                        } else {
+                            // Añadir número
+                            const numero = btn.textContent.trim();
+                            if (!isNaN(numero)) {
+                                input.value += numero;
+                            }
+                        }
+
+                        // Efecto visual de botón presionado
+                        btn.classList.add('presionada');
+                        setTimeout(() => btn.classList.remove('presionada'), 150);
+
+                        // Volver a enfocar el input por si el usuario está en PC
+                        enfocarInputRespuesta();
+                    });
+                });
 
 
     </script>
