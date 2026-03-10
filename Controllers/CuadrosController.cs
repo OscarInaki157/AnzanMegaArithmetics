@@ -208,6 +208,7 @@ namespace AnzanMegaArithmetics.Controllers
 
                 ejercicio.Rejilla = GenerarEjercicioCuadros(profundidad, DigitosEjercicio, random);
 
+
                 ejercicios.Add(ejercicio);
             }
 
@@ -288,7 +289,7 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 var configuracionJson = HttpContext.Session.GetString("ConfiguracionPractica");
                 var ejerciciosJson = HttpContext.Session.GetString("Ejercicios");
-
+                var resultadosJson = HttpContext.Session.GetString("Respuestas");
 
                 if (string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(configuracionJson)) 
                 {
@@ -298,6 +299,10 @@ namespace AnzanMegaArithmetics.Controllers
                 SesionCuadrosModel actuales = JsonSerializer.Deserialize<SesionCuadrosModel>(ejerciciosJson);
     
                 ConfCuadrosModel configuracion = JsonSerializer.Deserialize<ConfCuadrosModel>(configuracionJson);
+
+                List<RCuadrosModel> respuestasHistoricas = string.IsNullOrEmpty(resultadosJson)
+                    ? new List<RCuadrosModel>()
+                    : JsonSerializer.Deserialize<List<RCuadrosModel>>(resultadosJson);
 
                 if (actuales.Realizados >= configuracion.CantidadRejillas) 
                 {
@@ -309,6 +314,7 @@ namespace AnzanMegaArithmetics.Controllers
                 EjercicioCuadrosModel nuevo = actuales.ejerciciosCuadros[indice];
 
                 ViewBag.Configuracion = configuracion;
+                ViewBag.Respuestas = respuestasHistoricas;
 
                 return View(nuevo);
 

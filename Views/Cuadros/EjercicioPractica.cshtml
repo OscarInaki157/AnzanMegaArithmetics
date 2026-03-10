@@ -61,7 +61,7 @@
     </div>
 
     <div class="info-tiempo">
-         <span>⏱ <span id="contador" class="contador">1</span> s</span>
+         <span>⏱ <span id="contador" class="contador">0.000</span> s</span>
     </div>
 </div>
 
@@ -79,8 +79,8 @@
                 <div class="rejilla-grid" style="grid-template-columns: repeat(@columnas, 1fr);">
                     @for (int i = 0; i < Model.Rejilla.Count; i++)
                     {
-                        <div class="numero-celda @(celdasIluminadas.Contains(i) ? "iluminado" : "")">
-                            @Model.Rejilla[i]
+                        <div class="numero-celda @(celdasIluminadas.Contains(i) ? "iluminado" : "") estado-oculto" data-numero="@Model.Rejilla[i]">
+                            -
                         </div>
                     }
                 </div>
@@ -89,7 +89,39 @@
 
         <!-- Panel derecho: Formulario de respuesta -->
         <div class="panel-derecho">
+            <div class="tiempos-historial">
+                @{
+                    var respuestasHist = ViewBag.Respuestas as List<AnzanMegaArithmetics.Models.RCuadrosModel> ?? new List<AnzanMegaArithmetics.Models.RCuadrosModel>();
+
+                    for (int i = 0; i < totalEjercicios; i++)
+                    {
+                        string displayTime = "--:--";
+
+                        if (i < respuestasHist.Count)
+                        {
+                            double t = respuestasHist[i].TiempoRespuesta;
+                            int min = (int)(t / 60);
+                            double sec = t % 60;
+
+                            displayTime = min > 0 ? $"{min}:{sec.ToString("00.000")}" : $"{sec.ToString("0.000")}";
+                        }
+
+                        string claseActual = (i == numeroEjercicio - 1) ? "tiempo-actual" : "";
+                        string idValorActual = (i == numeroEjercicio - 1) ? "valor-tiempo-actual" : "";
+
+                        <div class="tiempo-item @claseActual">
+                            <span class="tiempo-numero">@(i + 1):</span>
+                            <span id="@idValorActual" class="tiempo-valor">@displayTime</span>
+                        </div>
+                    }
+                }
+            </div>
             <div class="formulario-respuesta">
+
+                <button type="button" id="btnIniciar" class="btn-iniciar" onclick="iniciarEjercicio()">
+                    Iniciar
+                </button>
+
                 <form asp-action="EjercicioPractica" method="post" class="form-respuesta">
                     <input type="hidden" name="RespuestaUsuario" id="respuestaUsuarioInput" />
                     <input type="hidden" name="TiempoRespuesta" id="tiempoRespuestaInput" />
@@ -111,6 +143,74 @@
 </div>
 
 <style>
+    /* Nuevo botón de Iniciar */
+    .btn-iniciar {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(145deg, #28a745, #218838); /* Verde brillante */
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        margin-top:1rem;
+    }
+
+        .btn-iniciar:hover {
+            background: linear-gradient(145deg, #2ebd4e, #28a745);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+    /* Clase para ocultar los números al inicio y al final */
+    .numero-celda.estado-oculto {
+        color: #888 !important;
+        background: linear-gradient(145deg, #3a3c5f, #2a2c4f) !important;
+        border-color: #3a3a6b !important;
+    }
+
+    /* Estilos para el historial de tiempos (Versión de alto contraste) */
+    .tiempos-historial {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .tiempo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #3b3f70; /* Fondo más claro que el original */
+        padding: 0.8rem 1.2rem;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        color: #ffffff; /* Texto blanco puro para máximo contraste */
+        font-family: monospace;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Da una ligera sensación de pantalla */
+    }
+
+        .tiempo-item.tiempo-actual {
+            border-color: #6c6cff; /* Borde más brillante */
+            background: linear-gradient(145deg, #525596, #42467b); /* Degradado más luminoso */
+            box-shadow: 0 0 15px rgba(108, 108, 255, 0.4); /* Resplandor más fuerte */
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+    .tiempo-numero {
+        font-weight: bold;
+    }
+
+    .tiempo-valor {
+        letter-spacing: 1px;
+    }
 
     body {
         background-color: var(--color-bg);
@@ -444,6 +544,9 @@
         .panel-derecho {
             width: 100%;
             margin-top: 1rem;
+            flex-direction: column-reverse;
+            gap: 2rem;
+        
         }
 
         .numero-celda {
@@ -458,43 +561,88 @@
 
 @section Scripts {
     <script>
-        let startTime = Date.now();
+        // Variables iniciales en estado de espera
+        let startTime = null;
         let tiempoFinal = 0;
-        let tiempoCorriendo = true;
+        let tiempoCorriendo = false;
+        let intervalo = null;
+        let tiempoDetenido = false;
+
+        // Elementos del DOM
         let contadorElement = document.getElementById('contador');
         let respuestaInput = document.getElementById('respuestaInput');
         let celdasNumeros = document.querySelectorAll('.numero-celda');
-        let tiempoDetenido = false;
         let formulario = document.querySelector('.form-respuesta');
+        let btnIniciar = document.getElementById('btnIniciar');
 
-        // Función para actualizar el contador de tiempo
+        // Inicializamos el texto a 0
+        contadorElement.textContent = "0.000";
+
+        function formatearTiempo(segundosTotales) {
+            let minutos = Math.floor(segundosTotales / 60);
+            let segundos = segundosTotales % 60;
+
+            if (minutos > 0) {
+                let segundosFormateados = segundos < 10 ? "0" + segundos.toFixed(3) : segundos.toFixed(3);
+                return minutos + ":" + segundosFormateados;
+            } else {
+                return segundosTotales.toFixed(3);
+            }
+        }
+
         function actualizarTiempo() {
-            if (tiempoCorriendo) {
-                let tiempoTranscurrido = (Date.now() - startTime) / 1000;
-                contadorElement.textContent = tiempoTranscurrido.toFixed(3);
-            }
-        }
+             if (tiempoCorriendo) {
+                 let tiempoTranscurrido = (Date.now() - startTime) / 1000;
+                 contadorElement.textContent = formatearTiempo(tiempoTranscurrido);
+             }
+         }
 
-        let intervalo = setInterval(actualizarTiempo, 10);
-        actualizarTiempo();
+         // NUEVA FUNCION: Arranca el ejercicio
+         function iniciarEjercicio() {
+             // 1. Ocultar el botón Iniciar
+             btnIniciar.style.display = 'none';
 
-        // Función para detener el tiempo y ocultar números
-        function detenerTiempoYOcultarNumeros() {
-            if (tiempoCorriendo) {
-                tiempoCorriendo = false;
-                tiempoDetenido = true;
-                tiempoFinal = (Date.now() - startTime) / 1000;
-                clearInterval(intervalo);
+             // 2. Mostrar los números reales leyendo el atributo data-numero
+             celdasNumeros.forEach(celda => {
+                 celda.textContent = celda.getAttribute('data-numero');
+                 celda.classList.remove('estado-oculto');
+             });
 
-                celdasNumeros.forEach(celda => {
-                    celda.textContent = '-';
-                    celda.style.color = '#888';
-                    celda.style.background = 'linear-gradient(145deg, #3a3c5f, #2a2c4f)';
-                });
+             // 3. Habilitar input y enfocar
+             respuestaInput.disabled = false;
+             respuestaInput.focus();
 
-                contadorElement.textContent = tiempoFinal.toFixed(3);
-            }
-        }
+             // 4. Iniciar el tiempo
+             startTime = Date.now();
+             tiempoCorriendo = true;
+             tiempoDetenido = false;
+             intervalo = setInterval(actualizarTiempo, 10);
+         }
+
+         // Función para detener el tiempo y ocultar números actualizada
+         function detenerTiempoYOcultarNumeros() {
+             if (tiempoCorriendo) {
+                 tiempoCorriendo = false;
+                 tiempoDetenido = true;
+                 tiempoFinal = (Date.now() - startTime) / 1000;
+                 clearInterval(intervalo);
+
+                 // Ocultamos los números usando la clase CSS
+                 celdasNumeros.forEach(celda => {
+                     celda.textContent = '-';
+                     celda.classList.add('estado-oculto');
+                 });
+
+                 let tiempoFormateado = formatearTiempo(tiempoFinal);
+                 contadorElement.textContent = tiempoFormateado;
+
+                 let spanHistorialActual = document.getElementById('valor-tiempo-actual');
+                 if (spanHistorialActual) {
+                     spanHistorialActual.textContent = tiempoFormateado;
+                 }
+             }
+         }
+
 
         // Detectar input del usuario
         respuestaInput.addEventListener('input', function() {
@@ -567,10 +715,6 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            respuestaInput.focus();
-        });
-
         respuestaInput.addEventListener('paste', function(e) {
             e.preventDefault();
             if (tiempoCorriendo) {
@@ -585,6 +729,14 @@
                 detenerTiempoYOcultarNumeros();
             }
             alert('No se permite arrastrar texto.');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enfocamos el botón de iniciar en lugar del input
+            let btnIniciar = document.getElementById('btnIniciar');
+            if(btnIniciar) {
+                btnIniciar.focus();
+            }
         });
     </script>
 }
