@@ -1,0 +1,836 @@
+﻿@model AnzanMegaArithmetics.Models.EjercicioDadosModel
+@{
+    ViewBag.Title = "Ejercicio de Dictado con Dados";
+    Layout = "_LayoutDados";
+
+    var ejercicioActual = ViewBag.EjercicioActual ?? 1;
+    var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
+
+    var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
+}
+
+<style>
+    .dictado-controls {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 2rem;
+        margin-top: 1rem;
+        background: rgba(41, 44, 79, 0.5);
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .grupo-seleccion {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .grupo-seleccion span {
+            font-size: 1.1rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+    .btn-group-dados {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-num {
+        width: 65px;
+        height: 65px;
+        background: #1b1e3c;
+        color: #d1d1f0;
+        border: 3px solid #4c4cff;
+        border-radius: 50%;
+        font-size: 1.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+        .btn-num:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.4);
+            background: #292c4f;
+        }
+
+        .btn-num.selected {
+            background: #4c4cff;
+            color: white;
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(76, 76, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+    .btn-group-validacion {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        opacity: 0.5; /* Deshabilitado visualmente hasta seleccionar dados */
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+        .btn-group-validacion.activo {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+    .btn-eval {
+        width: 80px;
+        height: 80px;
+        border: none;
+        border-radius: 20px;
+        font-size: 3rem;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-check {
+        background: linear-gradient(135deg, #28a745, #218838);
+        box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+    }
+
+        .btn-check:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.6);
+            background: linear-gradient(135deg, #2ecc71, #28a745);
+        }
+
+    .btn-error {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+    }
+
+        .btn-error:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.6);
+            background: linear-gradient(135deg, #ff4d4d, #dc3545);
+        }
+    .btn-dado-selector {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+    }
+
+        .btn-dado-selector img {
+            width: 4.2rem;
+            height: 4.2rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            transition: transform 0.2s;
+            border-radius: 1rem;
+        }
+
+        .btn-dado-selector:hover:not(.usado) img {
+            transform: scale(1.1);
+        }
+
+        .btn-dado-selector.usado {
+            opacity: 0.3;
+            cursor: not-allowed;
+            filter: grayscale(0.8);
+            pointer-events: none;
+        }
+
+    .btn-retroceso {
+        background: linear-gradient(135deg, #636e72, #2d3436) !important;
+    }
+
+    .input-respuesta {
+        width: 85%;
+        caret-color: transparent;
+        padding: 0.6rem 1rem;
+        font-size: 3.5rem;
+        border-radius: 10px;
+        border: none;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-tex);
+    }
+
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.1;
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-55%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(55%);
+    }
+
+    .contador {
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 1.6rem;
+        animation: pulse 1s infinite ease-in-out;
+    }
+
+    .btn-enviar-respuesta {
+        padding: 0.6rem 2rem;
+        background-color: #4c4cff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 2.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+        width: 50%;
+    }
+
+        .btn-enviar-respuesta:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.6);
+        }
+
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem;
+        background-color: var(--bg-color);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        flex-wrap: wrap;
+        gap: 1rem;
+        border-radius: 25px;
+        margin-top: -2.3rem;
+    }
+
+    .btn-finalizar {
+        background-color: #df312c;
+        color: white;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    }
+
+        .btn-finalizar:hover {
+            background-color: #b22222;
+            transform: scale(1.05);
+        }
+
+    .barra-progreso-contenedor {
+        flex: 1;
+        max-width: 420px;
+    }
+
+    .barra-progreso {
+        width: 100%;
+        height: 26px;
+        background-color: #e0e0f0;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .progreso-interno {
+        height: 100%;
+        background-color: #28a745;
+        transition: width 0.4s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .progreso-texto {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b1e3c;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .info-tiempo {
+        font-size: 1rem;
+        color: #d1d1f0;
+        font-weight: 500;
+    }
+
+    .ejercicio-wrapper {
+        margin: 0 auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    /* ESTILOS PARA DADOS */
+    .dados-container {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+        align-items: center;
+        flex-direction:column;
+    }
+
+    .dadoss{
+        flex-direction: row;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 1rem 0;
+        flex-wrap: wrap;
+        align-items: center;
+        }
+
+    .dado {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ffffff, #f0f0f0);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2d3748;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        position: relative;
+        transform: rotate(25deg);
+    }
+
+    .dado-resultado-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 8rem;
+        height: 7rem;
+    }
+
+    /* Ajuste de la imagen del dodecaedro */
+    .dado-imagen-objetivo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.5)); /* Brillo rojizo tipo Stranger Things */
+        transform: rotate(0deg); /* O la rotación que prefieras */
+    }
+
+    /* El número centrado */
+    .numero-objetivo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Truco para centrado perfecto */
+
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.4);
+        user-select: none;
+        pointer-events: none; /* Para que no interfiera con clics si fuera necesario */
+    }
+
+    .dado-imagen {
+        width: 4.2rem;
+        height: 4.2rem;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        transition: transform 0.2s ease;
+        border-radius: 1rem;
+        transform: rotate(20deg);
+    }
+
+    .dado-label {
+        position: relative;
+        font-size: 1.2rem;
+        top: -1rem;
+        color: #d1d1f0;
+        font-weight: 600;
+    }
+
+    /* ESTILOS PARA BOTONES DE NÚMEROS Y OPERACIONES */
+    .botones-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 2rem 0;
+        align-items: center;
+    }
+
+    .botones-numeros {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .botones-operadores {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-numero {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-numero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(76, 76, 255, 0.5);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+        .btn-numero:active {
+            transform: translateY(-1px);
+        }
+
+    .btn-operador {
+        width: 4.5rem;
+        height: 4.5rem;
+        /* Fondo oscuro semi-transparente para el efecto cristal */
+        background: rgba(41, 44, 79, 0.8);
+        color: #ff6b6b;
+        border: 2px solid rgba(255, 107, 107, 0.4);
+        border-radius: 15px;
+        font-size: 2.2rem;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Sombra suave de profundidad + Resplandor neón */
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 107, 107, 0.2);
+        backdrop-filter: blur(4px); /* Difumina el fondo detrás del botón */
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-operador:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 107, 107, 0.15);
+            color: #ffffff;
+            border-color: #ff6b6b;
+            /* Brillo más intenso al pasar el mouse */
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-operador:active {
+            transform: translateY(2px) scale(0.95);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Efecto de "luz" interna */
+        .btn-operador::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+    /* ESTILOS PARA FORMULARIO DE RESPUESTA */
+    .formulario-respuesta {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .input-expresion {
+        width: 400px;
+        padding: 1rem 1.5rem;
+        font-size: 1.8rem;
+        border-radius: 12px;
+        border: 3px solid #4c4cff;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+        box-shadow: 0 0 20px rgba(76, 76, 255, 0.3);
+        transition: all 0.3s ease;
+        caret-color: transparent;
+    }
+
+        .input-expresion:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 25px rgba(255, 107, 107, 0.4);
+        }
+
+    .btn-enviar {
+        padding: 1rem 3rem;
+        background: linear-gradient(135deg, #4c4cff, #3737e8);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(76, 76, 255, 0.4);
+    }
+
+        .btn-enviar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 76, 255, 0.6);
+            background: linear-gradient(135deg, #3737e8, #2a2ac8);
+        }
+
+    .btn-limpiar {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #ff4d4d, #df312c); /* Rojo vibrante */
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(223, 49, 44, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-limpiar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(223, 49, 44, 0.6);
+            background: linear-gradient(135deg, #ff5e5e, #ff2a24);
+        }
+
+    .btn-reset-all {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #f1c40f, #f39c12); /* Amarillo / Naranja */
+        color: #1b1e3c; /* Texto oscuro para mejor contraste sobre amarillo */
+        border: none;
+        border-radius: 15px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(241, 196, 15, 0.3);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-reset-all:hover {
+            box-shadow: 0 8px 25px rgba(241, 196, 15, 0.5);
+            background: linear-gradient(135deg, #ffdb1f, #f1c40f);
+        }
+
+        .btn-reset-all:active {
+            transform: scale(0.95);
+        }
+
+    .instruccion {
+        font-size: 1.2rem;
+        color: #d1d1f0;
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .areaej {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .Ejercicio {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+
+        .dictado-controls {
+            flex-direction: column;
+        }
+        .dado {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
+
+        .dado-imagen {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        .btn-dado-selector img {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+
+        .btn-numero, .btn-operador {
+            width: 3.5rem;
+            height: 3.5rem;
+            font-size: 2rem;
+        }
+
+        .input-expresion {
+            width: 300px;
+            font-size: 1.5rem;
+        }
+
+        .dados-container {
+            gap: 1rem;
+        }
+
+        .botones-numeros, .botones-operadores {
+            gap: 0.8rem;
+        }
+
+        .formulario-respuesta {
+            flex-direction: row;
+        }
+
+        .btn-limpiar {
+            width: 30%;
+        }
+
+        .btn-reset-all {
+            width: 30%;
+        }
+
+        .btn-enviar {
+            padding: 1rem 1rem;
+            font-size: 1.5rem;
+            width: 30%;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <button type="button" onclick="enviarYFinalizar(event)" class="btn-finalizar">
+        ❌ <span>Finalizar</span>
+    </button>
+
+    <div class="barra-progreso-contenedor">
+        <div class="barra-progreso">
+            <div class="progreso-interno" style="width:@porcentaje%"></div>
+            <span class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
+        </div>
+    </div>
+
+    <div class="info-modo">
+        <i class="fas fa-chalkboard-teacher"></i> Modo Dictado
+    </div>
+</div>
+
+<div class="ejercicio-wrapper">
+    <div class="dados-container">
+        <div class="dadoss">
+            @for (int i = 0; i < Model.Dados.Length; i++)
+            {
+                <div class="dado-container">
+                    <img src="~/Content/Images/Dados/dado@(Model.Dados[i]).png"
+                         alt="Dado @Model.Dados[i]"
+                         class="dado-imagen" />
+                </div>
+            }
+
+            <div class="dado-container">
+                <div class="dado-resultado-wrapper">
+                    <img src="~/Content/Images/Dados/Demogorgon.png" alt="Objetivo" class="dado-imagen-objetivo" />
+                    <span class="numero-objetivo">@Model.Dado_Resultado</span>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="dictado-controls">
+            <div class="grupo-seleccion">
+                <div class="btn-group-dados">
+                    <button type="button" class="btn-num" id="btn-num-2" onclick="seleccionarDadosUsados(2)">2</button>
+                    <button type="button" class="btn-num" id="btn-num-3" onclick="seleccionarDadosUsados(3)">3</button>
+                    <button type="button" class="btn-num" id="btn-num-4" onclick="seleccionarDadosUsados(4)">4</button>
+                    <button type="button" class="btn-num" id="btn-num-5" onclick="seleccionarDadosUsados(5)">5</button>
+                </div>
+            </div>
+
+            <div class="grupo-seleccion">
+                <div class="btn-group-validacion" id="grupoValidacion">
+                    <button type="button" class="btn-eval btn-check" onclick="enviarEvaluacion(true)" title="Correcto">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="btn-eval btn-error" onclick="enviarEvaluacion(false)" title="Incorrecto">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        let tiempoInicioEjercicio = Date.now();
+        let dadosUsadosSeleccionados = 0;
+
+        function enviarYFinalizar(event) {
+            if (event) event.preventDefault();
+            window.location.href = '/Dados/ResultadosDictado';
+        }
+
+        function seleccionarDadosUsados(cantidad) {
+            dadosUsadosSeleccionados = cantidad;
+
+            // Limpiar estilos previos
+            document.querySelectorAll('.btn-num').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Aplicar estilo al seleccionado
+            document.getElementById(`btn-num-${cantidad}`).classList.add('selected');
+
+            // Habilitar los botones de evaluación
+            document.getElementById('grupoValidacion').classList.add('activo');
+        }
+
+        function enviarEvaluacion(esCorrecta) {
+            if (dadosUsadosSeleccionados === 0) return; // Por seguridad
+
+            const tiempoFin = Date.now();
+            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Dados/EjercicioDictado';
+
+            // Parámetro 1: Dados Usados
+            const inputDados = document.createElement('input');
+            inputDados.type = 'hidden';
+            inputDados.name = 'dadosUsados';
+            inputDados.value = dadosUsadosSeleccionados;
+            form.appendChild(inputDados);
+
+            // Parámetro 2: Es Correcta (true/false)
+            const inputCorrecta = document.createElement('input');
+            inputCorrecta.type = 'hidden';
+            inputCorrecta.name = 'esCorrecta';
+            inputCorrecta.value = esCorrecta;
+            form.appendChild(inputCorrecta);
+
+            // Parámetro 3: Tiempo
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoRespuesta.toFixed(2);
+            form.appendChild(inputTiempo);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Atajos de teclado para instructores rápidos
+        document.addEventListener('keydown', function(e) {
+            // Números del 2 al 5 para seleccionar dados
+            if (['2', '3', '4', '5'].includes(e.key)) {
+                seleccionarDadosUsados(parseInt(e.key));
+            }
+
+            // Solo permitir evaluar si ya se seleccionó una cantidad de dados
+            if (dadosUsadosSeleccionados > 0) {
+                // Enter o C (Correct) para bien
+                if (e.key === 'Enter' || e.key.toLowerCase() === 'c') {
+                    enviarEvaluacion(true);
+                }
+                // Backspace o I (Incorrect) para mal
+                if (e.key === 'Backspace' || e.key.toLowerCase() === 'i') {
+                    e.preventDefault(); // Evita ir atrás en el navegador
+                    enviarEvaluacion(false);
+                }
+            }
+        });
+    </script>

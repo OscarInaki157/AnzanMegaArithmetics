@@ -16,6 +16,7 @@
 <div class="tabs">
     <div class="tab-buttons">
         <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)">Tradicional</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab4', this)">Dictado</button>
         <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)">Suma</button>
         <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)">Multi-Suma</button>
     </div>
@@ -53,6 +54,35 @@
             </div>
         </div>
         <button type="submit" class="btn btn-primary" style="margin-top:1rem">⚡ Iniciar ejercicios</button>
+    </form>
+
+    <form method="post" asp-action="ConcentracionDictado" class="formulario-flash tab-content" id="tab4">
+        <input type="hidden" name="ModoJuego" value="Dictado" />
+        <div class="form-grid">
+            <div class="form-column">
+                <div>
+                    <label>Cantidad de ejercicios:</label>
+                    <input asp-for="CantidadEjercicios" type="number" min="1" required />
+                </div>
+                <div style="margin-top: 1rem; color: #aaa; font-style: italic;">
+                    <p><i class="fas fa-info-circle"></i> Este modo es para practicar con un instructor, no otorga experiencia ni queda registrada su actividad.</p>
+                </div>
+            </div>
+            <div class="form-column">
+                <div>
+                    <label>Tiempo de concentración:</label>
+                    <select asp-for="TiempoMeditacion" required>
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val">@val @(val == 0 ? "(sin concentración)" : "")</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">
+            <i class="fas fa-chalkboard-teacher"></i> Iniciar Modo Dictado
+        </button>
     </form>
 
     <form method="post" asp-action="ConcentracionSuma" class="formulario-flash tab-content" id="tab2">
@@ -594,6 +624,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         toggleMultiLibre();
+
         // 1. Leemos el valor que viene desde el Controller
         const modoDesdeServidor = "@ViewBag.ModoActivo";
 
@@ -601,19 +632,15 @@
         const mapeoModos = {
             "Aritmetica": "tab1",
             "SumaFlash": "tab2",
-            "MultiSuma": "tab3"
+            "MultiSuma": "tab3",
+            "Dictado": "tab4"
         };
 
-        // 3. Intentamos obtener la ID por servidor, si no, por localStorage
+        // 3. Obtenemos la ID por servidor, si no, por localStorage, o por defecto tab1
         let tabIdDestino = mapeoModos[modoDesdeServidor] || localStorage.getItem("tabDadosActivo") || "tab1";
 
-        // 4. Buscamos el botón que dispara ese tab para activarlo visualmente
-        const botones = document.querySelectorAll(".tab-btn");
-        let botonDestino;
-
-        if (tabIdDestino === "tab1") botonDestino = botones[0];
-        else if (tabIdDestino === "tab2") botonDestino = botones[1];
-        else if (tabIdDestino === "tab3") botonDestino = botones[2];
+        // 4. Buscamos el botón exacto que abre esa pestaña
+        const botonDestino = document.querySelector(`.tab-btn[onclick*="${tabIdDestino}"]`);
 
         // 5. Activamos la pestaña
         if (botonDestino) {

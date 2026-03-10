@@ -422,6 +422,10 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     return View("ConcentracionMulti");
                 }
+                else if (config.ModoJuego == "Dictado")
+                {
+                    return View("ConcentracionDictado");
+                }
                 else
                 {
                     return View("ConcentracionDados");
@@ -1049,6 +1053,175 @@ namespace AnzanMegaArithmetics.Controllers
                     ExperienciaAdquirida = totalCorrectas * 5 // Mantengo tu lógica de XP
                 };
                 _pruebasDBService.GuardarPrueba(record);
+
+                return View(viewModel);
+            }
+            catch
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+
+        // ==========================================
+        // MODO DICTADO (INSTRUCCIÓN)
+        // ==========================================
+
+        [HttpPost]
+        public IActionResult ConcentracionDictado(ConfDadosModel config)
+        {
+            try
+            {
+                config.ModoJuego = "Dictado";
+
+                List<EjercicioDadosModel> ejercicios = GenerarEjerciciosDados(config);
+
+                List<RespuestaDadosModel> respuestas = ejercicios.Select(e => new RespuestaDadosModel
+                {
+                    Id_Ejercicio = e.Id_Ejercicio,
+                    Respuesta_Usuario = string.Empty,
+                    Es_Correcta = false,
+                    Tiempo_Respuesta = 0,
+                    DadosUtilizados = 0
+                }).ToList();
+
+                // Guardar en sesión
+                HttpContext.Session.SetString("DadosConf", JsonSerializer.Serialize(config));
+                HttpContext.Session.SetString("DadosEjercicios", JsonSerializer.Serialize(ejercicios));
+                HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualDados", 1);
+
+                
+                HttpContext.Session.SetInt32("DadosTiempoRestante", config.TiempoTotal * 60);
+
+                ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+                return View();
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioDictado()
+        {
+            try
+            {
+                var configJson = HttpContext.Session.GetString("DadosConf");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+
+                if (string.IsNullOrEmpty(configJson) || string.IsNullOrEmpty(ejerciciosJson))
+                {
+                    return RedirectToAction("FormularioDados");
+                }
+
+                List<EjercicioDadosModel> ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                ConfDadosModel config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
+
+                int ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
+
+                if (ejercicioActual > ejercicios.Count)
+                {
+                    return RedirectToAction("ResultadosDictado");
+                }
+
+                EjercicioDadosModel ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
+
+                if (ejercicio == null)
+                {
+                    return RedirectToAction("FormularioDados");
+                }
+
+                ViewBag.EjercicioActual = ejercicioActual;
+                ViewBag.TotalEjercicios = ejercicios.Count;
+
+                return View(ejercicio);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult EjercicioDictado(int dadosUsados, bool esCorrecta, double tiempoRespuesta)
+        {
+            try
+            {
+                var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+                var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
+
+                if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson))
+                    return RedirectToAction("FormularioDados");
+
+                var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
+                var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                var respuesta = respuestas.FirstOrDefault(r => r.Id_Ejercicio == ejercicioActual);
+
+                if (respuesta != null)
+                {
+                    respuesta.DadosUtilizados = dadosUsados;
+                    respuesta.Es_Correcta = esCorrecta;
+                    respuesta.Tiempo_Respuesta = tiempoRespuesta;
+                    respuesta.Respuesta_Usuario = esCorrecta ? "Correcto" : "Incorrecto";
+                }
+
+                HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
+                HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
+
+                if (ejercicioActual + 1 > ejercicios.Count)
+                {
+                    return RedirectToAction("ResultadosDictado");
+                }
+
+                return RedirectToAction("EjercicioDictado");
+            }
+            catch
+            {
+                return RedirectToAction("FormularioDados");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResultadosDictado()
+        {
+            try
+            {
+                var configJson = HttpContext.Session.GetString("DadosConf");
+                var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
+                var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
+
+                if (string.IsNullOrEmpty(ejerciciosJson) || string.IsNullOrEmpty(respuestasJson))
+                    return RedirectToAction("FormularioDados");
+
+                var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
+                var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
+
+                // Estadísticas simples de autoevaluación
+                int totalCorrectas = respuestas.Count(r => r.Es_Correcta);
+                double tiempoTotal = respuestas.Sum(r => r.Tiempo_Respuesta);
+                double promedio = respuestas.Where(r => r.Tiempo_Respuesta > 0).DefaultIfEmpty().Average(r => r?.Tiempo_Respuesta ?? 0);
+
+                var viewModel = new ResDadosViewModel
+                {
+                    Ejercicios = ejercicios,
+                    Respuestas = respuestas,
+                    TotalCorrectas = totalCorrectas,
+                    TotalIncorrectas = ejercicios.Count - totalCorrectas,
+                    TiempoTotal = tiempoTotal,
+                    TiempoPromedio = promedio,
+                    Configuracion = config
+                };
+
+                HttpContext.Session.Remove("DadosEjercicios");
+                HttpContext.Session.Remove("DadosRespuestas");
+                HttpContext.Session.Remove("EjercicioActualDados");
+                HttpContext.Session.Remove("DadosTiempoRestante");
+                HttpContext.Session.Remove("DadosInicioTiempo");
+
 
                 return View(viewModel);
             }
