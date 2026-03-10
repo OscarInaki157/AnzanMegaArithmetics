@@ -116,18 +116,18 @@
                     }
                 }
             </div>
-            <div class="formulario-respuesta">
+           <div class="formulario-respuesta">
 
                 <button type="button" id="btnIniciar" class="btn-iniciar" onclick="iniciarEjercicio()">
                     Iniciar
                 </button>
 
-                <form asp-action="EjercicioPractica" method="post" class="form-respuesta">
+                <form asp-action="EjercicioPractica" method="post" class="form-respuesta" style="display: none;">
                     <input type="hidden" name="RespuestaUsuario" id="respuestaUsuarioInput" />
                     <input type="hidden" name="TiempoRespuesta" id="tiempoRespuestaInput" />
 
                     <div class="input-group">
-                        <input type="number" id="respuestaInput" class="input-respuesta" min="0" step="1" autocomplete="off" autofocus/>
+                        <input type="number" id="respuestaInput" class="input-respuesta" min="0" step="1" autocomplete="off" />
                     </div>
 
                     <button type="submit" class="btn-enviar">
@@ -597,10 +597,11 @@
              }
          }
 
-         // NUEVA FUNCION: Arranca el ejercicio
+        // NUEVA FUNCION: Arranca el ejercicio
          function iniciarEjercicio() {
-             // 1. Ocultar el botón Iniciar
+             // 1. Ocultar el botón Iniciar y MOSTRAR el formulario completo
              btnIniciar.style.display = 'none';
+             formulario.style.display = 'block';
 
              // 2. Mostrar los números reales leyendo el atributo data-numero
              celdasNumeros.forEach(celda => {
@@ -608,9 +609,11 @@
                  celda.classList.remove('estado-oculto');
              });
 
-             // 3. Habilitar input y enfocar
-             respuestaInput.disabled = false;
-             respuestaInput.focus();
+             // 3. Habilitar input y enfocar SOLO en PC (dispositivos no táctiles)
+             let esDispositivoTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+             if (!esDispositivoTactil) {
+                 respuestaInput.focus();
+             }
 
              // 4. Iniciar el tiempo
              startTime = Date.now();

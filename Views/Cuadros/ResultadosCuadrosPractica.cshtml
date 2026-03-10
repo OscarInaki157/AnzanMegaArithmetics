@@ -10,6 +10,24 @@
 
     var tiempoTotal = Model.respuestas.Sum(r => r.TiempoRespuesta);
     var promedio = total > 0 ? tiempoTotal / total : 0;
+
+    // NUEVO: Función local de C# para formatear los segundos a MM:SS.mmm
+    string FormatearTiempo(double segundosTotales)
+    {
+        int min = (int)(segundosTotales / 60);
+        double sec = segundosTotales % 60;
+
+        if (min > 0)
+        {
+            // Si hay minutos, los segundos llevan un cero a la izquierda si son < 10 (ej. 1:05.300)
+            return $"{min}:{sec.ToString("00.000")}";
+        }
+        else
+        {
+            // Si es menos de un minuto, muestra solo los segundos (ej. 45.300)
+            return $"{sec.ToString("0.000")}";
+        }
+    }
 }
 
 <style>
@@ -471,8 +489,9 @@
             <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
         <div id="estrellas" class="estrellas-container"></div>
-        <p>⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")</strong></p>
-        <p>⏱️ Tiempo promedio: <strong>@promedio.ToString("0.00")</strong></p>
+
+        <p>⏱️ Tiempo total: <strong>@FormatearTiempo(tiempoTotal)</strong></p>
+        <p>⏱️ Tiempo promedio: <strong>@FormatearTiempo(promedio)</strong></p>
     </div>
 </div>
 
@@ -507,7 +526,7 @@
             <div>
                 <p>🧠 <strong>Tu respuesta:</strong><br /> @(respuesta.Respondido? respuesta.RespuestaUsuario.ToString() : "No respondió")</p>
                 <p>✔️ <strong>Respuesta correcta:</strong><br /> @ejercicio.RCorrecta</p>
-                <p>⏱️ <strong>Tiempo en contestar:</strong> @respuesta.TiempoRespuesta.ToString("0.0") segundos</p>
+                <p>⏱️ <strong>Tiempo en contestar:</strong> @FormatearTiempo(respuesta.TiempoRespuesta)</p>
 
 
                 <div class="rejilla-numeros">
