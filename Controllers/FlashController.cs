@@ -203,23 +203,69 @@ namespace AnzanMegaArithmetics.Controllers
             // Detectar si hay restas
             bool incluyeResta = tipoOperacion == "resta" || tipoOperacion == "ambos";
 
+            //aqui esta el error inicio
+
             string primerNumeroTexto;
-            if (esUnSoloDigito)
+            int minDigPrimerNumero = minDig;
+            int maxDigPrimerNumero = maxDig;
+            int colchonNecesario = 0;
+
+            if (tipoOperacion == "resta" || tipoOperacion == "ambos")
             {
-                // Para el primer número, ignoramos el dígito único y generamos uno completamente aleatorio
-                int longitudPrimerNumero = incluyeResta ? Math.Min(maxDig + 2, 9) : maxDig;
-                primerNumeroTexto = GenerarNumeroAleatorioCompleto(minDig, longitudPrimerNumero);
-            }
-            else
-            {
-                // Comportamiento normal
-                int maxDigPrimerNumero = incluyeResta ? Math.Min(maxDig + 2, 9) : maxDig;
-                primerNumeroTexto = GenerarNumero(digitosValidos, minDig, maxDigPrimerNumero);
+                // Calculamos el valor máximo posible de un substraendo (ej. si maxDig es 2, esto da 99)
+                int maxValorSubstraendo = int.Parse(new string('9', maxDig));
+
+                if (tipoOperacion == "resta")
+                {
+                    // Para resta pura, calculamos un colchón dinámico.
+                    colchonNecesario = (cantidad - 1) * (int)(maxValorSubstraendo * 0.75);
+
+                    // Verificamos cuántos dígitos necesita como mínimo ese colchón
+                    int minDigitosRequeridos = colchonNecesario > 0 ? colchonNecesario.ToString().Length : minDig;
+
+                    // Ajustamos los límites iniciales
+                    minDigPrimerNumero = Math.Max(minDig, minDigitosRequeridos);
+                    maxDigPrimerNumero = Math.Max(maxDig, minDigitosRequeridos + 1);
+                }
+                else
+                {
+                    // En 'ambos' las sumas oxigenan la cuenta, solo subimos el techo un poco
+                    maxDigPrimerNumero = Math.Min(maxDig + 2, 9);
+                }
             }
 
-            int acumulado = int.Parse(primerNumeroTexto);
+            int acumulado = 0;
+            int intentosInicio = 0;
+
+            // Bucle para garantizar que el primer número sea lo suficientemente grande
+            do
+            {
+                if (esUnSoloDigito)
+                {
+                    primerNumeroTexto = GenerarNumeroAleatorioCompleto(minDigPrimerNumero, maxDigPrimerNumero);
+                }
+                else
+                {
+                    primerNumeroTexto = GenerarNumero(digitosValidos, minDigPrimerNumero, maxDigPrimerNumero);
+                }
+
+                acumulado = int.Parse(primerNumeroTexto);
+                intentosInicio++;
+
+                // Mecanismo de seguridad anti-bloqueo: 
+                if (intentosInicio > 50 && tipoOperacion == "resta")
+                {
+                    maxDigPrimerNumero = Math.Min(maxDigPrimerNumero + 1, 9);
+                    minDigPrimerNumero = Math.Min(minDigPrimerNumero + 1, 9);
+                    intentosInicio = 0;
+                }
+
+            } while (tipoOperacion == "resta" && acumulado < colchonNecesario);
+
             numeros.Add(acumulado);
             secuencia.Add(acumulado.ToString());
+
+            //hasta aqui el error de resta
 
             // Generar los siguientes con operaciones
             for (int i = 1; i < cantidad; i++)
