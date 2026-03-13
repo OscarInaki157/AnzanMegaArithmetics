@@ -209,9 +209,8 @@
 
     .formulario-flash {
         max-width: 100%;
-        margin: 1rem auto 2rem auto;
         padding: 1.3rem;
-        border-radius: 1rem;
+        border-radius: 0 1rem 1rem 1rem;
         background-color: var(--bg-color);
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
         animation: fadeIn 0.4s ease;
@@ -513,35 +512,45 @@
         justify-self:center;
     }
 
+    /* --- Estilos con Tonalidad Dashboard --- */
     .tab-buttons {
         display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        border-bottom: 3px solid var(--bg-color);
+        gap: 0.6rem;
+        margin-bottom: 0; /* Pegado al contenido para mejor flujo */
+        border-bottom: 2px solid rgba(76, 76, 255, 0.1);
     }
 
     .tab-btn {
-        background: transparent;
-        border: none;
-        padding: 0.8rem 1.2rem;
-        font-size: 1rem;
-        font-weight: bold;
-        color: white;
+        background: rgba(41, 44, 79, 0.6); /* El fondo oscuro que ya usas, pero traslúcido */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.7rem 1.3rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
         cursor: pointer;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        background-color: #292c4f;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        margin-bottom: -2px; /* Para que el borde activo monte sobre la línea base */
     }
 
-    .tab-btn:hover{
-            background-color: var(--bg-color);
-            box-shadow: 0 -2px 0 var(--bg-color);
-    }
+        .tab-btn:hover {
+            background: rgba(76, 76, 255, 0.15); /* Azul muy tenue */
+            color: white;
+        }
 
         .tab-btn.active {
-            background-color: var(--bg-color);
-            box-shadow: 0 -2px 0 var(--bg-color);
+            /* Usamos el color de tu botón dashboard */
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            /* Glow sutil con el mismo tono azul */
+            box-shadow: 0 4px 12px rgba(76, 76, 255, 0.4);
+            /* Un degradado lineal para que no sea un color plano y aburrido */
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 100%);
+            transform: none; /* Mantenerlo estable */
+            z-index: 2;
         }
+
 
     .tab-content {
         display: none;
