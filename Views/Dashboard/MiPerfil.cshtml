@@ -109,9 +109,9 @@
                     var iconClass = reto.FueReclamado ? "fas fa-check" : (reto.EsCompletado ? "fa-solid fa-circle-check" : "fas fa-arrow-right");
 
                     <div class="challenge-item @statusClass" id="reto-@reto.IdReto">
-                        <div class="challenge-status">
+                        @* <div class="challenge-status">
                             <i class="@iconClass"></i>
-                        </div>
+                        </div> *@
                         <div class="challenge-content">
                             <div class="challenge-name">@reto.Descripcion</div>
                             <div class="challenge-reward">Recompensa: @reto.RecompensaXP XP</div>
@@ -275,7 +275,9 @@
         background-color: rgba(255, 255, 255, 0.05);
         border: 1px solid transparent;
         transition: all 0.3s ease;
-        justify-content: space-between; /* Alinear contenido y botón */
+        justify-content: space-between;
+        gap: 10px; /* Espacio mínimo entre texto y botón */
+        min-height: 70px; /* Asegura un tamaño consistente */
     }
 
         /* === ESTADOS VISUALES === */
@@ -327,19 +329,30 @@
 
     .challenge-content {
         flex-grow: 1;
-        margin-right: 1rem;
+        flex-shrink: 1; /* Permite que se ajuste */
+        min-width: 0; /* Truco de Flexbox para que el texto respete el contenedor */
     }
 
     .challenge-name {
         font-size: 0.95rem;
         font-weight: 500;
         margin-bottom: 0.3rem;
+        white-space: normal; /* Permite saltos de línea */
+        /* line-height: 1.2; */
+        word-break: break-word; /* Rompe palabras muy largas si es necesario */
     }
 
     .challenge-reward {
         font-size: 0.85rem;
         color: var(--color-primary);
         font-weight: 600;
+    }
+
+    .claim-btn, .claimed-text {
+        flex-shrink: 0; /* Evita que el botón se haga flaquito */
+        width: 110px; /* Ancho fijo opcional para que todos los botones se vean iguales */
+        text-align: center;
+        justify-content: center;
     }
 
     /* === ESTILOS DEL BOTÓN === */
@@ -1071,6 +1084,26 @@
             font-size: 0.65rem;
             min-width: 65px;
             padding: 0.2rem 0.4rem;
+        }
+
+        .challenge-item {
+            flex-wrap: wrap; /* Permite que el botón baje si no hay espacio */
+            padding: 1rem;
+        }
+
+        .challenge-content {
+            margin-right: 0;
+            width: 100%; /* El texto ocupa el ancho total arriba */
+            margin-bottom: 0.5rem;
+        }
+
+        .claim-btn, .claimed-text {
+            width: 100%; /* El botón ocupa todo el ancho abajo */
+            padding: 0.8rem;
+        }
+
+        .challenge-status {
+            margin-right: 0.5rem;
         }
     }
 </style>
