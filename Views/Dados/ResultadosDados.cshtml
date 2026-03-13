@@ -509,7 +509,7 @@
             <div class="card-resumen experiencia">
                 <div class="card-titulo">XP</div>
                 <div class="card-icono">✨</div>
-                <div class="card-valor" id="contadorXP">@porcentaje.ToString("0") XP</div>
+                <div class="card-valor" id="contadorXP">@porcentaje.ToString("0") XP + @totalPuntos</div>
             </div>
         </div>
     </div>
@@ -521,9 +521,9 @@
             <div class="barra-progreso-interna shimmer" id="barraProgreso" style="background-color: @barraColor;"></div>
         </div>
         <div id="estrellas" class="estrellas-container"></div>
-        <p>⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")s</strong></p>
-        <p>⏱️ Tiempo promedio: <strong>@tiempoPromedio.ToString("0.00")s</strong></p>
-        <p>⭐ Puntos adquiridos: <strong id="contadorPuntosTexto">@totalPuntos</strong></p>
+        <p style="margin:0;">⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")s</strong></p>
+        <p style="margin-bottom:0;">⏱️ Tiempo promedio: <strong>@tiempoPromedio.ToString("0.00")s</strong></p>
+        <p style="margin-bottom:0;">⭐ Puntos adquiridos: <strong id="contadorPuntosTexto">@totalPuntos</strong></p>
     </div>
 </div>
 
@@ -644,7 +644,8 @@
             }
         });
 
-        function animateCount(element, endValue, duration = 2000) {
+        // Función de animación con el parámetro 'suffix'
+        function animateCount(element, endValue, duration = 2000, suffix = "") {
             const start = 0;
             const startTime = performance.now();
 
@@ -652,12 +653,14 @@
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const value = Math.floor(progress * endValue);
-                element.textContent = value;
+
+                // Aplica el formato exacto: numero_animado + sufijo
+                element.textContent = value + suffix;
 
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else {
-                    element.textContent = endValue;
+                    element.textContent = endValue + suffix;
                 }
             }
 
@@ -665,7 +668,13 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            animateCount(document.getElementById('contadorXP'), @((int)porcentaje));
+            // Aquí pasamos exactamente " + [totalPuntos]" como sufijo
+            animateCount(document.getElementById('contadorXP'), @((int)porcentaje), 2000, " + @totalPuntos");
+
+            // Animación para el contador de puntos debajo de la barra
+            if(document.getElementById('contadorPuntosTexto')) {
+                animateCount(document.getElementById('contadorPuntosTexto'), @totalPuntos, 2000, "");
+            }
         });
     </script>
 }

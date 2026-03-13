@@ -337,6 +337,15 @@ namespace AnzanMegaArithmetics.Controllers
                 double tiempoPromedio = respuestas.Where(r => r.Tiempo_Respuesta > 0).DefaultIfEmpty().Average(r => r?.Tiempo_Respuesta ?? 0);
                 double tiempoTotal = respuestas.Sum(r => r.Tiempo_Respuesta);
 
+                int totalPuntos = 0;
+                foreach (var r in respuestas)
+                {
+                    if (r.Es_Correcta && r.DadosUtilizados > 0)
+                    {
+                        totalPuntos += (r.DadosUtilizados * r.DadosUtilizados);
+                    }
+                }
+
                 var modeloResultados = new ResDadosViewModel
                 {
                     Ejercicios = ejercicios,
@@ -365,7 +374,7 @@ namespace AnzanMegaArithmetics.Controllers
                     Respuestas_Correctas = correctas,
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
-                    ExperienciaAdquirida = (int)porcentajeAcierto,
+                    ExperienciaAdquirida = (int)porcentajeAcierto + totalPuntos,
                     Tipo_Prueba = "Matemáticas con Dados tradicional"
                 };
 
