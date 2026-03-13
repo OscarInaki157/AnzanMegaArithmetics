@@ -1145,7 +1145,7 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult EjercicioDictado(int dadosUsados, bool esCorrecta, double tiempoRespuesta)
+        public IActionResult EjercicioDictado(int dadosUsados, bool esCorrecta, double tiempoRespuesta, bool esSalto = false)
         {
             try
             {
@@ -1162,10 +1162,22 @@ namespace AnzanMegaArithmetics.Controllers
 
                 if (respuesta != null)
                 {
-                    respuesta.DadosUtilizados = dadosUsados;
-                    respuesta.Es_Correcta = esCorrecta;
-                    respuesta.Tiempo_Respuesta = tiempoRespuesta;
-                    respuesta.Respuesta_Usuario = esCorrecta ? "Correcto" : "Incorrecto";
+                    if (esSalto)
+                    {
+                        // Si se presionó el botón "?", lo guardamos como cadena vacía
+                        respuesta.DadosUtilizados = 0;
+                        respuesta.Es_Correcta = false;
+                        respuesta.Tiempo_Respuesta = tiempoRespuesta;
+                        respuesta.Respuesta_Usuario = string.Empty;
+                    }
+                    else
+                    {
+                        // Flujo normal (Correcto o Incorrecto)
+                        respuesta.DadosUtilizados = dadosUsados;
+                        respuesta.Es_Correcta = esCorrecta;
+                        respuesta.Tiempo_Respuesta = tiempoRespuesta;
+                        respuesta.Respuesta_Usuario = esCorrecta ? "Correcto" : "Incorrecto";
+                    }
                 }
 
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
@@ -1200,8 +1212,11 @@ namespace AnzanMegaArithmetics.Controllers
                 var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
                 var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
 
-                // Estadísticas simples de autoevaluación
+                // Calculamos las estadísticas separando las No Respondidas
                 int totalCorrectas = respuestas.Count(r => r.Es_Correcta);
+                int sinResponder = respuestas.Count(r => string.IsNullOrEmpty(r.Respuesta_Usuario));
+                int totalIncorrectas = ejercicios.Count - totalCorrectas - sinResponder;
+
                 double tiempoTotal = respuestas.Sum(r => r.Tiempo_Respuesta);
                 double promedio = respuestas.Where(r => r.Tiempo_Respuesta > 0).DefaultIfEmpty().Average(r => r?.Tiempo_Respuesta ?? 0);
 
@@ -1210,7 +1225,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Ejercicios = ejercicios,
                     Respuestas = respuestas,
                     TotalCorrectas = totalCorrectas,
-                    TotalIncorrectas = ejercicios.Count - totalCorrectas,
+                    TotalIncorrectas = totalIncorrectas,
+                    TotalSinResponder = sinResponder, // Se lo pasamos a tu ViewModel
                     TiempoTotal = tiempoTotal,
                     TiempoPromedio = promedio,
                     Configuracion = config
@@ -1221,7 +1237,6 @@ namespace AnzanMegaArithmetics.Controllers
                 HttpContext.Session.Remove("EjercicioActualDados");
                 HttpContext.Session.Remove("DadosTiempoRestante");
                 HttpContext.Session.Remove("DadosInicioTiempo");
-
 
                 return View(viewModel);
             }

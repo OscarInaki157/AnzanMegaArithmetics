@@ -10,6 +10,16 @@
 }
 
 <style>
+    .btn-warning {
+        background: linear-gradient(135deg, #f1c40f, #f39c12);
+        box-shadow: 0 6px 15px rgba(241, 196, 15, 0.4);
+    }
+
+        .btn-warning:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(241, 196, 15, 0.6);
+            background: linear-gradient(135deg, #ffdb1f, #f1c40f);
+        }
     .dictado-controls {
         display: flex;
         flex-direction: row;
@@ -631,7 +641,17 @@
         text-align: center;
     }
 
+    .seleccionables{
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
     @@media (max-width: 768px) {
+
+        .seleccionables{
+            flex-direction:column;
+        }
 
         .dictado-controls {
             flex-direction: column;
@@ -741,15 +761,24 @@
             </div>
 
             <div class="grupo-seleccion">
-                <div class="btn-group-validacion" id="grupoValidacion">
-                    <button type="button" class="btn-eval btn-check" onclick="enviarEvaluacion(true)" title="Correcto">
-                        <i class="fas fa-check"></i>
+                <div class="seleccionables">
+
+                    <div class="btn-group-validacion" id="grupoValidacion">
+                        <button type="button" class="btn-eval btn-check" onclick="enviarEvaluacion(true)" title="Correcto">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button type="button" class="btn-eval btn-error" onclick="enviarEvaluacion(false)" title="Incorrecto">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <button type="button" class="btn-eval btn-warning" onclick="marcarNoRespondio()" title="No respondió">
+                        <i class="fas fa-question"></i>
                     </button>
-                    <button type="button" class="btn-eval btn-error" onclick="enviarEvaluacion(false)" title="Incorrecto">
-                        <i class="fas fa-times"></i>
-                    </button>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -833,4 +862,44 @@
                 }
             }
         });
+
+    function marcarNoRespondio() {
+        const tiempoFin = Date.now();
+        const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/Dados/EjercicioDictado';
+
+        // Dados usados 0
+        const inputDados = document.createElement('input');
+        inputDados.type = 'hidden';
+        inputDados.name = 'dadosUsados';
+        inputDados.value = 0;
+        form.appendChild(inputDados);
+
+        // Correcta = false
+        const inputCorrecta = document.createElement('input');
+        inputCorrecta.type = 'hidden';
+        inputCorrecta.name = 'esCorrecta';
+        inputCorrecta.value = false;
+        form.appendChild(inputCorrecta);
+
+        // Tiempo
+        const inputTiempo = document.createElement('input');
+        inputTiempo.type = 'hidden';
+        inputTiempo.name = 'tiempoRespuesta';
+        inputTiempo.value = tiempoRespuesta.toFixed(2);
+        form.appendChild(inputTiempo);
+
+        // NUEVO: Bandera para saber que fue un "salto/no respondió"
+        const inputSalto = document.createElement('input');
+        inputSalto.type = 'hidden';
+        inputSalto.name = 'esSalto';
+        inputSalto.value = true;
+        form.appendChild(inputSalto);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
     </script>
