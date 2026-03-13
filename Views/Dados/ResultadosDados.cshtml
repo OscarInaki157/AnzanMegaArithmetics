@@ -12,6 +12,15 @@
     string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
     var tiempoTotal = Model.TiempoTotal;
     var tiempoPromedio = Model.TiempoPromedio;
+
+    int totalPuntos = 0;
+    foreach (var r in Model.Respuestas)
+    {
+        if (r.Es_Correcta && r.DadosUtilizados > 0)
+        {
+            totalPuntos += (r.DadosUtilizados * r.DadosUtilizados);
+        }
+    }
 }
 
 <style>
@@ -514,6 +523,7 @@
         <div id="estrellas" class="estrellas-container"></div>
         <p>⏱️ Tiempo total: <strong>@tiempoTotal.ToString("0.00")s</strong></p>
         <p>⏱️ Tiempo promedio: <strong>@tiempoPromedio.ToString("0.00")s</strong></p>
+        <p>⭐ Puntos adquiridos: <strong id="contadorPuntosTexto">@totalPuntos</strong></p>
     </div>
 </div>
 
@@ -525,10 +535,12 @@
         var colorClass = string.IsNullOrEmpty(respuesta.Respuesta_Usuario) ? "no-respondio" : respuesta.Es_Correcta ? "correcto" : "incorrecto";
         var estado = string.IsNullOrEmpty(respuesta.Respuesta_Usuario) ? "No respondió" : respuesta.Es_Correcta ? "✅ Correcto" : "❌ Incorrecto";
 
+        // Cálculo de puntos por ejercicio individual
+        int puntosEjercicio = (respuesta.Es_Correcta && respuesta.DadosUtilizados > 0) ? (respuesta.DadosUtilizados * respuesta.DadosUtilizados) : 0;
+
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>
             <div>
-                <!-- Dados del ejercicio -->
                 <div class="dados-mini">
                     @for (int j = 0; j < ejercicio.Dados.Length; j++)
                     {
@@ -537,7 +549,6 @@
                     <div class="dado-mini dado-resultado-mini">@ejercicio.Dado_Resultado</div>
                 </div>
 
-                <!-- Expresión matemática del usuario -->
                 <div class="expresion-matematica">
                     <strong>Tu operación:</strong><br />
                     @if (string.IsNullOrEmpty(respuesta.Respuesta_Usuario))
@@ -550,13 +561,11 @@
                     }
                 </div>
 
-                <!-- Resultado esperado -->
                 <p>
                     🎯 <strong>Resultado esperado:</strong><br />
                     <span class="respuesta-correcta">@ejercicio.Dado_Resultado</span>
                 </p>
 
-                <!-- Estadísticas -->
                 <p>⏱️ <strong>Tiempo respuesta:</strong><br /> @respuesta.Tiempo_Respuesta.ToString("0.00")s</p>
 
                 @if (!string.IsNullOrEmpty(respuesta.Respuesta_Usuario))
@@ -571,6 +580,30 @@
                         <span class="respuesta-incorrecta">La operación no da el resultado correcto</span>
                     </p>
                 }
+
+                <p style="margin-top: 15px; text-align: center;">
+                    @if (string.IsNullOrEmpty(respuesta.Respuesta_Usuario))
+                    {
+                        <span class="sin-respuesta">Ejercicio no evaluado</span>
+                
+                        <br />
+                        <span class="puntos-destaque" style="color:#aaa;">0 pts</span>
+                    }
+                    else if (respuesta.Es_Correcta)
+                    {
+                        <span class="respuesta-correcta">Evaluación Correcta</span>
+                
+                        <br />
+                        <span class="puntos-destaque" style="color:#28a745;">+@puntosEjercicio pts</span>
+                    }
+                    else
+                    {
+                        <span class="respuesta-incorrecta">Evaluación Incorrecta</span>
+                
+                        <br />
+                        <span class="puntos-destaque" style="color:#dc3545;">0 pts</span>
+                    }
+                </p>
             </div>
         </details>
     }
