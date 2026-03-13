@@ -16,9 +16,10 @@
         display: flex;
         flex-direction: column;
         gap: 1.2rem;
-        width: 100%;
-        max-width: 320px;
+        width: 30%;
+       /*  max-width: 320px; */
         justify-content: center;
+        margin-right:5%;
     }
 
     .fila {
@@ -63,6 +64,18 @@
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
         }
 
+
+        .tecla.enter {
+            background-color: #28a745;
+            font-size: 1.5rem;
+        }
+
+            .tecla.enter:hover,
+            .tecla.enter.presionada {
+                background-color: #2ecc71 !important;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            }
+
     .tecla-vacia {
         flex: 1;
         background: transparent;
@@ -84,9 +97,9 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 4rem;
+        /* gap: 4rem; */
         width: 100%;
-        max-width: 900px;
+        /* max-width: 900px; */
     }
     .input-respuesta {
         width: 85%;
@@ -423,7 +436,7 @@
     }
 
     .Ejercicio {
-        width: 100%;
+        width: 70%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -432,6 +445,11 @@
     }
 
     @@media (max-width: 768px) {
+
+        .teclado-numerico{
+            width:100%;
+            margin:0;
+        }
         .contenedor-ejercicio-teclado {
             flex-direction: column;
             gap: 2rem;
@@ -443,6 +461,10 @@
 
         .exponente {
             font-size: 3.5rem;
+        }
+
+        .Ejercicio{
+            width:100%;
         }
 
         .input-respuesta-potencia {
@@ -539,9 +561,9 @@
                     <button type="button" class="tecla">3</button>
                 </div>
                 <div class="fila">
-                    <div class="tecla-vacia"></div>
-                    <button type="button" class="tecla">0</button>
                     <button type="button" class="tecla borrar">🗑️</button>
+                    <button type="button" class="tecla">0</button>
+                    <button type="button" class="tecla enter">✅</button>
                 </div>
             </div>
 
@@ -616,14 +638,21 @@
                 const input = document.querySelector('.input-respuesta-potencia');
 
                 if (btn.classList.contains('borrar')) {
+                    // Borrar el último dígito
                     input.value = input.value.slice(0, -1);
+                } else if (btn.classList.contains('enter')) {
+                    // Simular clic en el botón principal para que se calcule el tiempo y se envíe
+                    document.querySelector('.btn-enviar-potencia').click();
+                    return; // Detenemos la ejecución aquí
                 } else {
+                    // Añadir número
                     const numero = btn.textContent.trim();
                     if (!isNaN(numero)) {
                         input.value += numero;
                     }
                 }
 
+                // Efecto visual
                 btn.classList.add('presionada');
                 setTimeout(() => btn.classList.remove('presionada'), 150);
 

@@ -65,6 +65,17 @@
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
         }
 
+        .tecla.enter {
+            background-color: #28a745;
+            font-size: 1.5rem;
+        }
+
+            .tecla.enter:hover,
+            .tecla.enter.presionada {
+                background-color: #2ecc71 !important;
+                box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+            }
+
     .tecla-vacia {
         flex: 1;
         background: transparent;
@@ -405,7 +416,7 @@
         justify-content: center;
         margin-bottom: 1rem;
         gap: 1rem;
-        z-index:100;
+        z-index:99;
         position:relative;
     }
 
@@ -835,6 +846,10 @@
 
     @@media (max-width: 768px) {
 
+        .ejercicio-wrapper{
+            padding:1rem 0;
+        }
+
         #btnModoConcentracion {
             display: none;
         }
@@ -1147,9 +1162,9 @@
                         <button type="button" class="tecla">3</button>
                     </div>
                     <div class="fila">
-                        <div class="tecla-vacia"></div>
-                        <button type="button" class="tecla">0</button>
                         <button type="button" class="tecla borrar">🗑️</button>
+                        <button type="button" class="tecla">0</button>
+                        <button type="button" class="tecla enter">✅</button>
                     </div>
                 </div>
             </div>
@@ -1401,29 +1416,42 @@
             }
 
         // --- Lógica del Teclado Virtual ---
-                document.querySelectorAll('.tecla').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const input = document.querySelector("input[name='respuesta']");
+           document.querySelectorAll('.tecla').forEach(btn => {
+               btn.addEventListener('click', () => {
+                   const input = document.querySelector("input[name='respuesta']");
 
-                        if (btn.classList.contains('borrar')) {
-                            // Borrar el último dígito
-                            input.value = input.value.slice(0, -1);
-                        } else {
-                            // Añadir número
-                            const numero = btn.textContent.trim();
-                            if (!isNaN(numero)) {
-                                input.value += numero;
-                            }
-                        }
+                   if (btn.classList.contains('borrar')) {
+                       // Borrar el último dígito
+                       input.value = input.value.slice(0, -1);
+                   } else if (btn.classList.contains('enter')) {
+                       // Acción para el botón Enter (✅)
+                       const respondido = document.getElementById("respondido");
 
-                        // Efecto visual de botón presionado
-                        btn.classList.add('presionada');
-                        setTimeout(() => btn.classList.remove('presionada'), 150);
+                       if (input.value.trim() !== "") {
+                           respondido.value = "true";
+                       } else {
+                           respondido.value = "false";
+                       }
 
-                        // Volver a enfocar el input por si el usuario está en PC
-                        enfocarInputRespuesta();
-                    });
-                });
+                       // Enviar el formulario
+                       document.getElementById("formRespuesta").submit();
+                       return; // Detenemos la ejecución aquí para que no intente hacer nada más
+                   } else {
+                       // Añadir número
+                       const numero = btn.textContent.trim();
+                       if (!isNaN(numero)) {
+                           input.value += numero;
+                       }
+                   }
+
+                   // Efecto visual de botón presionado
+                   btn.classList.add('presionada');
+                   setTimeout(() => btn.classList.remove('presionada'), 150);
+
+                   // Volver a enfocar el input por si el usuario está en PC
+                   enfocarInputRespuesta();
+               });
+           });
 
 
     </script>
