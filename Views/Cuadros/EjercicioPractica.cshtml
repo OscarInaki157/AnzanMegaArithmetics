@@ -89,6 +89,25 @@
 
         <!-- Panel derecho: Formulario de respuesta -->
         <div class="panel-derecho">
+            <div class="promedio-contenedor">
+                @{
+                    var respuestasParaPromedio = ViewBag.Respuestas as List<AnzanMegaArithmetics.Models.RCuadrosModel>;
+                    string promedioDisplay = "--:--";
+                    if (respuestasParaPromedio != null && respuestasParaPromedio.Count > 0)
+                    {
+                        double sum = respuestasParaPromedio.Sum(r => r.TiempoRespuesta);
+                        double avg = sum / respuestasParaPromedio.Count;
+                        int mAvg = (int)(avg / 60);
+                        double sAvg = avg % 60;
+                        promedioDisplay = mAvg > 0 ? $"{mAvg}:{sAvg.ToString("00.000")}" : $"{sAvg.ToString("0.000")}";
+                    }
+                }
+                <div class="tiempo-item promedio-item">
+                    <span class="tiempo-numero">P:</span>
+                    <span id="valor-promedio" class="tiempo-valor">@promedioDisplay</span>
+                </div>
+            </div>
+
             <div class="tiempos-historial">
                 @{
                     var respuestasHist = ViewBag.Respuestas as List<AnzanMegaArithmetics.Models.RCuadrosModel> ?? new List<AnzanMegaArithmetics.Models.RCuadrosModel>();
@@ -143,6 +162,17 @@
 </div>
 
 <style>
+
+    .promedio-contenedor {
+        padding-bottom: 0.5rem;
+    }
+
+    .promedio-item {
+        background: linear-gradient(145deg, #2a2c4f, #1b1e3c) !important;
+        border: 1px dashed #6c6cff !important;
+        color: #00ffcc !important; /* Un color cyan para resaltar que es el promedio */
+    }
+
     /* Nuevo botón de Iniciar */
     .btn-iniciar {
         width: 100%;
@@ -178,7 +208,7 @@
         width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
+        gap: 0.3rem;
     }
 
     .tiempo-item {
@@ -622,29 +652,56 @@
              intervalo = setInterval(actualizarTiempo, 10);
          }
 
-         // Función para detener el tiempo y ocultar números actualizada
-         function detenerTiempoYOcultarNumeros() {
-             if (tiempoCorriendo) {
-                 tiempoCorriendo = false;
-                 tiempoDetenido = true;
-                 tiempoFinal = (Date.now() - startTime) / 1000;
-                 clearInterval(intervalo);
+                 function detenerTiempoYOcultarNumeros() {
+            if (tiempoCorriendo) {
+                tiempoCorriendo = false;
+                tiempoDetenido = true;
+                tiempoFinal = (Date.now() - startTime) / 1000;
+                clearInterval(intervalo);
 
-                 // Ocultamos los números usando la clase CSS
-                 celdasNumeros.forEach(celda => {
-                     celda.textContent = '-';
-                     celda.classList.add('estado-oculto');
-                 });
+                celdasNumeros.forEach(celda => {
+                    celda.textContent = '-';
+                    celda.classList.add('estado-oculto');
+                });
 
-                 let tiempoFormateado = formatearTiempo(tiempoFinal);
-                 contadorElement.textContent = tiempoFormateado;
+                let tiempoFormateado = formatearTiempo(tiempoFinal);
+                contadorElement.textContent = tiempoFormateado;
 
-                 let spanHistorialActual = document.getElementById('valor-tiempo-actual');
-                 if (spanHistorialActual) {
-                     spanHistorialActual.textContent = tiempoFormateado;
-                 }
-             }
-         }
+                let spanHistorialActual = document.getElementById('valor-tiempo-actual');
+                if (spanHistorialActual) {
+                    spanHistorialActual.textContent = tiempoFormateado;
+                }
+
+                // --- LÓGICA PARA RECALCULAR PROMEDIO EN PANTALLA ---
+                recalcularPromedioEnPantalla(tiempoFinal);
+            }
+        }
+
+        function recalcularPromedioEnPantalla(nuevoTiempo) {
+            // Obtenemos todos los tiempos ya registrados en el historial (los que no son --:--)
+            let items = document.querySelectorAll('.tiempo-valor:not(#valor-promedio)');
+            let sumaTotal = 0;
+            let contadorValidos = 0;
+
+            items.forEach(item => {
+                let texto = item.textContent;
+                if (texto !== "--:--") {
+                    // Convertir formato min:seg o seg a float
+                    if (texto.includes(':')) {
+                        let partes = texto.split(':');
+                        sumaTotal += (parseFloat(partes[0]) * 60) + parseFloat(partes[1]);
+                    } else {
+                        sumaTotal += parseFloat(texto);
+                    }
+                    contadorValidos++;
+                }
+            });
+
+            if (contadorValidos > 0) {
+                let promedio = sumaTotal / contadorValidos;
+                document.getElementById('valor-promedio').textContent = formatearTiempo(promedio);
+            }
+        }
 
 
         // Detectar input del usuario

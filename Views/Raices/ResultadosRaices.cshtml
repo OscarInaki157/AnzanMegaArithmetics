@@ -12,6 +12,8 @@
     string barraColor = porcentaje >= 79 ? "#28a745" : porcentaje >= 49 ? "#ffc107" : "#dc3545";
     var tiempoTotal = Model.TiempoTotal;
     var tiempoPromedio = Model.TiempoPromedio;
+
+    var tipoPrueba = Model.Configuracion.TipoPrueba;
 }
 
 <style>
@@ -408,13 +410,16 @@
     }
 </style>
 
-<h1>📊 Resumen de Ejercicios de Raíces</h1>
+<h1>📊 @(tipoPrueba == "Competencia" ? "Resultados de Competencia de Raíces" : "Resumen de Ejercicios de Raíces")</h1>
 <hr />
 
 <div class="botones-centrados">
-    <form method="get" asp-action="FormularioRaices" asp-controller="Raices">
-        <button type="submit" class="btn-primary">⚙️ Configuración</button>
-    </form>
+    @if (tipoPrueba != "Competencia")
+    {
+        <form method="get" asp-action="FormularioRaices" asp-controller="Raices">
+            <button type="submit" class="btn-primary">⚙️ Configuración</button>
+        </form>
+    }
 
     <form method="get" asp-action="RepetirRaices" asp-controller="Raices">
         <button type="submit" class="btn-success">🔁 Repetir</button>

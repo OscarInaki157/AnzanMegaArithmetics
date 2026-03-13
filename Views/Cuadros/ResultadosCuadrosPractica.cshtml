@@ -10,6 +10,7 @@
 
     var tiempoTotal = Model.respuestas.Sum(r => r.TiempoRespuesta);
     var promedio = total > 0 ? tiempoTotal / total : 0;
+    var tipoPrueba = Model.config.TipoPrueba;
 
     // NUEVO: Función local de C# para formatear los segundos a MM:SS.mmm
     string FormatearTiempo(double segundosTotales)
@@ -429,23 +430,25 @@
     }
 </style>
 
-
-<h1>📊 Resumen de Ejercicios</h1>
+<h1>📊 @(Model.config.TipoPrueba == "Competencia" ? "Resultados de Competencia" : "Resumen de Ejercicios de Cuadros")</h1>
 <hr />
 
 <div class="botones-centrados">
-    <form method="get" asp-action="CuadrosForm" asp-controller="Cuadros">
+    @if (tipoPrueba != "Competencia")
+    {
+        <form method="get" asp-action="CuadrosForm" asp-controller="Cuadros">
 
-        <input type="hidden" name="CantidadRejillas" value="@Model.config.CantidadRejillas" />
-        <input type="hidden" name="DimensionRejilla" value="@Model.config.DimensionRejilla" />
-        <input type="hidden" name="TipoIluminacion" value="@Model.config.TipoIluminacion" />
-        <input type="hidden" name="TipoOperacion" value="@Model.config.TipoOperacion" />
-        <input type="hidden" name="DigitosSuma" value="@Model.config.DigitosSuma" />
-        <input type="hidden" name="DigitosResta" value="@Model.config.DigitosResta" />
-        <input type="hidden" name="TiempoMeditacion" value="@Model.config.TiempoMeditacion" />
+            <input type="hidden" name="CantidadRejillas" value="@Model.config.CantidadRejillas" />
+            <input type="hidden" name="DimensionRejilla" value="@Model.config.DimensionRejilla" />
+            <input type="hidden" name="TipoIluminacion" value="@Model.config.TipoIluminacion" />
+            <input type="hidden" name="TipoOperacion" value="@Model.config.TipoOperacion" />
+            <input type="hidden" name="DigitosSuma" value="@Model.config.DigitosSuma" />
+            <input type="hidden" name="DigitosResta" value="@Model.config.DigitosResta" />
+            <input type="hidden" name="TiempoMeditacion" value="@Model.config.TiempoMeditacion" />
 
-        <button type="submit" class="btn-primary">⚙️ Configuración</button>
-    </form>
+            <button type="submit" class="btn-primary">⚙️ Configuración</button>
+        </form>
+    }
 
     <form method="get" asp-action="ConcentracionPractica" asp-controller="Cuadros">
         <button type="submit" class="btn-success">🔁 Repetir</button>
