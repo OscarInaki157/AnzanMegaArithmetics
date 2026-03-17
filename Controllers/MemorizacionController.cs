@@ -280,17 +280,5 @@ namespace AnzanMegaArithmetics.Controllers
             return RedirectToAction("ResultadoNF");
         }
 
-
-        //parejas de memoria
-        public IActionResult FormParejasMemoria() 
-        {
-            return View();
-        }
-
-        public IActionResult EjercicioParejasMemoria()
-        {
-            return View();
-        }
-
     }
 }
