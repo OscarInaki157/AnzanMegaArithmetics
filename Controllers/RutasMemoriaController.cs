@@ -213,12 +213,12 @@ namespace AnzanMegaArithmetics.Controllers
             var configuracion = JsonSerializer.Deserialize<ConfRutasModel>(configJson);
             double tiempoTotal = 0;
 
-            // Crear lista de resultados para la vista (Usamos directamente tu modelo RRutaMModel)
+            
             var resultados = new List<RRutaMModel>();
 
             foreach (var ejercicio in sesionEjercicios.ListaEjercicios)
             {
-                // En Rutas de Memoria la propiedad EsCorrecta ya viene calculada desde el HttpPost
+                
                 resultados.Add(ejercicio);
                 tiempoTotal += ejercicio.TiempoRespuesta;
             }
@@ -232,7 +232,7 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.Porcentaje = porcentaje;
             ViewBag.Configuracion = configuracion;
 
-            // Solo removemos los ejercicios para poder reutilizar la configuración si quiere "Volver a jugar"
+            
             HttpContext.Session.Remove("EjerciciosRutas");
 
             PruebasDBModel result = new PruebasDBModel
@@ -242,7 +242,7 @@ namespace AnzanMegaArithmetics.Controllers
                 Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
-                ExperienciaAdquirida = porcentaje, // Usando el porcentaje como experiencia, tal cual en NF
+                ExperienciaAdquirida = porcentaje,
                 Tipo_Prueba = "Rutas de Memoria"
             };
 
