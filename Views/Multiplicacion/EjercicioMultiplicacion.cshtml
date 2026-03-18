@@ -63,7 +63,7 @@
                 <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
 
                 <input type="text"
-                       inputmode="numeric"
+                       inputmode="none"
                        pattern="[0-9]*"
                        id="inputRespuesta"
                        autocomplete="off"
@@ -825,7 +825,6 @@
         function mostrarTab(tab) {
             sessionStorage.setItem("tabSeleccionadoMultFinal", tab);
 
-            // Cambiar estados visuales
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
@@ -835,12 +834,15 @@
             const contentActivo = document.getElementById(`tab-${tab}`);
             if (contentActivo) contentActivo.classList.add('active');
 
-            // Control de teclado nativo en móviles
+            // Ajuste de inputmode según el contexto
             const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            if (tab === 'teclado' && esTouch) {
-                inputRespuesta.setAttribute('readonly', 'readonly');
+
+            if (esTouch) {
+                // En móviles/tablets, nunca queremos el teclado nativo
+                inputRespuesta.setAttribute('inputmode', 'none');
             } else {
-                inputRespuesta.removeAttribute('readonly');
+                // En PC, queremos que reconozca la entrada numérica
+                inputRespuesta.setAttribute('inputmode', 'numeric');
             }
 
             enfocarInput();
