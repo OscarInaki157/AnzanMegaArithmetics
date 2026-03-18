@@ -28,8 +28,8 @@ namespace AnzanMegaArithmetics.Controllers
 
             var model = new ConfLecturaSorobanModel
             {
-                CantidadEjercicios = cantidad ?? 5,
-                VMinimo = valMin ?? 0,
+                CantidadEjercicios = cantidad ?? 10,
+                VMinimo = valMin ?? 1,
                 VMaximo = valMax ?? 99,
                 VelocidadPreguntas = velocidad ?? "0",
                 TiempoMeditacion = TiempoMeditacion ?? 3
@@ -243,8 +243,8 @@ namespace AnzanMegaArithmetics.Controllers
 
             var model = new ConfEscrituraSorobanModel
             {
-                CantidadEjercicios = cantidad ?? 5,
-                VMinimo = valMin ?? 0,
+                CantidadEjercicios = cantidad ?? 10,
+                VMinimo = valMin ?? 1,
                 VMaximo = valMax ?? 99,
                 VelocidadPreguntas = velocidad ?? "0",
                 TiempoMeditacion = TiempoMeditacion ?? 3

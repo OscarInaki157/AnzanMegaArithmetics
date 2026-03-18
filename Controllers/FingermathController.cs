@@ -18,20 +18,34 @@ namespace AnzanMegaArithmetics.Controllers
 
         private static readonly int[][] combinacionesManoIzquierda = new[]
         {
+            // Con pulgar
             new[] { 5 },
             new[] { 5, 4 },
             new[] { 5, 4, 3 },
             new[] { 5, 4, 3, 2 },
-            new[] { 5, 4, 3, 2, 1 }
+            new[] { 5, 4, 3, 2, 1 },
+    
+            // Sin pulgar
+            new[] { 4 },
+            new[] { 4, 3 },
+            new[] { 4, 3, 2 },
+            new[] { 4, 3, 2, 1 }
         };
 
         private static readonly int[][] combinacionesManoDerecha = new[]
         {
+            // Con pulgar
             new[] { 6 },
             new[] { 6, 7 },
             new[] { 6, 7, 8 },
             new[] { 6, 7, 8, 9 },
-            new[] { 6, 7, 8, 9, 10 }
+            new[] { 6, 7, 8, 9, 10 },
+
+            // Sin pulgar
+            new[] { 7 },
+            new[] { 7, 8 },
+            new[] { 7, 8, 9 },
+            new[] { 7, 8, 9, 10 }
         };
 
         //Modulo Lectura FingerMath logica
@@ -51,7 +65,7 @@ namespace AnzanMegaArithmetics.Controllers
                TipoPregunta = tipo ?? "ambas",
                VelocidadPreguntas = velocidad ?? "0",
                TiempoMeditacion = 3,
-               CantidadEjercicios = cantidad ?? 5
+               CantidadEjercicios = cantidad ?? 10
             };
 
             return View(modelo);
@@ -291,10 +305,10 @@ namespace AnzanMegaArithmetics.Controllers
 
             var modelo = new ConfEscrituraFingerModel
             {
-                TipoPregunta = tipo ?? "derecha",
+                TipoPregunta = tipo ?? "ambas",
                 VelocidadPreguntas = velocidad ?? "0",
                 TiempoMeditacion = 3,
-                CantidadEjercicios = cantidad ?? 5
+                CantidadEjercicios = cantidad ?? 10
             };
 
             return View(modelo);
