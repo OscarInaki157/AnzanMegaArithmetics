@@ -5,6 +5,7 @@
 
     var ejercicioActual = ViewBag.EjercicioActual ?? 1;
     var totalEjercicios = ViewBag.TotalEjercicios ?? 1;
+    var tiempoRestante = ViewBag.TiempoRestante ?? 0;
 
     var porcentaje = totalEjercicios > 0 ? (ejercicioActual * 100.0) / totalEjercicios : 0;
 }
@@ -723,9 +724,10 @@
         </div>
     </div>
 
-    <div class="info-modo">
-        <i class="fas fa-chalkboard-teacher"></i> Modo Dictado
+    <div class="info-tiempo">
+        <span>⏱ <span id="contadorTiempoRestante" class="contador">@(tiempoRestante == 0 ? "∞" : tiempoRestante.ToString())</span></span>
     </div>
+
 </div>
 
 <div class="ejercicio-wrapper">
@@ -783,85 +785,138 @@
     </div>
 </div>
 
-    <script>
-        let tiempoInicioEjercicio = Date.now();
-        let dadosUsadosSeleccionados = 0;
+<script>
+    let tiempoInicioEjercicio = Date.now();
+    let dadosUsadosSeleccionados = 0;
 
-        function enviarYFinalizar(event) {
-            if (event) event.preventDefault();
-            window.location.href = '/Dados/ResultadosDictado';
-        }
+    // --- VARIABLES DEL TEMPORIZADOR ---
+    let tiempoRestanteGlobal = @tiempoRestante;
+    let temporizadorGlobalInterval = null;
+    const esInfinito = (tiempoRestanteGlobal === 0);
 
-        function seleccionarDadosUsados(cantidad) {
-            dadosUsadosSeleccionados = cantidad;
+    function formatearTiempo(segundosTotales) {
+        const seg = Math.max(0, segundosTotales);
+        const minutos = Math.floor(seg / 60);
+        const segundos = seg % 60;
+        return `${minutos}:${segundos.toString().padStart(2, '0')}`;
+    }
 
-            // Limpiar estilos previos
-            document.querySelectorAll('.btn-num').forEach(btn => {
-                btn.classList.remove('selected');
-            });
+    function actualizarTemporizadorGlobal() {
+        if (esInfinito) return;
 
-            // Aplicar estilo al seleccionado
-            document.getElementById(`btn-num-${cantidad}`).classList.add('selected');
-
-            // Habilitar los botones de evaluación
-            document.getElementById('grupoValidacion').classList.add('activo');
-        }
-
-        function enviarEvaluacion(esCorrecta) {
-            if (dadosUsadosSeleccionados === 0) return; // Por seguridad
-
-            const tiempoFin = Date.now();
-            const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/Dados/EjercicioDictado';
-
-            // Parámetro 1: Dados Usados
-            const inputDados = document.createElement('input');
-            inputDados.type = 'hidden';
-            inputDados.name = 'dadosUsados';
-            inputDados.value = dadosUsadosSeleccionados;
-            form.appendChild(inputDados);
-
-            // Parámetro 2: Es Correcta (true/false)
-            const inputCorrecta = document.createElement('input');
-            inputCorrecta.type = 'hidden';
-            inputCorrecta.name = 'esCorrecta';
-            inputCorrecta.value = esCorrecta;
-            form.appendChild(inputCorrecta);
-
-            // Parámetro 3: Tiempo
-            const inputTiempo = document.createElement('input');
-            inputTiempo.type = 'hidden';
-            inputTiempo.name = 'tiempoRespuesta';
-            inputTiempo.value = tiempoRespuesta.toFixed(2);
-            form.appendChild(inputTiempo);
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        // Atajos de teclado para instructores rápidos
-        document.addEventListener('keydown', function(e) {
-            // Números del 2 al 5 para seleccionar dados
-            if (['2', '3', '4', '5'].includes(e.key)) {
-                seleccionarDadosUsados(parseInt(e.key));
+        if (tiempoRestanteGlobal > 0) {
+            tiempoRestanteGlobal--;
+            const contadorEl = document.getElementById('contadorTiempoRestante');
+            if (contadorEl) {
+                contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
             }
 
-            // Solo permitir evaluar si ya se seleccionó una cantidad de dados
-            if (dadosUsadosSeleccionados > 0) {
-                // Enter o C (Correct) para bien
-                if (e.key === 'Enter' || e.key.toLowerCase() === 'c') {
-                    enviarEvaluacion(true);
-                }
-                // Backspace o I (Incorrect) para mal
-                if (e.key === 'Backspace' || e.key.toLowerCase() === 'i') {
-                    e.preventDefault(); // Evita ir atrás en el navegador
-                    enviarEvaluacion(false);
-                }
+            if (tiempoRestanteGlobal <= 0) {
+                clearInterval(temporizadorGlobalInterval);
+                window.location.href = '/Dados/ResultadosDictado';
             }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const contadorEl = document.getElementById('contadorTiempoRestante');
+
+        if (esInfinito) {
+            if (contadorEl) {
+                contadorEl.textContent = "∞";
+                contadorEl.style.fontSize = "2.2rem";
+            }
+        } else {
+            if (contadorEl) {
+                contadorEl.textContent = formatearTiempo(tiempoRestanteGlobal);
+            }
+            temporizadorGlobalInterval = setInterval(actualizarTemporizadorGlobal, 1000);
+        }
+    });
+
+    function enviarYFinalizar(event) {
+        if (event) event.preventDefault();
+        clearInterval(temporizadorGlobalInterval);
+        window.location.href = '/Dados/ResultadosDictado';
+    }
+
+    function seleccionarDadosUsados(cantidad) {
+        dadosUsadosSeleccionados = cantidad;
+
+        // Limpiar estilos previos
+        document.querySelectorAll('.btn-num').forEach(btn => {
+            btn.classList.remove('selected');
         });
+
+        // Aplicar estilo al seleccionado
+        document.getElementById(`btn-num-${cantidad}`).classList.add('selected');
+
+        // Habilitar los botones de evaluación
+        document.getElementById('grupoValidacion').classList.add('activo');
+    }
+
+    function enviarEvaluacion(esCorrecta) {
+        if (dadosUsadosSeleccionados === 0) return; // Por seguridad
+
+        const tiempoFin = Date.now();
+        const tiempoRespuesta = (tiempoFin - tiempoInicioEjercicio) / 1000;
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/Dados/EjercicioDictado';
+
+        // Parámetro 1: Dados Usados
+        const inputDados = document.createElement('input');
+        inputDados.type = 'hidden';
+        inputDados.name = 'dadosUsados';
+        inputDados.value = dadosUsadosSeleccionados;
+        form.appendChild(inputDados);
+
+        // Parámetro 2: Es Correcta (true/false)
+        const inputCorrecta = document.createElement('input');
+        inputCorrecta.type = 'hidden';
+        inputCorrecta.name = 'esCorrecta';
+        inputCorrecta.value = esCorrecta;
+        form.appendChild(inputCorrecta);
+
+        // Parámetro 3: Tiempo Respuesta
+        const inputTiempo = document.createElement('input');
+        inputTiempo.type = 'hidden';
+        inputTiempo.name = 'tiempoRespuesta';
+        inputTiempo.value = tiempoRespuesta.toFixed(2);
+        form.appendChild(inputTiempo);
+
+        // Parámetro 4: Tiempo Restante Global (¡Faltaba este!)
+        const inputTiempoRestante = document.createElement('input');
+        inputTiempoRestante.type = 'hidden';
+        inputTiempoRestante.name = 'tiempoRestanteActual';
+        inputTiempoRestante.value = Math.max(0, tiempoRestanteGlobal);
+        form.appendChild(inputTiempoRestante);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Atajos de teclado para instructores rápidos
+    document.addEventListener('keydown', function(e) {
+        // Números del 2 al 5 para seleccionar dados
+        if (['2', '3', '4', '5'].includes(e.key)) {
+            seleccionarDadosUsados(parseInt(e.key));
+        }
+
+        // Solo permitir evaluar si ya se seleccionó una cantidad de dados
+        if (dadosUsadosSeleccionados > 0) {
+            // Enter o C (Correct) para bien
+            if (e.key === 'Enter' || e.key.toLowerCase() === 'c') {
+                enviarEvaluacion(true);
+            }
+            // Backspace o I (Incorrect) para mal
+            if (e.key === 'Backspace' || e.key.toLowerCase() === 'i') {
+                e.preventDefault(); // Evita ir atrás en el navegador
+                enviarEvaluacion(false);
+            }
+        }
+    });
 
     function marcarNoRespondio() {
         const tiempoFin = Date.now();
@@ -885,21 +940,28 @@
         inputCorrecta.value = false;
         form.appendChild(inputCorrecta);
 
-        // Tiempo
+        // Tiempo Respuesta
         const inputTiempo = document.createElement('input');
         inputTiempo.type = 'hidden';
         inputTiempo.name = 'tiempoRespuesta';
         inputTiempo.value = tiempoRespuesta.toFixed(2);
         form.appendChild(inputTiempo);
 
-        // NUEVO: Bandera para saber que fue un "salto/no respondió"
+        // Bandera de salto
         const inputSalto = document.createElement('input');
         inputSalto.type = 'hidden';
         inputSalto.name = 'esSalto';
         inputSalto.value = true;
         form.appendChild(inputSalto);
 
+        // Parámetro 4: Tiempo Restante Global (¡Faltaba este!)
+        const inputTiempoRestante = document.createElement('input');
+        inputTiempoRestante.type = 'hidden';
+        inputTiempoRestante.name = 'tiempoRestanteActual';
+        inputTiempoRestante.value = Math.max(0, tiempoRestanteGlobal);
+        form.appendChild(inputTiempoRestante);
+
         document.body.appendChild(form);
         form.submit();
     }
-    </script>
+</script>

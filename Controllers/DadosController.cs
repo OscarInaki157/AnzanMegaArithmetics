@@ -1130,10 +1130,12 @@ namespace AnzanMegaArithmetics.Controllers
 
                 int ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
 
-                if (ejercicioActual > ejercicios.Count)
-                {
+                int tiempoRestante = HttpContext.Session.GetInt32("DadosTiempoRestante") ?? 0;
+
+               if (ejercicioActual > ejercicios.Count || (config.TiempoTotal > 0 && tiempoRestante <= 0))
+               {
                     return RedirectToAction("ResultadosDictado");
-                }
+               }
 
                 EjercicioDadosModel ejercicio = ejercicios.FirstOrDefault(e => e.Id_Ejercicio == ejercicioActual);
 
@@ -1144,6 +1146,7 @@ namespace AnzanMegaArithmetics.Controllers
 
                 ViewBag.EjercicioActual = ejercicioActual;
                 ViewBag.TotalEjercicios = ejercicios.Count;
+                ViewBag.TiempoRestante = tiempoRestante;
 
                 return View(ejercicio);
             }
@@ -1154,19 +1157,21 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpPost]
-        public IActionResult EjercicioDictado(int dadosUsados, bool esCorrecta, double tiempoRespuesta, bool esSalto = false)
+        public IActionResult EjercicioDictado(int dadosUsados, bool esCorrecta, double tiempoRespuesta, int tiempoRestanteActual, bool esSalto = false)
         {
             try
             {
                 var respuestasJson = HttpContext.Session.GetString("DadosRespuestas");
                 var ejerciciosJson = HttpContext.Session.GetString("DadosEjercicios");
                 var ejercicioActual = HttpContext.Session.GetInt32("EjercicioActualDados") ?? 1;
+                var configJson = HttpContext.Session.GetString("DadosConf");
 
                 if (string.IsNullOrEmpty(respuestasJson) || string.IsNullOrEmpty(ejerciciosJson))
                     return RedirectToAction("FormularioDados");
 
                 var respuestas = JsonSerializer.Deserialize<List<RespuestaDadosModel>>(respuestasJson);
                 var ejercicios = JsonSerializer.Deserialize<List<EjercicioDadosModel>>(ejerciciosJson);
+                var config = JsonSerializer.Deserialize<ConfDadosModel>(configJson);
                 var respuesta = respuestas.FirstOrDefault(r => r.Id_Ejercicio == ejercicioActual);
 
                 if (respuesta != null)
@@ -1189,10 +1194,11 @@ namespace AnzanMegaArithmetics.Controllers
                     }
                 }
 
+                HttpContext.Session.SetInt32("DadosTiempoRestante", tiempoRestanteActual);
                 HttpContext.Session.SetString("DadosRespuestas", JsonSerializer.Serialize(respuestas));
                 HttpContext.Session.SetInt32("EjercicioActualDados", ejercicioActual + 1);
 
-                if (ejercicioActual + 1 > ejercicios.Count)
+                if (ejercicioActual + 1 > ejercicios.Count || (config.TiempoTotal > 0 && tiempoRestanteActual <= 0))
                 {
                     return RedirectToAction("ResultadosDictado");
                 }

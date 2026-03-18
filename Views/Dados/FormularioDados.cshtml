@@ -79,6 +79,10 @@
             </div>
             <div class="form-column">
                 <div>
+                    <label>Minutos para contestar (0 = Sin límite):</label>
+                    <input asp-for="TiempoTotal" type="number" min="0" max="30" required />
+                </div>
+                <div>
                     <label>Tiempo de concentración:</label>
                     <select asp-for="TiempoMeditacion" required>
                         @foreach (var val in new[] { 0, 3, 5, 8, 10 })
