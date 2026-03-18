@@ -43,7 +43,10 @@
     <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
     <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
 
-    <div class="soroban-frame">
+    <div class="contenedor-principal">
+
+        <div class="seccion-soroban">
+            <div class="soroban-frame">
         <div class="barra-horizontal"></div>
         <div class="soroban-container">
             @for (int col = columnas - 1; col >= 0; col--)
@@ -74,18 +77,135 @@
 
         </div>
     </div>
+        </div>
+
+        <div class="seccion-teclado">
+            <form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-teclado" onsubmit="return validarRespuesta();">
+                <input type="number" id="respuesta_visual" autocomplete="off" class="input-respuesta-finger" inputmode="none" />
+
+                <input type="hidden" id="respuesta" name="respuesta" value="" />
+
+                <div class="teclado-numerico">
+                    <div class="fila">
+                        <button type="button" class="tecla">7</button>
+                        <button type="button" class="tecla">8</button>
+                        <button type="button" class="tecla">9</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">4</button>
+                        <button type="button" class="tecla">5</button>
+                        <button type="button" class="tecla">6</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">1</button>
+                        <button type="button" class="tecla">2</button>
+                        <button type="button" class="tecla">3</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla borrar">🗑️</button>
+                        <button type="button" class="tecla">0</button>
+                        <button type="button" class="tecla enter">✅</button>
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmitReal" style="display:none;">Enviar</button>
+                <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
+                <input type="hidden" id="respondido" name="respondido" value="true" />
+                <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
+            </form>
+        </div>
+
+
+    </div>
 </div>
 
-<form method="post" asp-action="ResultadoLecturaSoroban" id="formRespuesta" class="form-respuesta-barra">
-
-    <input type="number" id="respuesta" name="respuesta" autocomplete="off" min="0" />
-    <button type="submit">Enviar respuesta</button>
-    <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
-    <input type="hidden" id="respondido" name="respondido" value="true" />
-    <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
-</form>
-
 <style>
+    /* --- ESTRUCTURA 60/40 --- */
+    .contenedor-principal {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .seccion-soroban {
+        width: 60%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .seccion-teclado {
+        width: 40%;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* --- ESTILOS TECLADO --- */
+    .form-respuesta-teclado {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        background-color: #1b1e3c;
+        padding: 2rem;
+        border-radius: 25px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .input-respuesta-finger {
+        padding: 0.8rem;
+        font-size: 2.5rem;
+        border-radius: 12px;
+        border: 2px solid #4c4cff;
+        width: 100%;
+        text-align: center;
+        background-color: #292c4f;
+        color: white;
+        caret-color: transparent;
+    }
+
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 100%;
+    }
+
+    .fila {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .tecla {
+        flex: 1;
+        font-size: 1.5rem;
+        padding: 1.2rem 0;
+        border-radius: 10px;
+        border: none;
+        background-color: #4c4cff;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+
+        .tecla.presionada {
+            transform: scale(0.9);
+            background-color: #a6a6ff;
+        }
+
+        .tecla.borrar {
+            background-color: #df312c;
+        }
+
+        .tecla.enter {
+            background-color: #28a745;
+        }
+    /* fin nuevos estilos */
 
     body {
         background-color: var(--color-bg);
@@ -224,13 +344,6 @@
         z-index: 0;
     }
 
-    body {
-        background-color: #161a36;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
 
     .contador {
         color: #ffffff;
@@ -364,6 +477,7 @@
         text-align: center;
         background-color: #292c4f;
         color: white;
+        caret-color:transparent;
     }
 
     .form-respuesta-barra button {
@@ -426,6 +540,13 @@
         }
     }
 
+    @@media (min-width: 768px) and (max-width: 1024px) {
+
+        .ejercicio-wrapper {
+            margin-top: 8vh;
+        }
+    }
+
 
     @@media (max-width: 768px) {
 
@@ -471,6 +592,14 @@
             height: 1.96rem;
         }
 
+        .contenedor-principal {
+            flex-direction: column;
+        }
+
+        .seccion-soroban, .seccion-teclado {
+            width: 100%;
+        }
+
 
     }
 
@@ -479,114 +608,105 @@
 @section Scripts {
     <script>
         let tiempoInicio = Date.now();
-        let finalizado = false;
+        const inputVisual = document.getElementById("respuesta_visual");
+        const inputOculto = document.getElementById("respuesta");
+        const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-        const velocidad = parseFloat("@velocidad");
-        const contadorElemento = document.getElementById("contador");
-        const inputRespuesta = document.getElementById("respuesta");
-        const respondidoInput = document.getElementById("respondido");
-        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
-        const formRespuesta = document.getElementById("formRespuesta");
-
-         window.addEventListener('load', function() {
-            tiempoInicio = Date.now();
-            inputRespuesta?.focus({ preventScroll: true });
-        });
-
-        formRespuesta.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Calcular tiempo antes de enviar
-            const tiempoFin = Date.now();
-            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
-            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
-
-            // Validar respuesta
-            if (inputRespuesta.value.trim() === "") {
-                respondidoInput.value = "false";
-
-                const inputHidden = document.createElement("input");
-                inputHidden.type = "hidden";
-                inputHidden.name = "respuesta";
-                inputHidden.value = "-1";
-                formRespuesta.appendChild(inputHidden);
-
-                inputRespuesta.value = "";
-                inputRespuesta.name = "";
+        function configurarInput() {
+            if (!inputVisual) return;
+            if (esTouch) {
+                inputVisual.setAttribute('readonly', 'readonly');
+                inputVisual.addEventListener('focus', (e) => e.preventDefault());
             } else {
-                respondidoInput.value = "true";
+                // En PC, forzamos el foco inicial
+                inputVisual.focus({ preventScroll: true });
+            }
+        }
+
+        // --- 1. CAPTURA GLOBAL DE TECLADO FÍSICO (PC) ---
+        window.addEventListener('keydown', (e) => {
+            if (esTouch) return; // Ignorar en móviles para no causar conflictos
+
+            // Si el usuario ya está sobre el input, dejamos que funcione normal
+            if (document.activeElement === inputVisual) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('formRespuesta').requestSubmit();
+                }
+                return;
             }
 
-            // Enviar formulario
-            this.submit();
+            // Si el foco se perdió, atrapamos los números aquí
+            if (e.key >= '0' && e.key <= '9') {
+                inputVisual.value += e.key;
+            } else if (e.key === 'Backspace') {
+                inputVisual.value = inputVisual.value.slice(0, -1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('formRespuesta').requestSubmit();
+            }
         });
 
+        // --- 2. LÓGICA DEL TECLADO VIRTUAL ---
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 100);
+
+                if (btn.classList.contains('borrar')) {
+                    inputVisual.value = inputVisual.value.slice(0, -1);
+                } else if (btn.classList.contains('enter')) {
+                    document.getElementById('formRespuesta').requestSubmit();
+                } else {
+                    inputVisual.value += btn.textContent.trim();
+                }
+
+                // IMPORTANTE: Devolver el foco al input en PC después de clickear un botón virtual
+                if (!esTouch) inputVisual.focus({ preventScroll: true });
+            });
+        });
+
+        function validarRespuesta() {
+            const tiempoFin = Date.now();
+            document.getElementById("tiempoRespuesta").value = ((tiempoFin - tiempoInicio) / 1000).toFixed(2);
+
+            const respondidoInput = document.getElementById("respondido");
+            const valorIngresado = inputVisual.value.trim();
+
+            if (valorIngresado === "") {
+                respondidoInput.value = "false";
+                inputOculto.value = "-1";
+            } else {
+                respondidoInput.value = "true";
+                inputOculto.value = valorIngresado;
+            }
+            return true;
+        }
+
+        // Timer
+        const velocidad = parseFloat("@velocidad");
         if (velocidad > 0) {
             let tiempoRestante = velocidad;
             const interval = setInterval(() => {
                 tiempoRestante -= 0.1;
                 if (tiempoRestante <= 0) {
                     clearInterval(interval);
-                    contadorElemento.textContent = "0.0";
-                    inputRespuesta.focus({ preventScroll: true });
-
-                   
-                    document.querySelectorAll(".bead").forEach(bead => {
-                        bead.classList.remove("activa");
-                        bead.classList.add("inactiva");
-                    });
-
+                    document.getElementById("contador").textContent = "0.0";
+                    document.querySelectorAll(".bead").forEach(b => b.classList.remove("activa"));
+                    if (!esTouch) inputVisual.focus({ preventScroll: true });
                 } else {
-                    contadorElemento.textContent = tiempoRestante.toFixed(1);
+                    document.getElementById("contador").textContent = tiempoRestante.toFixed(1);
                 }
             }, 100);
         }
 
-        function validarRespuesta() {
-            if (inputRespuesta.value.trim() === "") {
-                respondidoInput.value = "false";
-
-
-                const inputHidden = document.createElement("input");
-                inputHidden.type = "hidden";
-                inputHidden.name = "respuesta";
-                inputHidden.value = "-1";
-                document.getElementById("formRespuesta").appendChild(inputHidden);
-
-   
-                inputRespuesta.value = "";
-                inputRespuesta.name = "";
-            } else {
-                respondidoInput.value = "true";
-            }
-            return true;
-        }
-
+        window.onload = configurarInput;
 
         function finalizarConRespuesta() {
-                   const tiempoFin = Date.now();
-                   const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
-                   const respuesta = inputRespuesta.value.trim();
-                   const respondio = respuesta !== "";
-
-                   const form = document.createElement("form");
-                   form.method = "post";
-                   form.action = "/Soroban/FinalizarLecturaSoroban";
-
-                   form.innerHTML = `
-                       <input type="hidden" name="respuesta" value="${respondio ? respuesta : '-1'}" />
-                       <input type="hidden" name="respondido" value="${respondio}" />
-                       <input type="hidden" name="respuestaCorrecta" value="@respuestaCorrecta" />
-                       <input type="hidden" name="tiempoRespuesta" value="${tiempoTotalSegundos.toFixed(2)}" />
-                   `;
-
-                   document.body.appendChild(form);
-                   form.submit();
+            validarRespuesta();
+            const form = document.getElementById("formRespuesta");
+            form.action = "/Soroban/FinalizarLecturaSoroban";
+            form.submit();
         }
-
-        window.addEventListener("load", function () {
-            inputRespuesta?.focus({ preventScroll: true });
-        });
     </script>
 }
-
