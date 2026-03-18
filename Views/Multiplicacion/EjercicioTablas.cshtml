@@ -12,6 +12,96 @@
 
 <style>
 
+    /* --- NUEVOS ESTILOS PARA TABS Y TECLADO --- */
+    .ayuda-tabs-container {
+        flex-direction: column; /* Cambiado de row/center a column */
+        justify-content: flex-start;
+        padding-top: 2rem;
+    }
+
+    .tabs {
+        width: 100%;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+        background-color: #292c4f;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 40%;
+    }
+
+        .tab-btn.active {
+            background-color: #4c4cff;
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.6);
+        }
+
+    .tab-content {
+        display: none;
+        width: 100%;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
+    .tab-btn:hover {
+        background-color: #4c4cff;
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.8);
+    }
+    /* Teclado Virtual */
+    .teclado-numerico {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .fila {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .tecla {
+        flex: 1;
+        font-size: 1.8rem;
+        padding: 1rem;
+        border-radius: 12px;
+        border: none;
+        background-color: #4c4cff;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 0px #3737e8;
+        transition: all 0.1s;
+    }
+
+        .tecla:active, .tecla.presionada {
+            transform: translateY(4px);
+            box-shadow: none;
+            background-color: #a6a6ff;
+        }
+
+        .tecla.borrar {
+            background-color: #df312c;
+            box-shadow: 0 4px 0px #b22222;
+        }
+
+        .tecla.enter {
+            background-color: #28a745;
+            box-shadow: 0 4px 0px #1e7e34;
+        }
+
     .elhr {
         width: 85%;
     }
@@ -319,7 +409,7 @@
     }
 
     .Ejercicio {
-        width: 53%;
+        width: 50%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -486,6 +576,13 @@
         top: 68%;
     }
 
+    @@media (min-width: 768px) and (max-width: 1024px) {
+
+        .ejercicio-wrapper {
+            margin-top: 8vh;
+        }
+    }
+
     
     @@media (max-width: 768px) {
 
@@ -623,25 +720,57 @@
             </form>
         </div>
 
-        <!-- Columna derecha: Soroban -->
         <div class="ayuda-tabs-container">
-            <div class="soroban-frame">
-                <div class="barra-horizontal"></div>
-                <div class="soroban-container" id="sorobanSR">
-                    @for (int col = 0; col < 10; col++)
-                    {
-                        <div class="soroban-column" data-col="@col">
-                            <div class="palito-vertical"></div>
-                            <div class="bead superior" data-valor="5"></div>
-                            @for (int i = 0; i < 4; i++)
-                            {
-                                <div class="bead inferior bead-inferior-@i" data-valor="1"></div>
-                            }
-                        </div>
-                    }
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mostrarTab('soroban')">🧮 Soroban</button>
+                <button class="tab-btn" onclick="mostrarTab('teclado')">⌨️ Teclado</button>
+            </div>
+
+            <div class="tab-content active" id="tab-soroban">
+                <div class="soroban-frame">
+                    <div class="barra-horizontal"></div>
+                    <div class="soroban-container" id="sorobanSR">
+                        @for (int col = 0; col < 9; col++)
+                        {
+                            <div class="soroban-column" data-col="@col">
+                                <div class="palito-vertical"></div>
+                                <div class="bead superior" data-valor="5"></div>
+                                @for (int i = 0; i < 4; i++)
+                                {
+                                    <div class="bead inferior bead-inferior-@i" data-valor="1"></div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-teclado">
+                <div class="teclado-numerico">
+                    <div class="fila">
+                        <button type="button" class="tecla">7</button>
+                        <button type="button" class="tecla">8</button>
+                        <button type="button" class="tecla">9</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">4</button>
+                        <button type="button" class="tecla">5</button>
+                        <button type="button" class="tecla">6</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla">1</button>
+                        <button type="button" class="tecla">2</button>
+                        <button type="button" class="tecla">3</button>
+                    </div>
+                    <div class="fila">
+                        <button type="button" class="tecla borrar">🗑️</button>
+                        <button type="button" class="tecla">0</button>
+                        <button type="button" class="tecla enter">✅</button>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -650,115 +779,67 @@
 @section Scripts {
     <script>
         let tiempoInicio = Date.now();
-
         const velocidad = parseFloat("@velocidad");
-        const contador = document.getElementById("contador");
         const form = document.getElementById("formRespuesta");
         const inputRespuesta = document.getElementById("inputRespuesta");
-
-        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
-        
         const respondidoField = document.getElementById("respondido");
+        const tiempoRespuestaInput = document.getElementById("tiempoRespuesta");
 
+        // --- LÓGICA DE TABS ---
+        function mostrarTab(tab) {
+            sessionStorage.setItem("tabSeleccionadoMulti", tab);
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-        // AGREGADO: Manejador del submit del formulario
+            document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            // Evitar teclado nativo en móvil si usa el teclado virtual
+            const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (tab === 'teclado' && esTouch) {
+                inputRespuesta.setAttribute('readonly', 'readonly');
+            } else {
+                inputRespuesta.removeAttribute('readonly');
+            }
+            enfocarInput();
+        }
+
+        function enfocarInput() {
+            const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (!esTouch) inputRespuesta.focus();
+            else inputRespuesta.blur();
+        }
+
+        // --- LÓGICA TECLADO VIRTUAL ---
+        document.querySelectorAll('.tecla').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.classList.contains('borrar')) {
+                    inputRespuesta.value = inputRespuesta.value.slice(0, -1);
+                } else if (btn.classList.contains('enter')) {
+                    form.dispatchEvent(new Event('submit'));
+                } else {
+                    inputRespuesta.value += btn.textContent.trim();
+                }
+
+                btn.classList.add('presionada');
+                setTimeout(() => btn.classList.remove('presionada'), 100);
+                enfocarInput();
+            });
+        });
+
+        // --- ENVÍO Y TIEMPO ---
         form.addEventListener("submit", function (e) {
             e.preventDefault();
-
-            // Calcular tiempo antes de enviar
             const tiempoFin = Date.now();
-            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
-            tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
+            tiempoRespuestaInput.value = ((tiempoFin - tiempoInicio) / 1000).toFixed(2);
 
             const valor = inputRespuesta.value.trim();
             document.getElementById("hiddenRespuestaUsuario").value = valor === "" ? -1 : valor;
             respondidoField.value = valor === "" ? "false" : "true";
-
-            // Enviar formulario
             this.submit();
         });
 
-
-
-        if (velocidad > 0 && contador) {
-            let tiempo = velocidad;
-            const intervalo = setInterval(() => {
-                tiempo -= 0.1;
-                if (tiempo <= 0) {
-                    clearInterval(intervalo);
-
-                    const tiempoFin = Date.now();
-                    const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
-                    tiempoRespuestaInput.value = tiempoTotalSegundos.toFixed(2);
-
-                    if (inputRespuesta.value.trim() !== "") {
-                        // Si hay contenido, enviar la respuesta
-                        document.getElementById("hiddenRespuestaUsuario").value = inputRespuesta.value.trim();
-                        respondidoField.value = "true";
-                    } else {
-                        // Si no hay contenido, comportarse como antes
-                        respondidoField.value = "false";
-                        document.getElementById("hiddenRespuestaUsuario").value = "-1";
-                    }
-                    // Enviar el formulario en ambos casos
-                    form.submit();
-                } else {
-                    contador.textContent = tiempo.toFixed(1);
-                }
-            }, 100);
-        }
-
-       
-
-
-        function enviarYFinalizar(e) {
-            e.preventDefault();
-
-            const tiempoFin = Date.now();
-            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
-
-            // Obtener la respuesta actual (si existe)
-            const respuesta = inputRespuesta.value.trim();
-            const tieneRespuesta = respuesta !== "";
-
-            // Crear formulario para FinalizarDesdeEjercicio
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/Multiplicacion/FinalizarDesdeEjercicio';
-            form.style.display = 'none';
-
-            // Si hay respuesta, incluirla
-            if (tieneRespuesta) {
-                const inputResp = document.createElement('input');
-                inputResp.type = 'hidden';
-                inputResp.name = 'respuestaUsuario';
-                inputResp.value = respuesta;
-                form.appendChild(inputResp);
-            }
-
-             // Incluir tiempo de respuesta
-            const inputTiempo = document.createElement('input');
-            inputTiempo.type = 'hidden';
-            inputTiempo.name = 'tiempoRespuesta';
-            inputTiempo.value = tiempoTotalSegundos.toFixed(2);
-            form.appendChild(inputTiempo);
-
-
-            // Incluir el token anti-falsificación
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').cloneNode(true);
-            form.appendChild(token);
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        // AGREGADO: Inicializar tiempo al cargar
-        window.addEventListener('load', function() {
-            tiempoInicio = Date.now();
-            inputRespuesta?.focus({ preventScroll: true });
-        });
-
-        // soroban
+        // --- SOROBAN ---
         document.querySelectorAll("#sorobanSR .soroban-column").forEach(col => {
             const superior = col.querySelector(".bead.superior");
             const inferiores = col.querySelectorAll(".bead.inferior");
@@ -766,7 +847,7 @@
             superior.addEventListener("click", (e) => {
                 e.preventDefault();
                 superior.classList.toggle("activa");
-                inputRespuesta.focus();
+                enfocarInput();
             });
 
             inferiores.forEach((bead, i) => {
@@ -778,9 +859,29 @@
                             b.classList.toggle("activa", activar);
                         }
                     });
-                    inputRespuesta.focus();
+                    enfocarInput();
                 });
             });
+        });
+
+        // --- INICIALIZACIÓN ---
+        window.addEventListener('load', function() {
+            const tabGuardado = sessionStorage.getItem("tabSeleccionadoMulti") || "soroban";
+            mostrarTab(tabGuardado);
+
+            // Lógica del contador (si existe velocidad)
+            if (velocidad > 0) {
+                let tiempo = velocidad;
+                const intervalo = setInterval(() => {
+                    tiempo -= 0.1;
+                    if (tiempo <= 0) {
+                        clearInterval(intervalo);
+                        form.dispatchEvent(new Event('submit'));
+                    } else if(document.getElementById("contador")) {
+                        document.getElementById("contador").textContent = tiempo.toFixed(1);
+                    }
+                }, 100);
+            }
         });
     </script>
 }
