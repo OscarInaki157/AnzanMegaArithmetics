@@ -5,7 +5,7 @@ namespace AnzanMegaArithmetics.Models
     public class ConfCuadrosModel
     {
         [Required]
-        [Display(Name = "Cantidad de rejillas: ")]
+        [Display(Name = "Cantidad de cuadros: ")]
         [Range(1,10)]
         public int CantidadRejillas { get; set; }
 
