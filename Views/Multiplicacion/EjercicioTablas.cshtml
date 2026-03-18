@@ -883,5 +883,46 @@
                 }, 100);
             }
         });
+
+         function enviarYFinalizar(e) {
+            e.preventDefault();
+
+            const tiempoFin = Date.now();
+            const tiempoTotalSegundos = (tiempoFin - tiempoInicio) / 1000;
+
+            // Obtener la respuesta actual (si existe)
+            const respuesta = inputRespuesta.value.trim();
+            const tieneRespuesta = respuesta !== "";
+
+            // Crear formulario para FinalizarDesdeEjercicio
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Multiplicacion/FinalizarDesdeEjercicio';
+            form.style.display = 'none';
+
+            // Si hay respuesta, incluirla
+            if (tieneRespuesta) {
+                const inputResp = document.createElement('input');
+                inputResp.type = 'hidden';
+                inputResp.name = 'respuestaUsuario';
+                inputResp.value = respuesta;
+                form.appendChild(inputResp);
+            }
+
+             // Incluir tiempo de respuesta
+            const inputTiempo = document.createElement('input');
+            inputTiempo.type = 'hidden';
+            inputTiempo.name = 'tiempoRespuesta';
+            inputTiempo.value = tiempoTotalSegundos.toFixed(2);
+            form.appendChild(inputTiempo);
+
+
+            // Incluir el token anti-falsificación
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').cloneNode(true);
+            form.appendChild(token);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 }
