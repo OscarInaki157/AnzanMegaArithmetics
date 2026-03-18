@@ -12,7 +12,6 @@
             <i class="fas fa-home"></i> Regresar al dashboard
         </button>
     </form>
-    <h2 style="color:white">Competencia de Multiplicación</h2>
 </div>
 
 <div class="tabs">
@@ -24,6 +23,11 @@
 
     <!-- FORMULARIO MEMORIAD -->
     <form method="post" asp-controller="Multiplicacion" asp-action="ConcentracionCompetencia" class="formulario-flash tab-content active" id="tab1">
+
+        <div class="form-header">
+            <h2 style="color:white">Competencia de Multiplicación Memoriad</h2>
+        </div>
+
         <input type="hidden" name="DireccionRespuesta" value="DerechaAIzquierda" />
         <div class="form-grid">
             <div class="form-column">
@@ -80,6 +84,11 @@
 
     <!-- FORMULARIO MENTAL -->
     <form method="post" asp-controller="Multiplicacion" asp-action="ConcentracionCompetencia" class="formulario-flash tab-content" id="tab2">
+
+        <div class="form-header">
+            <h2 style="color:white">Competencia de Multiplicación Mental</h2>
+        </div>
+
         <input type="hidden" name="DireccionRespuesta" value="IzquierdaADerecha" />
         <div class="form-grid">
             <div class="form-column">
@@ -136,6 +145,11 @@
 
     <!-- FORMULARIO MEMORIZADA -->
     <form method="post" asp-controller="Multiplicacion" asp-action="ConcentracionMemorizada" class="formulario-flash tab-content" id="tab3">
+
+        <div class="form-header">
+            <h2 style="color:white">Competencia de Multiplicación Memorizada</h2>
+        </div>
+
         <input type="hidden" name="DireccionRespuesta" value="IzquierdaADerecha" />
         <div class="form-grid">
             <div class="form-column">
@@ -189,6 +203,21 @@
 
 
 <style>
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+        }
 
     body {
         background-color: var(--color-bg);
@@ -563,6 +592,20 @@
 
 
     @@media (max-width: 768px) {
+
+        .tab-btn{
+            padding: 1rem 0.4rem;
+        }
+
+        .tab-buttons{
+            gap:0.4rem;
+        }
+
+        .form-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
         .form-grid {
             flex-direction: column;
         }
