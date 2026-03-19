@@ -135,8 +135,8 @@
                     }
                 }
             </div>
-           <div class="formulario-respuesta">
 
+            <div class="formulario-respuesta">
                 <button type="button" id="btnIniciar" class="btn-iniciar" onclick="iniciarEjercicio()">
                     Iniciar
                 </button>
@@ -146,15 +146,19 @@
                     <input type="hidden" name="TiempoRespuesta" id="tiempoRespuestaInput" />
 
                     <div class="input-group">
-                        <input type="number" id="respuestaInput" class="input-respuesta" min="0" step="1" autocomplete="off" />
+                        <input type="number" id="respuestaInput" class="input-respuesta" min="0" step="1" autocomplete="off" inputmode="numeric" />
                     </div>
 
-                    <button type="submit" class="btn-enviar">
+                    <button type="button" id="btnParar" class="btn-parar" onclick="detenerTiempoYOcultarNumeros()">
+                        <span class="btn-text">Parar</span>
+                    </button>
+
+                    <button type="submit" id="btnEnviar" class="btn-enviar" style="display: none;">
                         <span class="btn-text">Enviar Respuesta</span>
                     </button>
                 </form>
-
             </div>
+
         </div>
     </div>
 
@@ -162,6 +166,26 @@
 </div>
 
 <style>
+
+    .btn-parar {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(145deg, #ff4c4c, #e83737);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 76, 76, 0.3);
+    }
+
+        .btn-parar:hover {
+            background: linear-gradient(145deg, #ff5c5c, #f84747);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 76, 76, 0.4);
+        }
 
     .promedio-contenedor {
         padding-bottom: 0.5rem;
@@ -171,6 +195,7 @@
         background: linear-gradient(145deg, #2a2c4f, #1b1e3c) !important;
         border: 1px dashed #6c6cff !important;
         color: #00ffcc !important; /* Un color cyan para resaltar que es el promedio */
+        font-weight: bolder;
     }
 
     /* Nuevo botón de Iniciar */
@@ -481,7 +506,7 @@
     .panel-derecho {
         background: var(--bg-color);
         border-radius: 20px;
-        padding: 2rem;
+        padding: 1.5rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         display: flex;
         flex-direction: column;
@@ -508,7 +533,7 @@
         text-align: center;
         font-weight: bold;
         transition: all 0.3s ease;
-        margin-bottom:1.5rem;
+        margin-bottom:0.5rem;
     }
 
         .input-respuesta:focus {
@@ -627,42 +652,50 @@
              }
          }
 
-        // NUEVA FUNCION: Arranca el ejercicio
-         function iniciarEjercicio() {
-             // 1. Ocultar el botón Iniciar y MOSTRAR el formulario completo
-             btnIniciar.style.display = 'none';
-             formulario.style.display = 'block';
+        let btnParar = document.getElementById('btnParar');
+        let btnEnviar = document.getElementById('btnEnviar');
 
-             // 2. Mostrar los números reales leyendo el atributo data-numero
-             celdasNumeros.forEach(celda => {
-                 celda.textContent = celda.getAttribute('data-numero');
-                 celda.classList.remove('estado-oculto');
-             });
+        function iniciarEjercicio() {
+            btnIniciar.style.display = 'none';
+            formulario.style.display = 'block';
 
-             // 3. Habilitar input y enfocar SOLO en PC (dispositivos no táctiles)
-             let esDispositivoTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-             if (!esDispositivoTactil) {
-                 respuestaInput.focus();
-             }
+            // Resetear botones por si acaso
+            btnParar.style.display = 'block';
+            btnEnviar.style.display = 'none';
 
-             // 4. Iniciar el tiempo
-             startTime = Date.now();
-             tiempoCorriendo = true;
-             tiempoDetenido = false;
-             intervalo = setInterval(actualizarTiempo, 10);
-         }
+            celdasNumeros.forEach(celda => {
+                celda.textContent = celda.getAttribute('data-numero');
+                celda.classList.remove('estado-oculto');
+            });
 
-                 function detenerTiempoYOcultarNumeros() {
+            let esDispositivoTactil = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (!esDispositivoTactil) {
+                respuestaInput.focus();
+            }
+
+            startTime = Date.now();
+            tiempoCorriendo = true;
+            tiempoDetenido = false;
+            intervalo = setInterval(actualizarTiempo, 10);
+        }
+
+        function detenerTiempoYOcultarNumeros() {
             if (tiempoCorriendo) {
                 tiempoCorriendo = false;
                 tiempoDetenido = true;
                 tiempoFinal = (Date.now() - startTime) / 1000;
                 clearInterval(intervalo);
 
+                // Ocultar números
                 celdasNumeros.forEach(celda => {
                     celda.textContent = '-';
                     celda.classList.add('estado-oculto');
                 });
+
+                // --- MEJORA: Intercambio de botones ---
+                btnParar.style.display = 'none';
+                btnEnviar.style.display = 'flex';
+                // ---------------------------------------
 
                 let tiempoFormateado = formatearTiempo(tiempoFinal);
                 contadorElement.textContent = tiempoFormateado;
@@ -672,7 +705,6 @@
                     spanHistorialActual.textContent = tiempoFormateado;
                 }
 
-                // --- LÓGICA PARA RECALCULAR PROMEDIO EN PANTALLA ---
                 recalcularPromedioEnPantalla(tiempoFinal);
             }
         }
