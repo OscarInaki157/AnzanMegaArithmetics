@@ -155,10 +155,9 @@
 
     </div>
 
-    <form class="form-respuesta-barra" id="formEjercicio" asp-action="EjercicioRutasMemoria" method="post">
-        <input type="hidden" name="RespuestaUsuario" id="respuestaUsuario" value="[]" readonly />
-        <input type="hidden" name="TiempoRespuesta" id="tiempoRespuesta" value="0" readonly />
-        <button type="button" id="btnEnviar" onclick="enviarFormulario()">Enviar respuesta</button>
+    <form id="formEjercicio" asp-action="EjercicioRutasMemoria" method="post" style="display: none;">
+        <input type="hidden" name="RespuestaUsuario" id="respuestaUsuario" value="[]" />
+        <input type="hidden" name="TiempoRespuesta" id="tiempoRespuesta" value="0" />
     </form>
 </div>
 
@@ -506,7 +505,7 @@
     }
 
     .nombre-pregunta{
-        font-size:2rem;
+        font-size:2.5rem;
         font-weight:600;
         font-style:italic;
         margin:2rem;
@@ -662,25 +661,34 @@
         const tipoRespuesta = '@configuracion.TipoRespuesta';
         const maxRespuestas = (tipoRespuesta.includes(" e ") || tipoRespuesta.includes(" y ")) ? 2 : 1;
 
-        // Lógica de selección por pasos
         function seleccionarOpcionDoble(elemento, paso) {
-            // 1. Quitar selección de las otras opciones de este MISMO paso
-            const opcionesMismoPaso = document.querySelectorAll(`.paso-${paso}-opcion`);
-            opcionesMismoPaso.forEach(op => op.classList.remove('seleccionada'));
+             // 1. Quitar selección de las otras opciones de este MISMO paso
+             const opcionesMismoPaso = document.querySelectorAll(`.paso-${paso}-opcion`);
+             opcionesMismoPaso.forEach(op => op.classList.remove('seleccionada'));
 
-            // 2. Marcar la seleccionada
-            elemento.classList.add('seleccionada');
+             // 2. Marcar la seleccionada
+             elemento.classList.add('seleccionada');
 
-            // 3. Actualizar el input oculto con lo que llevemos
-            actualizarRespuestasOcultas();
+             // 3. Actualizar el input oculto
+             actualizarRespuestasOcultas();
 
-            // 4. Si es respuesta doble y estamos en el paso 1, avanzamos automático
-            if (maxRespuestas === 2 && paso === 1) {
-                setTimeout(() => {
-                    irAPaso(2);
-                }, 350); // Pequeño retraso para que el usuario alcance a ver que se pintó de verde
-            }
-        }
+             // 4. Contar cuántas respuestas válidas llevamos seleccionadas en total
+             const seleccionesActuales = document.querySelectorAll('.opcion-respuesta.seleccionada').length;
+
+             // 5. Lógica de flujo automático
+             if (seleccionesActuales === maxRespuestas) {
+                 // Si ya tenemos todas las respuestas necesarias, enviamos el formulario
+                 // Mantenemos los 350ms para que el usuario alcance a ver el color verde de éxito
+                 setTimeout(() => {
+                     enviarFormulario();
+                 }, 350);
+             } else if (maxRespuestas === 2 && paso === 1) {
+                 // Si es respuesta doble y apenas vamos en el paso 1, avanzamos de pantalla
+                 setTimeout(() => {
+                     irAPaso(2);
+                 }, 350);
+             }
+         }
 
         function irAPaso(pasoDestino) {
             // Ocultar todos los bloques
