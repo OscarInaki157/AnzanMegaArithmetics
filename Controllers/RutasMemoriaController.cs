@@ -36,15 +36,15 @@ namespace AnzanMegaArithmetics.Controllers
             
             var modeloPorDefecto = new ConfRutasModel
             {
-                CantidadEjercicios = 10,
+                CantidadEjercicios = 20,
                 ValorInicial = 1,
                 ValorFinal = 10,
                 TiempoMeditacion = 3,
                 VelocidadPreguntas = "0",
                 Modalidad = "Secuencial",
                 CategoriaEjercicios = "Lista básica",
-                TipoPregunta = "Número",
-                TipoRespuesta = "Número"
+                TipoPregunta = "Imagen",
+                TipoRespuesta = "Nombre"
             };
 
             return View(modeloPorDefecto);
@@ -350,20 +350,20 @@ namespace AnzanMegaArithmetics.Controllers
         {
             { 1, "Torre Ajedrez" },
             { 2, "Ojos" },
-            { 3, "Tercer lugar" },
+            { 3, "Medalla de bronce" },
             { 4, "Jeep" },
             { 5, "Mano" },
-            { 6, "Revolver" },
-            { 7, "Arcoiris" },
+            { 6, "Pistola" },
+            { 7, "Arcoíris" },
             { 8, "Bicicleta" },
             { 9, "Gato" },
-            { 10, "Bat y pelota" },
-            { 11, "Torres"},
+            { 10, "Bate y pelota" },
+            { 11, "Torres Gemelas"},
             { 12, "Reloj" },
             { 13, "Jason" },
             { 14, "Anillo" },
             { 15, "Billar" },
-            { 16, "Tenis" },
+            { 16, "Cancha de tenis" },
             { 17, "Revista" },
             { 18, "Urna" },
             { 19, "Covid" },
