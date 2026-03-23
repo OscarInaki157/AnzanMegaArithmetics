@@ -14,134 +14,186 @@
     double.TryParse(velocidadStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out velocidadVal);
 }
 
-<form method="post" asp-controller="RutasMemoria" asp-action="ConcentracionRutas" id="formConfigSR" class="formulario-flash">
+<div class="top-bar-config">
+    <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
+        <i class="fas fa-home"></i> Regresar al Dashboard
+    </button>
+</div>
 
-    <div class="form-header">
-        <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
-            <i class="fas fa-home"></i> Regresar al Dashboard
-        </button>
-        <h2>Ajustes Rutas de Memoria</h2>
+<div class="tabs">
+    <div class="tab-buttons">
+        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)">Modo Práctica</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)">Modo Didáctico</button>
     </div>
 
-    <div class="form-grid">
-        <div class="form-column">
+    <form method="post" asp-controller="RutasMemoria" asp-action="ConcentracionRutas" id="tab1" class="formulario-flash tab-content active">
 
-            <div>
-                <label for="cantidadEjercicios">Número de ejercicios:</label>
-                <input type="number" name="CantidadEjercicios" id="cantidadEjercicios" min="1" max="20" value="@cantidad" required />
-            </div>
-
-            <div>
-                <div class="contenedorValores">
-                    <div class="valor-input">
-                        <label for="valorInicial">Valor inicial:</label>
-                        <input type="number" name="ValorInicial" id="valorInicial" min="1" value="@valorInicial" required />
-                    </div>
-                    <div class="valor-input">
-                        <label for="valorFinal">Valor final:</label>
-                        <input type="number" name="ValorFinal" id="valorFinal" min="1" value="@valorFinal" required />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label for="modalidad">Modalidad:</label>
-                <select name="Modalidad" id="modalidad">
-                    <option value="Secuencial" selected="@(Model.Modalidad == "Secuencial")">Secuencial</option>
-                    <option value="Aleatorio" selected="@(Model.Modalidad == "Aleatorio")">Aleatorio</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="categoriaEjercicios">Categoría de los ejercicios:</label>
-                <select name="CategoriaEjercicios" id="categoriaEjercicios">
-                    <option value="Lista básica" selected="@(Model.CategoriaEjercicios == "Lista básica")">Lista básica</option>
-                    <option value="Viaje a América" selected="@(Model.CategoriaEjercicios == "Viaje a América")">Viaje a América</option>
-                </select>
-            </div>
-
+        <div class="form-header">
+            <h2 style="color:white">Ajustes Rutas de Memoria Práctica</h2>
         </div>
 
-        <div class="form-column">
+        <div class="form-grid">
+            <div class="form-column">
 
-            <div>
-                <label for="velocidadPreguntas">Velocidad de las preguntas:</label>
-                <select name="VelocidadPreguntas" id="velocidadPreguntas" required>
-                    <option value="0" selected="@(velocidadVal == 0)">0 (sin límite)</option>
-                    @for (int i = 1; i <= 20; i++)
-                    {
-                        <option value="@i" selected="@(velocidadVal == i)">@i</option>
-                    }
-                </select>
-                <small style="display: block; margin-top: 0.3rem; color: #aaa; font-size: 0.8rem;">
-                    Tiempo para responder (segundos). 0 = sin límite.
-                </small>
-            </div>
+                <div>
+                    <label for="cantidadEjercicios">Número de ejercicios:</label>
+                    <input type="number" name="CantidadEjercicios" id="cantidadEjercicios" min="1" max="20" value="@cantidad" required />
+                </div>
 
-            <div>
-                <div class="contenedorValores">
-                    <div class="valor-input">
-                        <label for="tipoPregunta">Tipo de pregunta:</label>
-                        <select name="TipoPregunta" id="tipoPregunta">
-                            <option value="Número" selected="@(Model.TipoPregunta == "Número")">Número</option>
-                            <option value="Imagen" selected="@(Model.TipoPregunta == "Imagen")">Imagen</option>
-                            <option value="Nombre" selected="@(Model.TipoPregunta == "Nombre")">Nombre</option>
-                        </select>
-                    </div>
-                    <div class="valor-input">
-                        <label for="tipoRespuesta">Tipo de respuesta:</label>
-                        <select name="TipoRespuesta" id="tipoRespuesta"></select>
+                <div>
+                    <div class="contenedorValores">
+                        <div class="valor-input">
+                            <label for="valorInicial">Valor inicial:</label>
+                            <input type="number" name="ValorInicial" id="valorInicial" min="1" value="@valorInicial" required style="width: 100%;" />
+                        </div>
+                        <div class="valor-input">
+                            <label for="valorFinal">Valor final:</label>
+                            <input type="number" name="ValorFinal" id="valorFinal" min="1" value="@valorFinal" required style="width: 100%;" />
+                        </div>
                     </div>
                 </div>
+
+                <div>
+                    <label for="modalidad">Modalidad:</label>
+                    <select name="Modalidad" id="modalidad">
+                        <option value="Secuencial" selected="@(Model.Modalidad == "Secuencial")">Secuencial</option>
+                        <option value="Aleatorio" selected="@(Model.Modalidad == "Aleatorio")">Aleatorio</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="categoriaEjercicios">Categoría de los ejercicios:</label>
+                    <select name="CategoriaEjercicios" id="categoriaEjercicios">
+                        <option value="Lista básica" selected="@(Model.CategoriaEjercicios == "Lista básica")">Lista básica</option>
+                        <option value="Viaje a América" selected="@(Model.CategoriaEjercicios == "Viaje a América")">Viaje a América</option>
+                    </select>
+                </div>
+
             </div>
 
-            <div>
-                <label for="tiempoMeditacion">Tiempo de concentración:</label>
-                <select name="TiempoMeditacion" id="tiempoMeditacion" required>
-                    @foreach (var val in new[] { 0, 3, 5, 8, 10 })
-                    {
-                        <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "segundos")</option>
-                    }
-                </select>
-            </div>
+            <div class="form-column">
 
-            <div style="margin-top: auto;">
-                <button type="submit" class="btn btn-primary">☄️ Iniciar ejercicios</button>
-            </div>
+                <div>
+                    <label for="velocidadPreguntas">Velocidad de las preguntas:</label>
+                    <select name="VelocidadPreguntas" id="velocidadPreguntas" required>
+                        <option value="0" selected="@(velocidadVal == 0)">0 (sin límite)</option>
+                        @for (int i = 1; i <= 20; i++)
+                        {
+                            <option value="@i" selected="@(velocidadVal == i)">@i</option>
+                        }
+                    </select>
+                    <small style="display: block; margin-top: 0.3rem; color: #aaa; font-size: 0.8rem;">
+                        Tiempo para responder (segundos). 0 = sin límite.
+                    </small>
+                </div>
 
+                <div>
+                    <div class="contenedorValores">
+                        <div class="valor-input">
+                            <label for="tipoPregunta">Tipo de pregunta:</label>
+                            <select name="TipoPregunta" id="tipoPregunta" style="width: 100%;">
+                                <option value="Número" selected="@(Model.TipoPregunta == "Número")">Número</option>
+                                <option value="Imagen" selected="@(Model.TipoPregunta == "Imagen")">Imagen</option>
+                                <option value="Nombre" selected="@(Model.TipoPregunta == "Nombre")">Nombre</option>
+                            </select>
+                        </div>
+                        <div class="valor-input">
+                            <label for="tipoRespuesta">Tipo de respuesta:</label>
+                            <select name="TipoRespuesta" id="tipoRespuesta" style="width: 100%;"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="tiempoMeditacion">Tiempo de concentración:</label>
+                    <select name="TiempoMeditacion" id="tiempoMeditacion" required>
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "segundos")</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
         </div>
-    </div>
-</form>
+
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">☄️ Iniciar ejercicios</button>
+
+    </form>
+
+    <form method="post" asp-action="ConcentracionGaleria" id="tab2" class="formulario-flash tab-content">
+        <div class="form-header">
+            <h2 style="color:white">Ajustes Rutas de Memoria Didáctico</h2>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-column">
+
+                <div>
+                    <label for="cantidadEjercicios">Número de ejercicios:</label>
+                    <input type="number" name="CantidadEjercicios" id="cantidadEjercicios" min="1" max="20" value="@cantidad" required />
+                </div>
+
+
+                <div>
+                    <label for="categoriaEjercicios">Categoría de los ejercicios:</label>
+                    <select name="CategoriaEjercicios" id="categoriaEjercicios">
+                        <option value="Lista básica" selected="@(Model.CategoriaEjercicios == "Lista básica")">Lista básica</option>
+                        <option value="Viaje a América" selected="@(Model.CategoriaEjercicios == "Viaje a América")">Viaje a América</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-column">
+
+                <div>
+                    <label for="tiempoMeditacion">Tiempo de concentración:</label>
+                    <select name="TiempoMeditacion" id="tiempoMeditacion" required>
+                        @foreach (var val in new[] { 0, 3, 5, 8, 10 })
+                        {
+                            <option value="@val" selected="@(tiempo == val)">@val @(val == 0 ? "(sin concentración)" : "segundos")</option>
+                        }
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">☄️ Iniciar ejercicios</button>
+
+        
+    </form>
+
+</div>
 
 <style>
-
     .contenedorValores {
         display: flex;
         flex-direction: row;
-        gap: 1rem; /* Espacio entre los dos campos */
+        gap: 1rem;
         width: 100%;
     }
 
     .valor-input {
-        width: 60%;
+        width: 45%;
         display: flex;
         flex-direction: column;
     }
-
-
-    .hidden-field {
-        display: none !important;
-    }
-
-    .contenedorColores {
+    .form-header {
         display: flex;
-        flex-direction: row;
-        margin-top: 0.6rem;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #444;
     }
 
-    .color {
-        width: 50%;
-    }
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+        }
 
     body {
         background-color: var(--color-bg);
@@ -159,41 +211,14 @@
         background-color: #292c4f;
     }
 
-    .form-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #444;
-        width: 100%;
-    }
-
-        .form-header h2 {
-            margin: 0;
-            font-size: clamp(1.4rem, 2vw, 1.7rem);
-            font-weight: 600;
-            color: white;
-        }
-
 
     .formulario-flash {
-        max-width: 85%;
-        margin: 0 auto;
+        max-width: 100%;
         padding: 1.3rem;
-        border-radius: 1rem;
+        border-radius: 0 1rem 1rem 1rem;
         background-color: var(--bg-color);
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
         animation: fadeIn 0.4s ease;
-    }
-
-
-    .checks {
-        flex-direction: row;
-        display: flex;
-        gap: 2rem;
-        padding: 0.5rem;
-        align-items: center;
     }
 
     .top-bar-config {
@@ -225,15 +250,15 @@
         gap: 1rem;
     }
 
-    form#formConfigSR label {
+    .formulario-flash label {
         display: block;
         margin-bottom: 0.4rem;
         font-weight: 600;
         font-size: 1rem;
     }
 
-    form#formConfigSR select,
-    form#formConfigSR input[type="number"] {
+    .formulario-flash select,
+    .formulario-flash input[type="number"] {
         width: 60%;
         padding: 0.5rem 0.6rem;
         border: none;
@@ -243,25 +268,23 @@
         font-size: 1rem;
     }
 
-    form#formConfigSR input[type="radio"] {
+    .formulario-flash input[type="radio"] {
         accent-color: var(--color-primary);
         transform: scale(1.1);
     }
 
     .btn.btn-primary {
-        background: #28a745;
         color: white;
-        padding: 0.9rem 1.5rem;
+        padding: 1.2rem 1rem;
         font-size: 1.1rem;
         font-weight: bold;
         border: none;
-        border-radius: 0.6rem;
+        border-radius: 0.5rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
         width: 100%;
+        background: #28a745;
         box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-        letter-spacing: 0.5px;
     }
 
         .btn.btn-primary:hover {
@@ -302,6 +325,50 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(76, 76, 255, 0.5);
     }
+
+    .tag-input {
+        border: 1px solid #555;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        background-color: #292c4f;
+        position: relative;
+        cursor: pointer;
+        min-height: 48px;
+        width: 60%;
+    }
+
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+        .tag:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(76, 76, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+
+
+        .tag .remove {
+            margin-left: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
     .dropdown-toggle {
         position: absolute;
@@ -362,6 +429,7 @@
         width: 60%;
     }
 
+
     @@keyframes fadeIn {
         from {
             opacity: 0;
@@ -374,21 +442,147 @@
         }
     }
 
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 3rem;
+        height: 2rem;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+            .switch input[type="checkbox"] {
+                z-index: 1;
+                width: 100%;
+                height: 100%;
+            }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #555;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 1.5rem;
+            width: 1.5rem;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: var(--color-primary);
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(1rem);
+        }
+
+    .estado-texto {
+        font-weight: bold;
+        font-size: 1rem;
+        color: var(--color-light);
+    }
+
+    .tabs {
+        width: 85%;
+        margin-top: 2rem;
+        justify-self: center;
+    }
+
+    /* --- Estilos con Tonalidad Dashboard --- */
+    .tab-buttons {
+        display: flex;
+        gap: 0.6rem;
+        margin-bottom: 0; /* Pegado al contenido para mejor flujo */
+        border-bottom: 2px solid rgba(76, 76, 255, 0.1);
+    }
+
+    .tab-btn {
+        background: rgba(41, 44, 79, 0.6); /* El fondo oscuro que ya usas, pero traslúcido */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.7rem 1.3rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+        margin-bottom: -2px; /* Para que el borde activo monte sobre la línea base */
+    }
+
+        .tab-btn:hover {
+            background: rgba(76, 76, 255, 0.15); /* Azul muy tenue */
+            color: white;
+        }
+
+        .tab-btn.active {
+            /* Usamos el color de tu botón dashboard */
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            /* Glow sutil con el mismo tono azul */
+            box-shadow: 0 4px 12px rgba(76, 76, 255, 0.4);
+            /* Un degradado lineal para que no sea un color plano y aburrido */
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 100%);
+            transform: none; /* Mantenerlo estable */
+            z-index: 2;
+        }
+
+
+    .tab-content {
+        display: none;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
 
 
     @@media (max-width: 768px) {
 
-        .contenedorValores {
-            flex-direction: column;
-            gap: 1rem;
+        .valor-input{
+            width:100%;
         }
 
-        .valor-input {
-            width: 100%;
+        .tab-btn {
+            padding: 1rem 0.4rem;
+        }
+
+        .tab-buttons {
+            gap: 0.4rem;
         }
 
         .form-header {
             flex-direction: column;
+            gap: 1rem;
+            text-align: center;
         }
 
         .form-grid {
@@ -419,8 +613,8 @@
                 margin: 0 auto;
             }
 
-        form#formConfigSR select,
-        form#formConfigSR input[type="number"] {
+        .formulario-flash select,
+        .formulario-flash input[type="number"] {
             width: 100%;
         }
 
@@ -431,6 +625,19 @@
         .tag-input {
             width: 100%;
         }
+
+        .switch {
+            width: 5rem;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(1rem);
+        }
+
+        .contenedorValores {
+            flex-direction: column;
+            gap: 1rem;
+        }
     }
 </style>
 
@@ -439,9 +646,37 @@
         window.location.href = '@Url.Action("Memorizacion", "Dashboard")';
     }
 
+    // ==========================================
+    // 1. LÓGICA DE PESTAÑAS (TABS)
+    // ==========================================
+    function mostrarTab(id, btn) {
+        // Ocultar todos los formularios/contenidos
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+        // Quitar el estado "activo" de todos los botones
+        document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+
+        // Activar el tab destino y su botón correspondiente
+        const targetTab = document.getElementById(id);
+        if (targetTab) {
+            targetTab.classList.add("active");
+            btn.classList.add("active");
+            // Guardar la selección en el navegador para mantenerla al recargar
+            localStorage.setItem("tabRutasActivo", id);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
 
-       
+       // Leer el último tab abierto o poner el tab1 por defecto
+        let tabIdDestino = localStorage.getItem("tabRutasActivo") || "tab1";
+
+        // Buscar el botón que abre ese tab específico
+        const botonDestino = document.querySelector(`.tab-btn[onclick*="${tabIdDestino}"]`);
+
+        // Activar la pestaña
+        if (botonDestino) {
+            mostrarTab(tabIdDestino, botonDestino);
+        }
 
         // ==========================================
         // 2. LÓGICA DE CANTIDAD, INICIO Y FINAL

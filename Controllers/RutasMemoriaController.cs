@@ -26,14 +26,14 @@ namespace AnzanMegaArithmetics.Controllers
                 return RedirectToAction("Inicio", "Inicio");
             }
 
-            
+
             if (configGuardada != null && configGuardada.CantidadEjercicios > 0)
             {
-                
+
                 return View(configGuardada);
             }
 
-            
+
             var modeloPorDefecto = new ConfRutasModel
             {
                 CantidadEjercicios = 20,
@@ -70,12 +70,12 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         [HttpGet]
-        public IActionResult EjercicioRutasMemoria() 
+        public IActionResult EjercicioRutasMemoria()
         {
             var configJson = HttpContext.Session.GetString("ConfigRutas");
             var ejerciciosJson = HttpContext.Session.GetString("EjerciciosRutas");
 
-            if (string.IsNullOrEmpty(configJson) || string.IsNullOrEmpty(ejerciciosJson)) 
+            if (string.IsNullOrEmpty(configJson) || string.IsNullOrEmpty(ejerciciosJson))
             {
                 return RedirectToAction("FormRutasMemoria");
             }
@@ -136,10 +136,10 @@ namespace AnzanMegaArithmetics.Controllers
                 int respuestasEsperadas = (configuracion.TipoRespuesta.Contains(" e ") || configuracion.TipoRespuesta.Contains(" y ")) ? 2 : 1;
 
                 bool respondioAlgo = idsSeleccionados.Count > 0;
-                bool cantidadCorrecta = idsSeleccionados.Count == respuestasEsperadas; 
+                bool cantidadCorrecta = idsSeleccionados.Count == respuestasEsperadas;
                 bool sonTodosCorrectos = idsSeleccionados.All(id => id == actual.ElementoPregunta.Numero);
 
-                
+
                 actual.EsCorrecta = respondioAlgo && cantidadCorrecta && sonTodosCorrectos;
 
                 if (double.TryParse(TiempoRespuesta, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double tiempo))
@@ -183,7 +183,7 @@ namespace AnzanMegaArithmetics.Controllers
                 ejercicioPendiente.RespuestaSeleccionada = new List<OERutaMModel>();
             }
 
-            
+
             sesionEjercicios.Realizados = sesionEjercicios.ListaEjercicios.Count;
 
             HttpContext.Session.SetString("EjerciciosRutas", JsonSerializer.Serialize(sesionEjercicios));
@@ -213,12 +213,12 @@ namespace AnzanMegaArithmetics.Controllers
             var configuracion = JsonSerializer.Deserialize<ConfRutasModel>(configJson);
             double tiempoTotal = 0;
 
-            
+
             var resultados = new List<RRutaMModel>();
 
             foreach (var ejercicio in sesionEjercicios.ListaEjercicios)
             {
-                
+
                 resultados.Add(ejercicio);
                 tiempoTotal += ejercicio.TiempoRespuesta;
             }
@@ -232,7 +232,7 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.Porcentaje = porcentaje;
             ViewBag.Configuracion = configuracion;
 
-            
+
             HttpContext.Session.Remove("EjerciciosRutas");
 
             PruebasDBModel result = new PruebasDBModel
@@ -369,7 +369,7 @@ namespace AnzanMegaArithmetics.Controllers
             { 19, "Covid" },
             { 20, "Dientes" }
         };
-    
+
         private readonly Dictionary<int, string> NombresViajeAmerica = new Dictionary<int, string>
         {
             { 1, "Casa de santa Polo Norte" },
@@ -442,5 +442,64 @@ namespace AnzanMegaArithmetics.Controllers
             { 20, "/Content/Images/ViajeAmerica/20.png"}
         };
 
+        [HttpPost]
+        public IActionResult ConcentracionGaleria(ConfRutasModel config)
+        {
+            HttpContext.Session.SetString("ConfigGaleria", JsonSerializer.Serialize(config));
+
+            ViewBag.TiempoMeditacion = config.TiempoMeditacion;
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult EjercicioDidactico()
+        {
+            var configJson = HttpContext.Session.GetString("ConfigGaleria");
+
+            if (string.IsNullOrEmpty(configJson))
+            {
+                return RedirectToAction("FormRutasMemoria");
+            }
+
+            ConfRutasModel config = JsonSerializer.Deserialize<ConfRutasModel>(configJson);
+            List<OERutaMModel> galeria = new List<OERutaMModel>();
+
+            Dictionary<int, string> nombresDic;
+            Dictionary<int, string> imagenesDic;
+
+            if (config.CategoriaEjercicios.Contains("sica"))
+            {
+                nombresDic = NombresListaBasica;
+                imagenesDic = ImgListaBasica;
+            }
+            else
+            {
+                nombresDic = NombresViajeAmerica;
+                imagenesDic = ImgViajeAmerica;
+            }
+
+            List<int> llavesRango = nombresDic.Keys
+                .Where(k => k >= 1 && k <= config.CantidadEjercicios)
+                .OrderBy(x => x)
+                .ToList();
+
+            foreach (int llave in llavesRango)
+            {
+                galeria.Add(new OERutaMModel
+                {
+                    Numero = llave,
+                    Nombre = nombresDic[llave],
+                    ImagenURL = imagenesDic[llave]
+                });
+            }
+
+            return View(galeria);
+        }
+
+        [HttpPost]
+        public IActionResult FinalizarDidactico() 
+        {
+            return RedirectToAction("FormRutasMemoria");
+        }
     }
 }
