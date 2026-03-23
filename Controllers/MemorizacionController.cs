@@ -29,11 +29,11 @@ namespace AnzanMegaArithmetics.Controllers
 
             ConfNumeroFigura modelo = new ConfNumeroFigura
             {
-                CantidadEjercicios = CantidadEjercicios ?? 5,
+                CantidadEjercicios = CantidadEjercicios ?? 20,
                 NumeroDigitos = NumeroDigitos ?? 1,
                 TipoPregunta = TipoPregunta ?? "NumFig",
                 VelocidadPreguntas = VelocidadPreguntas ?? "0",
-                TiempoMeditacion = TiempoMeditacion ?? 0
+                TiempoMeditacion = TiempoMeditacion ?? 3
             };
 
             return View(modelo);
