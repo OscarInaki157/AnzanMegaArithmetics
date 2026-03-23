@@ -18,7 +18,7 @@
     {
         if (r.Es_Correcta && r.DadosUtilizados > 0)
         {
-            totalPuntos += (r.DadosUtilizados * r.DadosUtilizados);
+            totalPuntos += r.DadosUtilizados;
         }
     }
 }
@@ -536,7 +536,7 @@
         var estado = string.IsNullOrEmpty(respuesta.Respuesta_Usuario) ? "No respondió" : respuesta.Es_Correcta ? "✅ Correcto" : "❌ Incorrecto";
 
         // Cálculo de puntos por ejercicio individual
-        int puntosEjercicio = (respuesta.Es_Correcta && respuesta.DadosUtilizados > 0) ? (respuesta.DadosUtilizados * respuesta.DadosUtilizados) : 0;
+        int puntosEjercicio = (respuesta.Es_Correcta && respuesta.DadosUtilizados > 0) ? respuesta.DadosUtilizados : 0;
 
         <details class="@colorClass">
             <summary>Ejercicio @(i + 1): @estado</summary>

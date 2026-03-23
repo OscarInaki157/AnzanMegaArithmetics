@@ -342,7 +342,7 @@ namespace AnzanMegaArithmetics.Controllers
                 {
                     if (r.Es_Correcta && r.DadosUtilizados > 0)
                     {
-                        totalPuntos += (r.DadosUtilizados * r.DadosUtilizados);
+                        totalPuntos += r.DadosUtilizados;
                     }
                 }
 
