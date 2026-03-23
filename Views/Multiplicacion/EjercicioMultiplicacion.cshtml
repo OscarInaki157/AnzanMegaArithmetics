@@ -133,11 +133,7 @@
 <style>
 
     /* --- NUEVOS ESTILOS PARA TABS Y TECLADO --- */
-    .ayuda-tabs-container {
-        flex-direction: column; /* Cambiado de row/center a column */
-        justify-content: flex-start;
-        padding-top: 2rem;
-    }
+
 
     .tabs {
         width: 100%;
@@ -228,9 +224,8 @@
 
     .multiplicacion {
         font-size: 4rem;
-        margin: 1rem 0;
-        text-align: right;
-        align-self: flex-end;
+        margin: 0 auto;
+        text-align: end;
         letter-spacing: 0.5rem;
     }
 
@@ -427,11 +422,6 @@
         margin: 0 auto;
         text-align: center;
         padding: 1rem;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap:2rem;
     }
 
 
@@ -531,18 +521,17 @@
     .areaej {
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        gap: 2rem;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto;
+        flex-wrap: wrap;
+        /* gap:5%; */
+        gap: 1rem;
     }
 
     .Ejercicio {
-        flex: 1; /* Toma el espacio restante */
+        width: 50%;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         text-align: center;
     }
 
@@ -574,15 +563,17 @@
 
     .ayuda-tabs-container {
         background-color: var(--bg-color);
-        padding: 1.5rem;
+        padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 500px; /* Ancho fijo para evitar saltos */
-        min-height: 25rem;
-        flex-shrink: 0; /* Impide que se encoja */
+        width: 45%; /* Volvemos a porcentaje en lugar de 500px */
+        height: fit-content;
+        min-height: 23rem;
         display: flex;
-        flex-direction: column;
+        justify-content: flex-start; /* Ajustado para que las tabs queden arriba */
         align-items: center;
+        flex-direction: column;
+        padding-top: 2rem;
     }
 
     .tabs {

@@ -138,11 +138,6 @@
 <style>
 
     /* --- NUEVOS ESTILOS PARA TABS Y TECLADO --- */
-    .ayuda-tabs-container {
-        flex-direction: column; /* Cambiado de row/center a column */
-        justify-content: flex-start;
-        padding-top: 2rem;
-    }
 
     .tabs {
         width: 100%;
@@ -461,14 +456,9 @@
     }
 
     .ejercicio-wrapper {
-        margin: 2rem auto;
+        margin: 0 auto;
         text-align: center;
-        padding: 0 1rem;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
+        padding: 1rem;
     }
 
 
@@ -568,10 +558,8 @@
     .areaej {
         display: flex;
         justify-content: center;
-        flex-wrap: nowrap; /* CAMBIO CLAVE: Evita que el contenido salte a la siguiente línea */
+        flex-wrap: wrap; /* Cambiado de nowrap a wrap */
         gap: 1rem;
-        width: 100%;
-        max-width: 1200px; /* Un tope opcional para pantallas muy anchas */
     }
 
     .Ejercicio {
@@ -615,13 +603,14 @@
         padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 45%; /* Obligamos a que tome el 45% */
+        width: 45%; /* Volvemos a porcentaje */
         height: fit-content;
         min-height: 23rem;
         display: flex;
-        flex-direction: column; /* Asegura que los botones queden arriba */
-        justify-content: flex-start;
+        justify-content: flex-start; /* Para que las tabs queden arriba */
         align-items: center;
+        flex-direction: column;
+        padding-top: 2rem;
     }
 
     .tabs {
@@ -802,9 +791,9 @@
             width: 100%;
         }
 
-        .ejercicio-wrapper {
+      /*   .ejercicio-wrapper {
             flex-direction: column;
-        }
+        } */
 
         .ayuda-tabs-container {
             width: 100%;

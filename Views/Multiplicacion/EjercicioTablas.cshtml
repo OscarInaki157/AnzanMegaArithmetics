@@ -12,12 +12,6 @@
 
 <style>
 
-    /* --- NUEVOS ESTILOS PARA TABS Y TECLADO --- */
-    .ayuda-tabs-container {
-        flex-direction: column; /* Cambiado de row/center a column */
-        justify-content: flex-start;
-        padding-top: 2rem;
-    }
 
     .tabs {
         width: 100%;
@@ -448,12 +442,14 @@
         padding: 1rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
-        width: 45%;
+        width: 45%; /* Volvemos a porcentaje en lugar de 500px */
         height: fit-content;
         min-height: 23rem;
-        display:flex;
-        justify-content:center;
-        align-items:center;
+        display: flex;
+        justify-content: flex-start; /* Ajustado para que las tabs queden arriba */
+        align-items: center;
+        flex-direction: column;
+        padding-top: 2rem;
     }
 
     .tabs {
