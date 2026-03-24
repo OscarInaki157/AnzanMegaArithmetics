@@ -38,11 +38,40 @@
             flex-direction: row;
             align-items: center;
             padding: 1rem 2rem;
-            background-color: var(--bg-color);
+            /* Aquí está la magia de la transparencia */
+            background-color: rgba(1, 15, 54, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Línea sutil abajo */
+
             position: fixed;
             width: 100%;
             z-index: 100;
         }
+
+        /* Botón sin fondo y con borde blanco */
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
 
         .cta-button2 {
             background-color: #4c4cff;
@@ -288,7 +317,13 @@
             <div class="botonera-desktop">
                 <a href="/Inicio/Inicio" class="cta-button2">Inicio</a>
                 <a href="/Inicio/Nosotros" class="cta-button2">Nosotros</a>
-                <a href="/Inicio/Login" class="cta-button2">Iniciar sesión</a>
+
+                <a href="/Inicio/Login" class="btn-outline">
+                    Iniciar sesión
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </a>
             </div>
         </nav>
 
