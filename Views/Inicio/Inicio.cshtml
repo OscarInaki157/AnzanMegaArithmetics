@@ -9,11 +9,19 @@
             <img src="/Content/Images/MMLogo.png" class="nlogo"/>
             <h1>Aprende cálculo mental y técnicas de memorización de una manera interactiva</h1>
             <p>Descubre técnicas de <strong>memoria</strong>, de <strong>FingerMath</strong> y de <strong>ábaco japonés</strong> para resolver operaciones de forma rápida y precisa, además de guardar grandes cantidades de información.</p>
-            <a href="/Inicio/Login" class="cta-button">Comienza ahora</a>
+            <a href="/Inicio/Login" class="btn-cta-white">Comienza ahora</a>
         </div>
         <div class="hero-image">
-            <img src="/Content/Images/im1bg.png" alt="Persona aprendiendo con ábaco" />
+            <img src="/Content/Images/Inicio/im1bg.png" alt="Persona aprendiendo con ábaco" />
         </div>
+    </div>
+</section>
+
+<section class="dashboard-section">
+    <div class="dashboard-wrapper">
+        <img src="/Content/Images/Inicio/dashboard-preview.png" alt="Vista previa de Mentes México" />
+
+        <div class="fade-overlay"></div>
     </div>
 </section>
 
@@ -22,7 +30,7 @@
     <div class="benefits-cards">
         <div class="card purple">
             <div class="icon-wrapper">
-                <img src="/Content/Images/icon-brain.png" alt="Ícono cerebro" />
+                <img src="/Content/Images/memorias.gif" alt="Ícono cerebro" />
             </div>
             <h3>Memorización</h3>
             <p>Mejora la agilidad mental y capacidad de resolución de problemas</p>
@@ -30,7 +38,7 @@
 
         <div class="card purple-dark">
             <div class="icon-wrapper">
-                <img src="/Content/Images/icon-finger.png" alt="Ícono dedos" />
+                <img src="/Content/Images/ManosF.gif" alt="Ícono dedos" />
             </div>
             <h3>FingerMath</h3>
             <p>Desarrolla habilidades numéricas desde una edad temprana</p>
@@ -38,7 +46,7 @@
 
         <div class="card blue">
             <div class="icon-wrapper">
-                <img src="/Content/Images/icon-abacus.png" alt="Ícono ábaco" />
+                <img src="/Content/Images/abacoicon.gif" alt="Ícono ábaco" />
             </div>
             <h3>Ábaco japonés</h3>
             <p>Fortalece habilidades cognitivas como la memoria y la concentración</p>
@@ -46,29 +54,256 @@
     </div>
 </section>
 
-<section class="modules-section">
-    <div class="modules-container">
-        <div class="modules-image">
-            <img src="/Content/Images/im2.png" alt="Ilustración módulos interactivos" />
+<section class="ranking-section">
+    <div class="ranking-container">
+        <div class="ranking-image">
+            <div class="ranking-wrapper">
+                @* Sustituye el src por la ruta de la captura de tu pantalla de ranking *@
+                <img src="/Content/Images/Inicio/ranking.png" alt="Pantalla de Ranking Mentes México" />
+                @* Este div crea el efecto de desvanecimiento sobre la imagen *@
+                <div class="ranking-fade-overlay"></div>
+            </div>
         </div>
-        <div class="modules-text">
-            <h2>Módulos interactivos</h2>
+        <div class="ranking-text">
+            <h2>Compite, sube de nivel y gana premios</h2>
             <p>
-                Contamos con varios módulos interactivos en donde el estudiante deberá poner en práctica el <strong>cálculo mental y memorización </strong>, la técnica de <strong>FingerMath</strong> y el <strong>ábaco japonés</strong>,
-                diseñado para que todos los usuarios tengan una buena experiencia en la plataforma, además de dar retroalimentación para que el usuario pueda mejorar cada vez más y superar desafios más difíciles.<br />
-                Nuestra plataforma está hecha para que cualquiera pueda desarrollar su mente al máximo y convertirse en un verdadaero <strong>atleta mental</strong>
+                ¡Demuestra quién es el mejor atleta mental! Compite con tus <strong>amigos y compañeros de clase</strong> por experiencia (XP). Supera los <strong>retos diarios</strong> diseñados para poner a prueba tus habilidades de cálculo y memoria.
+                Mantente en la cima de nuestro sistema de <strong>ranking global</strong> y gana exclusivos <strong>premios</strong> reservados para los jugadores más dedicados y con más experiencia de la plataforma.
             </p>
         </div>
     </div>
 </section>
 
+@* --- SECCIÓN DE RACHAS Y RECOMPENSAS --- *@
+<section class="streaks-section">
+    <div class="streaks-container">
+        <div class="streaks-text">
+            <h2>Mantén tu racha y desbloquea recompensas</h2>
+            <p>
+                La constancia es la clave del éxito. Entrena todos los días para aumentar tu <strong>racha de días activos</strong> y multiplicar la experiencia (XP) que ganas.
+                Al acumular experiencia y <strong>subir de nivel</strong>, irás desbloqueando nuevas y exclusivas <strong>recompensas</strong> para tu perfil. ¡Demuestra tu dedicación y conviértete en un atleta mental imparable!
+            </p>
+        </div>
 
+        <div class="streaks-media">
+            <div class="streaks-wrapper">
+                @* Sustituye el src por la ruta de tu GIF *@
+                <img src="/Content/Images/Inicio/niveles.gif" alt="Animación de rachas y niveles" />
+                <div class="streaks-fade-overlay"></div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <style>
-    .hero-section {
-        padding: 0 2rem;
+    /* --- Sección de Rachas y Gamificación --- */
+    .streaks-section {
+        padding: 5rem 2rem;
         display: flex;
         justify-content: center;
+        background-color: #010f36; /* Mantiene el fondo oscuro */
+    }
+
+    .streaks-container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .streaks-text {
+        flex: 1;
+        min-width: 300px;
+        color: white;
+    }
+
+        .streaks-text h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .streaks-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #d1d1f0;
+            text-align: justify;
+        }
+
+    .streaks-media {
+        flex: 1;
+        max-width: 35rem;
+        text-align: center;
+    }
+
+    .streaks-wrapper {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        /* Le damos una sombra y borde sutil igual que a la imagen del ranking */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+        .streaks-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+    /* El efecto de desvanecimiento para el GIF */
+    .streaks-fade-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to bottom, rgba(1, 15, 54, 0) 0%, #010f36 90%, #010f36 100%);
+        pointer-events: none;
+    }
+    /* Nueva sección de Ranking */
+    .ranking-section {
+        padding: 5rem 2rem;
+        display: flex;
+        justify-content: center;
+        background-color: #010f36; /* Volvemos al fondo oscuro */
+    }
+
+    .ranking-container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 3rem; /* Espacio entre imagen y texto */
+    }
+
+    .ranking-image {
+        flex: 1;
+        max-width: 35rem; /* Un poco más grande para ver detalles del ranking */
+        text-align: center;
+    }
+
+    .ranking-wrapper {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+        .ranking-wrapper img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+    /* Efecto de desvanecimiento para la imagen del ranking */
+    .ranking-fade-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%; /* Desvanece la mitad inferior */
+        /* Degradado de transparente a el color de fondo oscuro */
+        background: linear-gradient(to bottom, rgba(1, 15, 54, 0) 0%, #010f36 90%, #010f36 100%);
+        pointer-events: none;
+    }
+
+    .ranking-text {
+        flex: 1;
+        min-width: 300px;
+        color: white;
+    }
+
+        .ranking-text h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .ranking-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #d1d1f0;
+            text-align: justify;
+        }
+    /* Nueva sección que contiene la imagen */
+    .dashboard-section {
+        /* Mismos márgenes negativos para que ocupe el 100% del ancho */
+        margin-left: -2rem;
+        margin-right: -2rem;
+        padding: 0 2rem 4rem 2rem;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        /* Continúa el degradado exactamente donde lo dejó el hero (de azul a oscuro) */
+        background: linear-gradient(180deg, rgba(0, 46, 230, 0.7) 0%, #010f36 60%, #010f36 100%);
+    }
+
+    /* El contenedor de la imagen */
+    .dashboard-wrapper {
+        max-width: 1000px; /* Ajusta este ancho según necesites */
+        width: 100%;
+        position: relative;
+        /* Le damos un borde sutil arriba para ese efecto "cristal" de Laravel Cloud */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-bottom: none; /* Sin borde abajo porque se va a desvanecer */
+        border-radius: 12px 12px 0 0;
+        overflow: hidden;
+        /* Una sombra para que la imagen resalte sobre el fondo */
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+        .dashboard-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block; /* Evita espacios fantasma debajo de la imagen */
+        }
+
+    /* El efecto que desvanece la imagen en la parte inferior */
+    .fade-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60%; /* La mitad inferior de la imagen se verá afectada */
+        /* Un degradado que va de transparente al color exacto de tu fondo */
+        background: linear-gradient(to bottom, rgba(1, 15, 54, 0) 0%, #010f36 90%, #010f36 100%);
+        pointer-events: none; /* Asegura que la capa no interfiera si la imagen tuviera clics */
+    }
+    /* Nuevo estilo para el CTA principal en blanco sólido (Inicio.cshtml) */
+    .btn-cta-white {
+        background-color: #ffffff; /* Blanco sólido como en tu referencia */
+        color: #010f36; /* Texto súper oscuro para máxima legibilidad */
+        text-decoration: none;
+        padding: 0.9rem 2rem;
+        border-radius: 8px; /* Mantenemos la forma consistente */
+        font-size: 1.1rem;
+        font-weight: 700; /* Un poco más de peso para que resalte */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+        /* Efecto al pasar el mouse */
+        .btn-cta-white:hover {
+            background-color: #f1f5f9; /* Se oscurece ligeramente */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); /* Un resplandor blanco sutil */
+        }
+    .hero-section {
+        margin-top: -8.5rem;
+        margin-left: -2rem;
+        margin-right: -2rem;
+        padding: 10rem 2rem 4rem 2rem;
+        display: flex;
+        justify-content: center;
+        background: linear-gradient(360deg, rgba(0, 46, 230, 0.7) 0%, #010f36 78%, #010f36 100%);
     }
 
     .hero-content {
@@ -100,6 +335,7 @@
             margin-bottom: 1.5rem;
             margin-top: 0;
             text-align:justify;
+            font-weight:500;
         }
 
         .hero-text p {
@@ -138,16 +374,27 @@
      height: auto;
  }
 
- .benefits-section {
-    padding: 4rem 2rem;
-    text-align: center;
-}
+    .benefits-section {
+        /* 1. Rompemos el contenedor para que abarque el 100% de la pantalla */
+        margin-left: -2rem;
+        margin-right: -2rem;
+        /* 2. El fondo blanco sólido */
+        background-color: #ffffff;
+        /* 3. Ajustamos el padding (añadimos padding horizontal para compensar los márgenes negativos) */
+        padding: 2rem;
+        text-align: center;
+        /* Opcional: Una sutil sombra superior para separar el corte con la sección oscura */
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 10;
+    }
 
-.benefits-section h2 {
-    font-size: 2.4rem;
-    color: white;
-    margin-bottom: 3rem;
-}
+        /* Como el fondo ahora es blanco, cambiamos el color del título para que sea visible */
+        .benefits-section h2 {
+            font-size: 2.4rem;
+            color: #010f36;
+            font-weight: 600;
+        }
 
 .benefits-cards {
     display: flex;
@@ -183,8 +430,9 @@
 }
 
 .icon-wrapper img {
-    height: 48px;
+    height: 70px;
     width: auto;
+    border-radius:50%;
 }
 
 
@@ -272,9 +520,6 @@
         font-size: 1rem;
     }
 
-    .hero-section {
-      padding: 0;
-    }
 
     .benefits-cards {
         flex-direction: column;
@@ -302,5 +547,32 @@
             display:none;
         }
 
+        .ranking-container {
+            flex-direction: column-reverse; /* Texto primero en móvil */
+            text-align: center;
+        }
+
+        .ranking-text h2 {
+            font-size: 1.8rem;
+        }
+
+        .ranking-text p {
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .streaks-container {
+            flex-direction: column; /* En móvil, el texto queda arriba y el GIF abajo */
+            text-align: center;
+        }
+
+        .streaks-text h2 {
+            font-size: 1.8rem;
+        }
+
+        .streaks-text p {
+            font-size: 1rem;
+            text-align: center;
+        }
     }
 </style>

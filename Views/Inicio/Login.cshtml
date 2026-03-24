@@ -5,24 +5,34 @@
 }
 
 <style>
+    /* Agregamos el degradado y rompemos el contenedor del layout */
     .login-container {
+        /* Rompemos el contenedor para ocupar el 100% del ancho y llegar hasta el tope */
+        margin-top: -8.5rem; /* Compensa el margin-top del main en el _Layout */
+        margin-left: -2rem;
+        margin-right: -2rem;
+        /* Empujamos el contenido hacia abajo para que el header no lo tape */
+        padding: 12rem 2rem 6rem 2rem;
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 4rem 2rem;
+        align-items: center; /* Centramos verticalmente */
         flex-wrap: wrap;
         color: white;
+        /* Aseguramos que ocupe al menos toda la altura de la pantalla visible */
+        min-height: 100vh;
+        /* EL DEGRADADO: Igual al del inicio, naciendo desde arriba al centro */
+        background: radial-gradient(ellipse at top center, rgba(0, 46, 230, 0.6) 0%, #010f36 60%, #010f36 100%);
     }
 
     .login-left {
         flex: 1;
-        min-width: 300px;
+        /* min-width: 300px; */
         text-align: center;
-        padding: 2rem;
+        padding:2rem;
     }
 
         .login-left img {
-            max-width: 50%;
+            max-width: 40%;
             height: auto;
             border-radius: 1rem;
         }
@@ -31,20 +41,26 @@
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: white;
+            line-height: 1.4;
         }
 
         .login-left .subtit {
             font-size: 1.7rem;
             color: #d1d1f0;
+            margin-bottom: 1rem;
         }
 
     .login-right {
         flex: 1;
-        min-width: 300px;
-        background-color: #1b1e3c;
-        padding: 2rem;
+        
+        max-width: 50%;
+        background-color: rgba(27, 30, 60, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2.5rem;
         border-radius: 1.5rem;
-        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     }
 
         .login-right form {
@@ -59,49 +75,58 @@
         }
 
         .login-right input {
-            padding: 0.8rem;
+            padding: 0.8rem 1rem; /* Un poco más de padding horizontal */
             margin-bottom: 0.5rem;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil */
             border-radius: 0.6rem;
-            background-color: #292c4f;
+            background-color: rgba(0, 0, 0, 0.2); /* Fondo de input translúcido */
             color: white;
             font-size: 1rem;
             width: 100%;
+            transition: border-color 0.3s ease;
         }
+
+            /* Efecto focus en los inputs */
+            .login-right input:focus {
+                outline: none;
+                border-color: #4c4cff;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
 
             .login-right input::placeholder {
-                color: #a0a0d0;
+                color: #8080a0;
             }
 
 
-        .button{
-            background-color: #4c4cff;
-            color: white;
-            padding: 0.9rem;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        
+    .button {
+        background-color: #4c4cff; /* El azul vibrante de tus botones de navegación */
+        color: white;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+        .button:hover {
+            background-color: #3737e8; /* Azul más oscuro al pasar el mouse */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 76, 255, 0.4); /* Resplandor azul */
         }
 
-            .login-right button:hover {
-                transform: translateY(-2px);
-            }
-
-        .login-right p {
-            margin-top: 1rem;
-            font-size: 0.95rem;
-            color: #ff6b6b;
-            text-align: center;
-        }
+    .login-right p {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+        text-align: center;
+    }
 
     .password-container {
         display: flex;
         flex-direction: column;
-        margin-bottom: 1rem; /* Mantiene el espacio original */
+        margin-bottom: 0.5rem;
     }
 
     .toggle-password {
@@ -109,42 +134,44 @@
         border: none;
         color: #a0a0d0;
         cursor: pointer;
-        font-size: 1rem;
+        font-size: 0.9rem;
         padding: 0.5rem 0;
-        text-align: left;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        text-align: right; /* Alineamos a la derecha para que se vea más ordenado */
+        transition: color 0.3s ease;
     }
 
         .toggle-password:hover {
             color: white;
-            background: none;
         }
 
     @@media (max-width: 768px) {
-        .login-container {
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem 1rem;
+        .login-container
+
+    {
+        flex-direction: column;
+        padding: 8rem 1.5rem 4rem 1.5rem; /* Ajustamos padding para móvil */
+    }
+
+    .login-left,
+    .login-right {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+        .login-left img {
+            max-width: 50%;
+            margin: 0 auto 1rem;
         }
 
-        .login-left,
-        .login-right {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-        }
+    .login-right {
+        margin-top: 2rem;
+        padding: 2rem 1.5rem;
+    }
 
-            .login-left img {
-                max-width: 50%;
-                margin: 0 auto 1rem;
-            }
-
-        .login-right {
-            margin-top: 2rem;
-        }
     }
 </style>
+
 
 
 <div class="login-container">
