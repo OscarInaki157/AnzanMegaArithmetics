@@ -37,8 +37,10 @@
     <None Remove="Content\Images\iconoMM.png" />
     <None Remove="Content\Images\im1bg.png" />
     <None Remove="Content\Images\im2.png" />
+    <None Remove="Content\Images\Inicio\avataresD.png" />
     <None Remove="Content\Images\Inicio\niveles.gif" />
     <None Remove="Content\Images\Inicio\ranking.png" />
+    <None Remove="Content\Images\Inicio\retosD.png" />
     <None Remove="Content\Images\ListaBasica\10.png" />
     <None Remove="Content\Images\ListaBasica\11.png" />
     <None Remove="Content\Images\ListaBasica\12.png" />
@@ -179,6 +181,9 @@
     <EmbeddedResource Include="Content\Images\iconoMM.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Inicio\avataresD.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Inicio\dashboard-preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -192,6 +197,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Inicio\ranking.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Content\Images\Inicio\retosD.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\ListaBasica\1.png">

@@ -26,30 +26,45 @@
 </section>
 
 <section class="benefits-section">
-    <h2>Beneficios de las técnicas de memorización</h2>
-    <div class="benefits-cards">
-        <div class="card purple">
-            <div class="icon-wrapper">
-                <img src="/Content/Images/memorias.gif" alt="Ícono cerebro" />
-            </div>
-            <h3>Memorización</h3>
-            <p>Mejora la agilidad mental y capacidad de resolución de problemas</p>
-        </div>
+    <h2 class="gradient-title">¿Qué vas a entrenar hoy?</h2>
+    <p>Aprende y domina las herramientas para una mente imparable</p>
 
-        <div class="card purple-dark">
-            <div class="icon-wrapper">
-                <img src="/Content/Images/ManosF.gif" alt="Ícono dedos" />
-            </div>
-            <h3>FingerMath</h3>
-            <p>Desarrolla habilidades numéricas desde una edad temprana</p>
-        </div>
+    <div class="carousel-container">
+        <div class="fade-edge left"></div>
+        <div class="fade-edge right"></div>
 
-        <div class="card blue">
-            <div class="icon-wrapper">
-                <img src="/Content/Images/abacoicon.gif" alt="Ícono ábaco" />
+        <div class="benefits-cards" id="carousel">
+            <div class="card purple active">
+                <div class="icon-wrapper">
+                    <img src="/Content/Images/memorias.gif" alt="Ícono cerebro" />
+                </div>
+                <h3>Memorización</h3>
+                <p>Mejora la agilidad mental y capacidad de resolución de problemas.</p>
             </div>
-            <h3>Ábaco japonés</h3>
-            <p>Fortalece habilidades cognitivas como la memoria y la concentración</p>
+
+            <div class="card purple-dark next">
+                <div class="icon-wrapper">
+                    <img src="/Content/Images/ManosF.gif" alt="Ícono dedos" />
+                </div>
+                <h3>FingerMath</h3>
+                <p>Aprende a realizar cálculos complejos utilizando tus manos.</p>
+            </div>
+
+            <div class="card blue hidden">
+                <div class="icon-wrapper">
+                    <img src="/Content/Images/abacoicon.gif" alt="Ícono ábaco" />
+                </div>
+                <h3>Ábaco japonés</h3>
+                <p>Fortalece habilidades cognitivas como la memoria y la concentración.</p>
+            </div>
+
+            <div class="card navy prev">
+                <div class="icon-wrapper">
+                    <img src="/Content/Images/SRlottie.gif" alt="Ícono matemáticas" />
+                </div>
+                <h3>Sumas y Restas</h3>
+                <p>Practica operaciones fundamentales para ganar fluidez y precisión.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -58,9 +73,9 @@
     <div class="ranking-container">
         <div class="ranking-image">
             <div class="ranking-wrapper">
-                @* Sustituye el src por la ruta de la captura de tu pantalla de ranking *@
+                
                 <img src="/Content/Images/Inicio/ranking.png" alt="Pantalla de Ranking Mentes México" />
-                @* Este div crea el efecto de desvanecimiento sobre la imagen *@
+                
                 <div class="ranking-fade-overlay"></div>
             </div>
         </div>
@@ -70,6 +85,34 @@
                 ¡Demuestra quién es el mejor atleta mental! Compite con tus <strong>amigos y compañeros de clase</strong> por experiencia (XP). Supera los <strong>retos diarios</strong> diseñados para poner a prueba tus habilidades de cálculo y memoria.
                 Mantente en la cima de nuestro sistema de <strong>ranking global</strong> y gana exclusivos <strong>premios</strong> reservados para los jugadores más dedicados y con más experiencia de la plataforma.
             </p>
+        </div>
+    </div>
+</section>
+
+<section class="split-info-section">
+    <div class="split-container">
+        <div class="split-column">
+            <h2 class="gradient-title">Retos Diarios Dinámicos</h2>
+            <p>
+                Supera desafíos únicos que se <strong>actualizan cada 24 horas.</strong> Al completar tus retos, obtendrás bonificaciones de <strong>XP extra</strong> diseñadas para acelerar tu progreso. ¡Es la forma más rápida de subir de nivel y destacar en el ranking global!
+            </p>
+
+            <div class="split-image-wrapper parallax-img">
+                <img src="/Content/Images/Inicio/retosD.png" alt="Pantalla de retos diarios" style="width:100%;" />
+                <div class="image-fade-overlay"></div>
+            </div>
+        </div>
+
+        <div class="split-column">
+            <h2 class="gradient-title">Personalización Legendaria</h2>
+            <p>
+                Tu esfuerzo tiene recompensa visual. Cumple <strong>misiones especiales</strong> y objetivos de entrenamiento para desbloquear <strong>avatares exclusivos</strong> y marcos personalizados. Demuestra a la comunidad tu estatus como un atleta mental de élite.
+            </p>
+
+            <div class="split-image-wrapper parallax-img">
+                <img src="/Content/Images/Inicio/avataresD.png" alt="Galería de avatares exclusivos" style="width:100%;" />
+                <div class="image-fade-overlay"></div>
+            </div>
         </div>
     </div>
 </section>
@@ -96,6 +139,72 @@
 </section>
 
 <style>
+    .split-info-section {
+        background-color: #ffffff;
+        padding: 3rem 2rem 0 2rem;
+        position: relative;
+        z-index: 20;
+        /* Evita que se vea scroll horizontal si la imagen se mueve mucho */
+        overflow: hidden;
+        margin-left: -2rem;
+        margin-right: -2rem;
+    }
+
+    .split-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row;
+        gap: 3rem;
+        align-items: flex-start;
+    }
+
+    .split-column {
+        flex: 1;
+        min-width:0;
+    }
+
+        .split-column h2.gradient-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #002ee6 0%, #010f36 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .split-column p {
+            font-size: 1.15rem;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 8rem;
+            text-align: justify;
+        }
+
+    /* Contenedor con efecto de salida y preparación para Parallax */
+    .split-image-wrapper {
+        position: relative;
+        width: 100%;
+        margin-top: -2rem;
+        margin-bottom: -8rem;
+        border-radius: 15px 15px 0 0;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        transition: transform 0.1s ease-out; /* Suaviza el movimiento del JS */
+        will-change: transform;
+    }
+
+    .image-fade-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 45%;
+        /* Por defecto: Desvanecido al azul de la sección siguiente (#010f36) */
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #010f36 90%, #010f36 100%);
+        pointer-events: none;
+    }
     /* --- Sección de Rachas y Gamificación --- */
     .streaks-section {
         padding: 5rem 2rem;
@@ -230,32 +339,38 @@
             color: #d1d1f0;
             text-align: justify;
         }
-    /* Nueva sección que contiene la imagen */
+
     .dashboard-section {
-        /* Mismos márgenes negativos para que ocupe el 100% del ancho */
         margin-left: -2rem;
         margin-right: -2rem;
         padding: 0 2rem 4rem 2rem;
         display: flex;
         justify-content: center;
         position: relative;
-        /* Continúa el degradado exactamente donde lo dejó el hero (de azul a oscuro) */
         background: linear-gradient(180deg, rgba(0, 46, 230, 0.7) 0%, #010f36 60%, #010f36 100%);
     }
 
-    /* El contenedor de la imagen */
+        .dashboard-section.is-visible .dashboard-wrapper {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
     .dashboard-wrapper {
-        max-width: 1000px; /* Ajusta este ancho según necesites */
+        max-width: 1000px;
         width: 100%;
         position: relative;
-        /* Le damos un borde sutil arriba para ese efecto "cristal" de Laravel Cloud */
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-bottom: none; /* Sin borde abajo porque se va a desvanecer */
+        border-bottom: none;
         border-radius: 12px 12px 0 0;
         overflow: hidden;
-        /* Una sombra para que la imagen resalte sobre el fondo */
         box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+
+        opacity: 0;
+        transform: translateY(100px);
+        transition: opacity 1s ease-out, transform 1s ease-out;
+        will-change: transform, opacity;
     }
+
 
         .dashboard-wrapper img {
             width: 100%;
@@ -315,11 +430,15 @@
         width: 100%;
         flex-wrap: wrap;
         gap: 1rem;
+        opacity: 0;
+        animation: fadeInUp 1.2s ease-out forwards;
     }
 
     .hero-text {
         flex: 1;
         min-width: 280px;
+        opacity: 0;
+        animation: fadeInUp 1s ease-out forwards;
     }
 
     .nlogo{
@@ -367,6 +486,8 @@
         flex: 1;
         text-align: center;
         min-width: 280px;
+        opacity: 0;
+        animation: fadeInUp 1s ease-out 0.3s forwards;
     }
 
  .hero-image img {
@@ -389,34 +510,115 @@
         z-index: 10;
     }
 
-        /* Como el fondo ahora es blanco, cambiamos el color del título para que sea visible */
-        .benefits-section h2 {
-            font-size: 2.4rem;
-            color: #010f36;
+        /* Modificación para el título con degradado */
+        .gradient-title {
+            font-size: 2.8rem; /* Aumentamos un poco el tamaño para que luzca el degradado */
             font-weight: 600;
+            margin-bottom: 0.5rem;
+            /* Aplicamos el degradado similar al dashboard */
+            background: linear-gradient(90deg, #002ee6 0%, #010f36 100%);
+            /* Truco para que el degradado esté dentro del texto */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback */
+            margin-top:0;
+            display: inline-block; /* Para que el degradado se ajuste al ancho del texto */
         }
 
-.benefits-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2rem;
-}
+        /* Ajuste opcional para el párrafo de abajo para que no quede pegado */
+        .benefits-section p {
+            color: #4b5563; /* Un gris oscuro para que resalte en el fondo blanco */
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+            margin-bottom:0;
+        }
 
-.card {
-    background-color: #222459;
-    padding: 2rem 1.5rem;
-    border-radius: 1.5rem;
-    width: 280px;
-    max-width: 300px;
-    color: white;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0;
+        height: 450px;
+        overflow: hidden;
+        perspective: 1000px; /* Crucial para el efecto 3D */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fade-edge {
+        position: absolute;
+        top: 0;
+        width: 15%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+        .fade-edge.left {
+            left: 0;
+            background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
+        }
+
+        .fade-edge.right {
+            right: 0;
+            background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
+        }
+
+
+    .benefits-cards {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform-style: preserve-3d;
+    }
+
+    .card {
+        position: absolute;
+        width: 300px;
+        padding: 2.5rem 1.5rem;
+        border-radius: 2rem;
+        color: white;
+        text-align: center;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        user-select: none;
+    }
 
 .card img {
     height: 60px;
 }
+
+        .card.active {
+            transform: translate3d(0, 0, 100px) scale(1.1);
+            z-index: 5;
+            opacity: 1;
+        }
+
+        /* Izquierda (Pequeña) */
+        .card.prev {
+            transform: translate3d(-100%, 0, 0) scale(0.8);
+            z-index: 3;
+            opacity: 0.6;
+        }
+
+        /* Derecha (Pequeña) */
+        .card.next {
+            transform: translate3d(100%, 0, 0) scale(0.8);
+            z-index: 3;
+            opacity: 0.6;
+        }
+
+        /* Ocultas (Para las que no están en el foco) */
+        .card.hidden {
+            transform: translate3d(0, 0, -100px) scale(0.5);
+            z-index: 1;
+            opacity: 0;
+        }
 
 .icon-wrapper {
     width: 90px;
@@ -446,17 +648,21 @@
     color: #d1d1f0;
 }
 
-.card.purple {
-    background-color: #7a50d3;
-}
+    .card.purple {
+        background-color: #7a50d3;
+    }
 
-.card.purple-dark {
-    background-color: #6233b8;
-}
+    .card.purple-dark {
+        background-color: #6233b8;
+    }
 
-.card.blue {
-    background-color: #4c4cff;
-}
+    .card.blue {
+        background-color: #4c4cff;
+    }
+
+    .card.navy {
+        background-color: #222459;
+    }
 
     .modules-section {
         padding: 1rem;
@@ -501,6 +707,53 @@
             color: #d1d1f0;
             text-align: justify;
         }
+
+    /* --- Animación Fade In para el Hero --- */
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (min-width: 768px) and (max-width: 1024px) {
+
+        .split-container {
+            flex-direction: column; /* Apilado */
+            gap: 2rem;
+        }
+
+        .split-column {
+            width: 100%;
+            margin-bottom: 6rem; /* Espacio para el parallax */
+        }
+
+            .split-column p {
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+
+            .split-column h2.gradient-title {
+                text-align: center;
+                display: block;
+            }
+        /* CAMBIO CLAVE: En móvil, el desvanecido debe ser BLANCO */
+        .image-fade-overlay {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 90%, #ffffff 100%);
+        }
+
+        .split-image-wrapper {
+            margin-top:7rem;
+        }
+    }
 
     @@media (max-width: 768px) {
      .hero-content{
@@ -574,5 +827,120 @@
             font-size: 1rem;
             text-align: center;
         }
+
+        .fade-edge.left, .fade-edge.right{
+            background:none;
+        }
+
+        .split-container {
+            flex-direction: column; /* Apilado */
+            gap: 2rem;
+        }
+
+        .split-column {
+            width: 100%;
+            margin-bottom: 6rem; /* Espacio para el parallax */
+        }
+
+            .split-column p {
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+
+            .split-column h2.gradient-title {
+                text-align: center;
+                display: block;
+            }
+        /* CAMBIO CLAVE: En móvil, el desvanecido debe ser BLANCO */
+        .image-fade-overlay {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 90%, #ffffff 100%);
+        }
+
+        .split-image-wrapper {
+            margin-top: 7rem;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const dashboardSection = document.querySelector('.dashboard-section');
+
+        const observerOptions = {
+            root: null, 
+            rootMargin: '0px', 
+            threshold: 0.3 
+        };
+
+
+        const observerCallback = (entries, observer) => {
+            entries.forEach(entry => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add('is-visible');
+
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        if (dashboardSection) {
+            observer.observe(dashboardSection);
+        }
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('#carousel .card');
+        let currentIndex = 0;
+
+        function updateCarousel() {
+            cards.forEach((card, i) => {
+                card.classList.remove('active', 'prev', 'next', 'hidden');
+
+                if (i === currentIndex) {
+                    card.classList.add('active');
+                } else if (i === (currentIndex - 1 + cards.length) % cards.length) {
+                    card.classList.add('prev');
+                } else if (i === (currentIndex + 1) % cards.length) {
+                    card.classList.add('next');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            currentIndex = (currentIndex + 1) % cards.length;
+        }
+
+        // Ejecutar cada 3 segundos
+        setInterval(updateCarousel, 3000);
+    });
+
+        document.addEventListener('scroll', function() {
+        const parallaxElements = document.querySelectorAll('.parallax-img');
+        const screenCenter = window.innerHeight / 2;
+
+        parallaxElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+
+            // Solo animamos si el elemento es visible en pantalla para ahorrar batería en móvil
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const elementCenter = rect.top + rect.height / 2;
+                const distanceFromCenter = elementCenter - screenCenter;
+
+                // Factor de velocidad (0.1 es ideal para móviles)
+                const speed = 0.1;
+
+                // Calculamos el desplazamiento
+                // En móvil bajamos un poco la intensidad para que no tape el texto
+                const offset = window.innerWidth <= 768 ? -20 : -50;
+                const translateY = (distanceFromCenter * speed) + offset;
+
+                el.style.transform = `translateY(${translateY}px)`;
+            }
+        });
+    });
+</script>
