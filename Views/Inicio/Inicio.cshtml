@@ -7,12 +7,12 @@
     <div class="hero-content">
         <div class="hero-text">
             <img src="/Content/Images/MMLogo.png" class="nlogo"/>
-            <h1>Aprende cálculo mental y técnicas de memorización de una manera interactiva</h1>
+            <h1>Aprende cálculo mental y técnicas de memorización</h1>
             <p>Descubre técnicas de <strong>memoria</strong>, de <strong>FingerMath</strong> y de <strong>ábaco japonés</strong> para resolver operaciones de forma rápida y precisa, además de guardar grandes cantidades de información.</p>
             <a href="/Inicio/Login" class="btn-cta-white">Comienza ahora</a>
         </div>
         <div class="hero-image">
-            <img src="/Content/Images/Inicio/im1bg.png" alt="Persona aprendiendo con ábaco" />
+            <img src="/Content/Images/Inicio/Nosotros1.png" />
         </div>
     </div>
 </section>
@@ -69,9 +69,9 @@
     </div>
 </section>
 
-<section class="ranking-section">
+<section class="ranking-section reveal" id="ranking-section">
     <div class="ranking-container">
-        <div class="ranking-image">
+        <div class="ranking-image left">
             <div class="ranking-wrapper">
                 
                 <img src="/Content/Images/Inicio/ranking.png" alt="Pantalla de Ranking Mentes México" />
@@ -79,7 +79,7 @@
                 <div class="ranking-fade-overlay"></div>
             </div>
         </div>
-        <div class="ranking-text">
+        <div class="ranking-text right">
             <h2>Compite, sube de nivel y gana premios</h2>
             <p>
                 ¡Demuestra quién es el mejor atleta mental! Compite con tus <strong>amigos y compañeros de clase</strong> por experiencia (XP). Supera los <strong>retos diarios</strong> diseñados para poner a prueba tus habilidades de cálculo y memoria.
@@ -118,9 +118,10 @@
 </section>
 
 @* --- SECCIÓN DE RACHAS Y RECOMPENSAS --- *@
-<section class="streaks-section">
+<section class="streaks-section reveal-scale" id="streaks-section">
     <div class="streaks-container">
-        <div class="streaks-text">
+        @* Añadimos 'scale-text' *@
+        <div class="streaks-text scale-text">
             <h2>Mantén tu racha y desbloquea recompensas</h2>
             <p>
                 La constancia es la clave del éxito. Entrena todos los días para aumentar tu <strong>racha de días activos</strong> y multiplicar la experiencia (XP) que ganas.
@@ -128,10 +129,10 @@
             </p>
         </div>
 
-        <div class="streaks-media">
+        @* Añadimos 'scale-image' *@
+        <div class="streaks-media scale-image">
             <div class="streaks-wrapper">
-                @* Sustituye el src por la ruta de tu GIF *@
-                <img src="/Content/Images/Inicio/niveles.gif" alt="Animación de rachas y niveles" />
+                <img src="/Content/Images/Inicio/niveles.png" alt="Animación de rachas y niveles" />
                 <div class="streaks-fade-overlay"></div>
             </div>
         </div>
@@ -139,6 +140,35 @@
 </section>
 
 <style>
+    #streaks-section .scale-text {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s ease-out;
+        will-change: transform, opacity;
+        transition-delay: 0.2s;
+    }
+
+    /* Estado inicial de la imagen (pequeña y transparente) */
+    #streaks-section .scale-image {
+        opacity: 0;
+        transform: scale(0.7);
+        /* El cubic-bezier le da el efecto de rebote al final */
+        transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition-delay: 0.2s; /* Espera un poco a que salga el texto primero */
+        will-change: transform, opacity;
+    }
+
+    /* Estado final (visible) - Activado por JS */
+    #streaks-section.is-visible .scale-text {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    #streaks-section.is-visible .scale-image {
+        opacity: 1;
+        transform: scale(1);
+    }
+
     .split-info-section {
         background-color: #ffffff;
         padding: 3rem 2rem 0 2rem;
@@ -278,7 +308,30 @@
         display: flex;
         justify-content: center;
         background-color: #010f36; /* Volvemos al fondo oscuro */
+        overflow:hidden;
     }
+
+        .ranking-section.reveal .ranking-image.left {
+            opacity: 0;
+            transform: translateX(-100px); /* Viene de la izquierda */
+            transition: all 1s ease-out;
+            will-change: transform, opacity;
+            transition-delay: 0.2s;
+        }
+
+        .ranking-section.reveal .ranking-text.right {
+            opacity: 0;
+            transform: translateX(100px); /* Viene de la derecha */
+            transition: all 1s ease-out;
+            will-change: transform, opacity;
+            transition-delay: 0.2s;
+        }
+
+        .ranking-section.is-visible .ranking-image.left,
+        .ranking-section.is-visible .ranking-text.right {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
     .ranking-container {
         max-width: 1200px;
@@ -449,7 +502,7 @@
     }
 
         .hero-text h1 {
-            font-size: 2.2rem;
+            font-size: 2.9rem;
             color: white;
             margin-bottom: 1.5rem;
             margin-top: 0;
@@ -491,7 +544,7 @@
     }
 
  .hero-image img {
-     max-width: 100%;
+     max-width: 85%;
      height: auto;
  }
 
@@ -753,6 +806,10 @@
         .split-image-wrapper {
             margin-top:6rem;
         }
+
+        .hero-text h1 {
+            font-size: 2.2rem;
+        }
     }
 
     @@media (max-width: 768px) {
@@ -773,6 +830,7 @@
 
     .hero-text h1 {
         font-size: 2rem;
+        text-align:center;
     }
 
     .hero-text p {
@@ -885,6 +943,14 @@
         .split-info-section{
             padding:2rem;
         }
+
+        .ranking-section.reveal .ranking-image.left {
+            transform: translateX(-50px);
+        }
+
+        .ranking-section.reveal .ranking-text.right {
+            transform: translateX(50px);
+        }
     }
 </style>
 
@@ -892,6 +958,8 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         const dashboardSection = document.querySelector('.dashboard-section');
+        const rankingSection = document.getElementById('ranking-section');
+        const streaksSection = document.getElementById('streaks-section');
 
         const observerOptions = {
             root: null, 
@@ -914,9 +982,9 @@
 
         const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-        if (dashboardSection) {
-            observer.observe(dashboardSection);
-        }
+        if (dashboardSection) observer.observe(dashboardSection);
+        if (rankingSection) observer.observe(rankingSection);
+        if (streaksSection) observer.observe(streaksSection);
     });
 
         document.addEventListener('DOMContentLoaded', function() {

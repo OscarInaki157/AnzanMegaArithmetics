@@ -39,6 +39,7 @@
     <None Remove="Content\Images\im2.png" />
     <None Remove="Content\Images\Inicio\avataresD.png" />
     <None Remove="Content\Images\Inicio\niveles.gif" />
+    <None Remove="Content\Images\Inicio\niveles.png" />
     <None Remove="Content\Images\Inicio\ranking.png" />
     <None Remove="Content\Images\Inicio\retosD.png" />
     <None Remove="Content\Images\ListaBasica\10.png" />
@@ -193,7 +194,7 @@
     <EmbeddedResource Include="Content\Images\im2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Inicio\niveles.gif">
+    <EmbeddedResource Include="Content\Images\Inicio\niveles.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Inicio\ranking.png">
@@ -280,7 +281,7 @@
     <EmbeddedResource Include="Content\Images\multip.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Nosotros1.png">
+    <EmbeddedResource Include="Content\Images\Inicio\Nosotros1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Nosotros2.png">
