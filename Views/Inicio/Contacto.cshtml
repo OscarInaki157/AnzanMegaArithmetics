@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = "Contacto";
+    Layout = "_Layout";
+}
+
+<style>
+    /* Contenedor principal con el degradado intacto */
+    .contact-container {
+        margin-top: -8.5rem;
+        margin-left: -2rem;
+        margin-right: -2rem;
+        padding: 12rem 2rem 6rem 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap-reverse; /* En celular, el texto quedará arriba y el form abajo */
+        color: white;
+        min-height: 100vh;
+        /* EL DEGRADADO ORIGINAL */
+        background: linear-gradient(360deg, rgba(0, 46, 230, 0.7) 0%, #010f36 78%, #010f36 100%);
+        gap: 2rem; /* Espacio entre los dos paneles */
+    }
+
+    /* Panel Izquierdo: Ahora es el formulario de cristal */
+    .contact-left {
+        flex: 1;
+        min-width: 320px;
+        max-width: 600px;
+        background-color: rgba(27, 30, 60, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+        .contact-left form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contact-left label {
+            margin-bottom: 0.5rem;
+            color: #d1d1f0;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Aplicamos el estilo a input, select y textarea al mismo tiempo */
+        .contact-left input,
+        .contact-left select,
+        .contact-left textarea {
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.6rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+            font-family: inherit;
+        }
+
+            /* Fix para que las opciones del select no se vean transparentes o feas */
+            .contact-left select option {
+                background-color: #010f36;
+                color: white;
+            }
+
+        .contact-left textarea {
+            resize: vertical; /* Solo permite redimensionar hacia abajo */
+            min-height: 120px;
+        }
+
+            .contact-left input:focus,
+            .contact-left select:focus,
+            .contact-left textarea:focus {
+                outline: none;
+                border-color: #4c4cff;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+
+            .contact-left input::placeholder,
+            .contact-left select::placeholder,
+            .contact-left textarea::placeholder {
+                color: #8080a0;
+            }
+
+    /* Panel Derecho: Imagen y texto */
+    .contact-right {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 300px;
+    }
+
+        .contact-right img {
+            max-width: 40%;
+            height: auto;
+            margin-bottom: 2rem;
+            /* Le ponemos la misma sombra sutil que usamos en dispositivos */
+            filter: drop-shadow(0px 15px 20px rgba(0, 0, 0, 0.25));
+        }
+
+        .contact-right .tit {
+            font-size: 2.2rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .contact-right .subtit {
+            font-size: 1.15rem;
+            color: #d1d1f0;
+            line-height: 1.7;
+            margin: 0;
+            max-width: 90%;
+        }
+
+    .button {
+        background-color: #4c4cff;
+        color: white;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+    }
+
+        .button:hover {
+            background-color: #3737e8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 76, 255, 0.4);
+        }
+
+    @@media (min-width: 768px) and (max-width: 1024px) {
+        .contact-container{
+            flex-direction:column;
+        }
+
+        .contact-left{
+            width:100%;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .contact-container {
+            padding: 8rem 1.5rem 4rem 1.5rem;
+        }
+
+        .contact-left,
+        .contact-right {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+            .contact-right img {
+                max-width: 60%;
+            }
+
+            .contact-right .tit {
+                font-size: 1.8rem;
+            }
+    }
+</style>
+
+<div class="contact-container">
+
+    @* --- FORMULARIO IZQUIERDA --- *@
+    <div class="contact-left">
+        @* Asegúrate de actualizar la acción al controlador correcto *@
+        <form action="@Url.Action("EnviarContacto", "Inicio")" method="post" id="FormContacto">
+            @Html.AntiForgeryToken()
+
+            <label for="Nombre">Nombre completo:</label>
+            <input type="text" id="Nombre" name="Nombre" placeholder="Ej. Juan Pérez" required>
+
+            <label for="Correo">Correo electrónico:</label>
+            <input type="email" id="Correo" name="Correo" placeholder="tu@correo.com" required>
+
+            <label for="Telefono">Número telefónico:</label>
+            <input type="tel" id="Telefono" name="Telefono" placeholder="A 10 dígitos" required>
+
+            <label for="Asunto">Asunto:</label>
+            <select id="Asunto" name="Asunto" required>
+                <option value="" disabled selected>Selecciona una opción...</option>
+                <option value="Ventas">Ventas</option>
+                <option value="Soporte Tecnico">Soporte técnico</option>
+                <option value="Alianzas Estrategicas">Alianzas estratégicas</option>
+            </select>
+
+            <label for="Mensaje">Mensaje:</label>
+            <textarea id="Mensaje" name="Mensaje" placeholder="¿En qué podemos ayudarte hoy?" required></textarea>
+
+            <button type="submit" class="button">Enviar mensaje</button>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+            {
+                <p style="color: #4ade80; text-align: center; margin-top: 1rem;">@ViewBag.SuccessMessage</p>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <p style="color: #f87171; text-align: center; margin-top: 1rem;">@ViewBag.ErrorMessage</p>
+            }
+        </form>
+    </div>
+
+    @* --- TEXTO E IMAGEN DERECHA --- *@
+    <div class="contact-right">
+        <img src="/Content/Images/Inicio/Contacto.png" alt="Contáctanos - Mentes Mexico" />
+        <h1 class="tit">¿Tienes alguna duda?</h1>
+        
+        <p class="subtit">Estamos aquí para escucharte. Ya sea que necesites soporte con tu cuenta, quieras implementar Mentes México en tu escuela o tengas una propuesta de alianza, escríbenos y te responderemos lo más rápido posible.</p>
+        <br />
+        <p class="subtit"><strong>Correos de contacto:</strong></p>
+        <p class="subtit"><strong>ventas@mentesmexico.com</strong></p>
+        <p class="subtit"><strong>soporte@mentesmexico.com</strong></p>
+        <p class="subtit"><strong>contacto@mentesmexico.com</strong></p>
+        <p class="subtit"><strong>Teléfono de contacto:</strong></p>
+        <p class="subtit"><strong>+52 222 827 2230</strong></p>
+    </div>
+
+</div>

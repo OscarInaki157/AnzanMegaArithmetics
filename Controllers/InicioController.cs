@@ -1,8 +1,10 @@
 ﻿using AnzanMegaArithmetics.Models;
 using AnzanMegaArithmetics.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 
 namespace AnzanMegaArithmetics.Controllers
@@ -21,6 +23,11 @@ namespace AnzanMegaArithmetics.Controllers
         }
 
         public IActionResult Nosotros() 
+        {
+            return View();
+        }
+
+        public IActionResult Contacto()
         {
             return View();
         }
@@ -106,5 +113,73 @@ namespace AnzanMegaArithmetics.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnviarContacto(string Nombre, string Correo, string Telefono, string Asunto, string Mensaje)
+        {
+            try
+            {
+                string smtpHost = "mail.mentesmexico.com";
+                int smtpPort = 587;
+                string emailRemitente = "contacto@mentesmexico.com";
+                string passwordRemitente = "MentesMe!";
+
+                string correoDestino = "";
+
+                switch (Asunto)
+                {
+                    case "Ventas":
+                        correoDestino = "ventas@mentesmexico.com";
+                        break;
+                    case "Soporte Tecnico":
+                        correoDestino = "soporte@mentesmexico.com";
+                        break;
+                    case "Alianzas Estrategicas":
+                        correoDestino = "contacto@mentesmexico.com";
+                        break;
+                    default:
+                        correoDestino = "contacto@mentesmexico.com";
+                        break;
+                }
+
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(emailRemitente, "Web Mentes México");
+                mail.To.Add(correoDestino);
+                mail.Subject = $"Nuevo contacto web - Asunto: {Asunto}";
+                mail.IsBodyHtml = true;
+
+                mail.Body = $@"
+                <h2 style='color: #010f36;'>Nuevo mensaje desde la web</h2>
+                <hr />
+                <p><strong>Nombre:</strong> {Nombre}</p>
+                <p><strong>Correo del cliente:</strong> {Correo}</p>
+                <p><strong>Teléfono:</strong> {Telefono}</p>
+                <p><strong>Asunto:</strong> {Asunto}</p>
+                <br />
+                <p><strong>Mensaje:</strong></p>
+                <p style='padding: 10px; background-color: #f1f5f9; border-left: 4px solid #4c4cff;'>
+                    {Mensaje.Replace("\n", "<br/>")}
+                </p>
+            ";
+
+                using (SmtpClient smtp = new SmtpClient(smtpHost, smtpPort))
+                {
+                    smtp.Credentials = new NetworkCredential(emailRemitente, passwordRemitente);
+                    smtp.EnableSsl = true;
+
+                    await smtp.SendMailAsync(mail);
+                }
+
+                ViewBag.SuccessMessage = "¡Tu mensaje ha sido enviado con éxito! Nos pondremos en contacto contigo muy pronto.";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo más tarde.";
+            }
+
+            return View("Contacto");
+        }
+
     }
 }
