@@ -198,12 +198,11 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            background: linear-gradient(135deg, var(--color-card-bg) 0%, #151a39 100%);
+            background: linear-gradient(360deg, rgba(0, 46, 230, 0.7) 0%, #010f36 78%, #010f36 100%);
             padding: 1rem 1.5rem;
             border-radius: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Sección izquierda */
@@ -1553,19 +1552,19 @@
             animarBarraXP();
 
             // Protección (opcional)
-             document.addEventListener('contextmenu', function(e) {
-                 e.preventDefault();
-             });
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-             document.addEventListener('keydown', function(e) {
-                  if (
-                      e.key === 'F12' ||
-                      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                      (e.ctrlKey && e.key === 'U')
-                  ) {
-                      e.preventDefault();
-                  }
-             });
+            document.addEventListener('keydown', function(e) {
+                 if (
+                     e.key === 'F12' ||
+                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                     (e.ctrlKey && e.key === 'U')
+                 ) {
+                     e.preventDefault();
+                 }
+            });
         });
     </script>
 
