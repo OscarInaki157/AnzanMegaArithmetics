@@ -139,7 +139,93 @@
     </div>
 </section>
 
+@* --- MULTIPLATAFORMA --- *@
+<section class="devices-section reveal" id="devices-section">
+    <div class="devices-container">
+        <div class="devices-image left">
+            <img src="/Content/Images/Inicio/Dispositivos.png" alt="Mentes México en múltiples dispositivos" />
+        </div>
+
+        <div class="devices-text right">
+            <h2 class="gradient-title">Entrena tu mente donde sea y cuando sea</h2>
+            <p>
+                Lleva tu entrenamiento al siguiente nivel. Juega y aprende desde <strong>cualquier lugar y con cualquier dispositivo con internet</strong>. Ya sea en tu computadora, tablet o smartphone, tu progreso se sincroniza automáticamente para que nunca pierdas el ritmo. ¡Convierte cualquier momento libre en una oportunidad para ser un atleta mental imparable!
+            </p>
+        </div>
+    </div>
+</section>
+
 <style>
+    .devices-section {
+        background-color: #ffffff; /* Fondo blanco */
+        padding: 5rem 2rem;
+        display: flex;
+        justify-content: center;
+        overflow: hidden; /* Evita scroll horizontal con la animación */
+        margin-left: -2rem; /* Rompe el padding si tu layout lo tiene */
+        margin-right: -2rem;
+        position: relative;
+    }
+
+    .devices-container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap; /* Permite que colapse en móviles */
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .devices-image {
+        flex: 1;
+        min-width: 300px;
+        text-align: center;
+    }
+
+        .devices-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0px 18px 25px rgba(0, 0, 0, 0.35));
+        }
+
+    .devices-text {
+        flex: 1;
+        min-width: 300px;
+    }
+
+        .devices-text p {
+            font-size: 1.15rem;
+            color: #4b5563; /* Gris oscuro para que se lea perfecto en blanco */
+            line-height: 1.7;
+            text-align: justify;
+            margin-bottom: 0;
+        }
+
+    /* --- ANIMACIÓN CON DELAYS --- */
+    .devices-section.reveal .devices-image.left {
+        opacity: 0;
+        transform: translateX(-100px);
+        transition: all 1s ease-out;
+        transition-delay: 0.2s; /* Espera un poco al scrollear */
+        will-change: transform, opacity;
+    }
+
+    .devices-section.reveal .devices-text.right {
+        opacity: 0;
+        transform: translateX(100px);
+        transition: all 1s ease-out;
+        transition-delay: 0.5s; /* El texto entra después de la imagen */
+        will-change: transform, opacity;
+        padding:1rem;
+    }
+
+    .devices-section.is-visible .devices-image.left,
+    .devices-section.is-visible .devices-text.right {
+        opacity: 1;
+        transform: translateX(0);
+    }
     #streaks-section .scale-text {
         opacity: 0;
         transform: translateY(40px);
@@ -262,6 +348,7 @@
             font-size: 2.2rem;
             margin-bottom: 1.5rem;
             color: white;
+            font-weight:600;
         }
 
         .streaks-text p {
@@ -384,6 +471,7 @@
             font-size: 2.2rem;
             margin-bottom: 1.5rem;
             color: white;
+            font-weight:600;
         }
 
         .ranking-text p {
@@ -507,7 +595,7 @@
             margin-bottom: 1.5rem;
             margin-top: 0;
             text-align:justify;
-            font-weight:500;
+            font-weight:600;
         }
 
         .hero-text p {
@@ -565,7 +653,7 @@
 
         /* Modificación para el título con degradado */
         .gradient-title {
-            font-size: 2.8rem; /* Aumentamos un poco el tamaño para que luzca el degradado */
+            font-size: 2.2rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             /* Aplicamos el degradado similar al dashboard */
@@ -812,7 +900,7 @@
         }
     }
 
-    @@media (max-width: 768px) {
+    @@media (max-width: 820px) {
 
         .dashboard-section{
             padding: 0 1rem 4rem 1rem;
@@ -944,13 +1032,21 @@
             padding:2rem;
         }
 
-        .ranking-section.reveal .ranking-image.left {
-            transform: translateX(-50px);
+
+        .devices-section {
+            padding: 3rem 1rem;
         }
 
-        .ranking-section.reveal .ranking-text.right {
-            transform: translateX(50px);
+        .devices-container {
+            flex-direction: column; /* Apila la imagen arriba y texto abajo */
+            text-align: center;
         }
+
+        .devices-text h2.gradient-title {
+            text-align: center;
+            display: block;
+        }
+
     }
 </style>
 
@@ -960,6 +1056,7 @@
         const dashboardSection = document.querySelector('.dashboard-section');
         const rankingSection = document.getElementById('ranking-section');
         const streaksSection = document.getElementById('streaks-section');
+        const devicesSection = document.getElementById('devices-section');
 
         const observerOptions = {
             root: null, 
@@ -985,6 +1082,7 @@
         if (dashboardSection) observer.observe(dashboardSection);
         if (rankingSection) observer.observe(rankingSection);
         if (streaksSection) observer.observe(streaksSection);
+        if (devicesSection) observer.observe(devicesSection);
     });
 
         document.addEventListener('DOMContentLoaded', function() {

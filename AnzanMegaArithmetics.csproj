@@ -31,13 +31,10 @@
     <None Remove="Content\Images\Dados\Demogorgon.png" />
     <None Remove="Content\Images\division.gif" />
     <None Remove="Content\Images\Flashicon.gif" />
-    <None Remove="Content\Images\icon-abacus.png" />
-    <None Remove="Content\Images\icon-brain.png" />
-    <None Remove="Content\Images\icon-finger.png" />
     <None Remove="Content\Images\iconoMM.png" />
     <None Remove="Content\Images\im1bg.png" />
-    <None Remove="Content\Images\im2.png" />
     <None Remove="Content\Images\Inicio\avataresD.png" />
+    <None Remove="Content\Images\Inicio\Dispositivos.png" />
     <None Remove="Content\Images\Inicio\niveles.gif" />
     <None Remove="Content\Images\Inicio\niveles.png" />
     <None Remove="Content\Images\Inicio\ranking.png" />
@@ -64,7 +61,6 @@
     <None Remove="Content\Images\ManosF.gif" />
     <None Remove="Content\Images\memorias.gif" />
     <None Remove="Content\Images\MMLogo.png" />
-    <None Remove="Content\Images\multicon.png" />
     <None Remove="Content\Images\multip.gif" />
     <None Remove="Content\Images\Nosotros1.png" />
     <None Remove="Content\Images\Nosotros2.png" />
@@ -170,15 +166,6 @@
     <EmbeddedResource Include="Content\Images\Flashicon.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\icon-abacus.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\icon-brain.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\icon-finger.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\iconoMM.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -188,10 +175,10 @@
     <EmbeddedResource Include="Content\Images\Inicio\dashboard-preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Inicio\im1bg.png">
+    <EmbeddedResource Include="Content\Images\Inicio\Dispositivos.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\im2.png">
+    <EmbeddedResource Include="Content\Images\Inicio\im1bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\Inicio\niveles.png">
@@ -273,9 +260,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\MMLogo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\multicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\multip.gif">
