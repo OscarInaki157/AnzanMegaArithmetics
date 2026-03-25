@@ -64,7 +64,6 @@
     <None Remove="Content\Images\multip.gif" />
     <None Remove="Content\Images\Nosotros1.png" />
     <None Remove="Content\Images\Nosotros2.png" />
-    <None Remove="Content\Images\Nosotros3.png" />
     <None Remove="Content\Images\parejas.gif" />
     <None Remove="Content\Images\ProfS.png" />
     <None Remove="Content\Images\póker.gif" />
@@ -133,7 +132,7 @@
     <EmbeddedResource Include="Content\Images\Calendario.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\contacto.png">
+    <EmbeddedResource Include="Content\Images\Inicio\contacto.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\dados.gif">
@@ -268,10 +267,7 @@
     <EmbeddedResource Include="Content\Images\Inicio\Nosotros1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Nosotros2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Content\Images\Nosotros3.png">
+    <EmbeddedResource Include="Content\Images\Inicio\Nosotros2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Content\Images\parejas.gif">
