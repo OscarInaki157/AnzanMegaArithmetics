@@ -134,30 +134,32 @@
             const ej = ejercicios[actual];
             const contenedor = document.getElementById("contenidoEjercicio");
 
-            // Inyectamos estructura flex: Input a la izquierda, Teclado a la derecha
+           // Inyectamos estructura flex: Input arriba, Teclado abajo en formato horizontal
             contenedor.innerHTML = `
                 <div class="contenedor-respuesta-memorizada">
                     <div class="seccion-input-memorizada">
                         <div style="font-size: 2rem; margin-bottom: 0.5rem; color:white; font-weight:normal;">Ejercicio ${actual + 1}</div>
-                        @* Añadimos inputmode="none" para evitar teclado nativo en móvil *@
                         <input type="text" id="respuestaActual" class="input-respuesta memorizada" disabled onkeydown="registrarTecla(event)" autocomplete="off" inputmode="none" />
                     </div>
 
                     <div class="seccion-teclado-memorizada">
-                        @* Teclado Grid estándar 3x4 (sin Anterior/Siguiente) *@
-                        <div class="teclado-grid memorizada">
-                            <button type="button" class="tecla">7</button>
-                            <button type="button" class="tecla">8</button>
-                            <button type="button" class="tecla">9</button>
-                            <button type="button" class="tecla">4</button>
-                            <button type="button" class="tecla">5</button>
-                            <button type="button" class="tecla">6</button>
-                            <button type="button" class="tecla">1</button>
-                            <button type="button" class="tecla">2</button>
-                            <button type="button" class="tecla">3</button>
-                            <button type="button" class="tecla borrar" aria-label="Borrar">🗑️</button>
-                            <button type="button" class="tecla">0</button>
-                            <button type="button" class="tecla enviar" aria-label="Enviar">✅</button>
+                        @* Teclado en formato CSS Grid (6x2 en PC) *@
+                        <div class="contenedor-teclado">
+                            <div class="teclado-grid">
+                                <button type="button" class="tecla">0</button>
+                                <button type="button" class="tecla">1</button>
+                                <button type="button" class="tecla">2</button>
+                                <button type="button" class="tecla">3</button>
+                                <button type="button" class="tecla">4</button>
+                                <button type="button" class="tecla borrar" aria-label="Borrar">🗑️</button>
+
+                                <button type="button" class="tecla">5</button>
+                                <button type="button" class="tecla">6</button>
+                                <button type="button" class="tecla">7</button>
+                                <button type="button" class="tecla">8</button>
+                                <button type="button" class="tecla">9</button>
+                                <button type="button" class="tecla enviar" aria-label="Enviar">✅</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -176,7 +178,7 @@
 
         // --- NUEVA FUNCIÓN A AÑADIR AL FINAL DEL SCRIPT ---
         function inicializarTecladoVirtualMemorizada() {
-            document.querySelectorAll('.teclado-grid.memorizada .tecla').forEach(btn => {
+            document.querySelectorAll('.teclado-grid .tecla').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
 
@@ -377,17 +379,16 @@
     /* Contenedor principal inyectado en modo respuesta */
     .contenedor-respuesta-memorizada {
         display: flex;
-        gap: 3rem; /* Espaciado entre input y teclado */
+        flex-direction: row;
+        gap: 2rem;
         align-items: center;
         justify-content: center;
         width: 100%;
-        max-width: 900px;
         margin-top: 2rem;
-        flex-direction:row;
     }
 
     .seccion-input-memorizada {
-        flex: 1;
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -402,23 +403,84 @@
     }
 
     .seccion-teclado-memorizada {
-        background-color: #1b1e3c; /* Fondo oscuro idéntico a competencia */
+        background-color: #1b1e3c;
         padding: 1.5rem;
         border-radius: 20px;
         box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        width: 100%; /* Ocupa el ancho del contenedor padre */
     }
 
-    /* Grid estándar 3x4 */
-    .teclado-grid.memorizada {
+    .teclado-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(6, 1fr); /* 6 columnas en PC */
+        gap: 0.6rem;
+    }
+
+    .contenedor-teclado {
+        background-color: #1b1e3c; /* Fondo oscuro */
+        padding: 1.5rem;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .controles-integrados {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .btn-control-teclado {
+        flex: 1; /* Ocupan 50% cada uno */
+        background-color: #4c4cff;
+        color: white;
+        padding: 0.8rem;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 0px #3737e8;
+    }
+
+        .btn-control-teclado:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-control-teclado:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+    /* Línea divisoria */
+    .divisor-teclado {
+        border: none;
+        border-top: 2px dashed #4c4cff; /* Puedes cambiar dashed por solid si prefieres */
+        margin: 0.5rem 0;
+        opacity: 0.5;
+    }
+
+    /* Teclado Horizontal */
+    .teclado-numerico-horizontal {
+        display: flex;
+        flex-direction: column;
         gap: 0.8rem;
-        width: 280px;
+    }
+
+    .fila-horizontal {
+        display: flex;
+        gap: 0.6rem;
+        justify-content: center;
     }
 
     .tecla {
         font-size: 2rem;
-        padding: 0.8rem 0;
+        padding: 1.1rem 1.9rem;
         border-radius: 12px;
         border: none;
         background-color: #4c4cff;
@@ -428,7 +490,7 @@
         transition: all 0.1s;
         font-weight: bold;
         text-align: center;
-        width: 100%; /* Asegura que el botón llene su celda en el grid */
+        width: 100%;
     }
 
         .tecla:active, .tecla.presionada {
@@ -792,6 +854,15 @@
         background-color: rgba(255, 255, 255, 0.15);
     }
 
+    @@media (min-width: 768px) and (max-width: 1024px) {
+
+        .contenedor-respuesta-memorizada {
+         
+            flex-direction: column;
+            
+        }
+    }
+
 
     @@media (max-width: 768px) {
 
@@ -818,6 +889,22 @@
 
         .contenedor-respuesta-memorizada {
             flex-direction: column;
+        }
+
+        .tecla {
+            padding: 1rem 0; /* Un poco menos alto que en PC para que no ocupe toda la pantalla */
+        }
+
+        .teclado-grid {
+            grid-template-columns: repeat(3, 1fr); /* Cambia a 3 columnas en móvil */
+        }
+        /* Reordenar Borrar y Enviar para que queden al final en el móvil */
+        .tecla.borrar {
+            order: 1;
+        }
+
+        .tecla.enviar {
+            order: 2;
         }
     }
 
