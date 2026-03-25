@@ -190,7 +190,7 @@
         margin-bottom: -8rem;
         border-radius: 15px 15px 0 0;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        /* box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); */
         transition: transform 0.1s ease-out; /* Suaviza el movimiento del JS */
         will-change: transform;
     }
@@ -253,7 +253,7 @@
         overflow: hidden;
         /* Le damos una sombra y borde sutil igual que a la imagen del ranking */
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* border: 1px solid rgba(255, 255, 255, 0.1); */
     }
 
         .streaks-wrapper img {
@@ -300,7 +300,7 @@
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* border: 1px solid rgba(255, 255, 255, 0.1); */
     }
 
         .ranking-wrapper img {
@@ -359,7 +359,7 @@
         max-width: 1000px;
         width: 100%;
         position: relative;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+
         border-bottom: none;
         border-radius: 12px 12px 0 0;
         overflow: hidden;
@@ -751,11 +751,21 @@
         }
 
         .split-image-wrapper {
-            margin-top:7rem;
+            margin-top:6rem;
         }
     }
 
     @@media (max-width: 768px) {
+
+        .dashboard-section{
+            padding: 0 1rem 4rem 1rem;
+        }
+
+        .hero-section{
+            margin-top:-10.5rem;
+        }
+
+
      .hero-content{
         flex-direction: column-reverse;
         text-align: center;
@@ -773,6 +783,9 @@
         font-size: 1rem;
     }
 
+        .benefits-section {
+            padding: 2rem 0;
+        }
 
     .benefits-cards {
         flex-direction: column;
@@ -783,6 +796,9 @@
         font-size: 1.8rem;
     }
 
+        .benefits-section p{
+            margin:0 2rem;
+        }
         .modules-container {
             flex-direction: column;
             text-align: center;
@@ -800,6 +816,10 @@
             display:none;
         }
 
+        .ranking-section{
+            padding: 2rem 0;
+        }
+
         .ranking-container {
             flex-direction: column-reverse; /* Texto primero en móvil */
             text-align: center;
@@ -811,7 +831,10 @@
 
         .ranking-text p {
             font-size: 1rem;
-            text-align: center;
+        }
+
+        .streaks-section{
+            padding:2rem 0;
         }
 
         .streaks-container {
@@ -825,7 +848,7 @@
 
         .streaks-text p {
             font-size: 1rem;
-            text-align: center;
+            
         }
 
         .fade-edge.left, .fade-edge.right{
@@ -844,7 +867,7 @@
 
             .split-column p {
                 margin-bottom: 2rem;
-                text-align: center;
+                
             }
 
             .split-column h2.gradient-title {
@@ -857,7 +880,10 @@
         }
 
         .split-image-wrapper {
-            margin-top: 7rem;
+            margin-top: 5rem;
+        }
+        .split-info-section{
+            padding:2rem;
         }
     }
 </style>
