@@ -466,7 +466,7 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             // Devolvemos la vista pasándole TODA la lista
-            return View("HojaSumaResta", listaEjercicios);
+            return View(listaEjercicios);
         }
 
    

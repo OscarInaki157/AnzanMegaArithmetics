@@ -1,11 +1,11 @@
 ﻿@model List<AnzanMegaArithmetics.Models.EjerciciosSumaRestaHoja>
 @{
     ViewBag.Title = "Hoja de Suma y Resta - Mentes México";
-    Layout = "_Layout"; // Cambia esto si tienes un layout específico para SumaResta
+    Layout = "_LayoutSR"; // Cambia esto si tienes un layout específico para SumaResta
 }
 
 <style>
-    @page {
+    @@page {
         size: auto;
     }
 
@@ -93,7 +93,6 @@
         padding: 20px;
         color: #333;
         position: relative;
-        background-color: white; /* Forzamos fondo blanco para la vista previa */
     }
 
     .header-hoja {
@@ -196,25 +195,41 @@
         }
 
     /* --- MEDIA PRINT --- */
-    @media print {
+  /* --- MEDIA PRINT --- */
+    @@media print {
+        /* 1. Ocultar tu barra superior local */
         .top-bar {
             display: none !important;
         }
 
-        .hoja-container {
-            margin: 0;
-            width: 100%;
-            max-width: 100%;
-            box-shadow: none;
+        /* 2. Ocultar CUALQUIER encabezado o menú que venga del _LayoutSR */
+        header, nav, footer, .navbar {
+            display: none !important;
         }
 
-        body {
-            background-color: white;
-            color: black;
+        /* 3. Quitar paddings o márgenes que el Layout le pone al body para empujar el contenido */
+        body, .main-content {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+            background-color: white !important;
+            color: black !important;
+        }
+
+        .hoja-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
         }
 
         .cerebro-marca {
-            opacity: 0.07;
+            opacity: 0.07 !important;
+        }
+        
+        /* 4. Asegurar un margen limpio en las hojas impresas */
+        @@page {
+            margin: 1.5cm;
         }
     }
 </style>
