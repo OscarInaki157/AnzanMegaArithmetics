@@ -350,6 +350,7 @@ namespace AnzanMegaArithmetics.Controllers
         public IActionResult HojaEjerciciosDivision(ConfDivModel config) 
         {
             List<RDivisionModel> listaEjercicios = GenerarEjercicios(config);
+            ViewBag.FormatoPregunta = config.FormatoPregunta;
             return View(listaEjercicios);
         }
 

@@ -1,13 +1,13 @@
 ﻿@model List<AnzanMegaArithmetics.Models.RDivisionModel>
 @{
     ViewBag.Title = "Hoja de División - Mentes México";
-    Layout = "_LayoutDivision"; 
-    // Los formatos esperados según tu configuración anterior: "Galera", "XY", "Obelo"
-    string formato = ViewBag.FormatoPregunta ?? "Obelo"; 
+    Layout = "_LayoutDivision";
+
+    // Lo leemos directo del ViewBag y le quitamos espacios por si las moscas
+    string formato = (ViewBag.FormatoPregunta ?? "Obelo").ToString().Trim();
 }
 
 <style>
-
     @@page {
         size: auto;
     }
@@ -131,7 +131,6 @@
     .ejercicio-item {
         display: flex;
         align-items: center;
-        font-size: 1.5rem;
         padding: 1.2rem 0;
         border-bottom: 1px dashed #ccc;
         break-inside: avoid-column;
@@ -144,53 +143,49 @@
         font-size: 14px;
         margin-right: 12px;
         font-weight: bold;
-        align-self: flex-start; /* Ayuda a que el número quede arriba si el ejercicio es alto */
+        align-self: flex-start; 
         margin-top: 5px;
     }
 
+    /* --- ESTILOS HORIZONTALES (XY y Obelo) --- */
     .div-horizontal {
         display: flex;
         align-items: center;
         width: 100%;
+        font-size: 1.6rem;
+        font-weight: 700;
     }
 
     .linea-resp {
         flex-grow: 1;
-        border-bottom: 1px solid #333;
-        margin-left: 10px;
+        border-bottom: 1px solid black;
+        margin-left: 12px;
         height: 1.2rem;
     }
 
-    /* --- ESTILOS ESPECÍFICOS PARA GALERA EN IMPRESIÓN --- */
+    /* --- ESTILOS DE LA CASITA (Galera) --- */
     .galera-container {
-        display: flex;
+        display: inline-flex;
         align-items: flex-end;
-        justify-content: flex-start;
-        gap: 0;
-        margin-top: 25px; /* Espacio arriba para que el alumno escriba el cociente */
-        margin-bottom: 5px;
+        margin-top: 25px; /* Espacio arriba para escribir el resultado */
+        margin-bottom: 10px;
     }
 
     .divisor-text {
-        font-size: 1.5rem;
-        padding-right: 0.5rem;
-        border-right: 2px solid #333;
-        line-height: 1.1;
+        font-size: 1.6rem;
         font-weight: 700;
-        margin-bottom: 0.1rem;
+        padding-right: 6px;
+        line-height: 1;
+        margin-bottom: 2px; /* Alineación fina */
     }
 
     .dividendo-box {
-        border-top: 2px solid #333;
-        padding: 0.1rem 0.5rem 0 0.5rem;
-        line-height: 1.1;
-    }
-
-    .division-text {
-        font-size: 1.5rem;
-        margin: 0;
+        font-size: 1.6rem;
         font-weight: 700;
-        letter-spacing: 0.1rem;
+        padding: 4px 10px;
+        border-top: 2px solid white;
+        border-left: 2px solid white;
+        line-height: 1;
     }
 
     /* --- CLAVE DE RESPUESTAS --- */
@@ -203,7 +198,7 @@
     }
 
         .clave-seccion .contenedor-ejercicios {
-            column-count: 4; /* 4 columnas para respuestas suele ser mejor */
+            column-count: 4; 
             display: block;
         }
 
@@ -233,8 +228,8 @@
             border-color: black;
         }
 
-        .linea-resp, .divisor-text, .dividendo-box {
-            border-color: black;
+        .dividendo-box, .linea-resp {
+            border-color: black !important;
         }
 
         .cerebro-marca {
@@ -281,9 +276,7 @@
                     {
                         <div class="galera-container">
                             <span class="divisor-text">@item.Divisor</span>
-                            <div class="dividendo-box">
-                                <span class="division-text">@item.Dividendo</span>
-                            </div>
+                            <div class="dividendo-box">@item.Dividendo</div>
                         </div>
                     }
                     else if (formato == "XY")
