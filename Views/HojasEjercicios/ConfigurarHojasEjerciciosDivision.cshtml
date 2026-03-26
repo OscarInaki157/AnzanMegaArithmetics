@@ -1,7 +1,7 @@
-﻿@model AnzanMegaArithmetics.Models.ConfMultiModel
+﻿@model AnzanMegaArithmetics.Models.ConfDivModel
 @{
-    ViewBag.Title = "Multiplicación";
-    Layout = "_LayoutMultiplicacion";
+    ViewBag.Title = "División";
+    Layout = "_LayoutDivision";
 
     var cantidad = Model.CantidadEjercicios > 0 ? Model.CantidadEjercicios : 5;
     var tiempo = Model.TiempoMeditacion > 0 ? Model.TiempoMeditacion : 3;
@@ -12,33 +12,37 @@
 }
 
 
-<form method="post" asp-controller="HojasEjercicios" asp-action="HojaEjerciciosMultiplicacion" id="formConfigMultiplicacion" class="formulario-flash">
+<form method="post" asp-controller="HojasEjercicios" asp-action="HojaEjerciciosDivision" id="formConfigMultiplicacion" class="formulario-flash">
 
     <div class="form-header">
         <button type="button" class="btn-dashboard" onclick="regresarAlDashboard()">
             <i class="fas fa-home"></i> Regresar al Dashboard
         </button>
-        <h2>Hojas de Ejercicios Multiplicación</h2>
+        <h2>Hojas de Ejercicios División</h2>
     </div>
 
 
     <div class="form-grid">
         <div class="form-column">
-
             <div>
-                <label id="etiquetaNumeroEjercicios">Número de ejercicios:</label>
-                <input type="number"
-                       asp-for="CantidadEjercicios"
-                       min="5"
-                       max="100"
-                       name="cantidadEjercicios" required />
+                <label>Número de ejercicios:</label>
+                <select name="CantidadEjercicios" required>
+                    @for (int i = 1; i <= 30; i++)
+                    {
+                        if (i <= 10 || i % 5 == 0)
+                        {
+                            <option value="@i" selected="@(cantidad == i)">@i</option>
+                        }
+                    }
+                </select>
             </div>
 
             <div>
                 <label>Formato de la pregunta:</label>
                 <select name="FormatoPregunta">
-                    <option value="Vertical" selected="@(formato == "Vertical")">Vertical</option>
-                    <option value="Horizontal" selected="@(formato == "Horizontal")">Horizontal</option>
+                    <option value="Galera" selected="@(formato == "Galera")">Galera</option>
+                    <option value="XY" selected="@(formato == "XY")">X / Y</option>
+                    <option value="Obelo" selected="@(formato == "Obelo")">Óbelo</option>
                 </select>
             </div>
 
@@ -46,19 +50,32 @@
 
         <div class="form-column">
             <div>
-                <label>Tipo de pregunta (dígitos):</label>
+                <label>Tipo de ejercicio:</label>
+                <select name="TipoEjercicio" id="tipoEjercicio">
+                    <option value="exacta" selected="@(Model.TipoEjercicio == "exacta")">Exacta</option>
+                    <option value="inexacta" selected="@(Model.TipoEjercicio == "inexacta")">Inexacta</option>
+                </select>
+            </div>
+            <div>
+                <label>Tipo de pregunta (dígitos dividendo / divisor):</label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <select name="DigitosMultiplicando" required>
+                    <select name="DigitosDividendo" id="selectDividendo" required>
                         @for (int i = 1; i <= 8; i++)
                         {
-                            <option value="@i" selected="@(Model.DigitosMultiplicando == i.ToString())">@i</option>
+                            <option value="@i" selected="@(Model.DigitosDividendo == i.ToString())">
+                                @i @(i == 1 ? "dígito" : "dígitos")
+                            </option>
                         }
                     </select>
-                    <span>X</span>
-                    <select name="DigitosMultiplicador" required>
+
+                    <span> entre </span>
+
+                    <select name="DigitosDivisor" id="selectDivisor" required>
                         @for (int i = 1; i <= 8; i++)
                         {
-                            <option value="@i" selected="@(Model.DigitosMultiplicador == i.ToString())">@i</option>
+                            <option value="@i" selected="@(Model.DigitosDivisor == i.ToString())">
+                                @i @(i == 1 ? "dígito" : "dígitos")
+                            </option>
                         }
                     </select>
                 </div>
@@ -390,4 +407,122 @@
     function regresarAlDashboard() {
              window.location.href = '@Url.Action("HojasEjercicios", "Dashboard")';
     }
+    // Setup del slider
+    document.addEventListener("DOMContentLoaded", () => {
+        const tipoEjercicio = document.getElementById("tipoEjercicio");
+        const selectDividendo = document.getElementById("selectDividendo");
+        const selectDivisor = document.getElementById("selectDivisor");
+        const slider = document.getElementById("velocidadSlider");
+        const input = document.getElementById("velocidadInput");
+
+        slider.addEventListener("input", () => {
+            input.value = slider.value;
+        });
+
+        input.addEventListener("input", () => {
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val >= 0.1 && val <= 10) {
+                slider.value = val;
+            } else {
+                input.value = Math.min(Math.max(val, 0.1), 10);
+            }
+        });
+
+            function validarYCorregir(e) {
+        const esExacta = tipoEjercicio.value === "exacta";
+
+        if (!esExacta) {
+            habilitarTodas(selectDividendo);
+            habilitarTodas(selectDivisor);
+            return;
+        }
+
+        let valDividendo = parseInt(selectDividendo.value);
+        let valDivisor = parseInt(selectDivisor.value);
+        let huboCambio = false;
+
+        // REGLA: Dígitos Dividendo > Dígitos Divisor
+
+        // 1. Caso límite inferior: Si el Dividendo es 1, no puede ser mayor que nada.
+        // Lo subimos a 2 para que el divisor pueda ser 1.
+        if (valDividendo === 1) {
+            selectDividendo.value = "2";
+            valDividendo = 2;
+            huboCambio = true;
+        }
+
+        // 2. Caso límite superior: Si el Divisor es 8, no hay dividendo mayor.
+        // Bajamos el divisor a 7.
+        if (valDivisor === 8) {
+            selectDivisor.value = "7";
+            valDivisor = 7;
+            huboCambio = true;
+        }
+
+        // 3. Autocorrección: Si el divisor es >= al dividendo, ajustamos.
+        if (valDivisor >= valDividendo) {
+            // Si el usuario movió el divisor, subimos el dividendo
+            if (e && e.target.id === "selectDivisor") {
+                selectDividendo.value = (valDivisor + 1).toString();
+                valDividendo = valDivisor + 1;
+            } else {
+                // Si el usuario movió el dividendo (o cambió el modo), bajamos el divisor
+                selectDivisor.value = (valDividendo - 1).toString();
+                valDivisor = valDividendo - 1;
+            }
+            huboCambio = true;
+        }
+
+        // 4. Bloqueo de opciones (Feedback visual de UI/UX)
+        // En el Dividendo: bloqueamos todo lo que sea <= al Divisor actual
+        actualizarOpcionesDisponibles(selectDividendo, (v) => v <= valDivisor);
+
+        // En el Divisor: bloqueamos todo lo que sea >= al Dividendo actual
+        actualizarOpcionesDisponibles(selectDivisor, (v) => v >= valDividendo);
+
+        if (huboCambio) {
+            aplicarEfecto(selectDividendo);
+            aplicarEfecto(selectDivisor);
+        }
+    }
+
+        function actualizarOpcionesDisponibles(select, conditionFn) {
+            Array.from(select.options).forEach(opt => {
+                const val = parseInt(opt.value);
+                if (conditionFn(val)) {
+                    opt.disabled = true;
+                    opt.style.opacity = "0.3";
+                } else {
+                    opt.disabled = false;
+                    opt.style.opacity = "1";
+                }
+            });
+        }
+
+        function habilitarTodas(select) {
+            Array.from(select.options).forEach(opt => {
+                opt.disabled = false;
+                opt.style.opacity = "1";
+            });
+        }
+
+        function aplicarEfecto(el) {
+            el.classList.remove('autoflash');
+            void el.offsetWidth; // Trigger reflow para reiniciar animación
+            el.classList.add('autoflash');
+        }
+
+        // Listeners
+        tipoEjercicio.addEventListener("change", validarYCorregir);
+        selectDividendo.addEventListener("change", validarYCorregir);
+        selectDivisor.addEventListener("change", validarYCorregir);
+
+        // Ejecución inicial para asegurar consistencia al cargar
+        validarYCorregir();
+
+
+    });
+
+
+
 </script>

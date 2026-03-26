@@ -310,5 +310,106 @@ namespace AnzanMegaArithmetics.Controllers
             return ejercicios;
         }
         //potencias
+        //división
+        [HttpGet]
+        public IActionResult ConfigurarHojasEjerciciosDivision() 
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+            var configJson = HttpContext.Session.GetString("UltimaConfigDivision");
+            ConfDivModel modelo;
+
+            if (!string.IsNullOrEmpty(configJson))
+            {
+                modelo = System.Text.Json.JsonSerializer.Deserialize<ConfDivModel>(configJson);
+            }
+            else
+            {
+                modelo = new ConfDivModel
+                {
+                    CantidadEjercicios = 5,
+                    FormatoPregunta = "galera",
+                    DireccionRespuesta = "IzquierdaADerecha",
+                    VelocidadPreguntas = "0.0",
+                    DigitosDividendo = "2",
+                    DigitosDivisor = "2",
+                    TiempoMeditacion = 3,
+                    TipoEjercicio = "exacta"
+                };
+            }
+
+            return View(modelo);
+        }
+
+        [HttpPost]
+        public IActionResult HojaEjerciciosDivision(ConfDivModel config) 
+        {
+            List<RDivisionModel> listaEjercicios = GenerarEjercicios(config);
+            return View(listaEjercicios);
+        }
+
+        private List<RDivisionModel> GenerarEjercicios(ConfDivModel config)
+        {
+            var lista = new List<RDivisionModel>();
+            var random = new Random();
+
+            int digitosDividendo = int.Parse(config.DigitosDividendo);
+            int digitosDivisor = int.Parse(config.DigitosDivisor);
+
+            int minDiv = (int)Math.Pow(10, digitosDividendo - 1);
+            int maxDiv = (int)Math.Pow(10, digitosDividendo) - 1;
+
+            int minDvr = (int)Math.Pow(10, digitosDivisor - 1);
+            int maxDvr = (int)Math.Pow(10, digitosDivisor) - 1;
+
+            for (int i = 0; i < config.CantidadEjercicios; i++)
+            {
+               
+                int divisor = random.Next(minDvr, maxDvr + 1);
+                int dividendo = random.Next(minDiv, maxDiv + 1);
+
+                if (config.TipoEjercicio == "exacta" && maxDiv >= divisor)
+                {
+                    int cociente = dividendo / divisor;
+                    if (cociente == 0) cociente = 1;
+
+                    int nuevoDividendo = divisor * cociente;
+
+                   
+                    while (nuevoDividendo > maxDiv && nuevoDividendo > divisor)
+                    {
+                        nuevoDividendo -= divisor;
+                    }
+
+                    
+                    if (nuevoDividendo < minDiv)
+                    {
+                        nuevoDividendo += divisor;
+                    }
+
+                    dividendo = nuevoDividendo;
+                }
+
+                
+                if (dividendo == 0) dividendo = minDiv;
+                if (divisor == 0) divisor = minDvr;
+
+                lista.Add(new RDivisionModel
+                {
+                    Dividendo = dividendo,
+                    Divisor = divisor,
+                    RespuestaUsuario = -1
+                });
+            }
+            return lista;
+        }
+
+
+        //división
     }
 }

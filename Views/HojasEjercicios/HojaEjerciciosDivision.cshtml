@@ -1,0 +1,321 @@
+﻿@model List<AnzanMegaArithmetics.Models.RDivisionModel>
+@{
+    ViewBag.Title = "Hoja de División - Mentes México";
+    Layout = "_LayoutDivision"; 
+    // Los formatos esperados según tu configuración anterior: "Galera", "XY", "Obelo"
+    string formato = ViewBag.FormatoPregunta ?? "Obelo"; 
+}
+
+<style>
+
+    @@page {
+        size: auto;
+    }
+
+    .main-content {
+        z-index: 1;
+    }
+
+    .page-header {
+        position: absolute;
+    }
+
+    /* --- TOP BAR (No se imprime) --- */
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+
+    .top-bar-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-finalizar {
+        background-color: var(--color-danger, #df312c);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-imprimir {
+        background-color: var(--color-primary, #4c4cff);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-finalizar:hover, .btn-imprimir:hover {
+            transform: scale(1.05);
+        }
+
+    /* --- MARCAS DE AGUA --- */
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-50%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(50%);
+    }
+
+    /* --- DISEÑO DE LA HOJA --- */
+    .hoja-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #333;
+        position: relative;
+    }
+
+    .header-hoja {
+        text-align: center;
+        border-bottom: 2px solid #333;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+    }
+
+        .header-hoja h1 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 26px;
+        }
+
+    .datos-estudiante {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+
+    .contenedor-ejercicios {
+        display: block;
+        column-count: 3;
+        column-gap: 30px;
+        width: 100%;
+    }
+
+    .ejercicio-item {
+        display: flex;
+        align-items: center;
+        font-size: 1.5rem;
+        padding: 1.2rem 0;
+        border-bottom: 1px dashed #ccc;
+        break-inside: avoid-column;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 5px;
+    }
+
+    .num-ej {
+        font-size: 14px;
+        margin-right: 12px;
+        font-weight: bold;
+        align-self: flex-start; /* Ayuda a que el número quede arriba si el ejercicio es alto */
+        margin-top: 5px;
+    }
+
+    .div-horizontal {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .linea-resp {
+        flex-grow: 1;
+        border-bottom: 1px solid #333;
+        margin-left: 10px;
+        height: 1.2rem;
+    }
+
+    /* --- ESTILOS ESPECÍFICOS PARA GALERA EN IMPRESIÓN --- */
+    .galera-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        gap: 0;
+        margin-top: 25px; /* Espacio arriba para que el alumno escriba el cociente */
+        margin-bottom: 5px;
+    }
+
+    .divisor-text {
+        font-size: 1.5rem;
+        padding-right: 0.5rem;
+        border-right: 2px solid #333;
+        line-height: 1.1;
+        font-weight: 700;
+        margin-bottom: 0.1rem;
+    }
+
+    .dividendo-box {
+        border-top: 2px solid #333;
+        padding: 0.1rem 0.5rem 0 0.5rem;
+        line-height: 1.1;
+    }
+
+    .division-text {
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: 0.1rem;
+    }
+
+    /* --- CLAVE DE RESPUESTAS --- */
+    .clave-seccion {
+        break-before: page;
+        page-break-before: always;
+        margin-top: 50px;
+        border-top: 2px solid #333;
+        padding-top: 20px;
+    }
+
+        .clave-seccion .contenedor-ejercicios {
+            column-count: 4; /* 4 columnas para respuestas suele ser mejor */
+            display: block;
+        }
+
+        .clave-seccion div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+    /* --- MEDIA PRINT --- */
+    @@media print {
+        .top-bar {
+            display: none !important;
+        }
+
+        .hoja-container {
+            margin: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        body {
+            background-color: white;
+            color: black;
+        }
+
+        .header-hoja, .clave-seccion {
+            border-color: black;
+        }
+
+        .linea-resp, .divisor-text, .dividendo-box {
+            border-color: black;
+        }
+
+        .cerebro-marca {
+            opacity: 0.07;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <div style="color: white; font-weight: bold; font-size: 1.2rem;">
+        🧠 Mentes México <span style="font-weight: 200; font-size: 0.9rem; opacity: 0.7;">| División @formato</span>
+    </div>
+    <div class="top-bar-buttons">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Hoja</button>
+        <form asp-action="ConfigurarHojasEjerciciosDivision" method="get" style="margin:0;">
+            <button type="submit" class="btn-finalizar">❌ Finalizar</button>
+        </form>
+    </div>
+</div>
+
+<div class="hoja-container">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <div class="seccion-principal">
+        <div class="header-hoja">
+            <h1>Mentes México</h1>
+            <p style="margin: 5px 0; font-weight: 600;">Ejercicios de División (@formato)</p>
+        </div>
+
+        <div class="datos-estudiante">
+            <span><strong>Nombre:</strong> ____________________________________</span>
+            <span><strong>Fecha:</strong> ____/____/_______</span>
+        </div>
+
+        <div class="contenedor-ejercicios">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div class="ejercicio-item">
+                    <span class="num-ej">@(i + 1))</span>
+
+                    @if (formato == "Galera")
+                    {
+                        <div class="galera-container">
+                            <span class="divisor-text">@item.Divisor</span>
+                            <div class="dividendo-box">
+                                <span class="division-text">@item.Dividendo</span>
+                            </div>
+                        </div>
+                    }
+                    else if (formato == "XY")
+                    {
+                        <div class="div-horizontal">
+                            <span>@item.Dividendo / @item.Divisor = </span>
+                            <span class="linea-resp"></span>
+                        </div>
+                    }
+                    else // Obelo por defecto
+                    {
+                        <div class="div-horizontal">
+                            <span>@item.Dividendo ÷ @item.Divisor = </span>
+                            <span class="linea-resp"></span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="clave-seccion">
+        <h2 style="text-align: center;">Clave de Respuestas</h2>
+        <div class="contenedor-ejercicios" style="font-size: 16px;">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div style="border-bottom: 1px solid #eee; padding: 5px; break-inside: avoid;">
+                    <strong>@(i + 1))</strong> @item.Dividendo ÷ @item.Divisor = <br />
+                    <strong style="color: #28a745;">@item.RespuestaCorrecta</strong>
+                </div>
+            }
+        </div>
+    </div>
+</div>
