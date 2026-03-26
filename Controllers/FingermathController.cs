@@ -65,7 +65,8 @@ namespace AnzanMegaArithmetics.Controllers
                TipoPregunta = tipo ?? "ambas",
                VelocidadPreguntas = velocidad ?? "0",
                TiempoMeditacion = 3,
-               CantidadEjercicios = cantidad ?? 10
+               CantidadEjercicios = cantidad ?? 10,
+               Estilo = 0
             };
 
             return View(modelo);
@@ -83,6 +84,7 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["TiempoMeditacion"] = config.TiempoMeditacion;
             TempData["CantidadEjercicios"] = config.CantidadEjercicios;
             TempData["EjerciciosRealizados"] = 0;
+            TempData["Estilo"] = config.Estilo;
             TempData["Resultados"] = JsonSerializer.Serialize(new List<RLecturaFingerModel>());
 
             ViewBag.TiempoMeditacion = config.TiempoMeditacion;
@@ -97,7 +99,7 @@ namespace AnzanMegaArithmetics.Controllers
         {
             string tipoPregunta = TempData["TipoPregunta"]?.ToString();
             float velocidadPreguntas = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
-
+            int estilo = Convert.ToInt32(TempData["Estilo"]);
             int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
@@ -166,7 +168,7 @@ namespace AnzanMegaArithmetics.Controllers
             ViewBag.RespuestaCorrecta = valor;
             ViewBag.EjercicioActual = ejerciciosRealizados + 1;
             ViewBag.TotalEjercicios = cantidadEjercicios;
-
+            ViewBag.SkinId = estilo;
             TempData["RespuestaCorrecta"] = valor;
             TempData["EjerciciosRealizados"] = ejerciciosRealizados;
             TempData["Resultados"] = JsonSerializer.Serialize(resultados);
@@ -308,7 +310,8 @@ namespace AnzanMegaArithmetics.Controllers
                 TipoPregunta = tipo ?? "ambas",
                 VelocidadPreguntas = velocidad ?? "0",
                 TiempoMeditacion = 3,
-                CantidadEjercicios = cantidad ?? 10
+                CantidadEjercicios = cantidad ?? 10,
+                Estilo = 0
             };
 
             return View(modelo);
@@ -327,7 +330,7 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["CantidadEjercicios"] = config.CantidadEjercicios;
             TempData["EjerciciosRealizados"] = 0;
             TempData["Resultados"] = JsonSerializer.Serialize(new List<REscrituraFingerModel>());
-
+            TempData["Estilo"] = config.Estilo;
             ViewBag.TiempoMeditacion = config.TiempoMeditacion;
             ViewBag.TipoPregunta = config.TipoPregunta;
             ViewBag.VelocidadPreguntas = config.VelocidadPreguntas;
@@ -340,7 +343,7 @@ namespace AnzanMegaArithmetics.Controllers
         {
             string tipoPregunta = TempData["TipoPregunta"]?.ToString();
             float velocidadPreguntas = float.Parse(TempData["VelocidadPreguntas"].ToString().Replace(",", "."), CultureInfo.InvariantCulture);
-
+            int estilo = Convert.ToInt32(TempData["Estilo"]);
             int cantidadEjercicios = Convert.ToInt32(TempData["CantidadEjercicios"]);
             int ejerciciosRealizados = Convert.ToInt32(TempData["EjerciciosRealizados"]);
 
@@ -394,7 +397,7 @@ namespace AnzanMegaArithmetics.Controllers
             TempData["VelocidadPreguntas"] = velocidadPreguntas.ToString(CultureInfo.InvariantCulture);
 
             TempData["CantidadEjercicios"] = cantidadEjercicios;
-
+            ViewBag.SkinId = estilo;
             TempData.Keep();
 
             return View();

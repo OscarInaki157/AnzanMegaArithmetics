@@ -21,5 +21,6 @@ namespace AnzanMegaArithmetics.Models
         [Display(Name = "Tiempo de concentración:")]
         [Range(0, 10)]
         public int TiempoMeditacion { get; set; }
+        public int Estilo { get; set; }
     }
 }
