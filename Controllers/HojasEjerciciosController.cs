@@ -445,7 +445,6 @@ namespace AnzanMegaArithmetics.Controllers
             return View(config);
         }
 
-        // 1. EL ENDPOINT (El que recibe el Post del formulario y devuelve la vista con la lista)
         [HttpPost]
         public IActionResult HojaEjerciciosSR(ConfSumaRestaModel config)
         {
@@ -874,5 +873,163 @@ namespace AnzanMegaArithmetics.Controllers
             return resultado;
         }
         //sumaresta
+        //cuadros
+        [HttpGet]
+        public IActionResult ConfigurarHojasEjerciciosCuadros(ConfCuadrosModel config)
+        {
+            var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            if (userId == null || userId == 0)
+            {
+                return RedirectToAction("Inicio", "Inicio");
+            }
+
+                config = new ConfCuadrosModel
+                {
+                    CantidadRejillas = 1,
+                    DimensionRejilla = "10X5",
+                    TipoIluminacion = "ninguna",
+                    TipoOperacion = "suma",
+                    DigitosSuma = "1,2,3,4,5,6,7,8,9",
+                    DigitosResta = "1,2,3,4,5,6,7,8,9"
+                };
+
+            return View(config);
+        }
+
+        [HttpPost]
+        public IActionResult HojaEjerciciosCuadros(ConfCuadrosModel config)
+        {
+            List<EjercicioCuadrosModel> sesionejercicios = GenerarRejillas(config);
+            ViewBag.Dimension = config.DimensionRejilla;
+            return View(sesionejercicios);
+        }
+
+        private List<EjercicioCuadrosModel> GenerarRejillas(ConfCuadrosModel config)
+        {
+            string dgSuma = config.DigitosSuma;
+            string dgResta = config.DigitosResta;
+            string[] dimension = config.DimensionRejilla.Split('X');
+            string filasStr = dimension[0].Trim();
+            string columnasStr = dimension[1].Trim();
+
+            int filas = int.Parse(filasStr);
+            int columnas = int.Parse(columnasStr);
+            int profundidad = filas * columnas;
+            List<int> DigitosEjercicio = new();
+            Random random = new Random();
+
+            //sacar los digitos
+            if (config.TipoOperacion == "suma")
+            {
+                //solo se pasan digitos suma
+                List<int> DigitosSuma = ParsearDigitos(dgSuma);
+
+                DigitosEjercicio = DigitosSuma.ToList();
+            }
+            else
+            {
+                //pasan digitos suma y resta
+                List<int> DigitosSuma = ParsearDigitos(dgSuma);
+                List<int> DigitosResta = ParsearDigitos(dgResta);
+                //convertir los digitos a negativos, para resta
+
+                List<int> Negativos = DigitosResta.Select(d => -d).ToList();
+
+                DigitosEjercicio = DigitosSuma.Concat(Negativos).ToList();
+            }
+
+            if (!DigitosEjercicio.Any())
+            {
+                // Usar valores por defecto si no hay dígitos
+                DigitosEjercicio = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            }
+
+            List<EjercicioCuadrosModel> ejercicios = new();
+
+            for (int i = 0; i < config.CantidadRejillas; i++)
+            {
+                EjercicioCuadrosModel ejercicio = new();
+                ejercicio.NumeroEjercicio = i + 1;
+                ejercicio.Iluminacion = config.TipoIluminacion;
+
+                ejercicio.Rejilla = GenerarEjercicioCuadros(profundidad, DigitosEjercicio, random);
+
+
+                ejercicios.Add(ejercicio);
+            }
+
+            return ejercicios;
+        }
+
+        private List<int> ParsearDigitos(string digitos)
+        {
+            return digitos.Split(',').Select(d => d.Trim()).Where(d => !string.IsNullOrEmpty(d)).Select(int.Parse).ToList();
+        }
+
+        private List<int> GenerarEjercicioCuadros(int profundidad, List<int> DigitosEjercicio, Random random)
+        {
+            List<int> rejilla = new();
+            int sumaTotal = 0;
+
+            // Primero llenar con números que nos ayuden a mantener suma positiva
+            for (int i = 0; i < profundidad; i++)
+            {
+                int numero;
+                int intentos = 0;
+
+                do
+                {
+                    if (sumaTotal < 0 && intentos > 10)
+                    {
+                        // Filtrar solo números positivos
+                        var positivos = DigitosEjercicio.Where(n => n > 0).ToList();
+                        if (positivos.Any())
+                        {
+                            numero = positivos[random.Next(positivos.Count)];
+                        }
+                        else
+                        {
+                            numero = DigitosEjercicio[random.Next(DigitosEjercicio.Count)];
+                        }
+                    }
+                    else
+                    {
+                        numero = DigitosEjercicio[random.Next(DigitosEjercicio.Count)];
+                    }
+
+                    intentos++;
+
+                } while ((sumaTotal + numero) < 0 && intentos < 20);
+
+                rejilla.Add(numero);
+                sumaTotal += numero;
+            }
+
+            // Verificación final por si acaso
+            if (sumaTotal < 0)
+            {
+                // Reemplazar algunos negativos por positivos
+                for (int i = 0; i < rejilla.Count && sumaTotal < 0; i++)
+                {
+                    if (rejilla[i] < 0)
+                    {
+                        var positivos = DigitosEjercicio.Where(n => n > 0).ToList();
+                        if (positivos.Any())
+                        {
+                            int nuevoNumero = positivos[random.Next(positivos.Count)];
+                            sumaTotal -= rejilla[i]; // quitar el negativo
+                            sumaTotal += nuevoNumero; // agregar el positivo
+                            rejilla[i] = nuevoNumero;
+                        }
+                    }
+                }
+            }
+
+            return rejilla;
+        }
+
+
+        //cuadros
     }
 }

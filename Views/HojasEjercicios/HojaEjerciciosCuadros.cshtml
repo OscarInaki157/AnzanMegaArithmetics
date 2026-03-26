@@ -1,0 +1,329 @@
+﻿@model List<AnzanMegaArithmetics.Models.EjercicioCuadrosModel>
+@{
+    ViewBag.Title = "Hoja de Cuadros - Mentes México";
+    Layout = "_LayoutCuadros"; // Cambia el layout si usas uno específico
+
+    // Obtenemos la dimensión para saber cuántas columnas dibujar
+    string dimensionStr = ViewBag.Dimension ?? "3X3";
+    string[] dimParts = dimensionStr.ToUpper().Split('X');
+    int columnas = 3; // Valor por defecto
+    if (dimParts.Length == 2)
+    {
+        int.TryParse(dimParts[1].Trim(), out columnas);
+    }
+}
+
+<style>
+    @@page {
+        size: auto;
+        margin: 1.5cm;
+    }
+
+    .main-content {
+        z-index: 1;
+    }
+
+    /* --- TOP BAR (No se imprime) --- */
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-sizing: border-box;
+        background-color: var(--bg-color, #1b1e3c);
+    }
+
+    .top-bar-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-finalizar {
+        background-color: var(--color-danger, #df312c);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-imprimir {
+        background-color: var(--color-primary, #4c4cff);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-finalizar:hover, .btn-imprimir:hover {
+            transform: scale(1.05);
+        }
+
+    /* --- MARCAS DE AGUA --- */
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-50%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(50%);
+    }
+
+    /* --- DISEÑO DE LA HOJA (UN EJERCICIO POR PÁGINA) --- */
+    .hoja-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #333;
+        position: relative;
+    }
+
+    /* Esta clase fuerza el salto de página después de cada cuadro */
+    .pagina-ejercicio {
+        break-after: page;
+        page-break-after: always;
+        position: relative;
+        min-height: 80vh; /* Para ocupar buena parte de la hoja */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header-hoja {
+        text-align: center;
+        border-bottom: 2px solid white;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+    }
+
+        .header-hoja h1 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 26px;
+        }
+
+    .datos-estudiante {
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+
+    /* --- ESTILOS DE LA REJILLA / CUADROS --- */
+    .rejilla-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start; /* Cambiado para que no se empuje tanto hacia abajo */
+        padding-top: 10px;
+    }
+
+    .num-ej-titulo {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .rejilla-grid {
+        display: grid;
+        width: 100%;
+        max-width: 400px; /* Reducimos el tamaño máximo general (antes 500px) */
+        margin-bottom:2rem;
+    }
+
+    .celda-numero {
+        border: 2px solid #333; /* Borde ligeramente más fino */
+        aspect-ratio: 1; /* Mantiene el cuadrado perfecto */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem; /* Letra más pequeña (antes 2.5rem) */
+        font-weight: bold;
+    }
+
+    .zona-respuesta {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+
+    .linea-resp {
+        display: inline-block;
+        width: 150px; /* Línea un poco más corta */
+        border-bottom: 2px solid white;
+        margin-left: 10px;
+    }
+
+
+    /* --- CLAVE DE RESPUESTAS --- */
+    .clave-seccion {
+        break-before: page;
+        page-break-before: always;
+        padding-top: 20px;
+    }
+
+    .contenedor-claves {
+        column-count: 5;
+        display: block;
+        margin-top: 30px;
+    }
+
+    .clave-item {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 5px;
+        break-inside: avoid;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+    /* --- MEDIA PRINT (Con correcciones de márgenes y encabezados) --- */
+    @@media print {
+        header {
+            position: static !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        nav, footer, .navbar {
+            display: none !important;
+        }
+
+        .top-bar {
+            display: none !important;
+        }
+
+        body, main, .main-content {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+            background-color: white !important;
+            color: black !important;
+        }
+
+        .hoja-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+        }
+
+        .cerebro-marca {
+            opacity: 0.07 !important;
+        }
+        /* Evitar que la última página deje un salto extra */
+        .pagina-ejercicio:last-of-type {
+            break-after: auto;
+            page-break-after: auto;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            gap: 2rem;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <div style="color: white; font-weight: bold; font-size: 1.2rem;">
+        🧠 Mentes México <span style="font-weight: 200; font-size: 0.9rem; opacity: 0.7;">| Ejercicios de Cuadros (@dimensionStr)</span>
+    </div>
+    <div class="top-bar-buttons">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Hoja</button>
+        <form asp-action="ConfigurarHojasEjerciciosCuadros" method="get" style="margin:0;">
+            <button type="submit" class="btn-finalizar">❌ Finalizar</button>
+        </form>
+    </div>
+</div>
+
+<div class="hoja-container">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    @* ITERAMOS SOBRE CADA EJERCICIO PARA CREAR UNA PÁGINA COMPLETA *@
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        var item = Model[i];
+
+        <div class="pagina-ejercicio">
+
+            @* Encabezado y datos del alumno (se repite en cada página) *@
+            <div class="header-hoja">
+                <h1>Mentes México</h1>
+                <p style="margin: 5px 0; font-weight: 600;">Cálculo Mental - Cuadros (@dimensionStr)</p>
+            </div>
+
+            <div class="datos-estudiante">
+                <span><strong>Nombre:</strong> ____________________________________</span>
+                <span><strong>Fecha:</strong> ____/____/_______</span>
+            </div>
+
+            @* Contenido de la Rejilla *@
+            <div class="rejilla-wrapper">
+                <div class="num-ej-titulo">Ejercicio #@(i + 1)</div>
+
+                @* Estilo en línea para definir dinámicamente las columnas *@
+                <div class="rejilla-grid" style="grid-template-columns: repeat(@columnas, 1fr);">
+                    @foreach (var numero in item.Rejilla)
+                    {
+                        <div class="celda-numero">
+                            @numero
+                        </div>
+                    }
+                </div>
+
+                <div class="zona-respuesta">
+                    Suma total: <span class="linea-resp"></span>
+                </div>
+            </div>
+
+        </div>
+    }
+
+    @* CLAVE DE RESPUESTAS (EN UNA HOJA APARTE AL FINAL) *@
+    <div class="clave-seccion">
+        <h2 style="text-align: center; padding-bottom: 10px;">Clave de Respuestas</h2>
+        <div class="contenedor-claves">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div class="clave-item">
+                    <strong>@(i + 1))</strong> <br />
+                    <strong style="color: #28a745; font-size: 1.4rem;">@item.RCorrecta</strong>
+                </div>
+            }
+        </div>
+    </div>
+</div>
