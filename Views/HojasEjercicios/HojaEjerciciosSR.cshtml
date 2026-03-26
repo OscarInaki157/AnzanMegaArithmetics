@@ -1,0 +1,288 @@
+﻿@model List<AnzanMegaArithmetics.Models.EjerciciosSumaRestaHoja>
+@{
+    ViewBag.Title = "Hoja de Suma y Resta - Mentes México";
+    Layout = "_Layout"; // Cambia esto si tienes un layout específico para SumaResta
+}
+
+<style>
+    @page {
+        size: auto;
+    }
+
+    .main-content {
+        z-index: 1;
+    }
+
+    /* --- TOP BAR (No se imprime) --- */
+    .top-bar {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-sizing: border-box;
+        background-color: var(--bg-color, #1b1e3c); /* Asegura contraste si usas modo oscuro */
+    }
+
+    .top-bar-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-finalizar {
+        background-color: var(--color-danger, #df312c);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-imprimir {
+        background-color: var(--color-primary, #4c4cff);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-finalizar:hover, .btn-imprimir:hover {
+            transform: scale(1.05);
+        }
+
+    /* --- MARCAS DE AGUA --- */
+    .cerebro-marca {
+        position: fixed;
+        top: 30%;
+        width: 25rem;
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .izquierdo {
+        left: 0;
+        transform: translateX(-50%);
+    }
+
+    .derecho {
+        right: 0;
+        transform: translateX(50%);
+    }
+
+    /* --- DISEÑO DE LA HOJA --- */
+    .hoja-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        color: #333;
+        position: relative;
+        background-color: white; /* Forzamos fondo blanco para la vista previa */
+    }
+
+    .header-hoja {
+        text-align: center;
+        border-bottom: 2px solid #333;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+    }
+
+        .header-hoja h1 {
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 26px;
+        }
+
+    .datos-estudiante {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+
+    /* --- ESTILOS DE COLUMNAS ANZAN --- */
+    .contenedor-ejercicios {
+        display: block;
+        column-count: 5; /* 5 columnas es el estándar para cálculo mental */
+        column-gap: 30px;
+        width: 100%;
+    }
+
+    .ejercicio-anzan {
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 25px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .num-ej {
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+        border: 2px solid #333;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        line-height: 24px;
+        margin: 0 auto 10px auto;
+    }
+
+    .columna-numeros {
+        display: flex;
+        flex-direction: column;
+        font-size: 1.4rem;
+        font-weight: 600;
+        padding: 0 10px;
+    }
+
+    .fila-numero {
+        display: flex;
+        justify-content: space-between;
+        line-height: 1.3;
+    }
+
+    .signo {
+        width: 15px;
+        text-align: left;
+    }
+
+    .numero {
+        text-align: right;
+        flex-grow: 1;
+        letter-spacing: 2px; /* Separación sutil entre dígitos */
+    }
+
+    .linea-resultado {
+        border-bottom: 2px solid #333;
+        margin-top: 5px;
+        height: 35px; /* Espacio para que el alumno escriba */
+        width: 100%;
+    }
+
+    /* --- CLAVE DE RESPUESTAS --- */
+    .clave-seccion {
+        break-before: page;
+        page-break-before: always;
+        margin-top: 50px;
+        border-top: 2px solid #333;
+        padding-top: 20px;
+    }
+
+        .clave-seccion .contenedor-claves {
+            column-count: 5; 
+            display: block;
+        }
+
+        .clave-seccion div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+    /* --- MEDIA PRINT --- */
+    @media print {
+        .top-bar {
+            display: none !important;
+        }
+
+        .hoja-container {
+            margin: 0;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: none;
+        }
+
+        body {
+            background-color: white;
+            color: black;
+        }
+
+        .cerebro-marca {
+            opacity: 0.07;
+        }
+    }
+</style>
+
+<div class="top-bar">
+    <div style="color: white; font-weight: bold; font-size: 1.2rem;">
+        🧠 Mentes México <span style="font-weight: 200; font-size: 0.9rem; opacity: 0.7;">| Suma y Resta Mental</span>
+    </div>
+    <div class="top-bar-buttons">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Hoja</button>
+        <form asp-action="ConfigurarHojasEjerciciosSR" method="get" style="margin:0;">
+            <button type="submit" class="btn-finalizar">❌ Finalizar</button>
+        </form>
+    </div>
+</div>
+
+<div class="hoja-container">
+    <img src="/Content/Images/logosr.png" class="cerebro-marca izquierdo" />
+    <img src="/Content/Images/logosr.png" class="cerebro-marca derecho" />
+
+    <div class="seccion-principal">
+        <div class="header-hoja">
+            <h1>Mentes México</h1>
+            <p style="margin: 5px 0; font-weight: 600;">Ejercicios de Suma y Resta</p>
+        </div>
+
+        <div class="datos-estudiante">
+            <span><strong>Nombre:</strong> ____________________________________</span>
+            <span><strong>Fecha:</strong> ____/____/_______</span>
+        </div>
+
+        <div class="contenedor-ejercicios">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div class="ejercicio-anzan">
+                    <div class="num-ej">@(i + 1)</div>
+                    
+                    <div class="columna-numeros">
+                        @for (int j = 0; j < item.Numeros.Count; j++)
+                        {
+                            <div class="fila-numero">
+                                <span class="signo">
+                                    @(item.Operaciones[j] == "-" ? "-" : "")
+                                </span>
+                                <span class="numero">@item.Numeros[j]</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="linea-resultado"></div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="clave-seccion">
+        <h2 style="text-align: center;">Clave de Respuestas</h2>
+        <div class="contenedor-claves" style="font-size: 16px;">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div style="border-bottom: 1px solid #eee; padding: 5px; break-inside: avoid; text-align: center;">
+                    <strong>@(i + 1))</strong> 
+                    <br />
+                    <strong style="color: #28a745; font-size: 1.2rem;">@item.RespuestaCorrecta</strong>
+                </div>
+            }
+        </div>
+    </div>
+</div>
