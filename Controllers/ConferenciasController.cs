@@ -15,7 +15,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult FingerPanel(ConfConferencias config)
         {
-            HttpContext.Session.SetInt32("ColorBrillo", config.Color);
+            HttpContext.Session.SetInt32("EstiloManos", config.Estilo);
             return View();
         }
 
@@ -27,7 +27,7 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public IActionResult SorobanPanel(ConfConferencias config)
         {
-            HttpContext.Session.SetInt32("ColorBrillo", config.Color);
+            HttpContext.Session.SetInt32("EstiloSoroban", config.Estilo);
             return View();
         }
 

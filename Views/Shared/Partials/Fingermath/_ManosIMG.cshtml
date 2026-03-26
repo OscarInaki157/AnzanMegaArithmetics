@@ -1,0 +1,283 @@
+﻿@model int
+@{
+    string nombreSkin = Model switch
+    {
+        5 => "Manos1",
+        _ => "Manos1"
+    };
+    string rutaBase = $"/Content/Images/Fingermath/{nombreSkin}/";
+}
+
+<div class="manos-container">
+    <div class="manos-wrapper">
+
+        <div class="palmas-wrapper">
+            <img src="@Url.Content(rutaBase + "Pizq.png")" class="palma izq" />
+            <img src="@Url.Content(rutaBase + "Pder.png")" class="palma der" />
+        </div>
+
+        <<div class="puntos-wrapper">
+            @for (int i = 1; i <= 10; i++)
+            {
+                int valorDedo = (i <= 4) ? 10 : (i == 5 ? 50 : (i == 6 ? 5 : 1));
+
+                <div class="punto dedo dedo@(i)" data-valor="@valorDedo">
+                    @* El contenedor extra para mayor control visual *@
+                    <div class="dedo-container">
+                        @* Añadimos la clase dinámica img-dedo1, img-dedo2, etc. *@
+                        <img src="@Url.Content(rutaBase + i + ".png")"
+                             class="finger-img normal img-dedo@(i)" />
+
+                        <img src="@Url.Content(rutaBase + i + "A.png")"
+                             class="finger-img activa img-dedo@(i)" />
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .manos-wrapper {
+        position: relative;
+        width: 43rem;
+        height: 35rem;
+        margin: 0 auto;
+    }
+
+    .palmas-wrapper {
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .palma {
+        position: absolute;
+        width: 32rem;
+        z-index:99;
+    }
+
+        .palma.izq {
+            left: -15%;
+            margin-top:12%;
+        }
+
+        .palma.der {
+            right: -15%;
+            margin-top: 12%;
+        }
+
+
+    .puntos-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: auto;
+    }
+
+
+    .mano-container {
+        position: relative;
+        width: 250px;
+    }
+
+    .mano-img {
+        width: 100%;
+        height: auto;
+    }
+
+    .punto {
+        width: 2.39rem;
+        height: 8rem;
+        background-color: gray;
+        position: absolute;
+        /* opacity: 0; */
+        transition: all 0.3s ease;
+        border-top-left-radius: 30%;
+        border-top-right-radius: 30%;
+    }
+
+        .punto.iluminado {
+            background-color: #ff4c4c;
+            opacity: 0;
+            box-shadow: 0 0 10px #ff4c4c;
+        }
+
+    svg #dedo1.iluminado,
+    svg #dedo2.iluminado,
+    svg #dedo3.iluminado,
+    svg #dedo4.iluminado,
+    svg #dedo5.iluminado,
+    svg #dedo6.iluminado,
+    svg #dedo7.iluminado,
+    svg #dedo8.iluminado,
+    svg #dedo9.iluminado,
+    svg #dedo10.iluminado {
+        fill: #ff4c4c;
+        filter: drop-shadow(0 0 8px #ff4c4c);
+    }
+
+    .dedo-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .finger-img {
+        position: absolute;
+        width: 5rem;
+        height: 10rem;
+        object-fit: cover;
+        top:0;
+        left:0;
+    }
+
+    .img-dedo1 {
+        transform: translateX(-20%) rotate(16deg);
+    }
+
+    .img-dedo2 {
+        transform: translateX(-23%) rotate(9deg);
+
+    }
+
+    .img-dedo3 {
+        transform: translateY(-5px) rotate(-2deg);
+  
+    }
+
+    .img-dedo4 {
+        transform: translateY(-5px) rotate(-2deg);
+
+    }
+
+    .img-dedo5 {
+        transform: translateY(-5px) rotate(-2deg);
+ 
+    }
+
+        .finger-img.activa {
+            opacity: 0; /* Oculta la versión 'A' por defecto */
+            z-index: 5;
+        }
+
+        .finger-img.normal {
+            opacity: 1;
+            z-index: 4;
+        }
+
+    /* Dedos */
+    .dedo1 {
+        top: 30%;
+        left: 5%;
+        transform: rotate(-17deg);
+    }
+
+    .dedo2 {
+        top: 22%;
+        left: 12.3%;
+        transform: rotate(-10deg);
+    }
+
+    .dedo3 {
+        top: 19%;
+        left: 21%;
+    }
+
+    .dedo4 {
+        top: 22%;
+        left: 31%;
+        transform: rotate(8deg);
+    }
+
+    .dedo5 {
+        top: 42%;
+        left: 38%;
+        transform: rotate(20deg);
+    }
+
+    .dedo6 {
+        top: 43%;
+        left: 55%;
+        transform: rotate(-20deg);
+    }
+
+    .dedo7 {
+        top: 22%;
+        left: 61.6%;
+        transform: rotate(-8deg);
+    }
+
+    .dedo8 {
+        top: 19%;
+        left: 71.3%;
+    }
+
+    .dedo9 {
+        top: 22%;
+        left: 80.4%;
+        transform: rotate(7deg);
+    }
+
+    .dedo10 {
+        top: 31%;
+        left: 87.9%;
+        transform: rotate(21deg);
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+    @@media (max-width: 767px) {
+
+        .punto {
+            width: 1.4rem;
+            height: 5rem;
+        }
+
+        .manos-wrapper {
+            width: 28rem;
+            height: 28rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .palma{
+            width:22rem;
+        }
+
+
+        
+    }
+</style>

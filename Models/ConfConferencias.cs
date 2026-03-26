@@ -5,7 +5,7 @@ namespace AnzanMegaArithmetics.Models
     public class ConfConferencias
     {
         [Required]
-        [Display(Name = "Color:")]
-        public int Color { get; set; }
+        [Display(Name = "Estilo:")]
+        public int Estilo { get; set; }
     }
 }
