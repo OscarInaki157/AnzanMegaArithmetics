@@ -97,7 +97,7 @@
 
     .header-hoja {
         text-align: center;
-        border-bottom: 2px solid #333;
+        border-bottom: 2px solid white;
         margin-bottom: 30px;
         padding-bottom: 10px;
     }
@@ -180,7 +180,7 @@
         break-before: page;
         page-break-before: always;
         margin-top: 50px;
-        border-top: 2px solid #333;
+        border-bottom: 2px solid white;
         padding-top: 20px;
     }
 
@@ -194,42 +194,60 @@
             page-break-inside: avoid;
         }
 
-    /* --- MEDIA PRINT --- */
-  /* --- MEDIA PRINT --- */
     @@media print {
-        /* 1. Ocultar tu barra superior local */
-        .top-bar {
-            display: none !important;
+        header {
+            position: static !important;
+            margin-bottom: 0 !important; /* Limpia espacio debajo del encabezado del layout */
+            padding-bottom: 0 !important;
         }
 
-        /* 2. Ocultar CUALQUIER encabezado o menú que venga del _LayoutSR */
-        header, nav, footer, .navbar {
-            display: none !important;
-        }
-
-        /* 3. Quitar paddings o márgenes que el Layout le pone al body para empujar el contenido */
-        body, .main-content {
+        body, main, .main-content {
             padding-top: 0 !important;
             margin-top: 0 !important;
-            background-color: white !important;
-            color: black !important;
         }
-
+        /* 2. Asegurarnos de que tu contenedor no empuje hacia abajo */
         .hoja-container {
             margin: 0 !important;
+            margin-top: 0 !important; /* Redundante, pero asegura que quite los 40px */
             padding: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
             box-shadow: none !important;
         }
+        /* 3. Limpiar cualquier margen oculto antes del título */
+        .seccion-principal {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .header-hoja {
+            margin-top: 0 !important;
+        }
+
+        .top-bar {
+            display: none !important;
+        }
+
+        .hoja-container {
+            margin: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        body {
+            background-color: white;
+        }
 
         .cerebro-marca {
-            opacity: 0.07 !important;
+            opacity: 0.07;
         }
-        
-        /* 4. Asegurar un margen limpio en las hojas impresas */
-        @@page {
-            margin: 1.5cm;
+        /* Se mantiene un poco en la impresión */
+    }
+
+    @@media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            gap: 2rem;
         }
     }
 </style>

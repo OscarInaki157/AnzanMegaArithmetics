@@ -433,6 +433,7 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 config = new ConfSumaRestaModel
                 {
+                    CantidadEjercicios = 5,
                     DigitosSuma = "1,2,3,4,5,6,7,8,9",
                     DigitosResta = "1,2,3,4,5,6,7,8,9",
                     NumeroOperaciones = 4,

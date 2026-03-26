@@ -103,7 +103,7 @@
 
     .header-hoja {
         text-align: center;
-        border-bottom: 2px solid #333;
+        border-bottom: 2px solid white;
         margin-bottom: 30px;
         padding-bottom: 10px;
     }
@@ -193,7 +193,6 @@
         break-before: page;
         page-break-before: always;
         margin-top: 50px;
-        border-top: 2px solid #333;
         padding-top: 20px;
     }
 
@@ -207,7 +206,6 @@
             page-break-inside: avoid;
         }
 
-    /* --- MEDIA PRINT --- */
     @@media print {
         .top-bar {
             display: none !important;
@@ -221,19 +219,18 @@
 
         body {
             background-color: white;
-            color: black;
-        }
-
-        .header-hoja, .clave-seccion {
-            border-color: black;
-        }
-
-        .dividendo-box, .linea-resp {
-            border-color: black !important;
         }
 
         .cerebro-marca {
             opacity: 0.07;
+        }
+        /* Se mantiene un poco en la impresión */
+    }
+
+    @@media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            gap: 2rem;
         }
     }
 </style>
