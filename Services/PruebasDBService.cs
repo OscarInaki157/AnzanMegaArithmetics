@@ -77,12 +77,15 @@ namespace AnzanMegaArithmetics.Services
                 {
                     string configJson = model.Configuracion;
 
+
                     configJson = configJson.Replace("\\r", "").Replace("\\n", "").Replace("\r", "").Replace("\n", "");
 
-                    if (model.Tipo_Prueba == "Suma Resta")
+
+                    if (model.Tipo_Prueba == "Suma Resta" || model.Tipo_Prueba == "Números Flash" || model.Tipo_Prueba == "Dictado Flash")
                     {
                         try
                         {
+
                             var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(configJson);
 
                             if (dict != null && dict.TryGetValue("TipoOperacion", out JsonElement tipoOpElement))
@@ -101,11 +104,11 @@ namespace AnzanMegaArithmetics.Services
                                 }
                             }
 
+                            // Volvemos a armar el JSON ya filtrado
                             configJson = JsonSerializer.Serialize(dict);
                         }
                         catch
                         {
-                            
                         }
                     }
 

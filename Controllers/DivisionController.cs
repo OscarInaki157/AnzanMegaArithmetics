@@ -286,6 +286,8 @@ namespace AnzanMegaArithmetics.Controllers
                 ? new List<RDivisionModel>()
                 : System.Text.Json.JsonSerializer.Deserialize<List<RDivisionModel>>(resJson);
 
+            var configJson = HttpContext.Session.GetString("UltimaConfigDivision");
+
             int total = resultados.Count;
             int correctas = resultados.Count(r => r.EsCorrecto);
             int incorrectas = resultados.Count(r => r.Respondido && !r.EsCorrecto);
@@ -305,7 +307,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "División",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoTotal
+                Tiempo = tiempoTotal,
+                Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
             };
 
 

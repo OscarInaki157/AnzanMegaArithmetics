@@ -359,7 +359,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Tablas de Multiplicar",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoTotal
+                Tiempo = tiempoTotal,
+                Configuracion = configStr ?? JsonSerializer.Serialize(modelo)
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
@@ -622,8 +623,10 @@ namespace AnzanMegaArithmetics.Controllers
                 TempData["Resultados"] = resJson;
             }
             var resultados = string.IsNullOrEmpty(resJson)
-       ? new List<RMultiplicationModel>()
-       : System.Text.Json.JsonSerializer.Deserialize<List<RMultiplicationModel>>(resJson);
+               ? new List<RMultiplicationModel>()
+               : System.Text.Json.JsonSerializer.Deserialize<List<RMultiplicationModel>>(resJson);
+
+            var configStr = HttpContext.Session.GetString("UltimaConfigMultiplicacion");
 
             int total = resultados.Count;
             int correctas = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
@@ -643,7 +646,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Multiplicación",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoTotal
+                Tiempo = tiempoTotal,
+                Configuracion = configStr ?? "No se pudo recuperar la configuración del servidor"
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
@@ -917,7 +921,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = $"Competencia Multiplicación - {config.TipoPregunta}",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoReal
+                Tiempo = tiempoReal,
+                Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
             };
 
             bool insertarPrueba = _pruebasDBService.GuardarPrueba(results);
@@ -1184,7 +1189,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = $"Competencia Memorizada - {config.TipoPregunta}",
                 ExperienciaAdquirida = xp,
-                Tiempo = tiempoReal
+                Tiempo = tiempoReal,
+                Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
             };
 
             bool insertarPrueba = _pruebasDBService.GuardarPrueba(results);

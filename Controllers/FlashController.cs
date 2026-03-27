@@ -535,6 +535,7 @@ namespace AnzanMegaArithmetics.Controllers
             int incorrectas = totalSesiones - correctas;
             int porcentajeGlobal = totalSesiones > 0 ? (int)((double)correctas / totalSesiones * 100) : 0;
 
+            string jsonConfiguracion = JsonSerializer.Serialize(modelo);
 
             PruebasDBModel results = new PruebasDBModel
             {
@@ -544,7 +545,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = fueCorrecta ? 1 : 0,
                 Fecha = DateTime.Now,
                 ExperienciaAdquirida = porcentajeGlobal,
-                Tipo_Prueba = tipoPrueba
+                Tipo_Prueba = tipoPrueba,
+                Configuracion = jsonConfiguracion,
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
