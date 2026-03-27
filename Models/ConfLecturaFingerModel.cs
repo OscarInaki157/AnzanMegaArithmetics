@@ -22,6 +22,7 @@ namespace AnzanMegaArithmetics.Models
         [Range(0, 10)]
         public int TiempoMeditacion { get; set; }
 
+        [Display(Name = "Estilo de Manos:")]
         public int Estilo { get; set; }
     }
 

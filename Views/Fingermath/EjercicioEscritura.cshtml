@@ -54,7 +54,14 @@
         <input type="hidden" id="tiempoRespuesta" name="tiempoRespuesta" value="0" />
         <div id="tecladoInvisible" tabindex="-1" style="position: absolute; width: 0; height: 0; overflow: hidden;"></div>
 
-        <partial name="~/Views/Shared/Partials/Fingermath/_ManosSVG.cshtml" model="skinId" />
+        @if (skinId >= 5)
+        {
+            <partial name="~/Views/Shared/Partials/Fingermath/_ManosIMG.cshtml" model="skinId" />
+        }
+        else
+        {
+            <partial name="~/Views/Shared/Partials/Fingermath/_ManosSVG.cshtml" model="skinId" />
+        }
 
         <div class="form-respuesta-barra">
             <button type="submit">Enviar respuesta</button>
@@ -326,16 +333,6 @@
             flex-direction: column;
             align-items: stretch;
             margin-top: -2rem;
-        }
-        .manos-wrapper {
-            width: 100%;
-            height: auto;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .mano-container {
-            width: 200px;
         }
 
         .form-respuesta input[type="number"] {

@@ -48,7 +48,14 @@
     <div class="contenedor-principal">
 
         <div class="seccion-manos">
-            <partial name="~/Views/Shared/Partials/Fingermath/_ManosSVG.cshtml" model="skinId" />
+            @if (skinId >= 5)
+            {
+                <partial name="~/Views/Shared/Partials/Fingermath/_ManosIMG.cshtml" model="skinId" />
+            }
+            else
+            {
+                <partial name="~/Views/Shared/Partials/Fingermath/_ManosSVG.cshtml" model="skinId" />
+            }
         </div>
 
         <div class="seccion-teclado">
