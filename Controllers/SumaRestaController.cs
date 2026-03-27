@@ -689,6 +689,8 @@ namespace AnzanMegaArithmetics.Controllers
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
 
+            string jsonConfiguracion = HttpContext.Session.GetString("UltimaConfigSR");
+
             PruebasDBModel results = new PruebasDBModel
             {
                 Id_Usuario = userId.Value,
@@ -697,7 +699,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.UtcNow,
                 ExperienciaAdquirida = xp,
-                Tipo_Prueba = "Suma Resta"
+                Tipo_Prueba = "Suma Resta",
+                Configuracion = jsonConfiguracion
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);

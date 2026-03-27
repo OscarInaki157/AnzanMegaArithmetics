@@ -1,6 +1,7 @@
 ﻿using AnzanMegaArithmetics.Models;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -74,12 +75,47 @@ namespace AnzanMegaArithmetics.Services
                 string configuracionLimpia = string.Empty;
                 if (!string.IsNullOrEmpty(model.Configuracion))
                 {
-                    configuracionLimpia = model.Configuracion
+                    string configJson = model.Configuracion;
+
+                    configJson = configJson.Replace("\\r", "").Replace("\\n", "").Replace("\r", "").Replace("\n", "");
+
+                    if (model.Tipo_Prueba == "Suma Resta")
+                    {
+                        try
+                        {
+                            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(configJson);
+
+                            if (dict != null && dict.TryGetValue("TipoOperacion", out JsonElement tipoOpElement))
+                            {
+                                string tipoOp = tipoOpElement.GetString();
+
+                                if (tipoOp == "suma")
+                                {
+                                    dict.Remove("DigitosResta");
+                                    dict.Remove("DirectaResta");
+                                }
+                                else if (tipoOp == "resta")
+                                {
+                                    dict.Remove("DigitosSuma");
+                                    dict.Remove("DirectaSuma");
+                                }
+                            }
+
+                            configJson = JsonSerializer.Serialize(dict);
+                        }
+                        catch
+                        {
+                            
+                        }
+                    }
+
+                    configuracionLimpia = configJson
                         .Replace("{", "")
                         .Replace("}", "")
                         .Replace("\"", "")
                         .Replace(",", ", ")
-                        .Replace(":", ": ");
+                        .Replace(":", ": ")
+                        .Replace("  ", " ");
                 }
 
                 PruebasDB nuevaPrueba = new PruebasDB
