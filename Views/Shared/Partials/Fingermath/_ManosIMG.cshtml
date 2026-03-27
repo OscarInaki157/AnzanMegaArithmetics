@@ -16,15 +16,15 @@
             <img src="@Url.Content(rutaBase + "Pder.png")" class="palma der" />
         </div>
 
-        <<div class="puntos-wrapper">
+        <div class="puntos-wrapper">
             @for (int i = 1; i <= 10; i++)
             {
                 int valorDedo = (i <= 4) ? 10 : (i == 5 ? 50 : (i == 6 ? 5 : 1));
 
                 <div class="punto dedo dedo@(i)" data-valor="@valorDedo">
-                    @* El contenedor extra para mayor control visual *@
+
                     <div class="dedo-container">
-                        @* Añadimos la clase dinámica img-dedo1, img-dedo2, etc. *@
+
                         <img src="@Url.Content(rutaBase + i + ".png")"
                              class="finger-img normal img-dedo@(i)" />
 
@@ -38,6 +38,16 @@
 </div>
 
 <style>
+
+    /* Cuando el dedo está iluminado, oculta la imagen normal */
+    .punto.iluminado .finger-img.normal {
+        opacity: 0;
+    }
+
+    /* Cuando el dedo está iluminado, muestra la imagen 'A' */
+    .punto.iluminado .finger-img.activa {
+        opacity: 1;
+    }
 
     .manos-wrapper {
         position: relative;
@@ -54,18 +64,20 @@
 
     .palma {
         position: absolute;
-        width: 32rem;
-        z-index:99;
+        width: 14rem;
+        z-index:0;
     }
 
         .palma.izq {
-            left: -15%;
-            margin-top:12%;
+            left: 7%;
+            margin-top: 37%;
+            transform: rotate(-10deg);
         }
 
         .palma.der {
-            right: -15%;
-            margin-top: 12%;
+            right: 9%;
+            margin-top: 36%;
+            transform: rotate(10deg);
         }
 
 
@@ -92,7 +104,7 @@
     .punto {
         width: 2.39rem;
         height: 8rem;
-        background-color: gray;
+ /*        background-color: gray; */
         position: absolute;
         /* opacity: 0; */
         transition: all 0.3s ease;
@@ -100,25 +112,8 @@
         border-top-right-radius: 30%;
     }
 
-        .punto.iluminado {
-            background-color: #ff4c4c;
-            opacity: 0;
-            box-shadow: 0 0 10px #ff4c4c;
-        }
 
-    svg #dedo1.iluminado,
-    svg #dedo2.iluminado,
-    svg #dedo3.iluminado,
-    svg #dedo4.iluminado,
-    svg #dedo5.iluminado,
-    svg #dedo6.iluminado,
-    svg #dedo7.iluminado,
-    svg #dedo8.iluminado,
-    svg #dedo9.iluminado,
-    svg #dedo10.iluminado {
-        fill: #ff4c4c;
-        filter: drop-shadow(0 0 8px #ff4c4c);
-    }
+  
 
     .dedo-container {
         position: relative;
@@ -128,35 +123,61 @@
 
     .finger-img {
         position: absolute;
-        width: 5rem;
-        height: 10rem;
-        object-fit: cover;
+        width: 6rem;
+        height: 12rem;
+        object-fit: contain;
         top:0;
         left:0;
     }
 
     .img-dedo1 {
-        transform: translateX(-20%) rotate(16deg);
+        transform: translateX(-14%) translateY(-2%) rotate(-2deg);
+        width: 3.2rem;
     }
 
     .img-dedo2 {
-        transform: translateX(-23%) rotate(9deg);
-
+        transform: translateX(-21%) translateY(1%) rotate(-1deg);
+        width: 2.8rem;
     }
 
     .img-dedo3 {
-        transform: translateY(-5px) rotate(-2deg);
-  
+        transform: translateX(-20%) translateY(2%) rotate(-1deg);
+        width: 4rem;
     }
 
     .img-dedo4 {
-        transform: translateY(-5px) rotate(-2deg);
-
+        transform: translateX(-17%) translateY(-8%) rotate(-1deg);
+        width: 2.7rem;
     }
 
     .img-dedo5 {
-        transform: translateY(-5px) rotate(-2deg);
- 
+        transform: translateX(-27%) translateY(2%) rotate(-22deg);
+        width: 7rem;
+    }
+
+    .img-dedo6 {
+        transform: translateX(-39%) translateY(-1%) rotate(16deg);
+        width: 7rem;
+    }
+
+    .img-dedo7 {
+        transform: translateX(7%) translateY(-5%) rotate(-1deg);
+        width: 2.7rem;
+    }
+
+    .img-dedo8 {
+        transform: translateX(-20%) translateY(-3%) rotate(1deg);
+        width: 4rem;
+    }
+
+    .img-dedo9 {
+        transform: translateX(-12%) translateY(-1%) rotate(2deg);
+        width: 2.8rem;
+    }
+
+    .img-dedo10 {
+        transform: translateX(-9%) translateY(-4%) rotate(-1deg);
+        width: 3.2rem;
     }
 
         .finger-img.activa {
@@ -168,6 +189,54 @@
             opacity: 1;
             z-index: 4;
         }
+
+    .activa.img-dedo1 {
+        transform: translateX(-34%) translateY(-4%) rotate(-2deg);
+        width: 5rem;
+    }
+
+    .activa.img-dedo2 {
+        transform: translateX(-34%) translateY(-4%) rotate(-2deg);
+        width: 5rem;
+    }
+
+    .activa.img-dedo3 {
+        transform: translateX(-34%) translateY(-4%) rotate(-2deg);
+        width: 4.8rem;
+    }
+
+    .activa.img-dedo4 {
+        transform: translateX(-34%) translateY(-4%) rotate(-2deg);
+        width: 4.6rem;
+    }
+
+    .activa.img-dedo5 {
+        width:7.6rem;
+    }
+
+    .activa.img-dedo6 {
+        width: 7.6rem;
+    }
+
+    .activa.img-dedo7 {
+        transform: translateX(-11%) translateY(-11%) rotate(-2deg);
+        width: 4.6rem;
+    }
+
+    .activa.img-dedo8 {
+        transform: translateX(-26%) translateY(-4%) rotate(-2deg);
+        width: 4.8rem;
+    }
+
+    .activa.img-dedo9 {
+        transform: translateX(-26%) translateY(-4%) rotate(-2deg);
+        width: 5rem;
+    }
+
+    .activa.img-dedo10 {
+        transform: translateX(-26%) translateY(-9%) rotate(-2deg);
+        width: 5rem;
+    }
 
     /* Dedos */
     .dedo1 {
@@ -261,6 +330,106 @@
 
     @@media (max-width: 767px) {
 
+        .img-dedo1 {
+            transform: translateX(-14%) translateY(-26%) rotate(-2deg);
+            width: 2rem;
+        }
+
+        .img-dedo2 {
+            transform: translateX(-21%) translateY(-21%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo3 {
+            transform: translateX(-20%) translateY(-19%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo4 {
+            transform: translateX(-11%) translateY(-25%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo5 {
+            transform: translateX(-22%) translateY(-29%) rotate(-22deg);
+            width: 4rem;
+        }
+
+        .img-dedo6 {
+            transform: translateX(-38%) translateY(-25%) rotate(15deg);
+            width: 4rem;
+        }
+
+        .img-dedo7 {
+            transform: translateX(-11%) translateY(-24%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo8 {
+            transform: translateX(-7%) translateY(-19%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo9 {
+            transform: translateX(-5%) translateY(-21%) rotate(-1deg);
+            width: 1.8rem;
+        }
+
+        .img-dedo10{
+            transform: translateX(-14%) translateY(-26%) rotate(-2deg);
+            width: 2rem;
+        }
+
+        .activa.img-dedo1 {
+            transform: translateX(-28%) translateY(-26%) rotate(-2deg);
+            width: 3.3rem;
+        }
+
+        .activa.img-dedo2 {
+            transform: translateX(-27%) translateY(-21%) rotate(-1deg);
+            width: 3.3rem;
+        }
+
+        .activa.img-dedo3 {
+            transform: translateX(-20%) translateY(-19%) rotate(-1deg);
+            width: 3.2rem;
+        }
+
+        .activa.img-dedo4 {
+            transform: translateX(-32%) translateY(-25%) rotate(-1deg);
+            width: 3.3rem;
+        }
+
+        .activa.img-dedo5 {
+            transform: translateX(-15%) translateY(-25%) rotate(-22deg);
+            width: 4rem;
+        }
+
+        .activa.img-dedo6 {
+            transform: translateX(-43%) translateY(-25%) rotate(15deg);
+            width: 4rem;
+        }
+
+        .activa.img-dedo7 {
+            transform: translateX(-21%) translateY(-25%) rotate(-1deg);
+            width: 3.3rem;
+        }
+
+        .activa.img-dedo8 {
+            transform: translateX(-20%) translateY(-19%) rotate(-1deg);
+            width: 3.2rem;
+        }
+
+        .activa.img-dedo9 {
+            transform: translateX(-22%) translateY(-21%) rotate(-1deg);
+            width: 3.3rem;
+        }
+
+        .activa.img-dedo10 {
+            transform: translateX(-28%) translateY(-26%) rotate(-2deg);
+            width: 3.3rem;
+        }
+
         .punto {
             width: 1.4rem;
             height: 5rem;
@@ -274,10 +443,22 @@
         }
 
         .palma{
-            width:22rem;
+            width:9.6rem;
         }
 
+            .palma.izq {
+                left: 7%;
+                margin-top: 39%;
+                transform: rotate(-12deg);
+            }
+
+            .palma.der {
+                right: 9%;
+                margin-top: 40%;
+                transform: rotate(10deg);
+            }
 
         
     }
 </style>
+
