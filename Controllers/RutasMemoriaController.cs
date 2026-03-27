@@ -243,7 +243,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = correctos,
                 Fecha = DateTime.Now,
                 ExperienciaAdquirida = porcentaje,
-                Tipo_Prueba = "Rutas de Memoria"
+                Tipo_Prueba = "Rutas de Memoria",
+                Configuracion= configJson ?? "No se pudo recuperar la configuración del servidor"
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);

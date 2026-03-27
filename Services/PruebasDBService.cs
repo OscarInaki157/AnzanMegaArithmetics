@@ -2,6 +2,7 @@
 using DataBase;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -112,10 +113,14 @@ namespace AnzanMegaArithmetics.Services
                         }
                     }
 
+                    configJson = Regex.Unescape(configJson);
+
                     configuracionLimpia = configJson
                         .Replace("{", "")
                         .Replace("}", "")
                         .Replace("\"", "")
+                        .Replace("\r", "")
+                        .Replace("\n", "")
                         .Replace(",", ", ")
                         .Replace(":", ": ")
                         .Replace("  ", " ");
