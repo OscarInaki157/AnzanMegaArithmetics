@@ -353,6 +353,9 @@ namespace AnzanMegaArithmetics.Controllers
             double tiempoTotal = totalEjercicios * velocidadPreguntas;
             string tipoPrueba = "Memoria Flash " + sesionOriginal.Configuracion.DigitosEjercicios + " digitos";
             var userId = HttpContext.Session.GetInt32("Id_Usuario");
+
+            string configJson = JsonSerializer.Serialize(sesionOriginal.Configuracion);
+
             // Guardar resultados en la base de datos
             PruebasDBModel results = new PruebasDBModel
             {
@@ -362,7 +365,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Respuestas_Correctas = totalAciertos,
                 Fecha = DateTime.Now,
                 ExperienciaAdquirida = porcentajeGlobal,
-                Tipo_Prueba = tipoPrueba
+                Tipo_Prueba = tipoPrueba,
+                Configuracion = configJson
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
