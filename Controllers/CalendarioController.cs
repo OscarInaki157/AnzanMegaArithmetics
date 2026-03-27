@@ -242,7 +242,6 @@ namespace AnzanMegaArithmetics.Controllers
 
                 HttpContext.Session.Remove("CalendarioEjercicios");
                 HttpContext.Session.Remove("CalendarioRespuestas");
-                //HttpContext.Session.Remove("CalendarioConfiguracion");
                 HttpContext.Session.Remove("CalendarioEjercicioActual");
                 HttpContext.Session.Remove("CalendarioTiempoRestante");
 
@@ -255,7 +254,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = (int)porcentajeAcierto,
-                    Tipo_Prueba = "Calendario Mental - " + config.TipoPrueba
+                    Tipo_Prueba = "Calendario Mental - " + config.TipoPrueba,
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);

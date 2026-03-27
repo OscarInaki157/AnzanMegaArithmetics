@@ -436,7 +436,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Respuestas_Correctas = correctas,
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = porcentaje,
-                    Tipo_Prueba = "Cuadros de velocidad " + final.config.TipoPrueba +" : "+ final.config.CantidadRejillas.ToString() + " rejillas " + final.config.DimensionRejilla
+                    Tipo_Prueba = "Cuadros de velocidad " + final.config.TipoPrueba +" : "+ final.config.CantidadRejillas.ToString() + " rejillas " + final.config.DimensionRejilla,
+                    Configuracion = configuracionJson ?? "No se pudo recuperar la configuración del servidor"
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);

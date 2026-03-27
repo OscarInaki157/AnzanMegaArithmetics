@@ -82,7 +82,7 @@ namespace AnzanMegaArithmetics.Services
                     configJson = configJson.Replace("\\r", "").Replace("\\n", "").Replace("\r", "").Replace("\n", "");
 
 
-                    if (model.Tipo_Prueba == "Suma Resta" || model.Tipo_Prueba == "Números Flash" || model.Tipo_Prueba == "Dictado Flash")
+                    if (model.Tipo_Prueba == "Suma Resta" || model.Tipo_Prueba == "Números Flash" || model.Tipo_Prueba == "Dictado Flash" || model.Tipo_Prueba.Contains("velocidad"))
                     {
                         try
                         {
