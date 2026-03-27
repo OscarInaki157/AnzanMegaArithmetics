@@ -78,7 +78,8 @@ namespace AnzanMegaArithmetics.Services
                         .Replace("{", "")
                         .Replace("}", "")
                         .Replace("\"", "")
-                        .Replace(",", ", ");
+                        .Replace(",", ", ")
+                        .Replace(":", ": ");
                 }
 
                 PruebasDB nuevaPrueba = new PruebasDB

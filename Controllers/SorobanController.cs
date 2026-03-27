@@ -204,6 +204,11 @@ namespace AnzanMegaArithmetics.Controllers
             var resultados = JsonSerializer.Deserialize<List<RLecturaSorobanModel>>(TempData["Resultados"] as string) ?? new List<RLecturaSorobanModel>();
             int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
 
+            long valMin = Convert.ToInt64(TempData.Peek("VMinimo") ?? "1");
+            long valMax = Convert.ToInt64(TempData.Peek("VMaximo") ?? "99");
+            string velocidadPreguntas = TempData.Peek("VelocidadPreguntas")?.ToString() ?? "0";
+            int tiempoMeditacion = Convert.ToInt32(TempData.Peek("TiempoMeditacion") ?? 3);
+
             int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
             int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
 
@@ -211,6 +216,16 @@ namespace AnzanMegaArithmetics.Controllers
             int xp = porcentaje;
 
             double TiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
+            var configParaGuardar = new ConfLecturaSorobanModel
+            {
+                CantidadEjercicios = cantidadEjercicios,
+                VMinimo = valMin,
+                VMaximo = valMax,
+                VelocidadPreguntas = velocidadPreguntas,
+                TiempoMeditacion = tiempoMeditacion
+            };
+            string jsonConfiguracion = JsonSerializer.Serialize(configParaGuardar);
 
             PruebasDBModel results = new PruebasDBModel
             {
@@ -220,7 +235,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Soroban Lectura",
                 ExperienciaAdquirida = xp,
-                Tiempo = TimeSpan.FromSeconds(TiempoTotal)
+                Tiempo = TimeSpan.FromSeconds(TiempoTotal),
+                Configuracion = jsonConfiguracion
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
@@ -417,6 +433,11 @@ namespace AnzanMegaArithmetics.Controllers
             var resultados = JsonSerializer.Deserialize<List<REscrituraSorobanModel>>(TempData["Resultados"] as string) ?? new List<REscrituraSorobanModel>();
             int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
 
+            long valMin = Convert.ToInt64(TempData.Peek("VMinimo") ?? "1");
+            long valMax = Convert.ToInt64(TempData.Peek("VMaximo") ?? "99");
+            string velocidadPreguntas = TempData.Peek("VelocidadPreguntas")?.ToString() ?? "0";
+            int tiempoMeditacion = Convert.ToInt32(TempData.Peek("TiempoMeditacion") ?? 3);
+
             int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
             int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
 
@@ -424,6 +445,16 @@ namespace AnzanMegaArithmetics.Controllers
             int xp = porcentaje;
 
             double TiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
+            var configParaGuardar = new ConfEscrituraSorobanModel
+            {
+                CantidadEjercicios = cantidadEjercicios,
+                VMinimo = valMin,
+                VMaximo = valMax,
+                VelocidadPreguntas = velocidadPreguntas,
+                TiempoMeditacion = tiempoMeditacion
+            };
+            string jsonConfiguracion = JsonSerializer.Serialize(configParaGuardar);
 
             PruebasDBModel results = new PruebasDBModel
             {
@@ -433,7 +464,8 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Soroban Escritura",
                 ExperienciaAdquirida = xp,
-                Tiempo = TimeSpan.FromSeconds(TiempoTotal)
+                Tiempo = TimeSpan.FromSeconds(TiempoTotal),
+                Configuracion = jsonConfiguracion
             };
 
             bool InsertarPrueba = _pruebasDBService.GuardarPrueba(results);
