@@ -27,26 +27,33 @@
                 <div class="rango-options">
                     <label>Rango de números (puedes elegir varios):</label>
                     <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="checkbox" id="rango11-19" class="rango-cb" value="11-19" checked>
+                        @{
+                            var rangos = Model.RangosSeleccionados ?? "11-19";
+                        }
+
+                        <div class="radio-option @(rangos.Contains("11-19") ? "selected" : "")">
+                            <input type="checkbox" id="rango11-19" class="rango-cb" value="11-19" @(rangos.Contains("11-19") ? "checked" : "")>
                             <label for="rango11-19">11-19</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="checkbox" id="rango21-29" class="rango-cb" value="21-29">
+
+                        <div class="radio-option @(rangos.Contains("21-29") ? "selected" : "")">
+                            <input type="checkbox" id="rango21-29" class="rango-cb" value="21-29" @(rangos.Contains("21-29") ? "checked" : "")>
                             <label for="rango21-29">21-29</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="checkbox" id="rango31-69" class="rango-cb" value="31-69">
+
+                        <div class="radio-option @(rangos.Contains("31-69") ? "selected" : "")">
+                            <input type="checkbox" id="rango31-69" class="rango-cb" value="31-69" @(rangos.Contains("31-69") ? "checked" : "")>
                             <label for="rango31-69">31-69</label>
                         </div>
-                        <div class="radio-option">
-                            <input type="checkbox" id="rango71-130" class="rango-cb" value="71-130">
+
+                        <div class="radio-option @(rangos.Contains("71-130") ? "selected" : "")">
+                            <input type="checkbox" id="rango71-130" class="rango-cb" value="71-130" @(rangos.Contains("71-130") ? "checked" : "")>
                             <label for="rango71-130">71-130</label>
                         </div>
                     </div>
                 </div>
 
-                <input asp-for="RangosSeleccionados" type="hidden" id="rangosSeleccionados" value="11-19" />
+                <input asp-for="RangosSeleccionados" type="hidden" id="rangosSeleccionados" />
 
             </div>
 

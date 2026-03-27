@@ -292,7 +292,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = (int)porcentajeAcierto,
-                    Tipo_Prueba = "Raíces - " + config.TipoPrueba
+                    Tipo_Prueba = "Raíces - " + config.TipoPrueba,
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor",
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);

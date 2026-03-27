@@ -375,7 +375,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = (int)porcentajeAcierto + totalPuntos,
-                    Tipo_Prueba = "Matemáticas con Dados tradicional"
+                    Tipo_Prueba = "Matemáticas con Dados tradicional",
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
@@ -859,7 +860,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     Tipo_Prueba = "Matemáticas con Dados suma",
-                    ExperienciaAdquirida = totalCorrectas * 5 // Lógica de XP
+                    ExperienciaAdquirida = totalCorrectas * 5,
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
                 };
                 _pruebasDBService.GuardarPrueba(record);
 
@@ -1059,7 +1061,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     Tipo_Prueba = "Matemáticas con Dados multi",
-                    ExperienciaAdquirida = totalCorrectas * 5 // Mantengo tu lógica de XP
+                    ExperienciaAdquirida = totalCorrectas * 5,
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
                 };
                 _pruebasDBService.GuardarPrueba(record);
 

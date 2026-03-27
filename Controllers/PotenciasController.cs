@@ -301,7 +301,6 @@ namespace AnzanMegaArithmetics.Controllers
 
                 HttpContext.Session.Remove("EjerciciosPotencias");
                 HttpContext.Session.Remove("RespuestasPotencias");
-                //HttpContext.Session.Remove("ConfPotencias");
                 HttpContext.Session.Remove("EjercicioActualPotencias");
                 HttpContext.Session.Remove("TiempoRestantePotencias");
 
@@ -313,7 +312,8 @@ namespace AnzanMegaArithmetics.Controllers
                     Tiempo = TimeSpan.FromSeconds(tiempoTotal),
                     Fecha = DateTime.Now,
                     ExperienciaAdquirida = (int)porcentajeAcierto,
-                    Tipo_Prueba = "Potencias - " + config.TipoPrueba
+                    Tipo_Prueba = "Potencias - " + config.TipoPrueba,
+                    Configuracion = configJson ?? "No se pudo recuperar la configuración del servidor"
                 };
 
                 bool InsertarPrueba = _pruebasDBService.GuardarPrueba(result);
