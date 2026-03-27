@@ -416,20 +416,20 @@
 
 <div class="botones-centrados">
     <form method="get" asp-action="EscrituraFinger">
-        <input type="hidden" name="tipo" value="@TempData.Peek("TipoPregunta")" />
-        <input type="hidden" name="velocidad" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="cantidad" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="Estilo" value="@TempData.Peek("Estilo")" />
+        <input type="hidden" name="tipo" value="@ViewBag.TipoPregunta" />
+        <input type="hidden" name="velocidad" value="@ViewBag.VelocidadPreguntas" />
+        <input type="hidden" name="cantidad" value="@ViewBag.CantidadEjercicios" />
+        <input type="hidden" name="tiempoMeditacion" value="@ViewBag.TiempoMeditacion" />
+        <input type="hidden" name="estilo" value="@ViewBag.Estilo" />
         <button type="submit" class="btn-primary">⚙️ Configuración</button>
     </form>
 
     <form method="post" asp-action="ConcentracionEscritura">
-        <input type="hidden" name="TipoPregunta" value="@TempData.Peek("TipoPregunta")" />
-        <input type="hidden" name="VelocidadPreguntas" value="@TempData.Peek("VelocidadPreguntas")" />
-        <input type="hidden" name="CantidadEjercicios" value="@TempData.Peek("CantidadEjercicios")" />
-        <input type="hidden" name="TiempoMeditacion" value="@TempData.Peek("TiempoMeditacion")" />
-        <input type="hidden" name="Estilo" value="@TempData.Peek("Estilo")" />
+        <input type="hidden" name="TipoPregunta" value="@ViewBag.TipoPregunta" />
+        <input type="hidden" name="VelocidadPreguntas" value="@ViewBag.VelocidadPreguntas" />
+        <input type="hidden" name="CantidadEjercicios" value="@ViewBag.CantidadEjercicios" />
+        <input type="hidden" name="TiempoMeditacion" value="@ViewBag.TiempoMeditacion" />
+        <input type="hidden" name="Estilo" value="@ViewBag.Estilo" />
         <button type="submit" class="btn-success">🔁 Repetir</button>
     </form>
 

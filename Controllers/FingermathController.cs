@@ -51,7 +51,7 @@ namespace AnzanMegaArithmetics.Controllers
         //Modulo Lectura FingerMath logica
 
         [HttpGet]
-        public IActionResult LecturaFinger(string tipo, string velocidad, int? cantidad)
+        public IActionResult LecturaFinger(string tipo, string velocidad, int? cantidad, int? tiempoMeditacion, int? estilo)
         {
             var userId = HttpContext.Session.GetInt32("Id_Usuario");
 
@@ -64,9 +64,9 @@ namespace AnzanMegaArithmetics.Controllers
             {
                TipoPregunta = tipo ?? "ambas",
                VelocidadPreguntas = velocidad ?? "0",
-               TiempoMeditacion = 3,
+               TiempoMeditacion = tiempoMeditacion ?? 3,
                CantidadEjercicios = cantidad ?? 10,
-               Estilo = 0
+               Estilo = estilo ?? 0
             };
 
             return View(modelo);
@@ -231,15 +231,28 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             var resultados = JsonSerializer.Deserialize<List<RLecturaFingerModel>>(TempData["Resultados"] as string) ?? new List<RLecturaFingerModel>();
+
+            string tipoPregunta = TempData.Peek("TipoPregunta")?.ToString() ?? "ambas";
+            string velocidadPreguntas = TempData.Peek("VelocidadPreguntas")?.ToString() ?? "0";
             int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+            int tiempoMeditacion = Convert.ToInt32(TempData.Peek("TiempoMeditacion") ?? 3);
+            int estilo = Convert.ToInt32(TempData.Peek("Estilo") ?? 0);
 
             int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
             int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
-
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
-
             double tiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
+            var configParaGuardar = new ConfLecturaFingerModel
+            {
+                TipoPregunta = tipoPregunta,
+                VelocidadPreguntas = velocidadPreguntas,
+                CantidadEjercicios = cantidadEjercicios,
+                TiempoMeditacion = tiempoMeditacion,
+                Estilo = estilo
+            };
+            string jsonConfiguracion = JsonSerializer.Serialize(configParaGuardar);
 
             //armar modelo generico para resultados
             PruebasDBModel results = new PruebasDBModel
@@ -250,10 +263,17 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Lectura",
                 ExperienciaAdquirida = xp,
-                Tiempo = TimeSpan.FromSeconds(tiempoTotal)
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                Configuracion = jsonConfiguracion
             };
 
             bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
+
+            ViewBag.TipoPregunta = tipoPregunta;
+            ViewBag.VelocidadPreguntas = velocidadPreguntas;
+            ViewBag.CantidadEjercicios = cantidadEjercicios;
+            ViewBag.TiempoMeditacion = tiempoMeditacion;
+            ViewBag.Estilo = estilo;
 
             TempData.Keep("Resultados");
             return View();
@@ -296,7 +316,7 @@ namespace AnzanMegaArithmetics.Controllers
 
         //Modulo Fingermath Escritura
         [HttpGet]
-        public IActionResult EscrituraFinger(string tipo, string velocidad, int? cantidad)
+        public IActionResult EscrituraFinger(string tipo, string velocidad, int? cantidad, int? tiempoMeditacion, int? estilo)
         {
             var userId = HttpContext.Session.GetInt32("Id_Usuario");
 
@@ -309,9 +329,9 @@ namespace AnzanMegaArithmetics.Controllers
             {
                 TipoPregunta = tipo ?? "ambas",
                 VelocidadPreguntas = velocidad ?? "0",
-                TiempoMeditacion = 3,
+                TiempoMeditacion = tiempoMeditacion ?? 3,
                 CantidadEjercicios = cantidad ?? 10,
-                Estilo = 0
+                Estilo = estilo ?? 0
             };
 
             return View(modelo);
@@ -447,15 +467,28 @@ namespace AnzanMegaArithmetics.Controllers
             }
 
             var resultados = JsonSerializer.Deserialize<List<REscrituraFingerModel>>(TempData["Resultados"] as string) ?? new List<REscrituraFingerModel>();
+
+            string tipoPregunta = TempData.Peek("TipoPregunta")?.ToString() ?? "ambas";
+            string velocidadPreguntas = TempData.Peek("VelocidadPreguntas")?.ToString() ?? "0";
             int cantidadEjercicios = Convert.ToInt32(TempData.Peek("CantidadEjercicios"));
+            int tiempoMeditacion = Convert.ToInt32(TempData.Peek("TiempoMeditacion") ?? 3);
+            int estilo = Convert.ToInt32(TempData.Peek("Estilo") ?? 0);
 
             int correctos = resultados.Count(r => r.RespuestaUsuario == r.RespuestaCorrecta);
             int incorrectos = resultados.Count(r => r.RespuestaUsuario != -1 && r.RespuestaUsuario != r.RespuestaCorrecta);
-
             int porcentaje = cantidadEjercicios > 0 ? (correctos * 100) / cantidadEjercicios : 0;
             int xp = porcentaje;
-
             double tiempoTotal = resultados.Sum(r => r.TiempoRespuesta);
+
+            var configParaGuardar = new ConfEscrituraFingerModel
+            {
+                TipoPregunta = tipoPregunta,
+                VelocidadPreguntas = velocidadPreguntas,
+                CantidadEjercicios = cantidadEjercicios,
+                TiempoMeditacion = tiempoMeditacion,
+                Estilo = estilo
+            };
+            string jsonConfiguracion = JsonSerializer.Serialize(configParaGuardar);
 
             //armar modelo generico para resultados
             PruebasDBModel results = new PruebasDBModel
@@ -466,13 +499,19 @@ namespace AnzanMegaArithmetics.Controllers
                 Fecha = DateTime.Now,
                 Tipo_Prueba = "Fingermath Escritura",
                 ExperienciaAdquirida = xp,
-                Tiempo = TimeSpan.FromSeconds(tiempoTotal)
+                Tiempo = TimeSpan.FromSeconds(tiempoTotal),
+                Configuracion = jsonConfiguracion
             };
 
             bool InsertarPrueba = pruebasDBService.GuardarPrueba(results);
 
+            ViewBag.TipoPregunta = tipoPregunta;
+            ViewBag.VelocidadPreguntas = velocidadPreguntas;
+            ViewBag.CantidadEjercicios = cantidadEjercicios;
+            ViewBag.TiempoMeditacion = tiempoMeditacion;
+            ViewBag.Estilo = estilo;
+
             TempData.Keep("Resultados");
-            ViewBag.CantidadEjercicios = TempData.Peek("CantidadEjercicios");
             return View();
         }
 

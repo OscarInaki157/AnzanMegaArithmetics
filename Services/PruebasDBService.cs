@@ -71,6 +71,16 @@ namespace AnzanMegaArithmetics.Services
 
                 string clases = string.Join(", ", usuario.Usuario_Clase.Where(uc => uc.Clase != null).Select(uc => uc.Clase.Nombre));
 
+                string configuracionLimpia = string.Empty;
+                if (!string.IsNullOrEmpty(model.Configuracion))
+                {
+                    configuracionLimpia = model.Configuracion
+                        .Replace("{", "")
+                        .Replace("}", "")
+                        .Replace("\"", "")
+                        .Replace(",", ", ");
+                }
+
                 PruebasDB nuevaPrueba = new PruebasDB
                 {
                     Id_Usuario = usuario.Id_Usuario,
@@ -81,7 +91,8 @@ namespace AnzanMegaArithmetics.Services
                     Respuestas_Correctas = model.Respuestas_Correctas,
                     Fecha = model.Fecha,
                     ExperienciaAdquirida = model.ExperienciaAdquirida,
-                    Tipo_Prueba = model.Tipo_Prueba
+                    Tipo_Prueba = model.Tipo_Prueba,
+                    Configuracion = configuracionLimpia
                 };
 
                 //calcular racha

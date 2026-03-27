@@ -1,4 +1,6 @@
-﻿namespace AnzanMegaArithmetics.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AnzanMegaArithmetics.Models
 {
     public class PruebasDBModel
     {
@@ -12,6 +14,8 @@
         public DateTime Fecha { get; set; }
         public int ExperienciaAdquirida { get; set; } = 0;
         public string Tipo_Prueba { get; set; } = string.Empty;
+        [MaxLength(500)]
+        public string Configuracion { get; set; } = string.Empty;
 
         public string NombreUsuario { get; set; }
         public string GamertagUsuario { get; set; }
