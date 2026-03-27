@@ -90,12 +90,6 @@
         pointer-events: auto;
     }
 
-
-    .mano-container {
-        position: relative;
-        width: 250px;
-    }
-
     .mano-img {
         width: 100%;
         height: auto;
@@ -112,7 +106,9 @@
         border-top-right-radius: 30%;
     }
 
-
+    .manos-container{
+        transform:scale(1.01);
+    }
   
 
     .dedo-container {
@@ -438,8 +434,12 @@
         .manos-wrapper {
             width: 28rem;
             height: 28rem;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+ /*            margin-top: 2rem;
+            margin-bottom: 2rem; */
+        }
+
+        .manos-container{
+            transform:scale(0.9);
         }
 
         .palma{
