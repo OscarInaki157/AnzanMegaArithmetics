@@ -1,0 +1,515 @@
+﻿@model AnzanMegaArithmetics.Models.ResumenClaseViewModel
+
+<style>
+
+    /* Animaciones fluidas */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    /* botones */
+    /* Contenedor de acciones */
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+    }
+
+    /* Base para ambos botones mini */
+    .btn-mini, .btn-mini-sec {
+        border: none;
+        width: 3rem;
+        height: 2.5rem;
+        border-radius: 0.6rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        color: white;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Botón Editar (Naranja Gamificado) */
+    .btn-mini {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        box-shadow: 0 4px 12px rgba(255, 165, 0, 0.2);
+    }
+
+    /* Botón Ver Progreso (Azul/Púrpura) */
+    .btn-mini-sec {
+        background: linear-gradient(135deg, #4c4cff, #6233b8);
+        box-shadow: 0 4px 12px rgba(76, 76, 255, 0.2);
+    }
+
+        /* Efectos Hover */
+        .btn-mini:hover, .btn-mini-sec:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Brillo interior sutil */
+        .btn-mini::after, .btn-mini-sec::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+        }
+    /* botones */
+
+    /* 1. Utilidades Globales (Para no repetir flexbox en todos lados) */
+    .flex-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 2. Componentes de Cabecera y Gestión */
+    .header-gestion {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .clase-actual, .racha {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .clase-actual {
+        font-size: 1rem;
+        gap: 0.5rem;
+    }
+
+    .racha {
+        font-size: 1.2rem;
+        gap: 0.3rem;
+    }
+
+    /* 3. Buscador */
+    .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+        .search-container input {
+            width: 100%;
+            background: rgba(27, 30, 60, 0.8);
+            border: 1px solid rgba(76, 76, 255, 0.3);
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 2rem;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+
+            .search-container input:focus {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+            }
+
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-primary);
+        }
+
+    /* 4. Resumen de Estadísticas (Stats Summary) */
+    .stats-summary {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 0.8rem 1.2rem;
+        background: rgba(41, 44, 79, 0.4);
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+        .stat-item i {
+            font-size: 1.2rem;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .stat-info .label {
+            font-size: 1rem;
+            color: white;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            line-height: 1;
+            overflow:hidden;
+        }
+
+    .icon-total {
+        background: rgba(76, 76, 255, 0.2);
+        color: #4c4cff;
+    }
+
+    .icon-active {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .stat-divider {
+        width: 1px;
+        height: 25px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 5. Lista de Alumnos (Smart List) */
+    .smart-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .student-row {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.6rem;
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr 1fr 1fr;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        transition: 0.2s;
+        display:grid;
+    }
+
+        .student-row:hover {
+            background: rgba(76, 76, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+    .id-tag {
+        font-size: 1rem;
+        color: white;
+        font-family: monospace;
+    }
+
+    .name-info strong {
+        display: block;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .name-info span {
+        font-size: 0.9rem;
+        color: #a0a0c0;
+    }
+
+    /* 6. Rangos Gamificados */
+    .rango-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        min-width: 90px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .rango-badge.dark-matter {
+            background: linear-gradient(135deg, #2d1b69, #1a1033);
+            color: #00e6ff;
+            box-shadow: 0 0 10px rgba(0, 230, 255, 0.2);
+        }
+
+        .rango-badge.heroic {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .rango-badge.diamond {
+            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+            color: #0066cc;
+        }
+
+        .rango-badge.gold {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #8b6508;
+        }
+
+        .rango-badge.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            color: #333;
+        }
+
+        .rango-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32, #a56c2c);
+            color: #fff;
+        }
+
+    @@media (max-width: 768px) {
+        .header-gestion{
+            flex-direction:column;
+        }
+        .stats-summary{
+            flex-direction:column;
+        }
+        .stat-divider{
+            display:none;
+        }
+        .student-row{
+            display: flow;
+        }
+
+        .modal-content-game{
+            padding: 6rem 0 0 0;
+        }
+
+        .btn-close-modal {
+            top: 10%;
+            right: 3%;
+        }
+    }
+</style>
+
+<div class="header-gestion">
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="txtBuscarAlumno" placeholder="Buscar por nombre o Gamertag..." onkeyup="filtrarAlumnosLocal()">
+    </div>
+
+    <div class="selector-clase">
+        <label><i class="fas fa-filter"></i> Filtrar por Clase:</label>
+        <select id="ddlClaseAlumnos" onchange="actualizarTablaAlumnos(this.value)">
+            @foreach (var clase in Model.ClasesDisponibles)
+            {
+                <option value="@clase" selected="@(clase == Model.ClaseActual ? "selected" : null)">@clase</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="stats-summary">
+    <div class="stat-item">
+        <i class="fas fa-users icon-total"></i>
+        <div class="stat-info">
+            <span class="label">Total Alumnos</span>
+            <span class="value">@(Model.ListaAlumnos?.Count ?? 0)</span>
+        </div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+
+    <div class="clase-actual">
+        <i class="fas fa-info-circle"></i> Clase actual: <strong>@Model.ClaseActual</strong>
+    </div>
+</div>
+
+<div class="smart-list" id="listaAlumnos">
+    @if (Model.ListaAlumnos != null && Model.ListaAlumnos.Any())
+    {
+        @foreach (var alumno in Model.ListaAlumnos)
+        {
+            
+                string nombreRango = alumno.Rango_Actual ?? "Bronce I";
+                string rangoClase = "bronze";
+
+                if (nombreRango.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
+                else if (nombreRango.Contains("Heroico", StringComparison.OrdinalIgnoreCase)) { rangoClase = "heroic"; }
+                else if (nombreRango.Contains("Diamante", StringComparison.OrdinalIgnoreCase)) { rangoClase = "diamond"; }
+                else if (nombreRango.Contains("Oro", StringComparison.OrdinalIgnoreCase)) { rangoClase = "gold"; }
+                else if (nombreRango.Contains("Plata", StringComparison.OrdinalIgnoreCase)) { rangoClase = "silver"; }
+                else { rangoClase = "bronze"; }
+            
+
+            <div class="student-row" data-search="@alumno.Nombre.ToLower() @alumno.Gamer_Tag.ToLower()">
+                <div class="id-tag">#@alumno.Id_Usuario.ToString("D3")</div>
+
+                <div class="name-info">
+                    <strong>@alumno.Nombre</strong>
+                    <span>@alumno.Gamer_Tag</span>
+                </div>
+
+                <div>
+                    <span class="rango-badge @rangoClase">
+                        <i class="fas fa-medal"></i> @alumno.Rango_Actual
+                    </span>
+                </div>
+
+                <div class="racha">
+                    <i class="fas fa-fire" style="color: #ff9f43;"></i> @alumno.Racha
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-mini" onclick="verDetallesUsuario(@alumno.Id_Usuario)" title="Ver Perfil Completo">
+                        <i class="fas fa-address-card"></i>
+                    </button>
+
+                    <button class="btn-mini-sec" onclick="abrirEditarUsuario(@alumno.Id_Usuario)" title="Editar Alumno">
+                        <i class="fas fa-user-edit"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="text-align:center; padding: 2rem; color: #a0a0c0;">
+            <p>No hay alumnos en esta clase.</p>
+        </div>
+    }
+</div>
+
+
+<script>
+    function filtrarAlumnosLocal() {
+        const busqueda = document.getElementById('txtBuscarAlumno').value.toLowerCase();
+        const filas = document.querySelectorAll('.student-row');
+
+        filas.forEach(fila => {
+            const contenido = fila.getAttribute('data-search');
+            fila.style.display = contenido.includes(busqueda) ? "grid" : "none";
+        });
+    }
+
+    function filtrarAlumnosLocal() {
+        const busqueda = document.getElementById('txtBuscarAlumno').value.toLowerCase();
+        const filas = document.querySelectorAll('.student-row');
+
+        filas.forEach(fila => {
+            const contenido = fila.getAttribute('data-search');
+            fila.style.display = contenido.includes(busqueda) ? "grid" : "none";
+        });
+    }
+
+    async function verDetallesUsuario(idUsuario) {
+        const modal = document.getElementById('modalFichaJugador');
+        const modalBody = document.getElementById('modalFichaBody');
+
+        // Mostramos el modal con un estado de "Cargando"
+        modal.style.display = 'flex';
+        modalBody.innerHTML = `
+            <div style="background: var(--color-card-bg, #010f36); padding: 3rem; text-align: center; border-radius: 1rem; border: 1px solid rgba(76, 76, 255, 0.3);">
+                <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--color-primary); margin-bottom: 1rem;"></i>
+                <h3 style="color: white; margin: 0;">Desencriptando datos del jugador...</h3>
+            </div>
+        `;
+
+        try {
+
+            const response = await fetch(`/Dashboard/ObtenerDetallesAlumno?idUsuario=${idUsuario}`);
+
+            if (response.ok) {
+
+                const html = await response.text();
+
+                modalBody.innerHTML = html;
+            } else {
+                modalBody.innerHTML = `
+                    <div style="background: #1b1e3c; padding: 2rem; border-radius: 1rem; color: #ff4757; text-align: center;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p>Error de conexión. Código: ${response.status}</p>
+                    </div>`;
+            }
+        } catch (error) {
+            console.error("Error al obtener detalles:", error);
+            modalBody.innerHTML = `
+                <div style="background: #1b1e3c; padding: 2rem; border-radius: 1rem; color: #ff4757; text-align: center;">
+                    <i class="fas fa-wifi fa-2x"></i>
+                    <p>Error de red. Revisa tu conexión.</p>
+                </div>`;
+        }
+    }
+
+        async function abrirEditarUsuario(idUsuario) {
+        const modal = document.getElementById('modalFichaJugador');
+        const modalBody = document.getElementById('modalFichaBody');
+
+        modal.style.display = 'flex';
+        modalBody.innerHTML = '<div class="text-center"><i class="fas fa-sync fa-spin"></i> Cargando editor...</div>';
+
+        try {
+            const response = await fetch(`/Dashboard/EditarAlumno?idUsuario=${idUsuario}`);
+            const html = await response.text();
+            modalBody.innerHTML = html;
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    async function enviarEdicion(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/Dashboard/GuardarCambiosAlumno', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.exito) {
+                alert("¡Usuario actualizado!"); // Aquí podrías usar un Toast más estético
+                cerrarModalFicha();
+                // Refrescamos la tabla para ver los cambios
+                const claseActual = document.getElementById('ddlClaseAlumnos').value;
+                actualizarTablaAlumnos(claseActual);
+            } else {
+                alert("Error: " + result.mensaje);
+            }
+        } catch (error) {
+            alert("Error de conexión al guardar.");
+        }
+    }
+</script>

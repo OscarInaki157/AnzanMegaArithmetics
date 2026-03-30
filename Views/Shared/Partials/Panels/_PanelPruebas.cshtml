@@ -1,0 +1,274 @@
+﻿@model AnzanMegaArithmetics.Models.ResumenClaseViewModel
+
+<style>
+    /* 1. Panel de Control (Filtros) */
+    .command-center {
+        background: rgba(27, 30, 60, 0.8);
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .command-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.8rem;
+    }
+
+        .command-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .command-header i {
+            color: var(--color-primary);
+            font-size: 1.5rem;
+        }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end; /* Para alinear los inputs con el botón */
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+    .filter-input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 1rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        font-family: inherit;
+    }
+
+        .filter-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        }
+
+    /* Botón de Búsqueda Principal */
+    .btn-search-massive {
+        background: linear-gradient(135deg, #4c4cff, #6233b8);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        height: 42px; /* Alineado con los inputs */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(76, 76, 255, 0.3);
+    }
+
+        .btn-search-massive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 76, 255, 0.5);
+        }
+
+    /* 2. Estado Vacío (Empty State) */
+    .empty-state-radar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        text-align: center;
+    }
+
+    .radar-icon {
+        font-size: 4rem;
+        color: rgba(76, 76, 255, 0.5);
+        margin-bottom: 1.5rem;
+        animation: pulseRadar 2s infinite;
+    }
+
+    .empty-state-radar h4 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+    }
+
+    .empty-state-radar p {
+        color: #a0a0c0;
+        margin: 0;
+        max-width: 400px;
+        line-height: 1.5;
+    }
+
+    @@keyframes pulseRadar {
+        0% {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+    }
+</style>
+
+<div class="command-center">
+    <div class="command-header">
+        <h3>Filtrar Pruebas</h3>
+    </div>
+
+    <form id="formFiltroPruebas" onsubmit="buscarPruebas(event)">
+        <div class="filters-grid">
+
+            <div class="filter-group">
+                <label>Clase</label>
+                <select name="Clase" class="filter-input" id="filtroClasePruebas">
+                    <option value="">-- Todas mis clases --</option>
+                    @foreach (var clase in Model.ClasesDisponibles)
+                    {
+                        <option value="@clase" selected="@(clase == Model.ClaseActual ? "selected" : null)">@clase</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>GamerTag o Alumno</label>
+                <input type="text" name="Alumno" class="filter-input" placeholder="Ej. ProGamer24">
+            </div>
+
+            <div class="filter-group">
+                <label>Tipo de Prueba</label>
+                <select name="TipoPrueba" class="filter-input">
+                    <option value="">-- Todas las pruebas --</option>
+
+                    @if (Model.TiposDePruebaDisponibles != null && Model.TiposDePruebaDisponibles.Any())
+                    {
+                        @foreach (var tipo in Model.TiposDePruebaDisponibles)
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Fecha Inicio</label>
+                <input type="date" name="FechaInicio" class="filter-input" value="@DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd")">
+            </div>
+
+            <div class="filter-group">
+                <label>Fecha Fin</label>
+                <input type="date" name="FechaFin" class="filter-input" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn-search-massive" id="btnBuscarPruebas">
+                    <i class="fas fa-search"></i> Escanear
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="contenedorResultadosPruebas">
+    <div class="empty-state-radar">
+        <i class="fas fa-radar radar-icon"></i>
+        <h4>Esperando filtro...</h4>
+        <p>Selecciona los filtros arriba y presiona "Escanear" para buscar en el historial de pruebas de tus estudiantes. Mostraremos los últimos 100 registros.</p>
+    </div>
+</div>
+
+<script>
+    async function buscarPruebas(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        // Construimos un query string a partir del formulario
+        const params = new URLSearchParams(new FormData(form)).toString();
+
+        const contenedor = document.getElementById('contenedorResultadosPruebas');
+        const boton = document.getElementById('btnBuscarPruebas');
+
+        // Estado de carga (UX)
+        const iconoOriginal = boton.innerHTML;
+        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Escaneando...';
+        boton.disabled = true;
+        contenedor.style.opacity = '0.5';
+
+        try {
+            // Hacemos un GET al Controller pasando todos los filtros
+            const response = await fetch(`/Dashboard/FiltrarHistorialPruebas?${params}`);
+
+            if (response.ok) {
+                const html = await response.text();
+                // Inyectamos la tabla de resultados
+                contenedor.innerHTML = html;
+            } else {
+                contenedor.innerHTML = `<div class="alert alert-danger" style="color: white; background: #ff4757; padding: 1rem; border-radius: 0.5rem;">Error al comunicarse con la base de datos (Código ${response.status}).</div>`;
+            }
+        } catch (error) {
+            console.error("Error al buscar pruebas:", error);
+            contenedor.innerHTML = `<div class="alert alert-danger" style="color: white; background: #ff4757; padding: 1rem; border-radius: 0.5rem;">Fallo de red al intentar recuperar los datos.</div>`;
+        } finally {
+            // Restauramos la UI
+            boton.innerHTML = iconoOriginal;
+            boton.disabled = false;
+            contenedor.style.opacity = '1';
+        }
+    }
+
+    async function verConfiguracionPrueba(idPrueba) {
+        const modal = document.getElementById('modalFichaJugador'); // Reutilizamos tu modal maestro
+        const modalBody = document.getElementById('modalFichaBody');
+
+        modal.style.display = 'flex';
+        modalBody.innerHTML = `
+            <div style="background: var(--color-card-bg, #010f36); padding: 3rem; text-align: center; border-radius: 1rem; border: 1px solid rgba(76, 76, 255, 0.3);">
+                <i class="fas fa-cogs fa-spin fa-3x" style="color: var(--color-primary); margin-bottom: 1rem;"></i>
+                <h3 style="color: white; margin: 0;">Extrayendo parámetros...</h3>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/Dashboard/ObtenerConfiguracionPrueba?idPrueba=${idPrueba}`);
+            if (response.ok) {
+                modalBody.innerHTML = await response.text();
+            } else {
+                modalBody.innerHTML = `<div class="alert alert-danger" style="margin: 2rem;">Error al leer los parámetros de esta prueba.</div>`;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+</script>

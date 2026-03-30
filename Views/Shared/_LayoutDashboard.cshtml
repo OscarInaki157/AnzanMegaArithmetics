@@ -26,6 +26,7 @@
             user-select: none;
         }
 
+
         body {
             margin: 0;
             padding: 0;
@@ -1269,6 +1270,14 @@
                             </a>
                         </li>
                     }
+                    @if (Model.Id_Rol == "Profesor" || Model.Id_Rol == "Master")
+                    {
+                        <li>
+                            <a href="@Url.Action("PanelProfesor", "Dashboard")" id="PanelProfesores">
+                                <i class="fas fa-chalkboard-teacher"></i> Panel Profesor
+                            </a>
+                        </li>
+                    }
                     @if (Model.Id_Rol == "Master")
                     {
                         <li>
@@ -1305,6 +1314,7 @@
             const admin = document.getElementById('admini');
             const rank = document.getElementById('Ranking');
             const hojas = document.getElementById('Hojas');
+            const panelProfesores = document.getElementById('PanelProfesores');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -1349,8 +1359,13 @@
                 }
             }
             if (pageTitle.includes('ojas')) {
-                if (rank) {
+                if (hojas) {
                     hojas.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('ofesor')) {
+                if (panelProfesores) {
+                    panelProfesores.classList.add('active');
                 }
             }
 

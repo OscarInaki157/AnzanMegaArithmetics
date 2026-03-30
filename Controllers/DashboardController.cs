@@ -11,10 +11,12 @@ namespace AnzanMegaArithmetics.Controllers
     {
         private readonly IUsersDBService usersDBService;
         private readonly IClasesDBService clasesDBService;
-        public DashboardController(IUsersDBService usersDBService, IClasesDBService clasesDBService)
+        private readonly IPruebasDBService pruebasDBService;
+        public DashboardController(IUsersDBService usersDBService, IClasesDBService clasesDBService, IPruebasDBService pruebasDBService)
         {
             this.usersDBService = usersDBService;
             this.clasesDBService = clasesDBService;
+            this.pruebasDBService = pruebasDBService;
         }
 
         public IActionResult MiPerfil() 
@@ -154,6 +156,159 @@ namespace AnzanMegaArithmetics.Controllers
 
             return View(userInfo);
         }
+
+        //panel profesor
+        [HttpGet]
+        public IActionResult PanelProfesor()
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0) return RedirectToAction("Inicio", "Inicio");
+
+            string claseInicial = userInfo.Clases?.FirstOrDefault() ?? string.Empty;
+
+            ResumenClaseViewModel model = !string.IsNullOrEmpty(claseInicial)
+                ? pruebasDBService.ObtenerResumenPorClase(claseInicial)
+                : new ResumenClaseViewModel();
+
+            model.Id_Usuario = userInfo.Id_Usuario;
+            model.Id_Rol = userInfo.Id_Rol;
+            model.Nombre = userInfo.Nombre;
+            model.Gamer_Tag = userInfo.Gamer_Tag;
+            model.Licencia = userInfo.Licencia;
+            model.Exp = userInfo.Exp;
+            model.Ultima_Cnx = userInfo.Ultima_Cnx;
+            model.Clases = userInfo.Clases ?? new List<string>();
+
+            model.ClasesDisponibles = model.Clases;
+            model.ClaseActual = model.ClasesDisponibles.FirstOrDefault();
+            model.ListaAlumnos = usersDBService.ObtenerAlumnosPorClase(model.ClaseActual);
+            model.TiposDePruebaDisponibles = pruebasDBService.ObtenerTiposDePruebaDisponibles();
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public JsonResult ObtenerDatosClase(string idClase)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(idClase))
+                {
+                    return Json(new { exito = false, mensaje = "Clase no válida" });
+                }
+
+                var resumen = pruebasDBService.ObtenerResumenPorClase(idClase);
+
+                return Json(new { exito = true, datos = resumen });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { exito = false, mensaje = "Error al cargar los datos de la clase." });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult FiltrarAlumnosPorClase(string clase)
+        {
+            try
+            {
+                var userInfo = GetUserInfo();
+
+                var model = new ResumenClaseViewModel();
+
+                model.ClaseActual = clase;
+                model.ListaAlumnos = usersDBService.ObtenerAlumnosPorClase(clase);
+
+                model.ClasesDisponibles = userInfo.Clases ?? new List<string>();
+
+                return PartialView("~/Views/Shared/Partials/Panels/_ListadoAlumnos.cshtml", model);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerDetallesAlumno(int idUsuario)
+        {
+            try
+            {
+                var alumno = usersDBService.ObtenerAlumnoPorId(idUsuario);
+
+                if (alumno == null)
+                {
+                    return NotFound("<div class='alert alert-danger'>Alumno no encontrado en la base de datos.</div>");
+                }
+
+                return PartialView("~/Views/Shared/Partials/Modals/_DetallesAlumno.cshtml", alumno);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"<div class='alert alert-danger'>Error del servidor: {ex.Message}</div>");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult EditarAlumno(int idUsuario)
+        {
+            var alumno = usersDBService.ObtenerAlumnoPorId(idUsuario);
+            if (alumno == null) return NotFound();
+
+            return PartialView("~/Views/Shared/Partials/Modals/_EditarAlumno.cshtml", alumno);
+        }
+
+        [HttpPost]
+        public IActionResult GuardarCambiosAlumno(ActualizarUsuarioModel model)
+        {
+            try
+            {
+                string resultado = usersDBService.ActualizarDatosBasicosJugador(model);
+
+                if (resultado.Contains("correctamente"))
+                {
+                    return Json(new { exito = true, mensaje = resultado });
+                }
+                return Json(new { exito = false, mensaje = resultado });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { exito = false, mensaje = "Error crítico: " + ex.Message });
+            }
+        }
+        [HttpGet]
+        public IActionResult FiltrarHistorialPruebas(string Clase, string Alumno, string TipoPrueba, DateTime? FechaInicio, DateTime? FechaFin)
+        {
+            try
+            {
+                var resultados = pruebasDBService.ObtenerHistorialFiltrado(Clase, Alumno, TipoPrueba, FechaInicio, FechaFin);
+
+                return PartialView("~/Views/Shared/Partials/Panels/_ResultadosPruebas.cshtml", resultados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerConfiguracionPrueba(int idPrueba)
+        {
+            try
+            {
+                var config = pruebasDBService.ObtenerConfiguracionPorId(idPrueba);
+
+                if (config == null)
+                    return NotFound("<div class='alert alert-danger'>Prueba no encontrada.</div>");
+
+                return PartialView("~/Views/Shared/Partials/Modals/_ConfiguracionPrueba.cshtml", config);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error: {ex.Message}");
+            }
+        }
+        //panel profesor
 
         public IActionResult PanelAdministrador()
         {

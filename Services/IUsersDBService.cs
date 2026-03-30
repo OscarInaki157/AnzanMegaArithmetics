@@ -11,6 +11,8 @@ namespace AnzanMegaArithmetics.Services
         public List<RankingUsersModel> ObtenerRankingUsuarios(int cantidad = 0);
         public List<RankingSlideModel> ObtenerRankingsSlider(int cantidad = 10);
         public RankingSlideModel ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10);
+        public List<UsuarioBDModel> ObtenerAlumnosPorClase(string nombreClase);
+        UsuarioBDModel ObtenerAlumnoPorId(int idUsuario);
         public int ListarUsersTotales();
         public ListUsersModel ObtenerUsuarios();
         public string ActualizarUser(ActualizarUsuarioModel actualizar);
@@ -19,6 +21,8 @@ namespace AnzanMegaArithmetics.Services
         public string CrearNuevoUsuario(ActualizarUsuarioModel nuevo);
         public string EliminarUsuario(ActualizarUsuarioModel model);
         public string CalcularRango(int experienciaTotal);
+        public string ActualizarDatosBasicosJugador(ActualizarUsuarioModel actualizar);
+
         public int ClaimChallengeReward(int userId, int retoId);
         public List<DailyChallengeViewModel> GetUserDailyChallenges(int userId);
         public List<DailyChallengeViewModel> GetMasterChallenges();

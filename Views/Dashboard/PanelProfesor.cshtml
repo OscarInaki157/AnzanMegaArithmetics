@@ -1,0 +1,361 @@
+﻿@model AnzanMegaArithmetics.Models.ResumenClaseViewModel
+@{
+    ViewBag.Title = "Panel Profesor";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="user-top-info">
+    <div class="user-left-section">
+        <div class="user-name">
+            @Model.Nombre
+        </div>
+        <div class="user-meta-row">
+            <span class="gamertag">
+                <i class="fa-solid fa-gamepad"></i>
+                <strong>Gamertag:</strong> @Model.Gamer_Tag
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-id-card"></i>
+                <strong>Licencia:</strong> @Model.Licencia
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-landmark"></i>
+                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
+            </span>
+        </div>
+    </div>
+
+    <div class="user-right-section">
+        <div class="last-connection">
+            <i class="fa-solid fa-clock"></i>
+            Última conexión: @Model.Ultima_Cnx
+        </div>
+    </div>
+</div>
+
+<div class="tabs">
+    <div class="tab-buttons">
+        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)"><i class="fas fa-chart-pie"></i> Resumen General</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)"><i class="fas fa-users"></i> Alumnos</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)"><i class="fas fa-file-signature"></i> Pruebas</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab4', this)"><i class="fas fa-trophy"></i> Ranking</button>
+    </div>
+
+    <div class="formulario-flash tab-content active" id="tab1">
+
+        <partial name="~/Views/Shared/Partials/Panels/_ResumenGeneral.cshtml" model="Model" />
+
+    </div>
+
+    <div class="formulario-flash tab-content" id="tab2">
+        
+        <partial name="~/Views/Shared/Partials/Panels/_ListadoAlumnos.cshtml" model="Model" />
+
+    </div>
+
+    <div class="formulario-flash tab-content" id="tab3">
+       
+        <partial name="~/Views/Shared/Partials/Panels/_PanelPruebas.cshtml" model="Model" />
+
+    </div>
+
+    <div class="formulario-flash tab-content" id="tab4">
+       
+    </div>
+</div>
+
+@* modales *@
+<div id="modalFichaJugador" class="modal-overlay">
+    <div class="modal-content-game">
+        <button class="btn-close-modal" onclick="cerrarModalFicha()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div id="modalFichaBody">
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .modal-overlay {
+        display: none; /* Oculto inicialmente */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85); /* Fondo oscuro transparente */
+        backdrop-filter: blur(5px); /* Efecto cristal */
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content-game {
+        position: relative;
+        width: 100%;
+        max-width: 95%;
+        padding: 2rem;
+        animation: slideUp 0.3s ease;
+    }
+
+    .btn-close-modal {
+        position: absolute;
+        top: 1%;
+        right: 1%;
+        background: #ff4757;
+        color: white;
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: 0.2s;
+    }
+
+        .btn-close-modal:hover {
+            transform: scale(1.1);
+            background: #ff6b81;
+        }
+
+    .tabs {
+        width: 100%;
+        max-width: 75rem;
+        margin: 1rem auto 2rem auto;
+        box-sizing: border-box;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 0.6rem;
+        margin-bottom: 0;
+        flex-wrap: wrap;
+        overflow:hidden;
+    }
+
+    .tab-btn {
+        background: rgba(41, 44, 79, 0.6);
+        border: 0.06rem solid rgba(255, 255, 255, 0.1);
+        padding: 0.7rem 1.3rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        border-radius: 0.5rem 0.5rem 0 0;
+        transition: all 0.3s ease;
+        margin-bottom: -0.15rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .tab-btn:hover {
+            background: rgba(76, 76, 255, 0.15);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            box-shadow: 0 0.25rem 0.75rem rgba(76, 76, 255, 0.4);
+            background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 100%);
+            z-index: 2;
+        }
+
+    .formulario-flash {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 1.5rem;
+        border-radius: 0 1rem 1rem 1rem;
+        background-color: var(--color-card-bg, #010f36);
+        box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 0.06rem solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+        }
+
+    .tab-content {
+        display: none;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) { 
+        .tab-btn {
+            flex: 1 1 45%;
+            justify-content: center;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tab-buttons {
+            border-bottom: none;
+            justify-content:center;
+        }
+
+        .formulario-flash {
+            border-radius: 1rem;
+        }
+
+    }
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let miGraficaBarras;
+    let miGraficaDona;
+    Chart.defaults.color = '#d1d1f0';
+
+    document.addEventListener("DOMContentLoaded", () => {
+        restaurarTabActiva();
+
+    });
+
+
+
+    function inicializarGraficas(datosBarras, datosDona) {
+        const labelsBarras = Object.keys(datosBarras || {});
+        const valoresBarras = Object.values(datosBarras || {});
+        const labelsDona = Object.keys(datosDona || {});
+        const valoresDona = Object.values(datosDona || {});
+
+        const ctxB = document.getElementById('graficaBarras')?.getContext('2d');
+        if (ctxB) {
+            miGraficaBarras = new Chart(ctxB, {
+                type: 'bar',
+                data: {
+                    labels: labelsBarras.length > 0 ? labelsBarras : ['Sin Datos'],
+                    datasets: [{ label: '% Aciertos', data: valoresBarras.length > 0 ? valoresBarras : [0], backgroundColor: '#4c4cff', borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
+
+        const ctxD = document.getElementById('graficaDona')?.getContext('2d');
+        if (ctxD) {
+            miGraficaDona = new Chart(ctxD, {
+                type: 'doughnut',
+                data: {
+                    labels: labelsDona.length > 0 ? labelsDona : ['Sin Datos'],
+                    datasets: [{ data: valoresDona.length > 0 ? valoresDona : [1], backgroundColor: ['#4c4cff', '#28a745', '#ffc107', '#dc3545'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    }
+
+    async function actualizarDashboard(idClase) {
+        if (!idClase) return;
+        const response = await fetch(`/Dashboard/ObtenerDatosClase?idClase=${encodeURIComponent(idClase)}`);
+        const json = await response.json();
+        if (json.exito) {
+            const d = json.datos;
+            document.getElementById('kpiAlumnos').textContent = d.totalAlumnosActivos;
+            document.getElementById('kpiPruebas').textContent = d.totalPruebasRealizadas;
+            document.getElementById('kpiPromedio').textContent = d.promedioGeneralClase + '%';
+
+            if (miGraficaBarras) {
+                miGraficaBarras.data.labels = Object.keys(d.rendimientoPorActividad || {});
+                miGraficaBarras.data.datasets[0].data = Object.values(d.rendimientoPorActividad || {});
+                miGraficaBarras.update();
+            }
+            if (miGraficaDona) {
+                miGraficaDona.data.labels = Object.keys(d.distribucionPruebas || {});
+                miGraficaDona.data.datasets[0].data = Object.values(d.distribucionPruebas || {});
+                miGraficaDona.update();
+            }
+        }
+    }
+
+    async function actualizarTablaAlumnos(nombreClase) {
+        // Apuntamos al contenedor de la TAB 2
+        const contenedor = document.getElementById('tab2');
+
+        try {
+            const response = await fetch(`/Dashboard/FiltrarAlumnosPorClase?clase=${encodeURIComponent(nombreClase)}`);
+            if (response.ok) {
+                const html = await response.text();
+                // Esto reemplaza todo el contenido de la Tab 2 por la nueva parcial filtrada
+                contenedor.innerHTML = html;
+            }
+        } catch (error) {
+            console.error("Error al filtrar alumnos:", error);
+        }
+    }
+
+
+    function mostrarTab(id, btn) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        btn.classList.add("active");
+        localStorage.setItem("tabProfesorActivo", id);
+    }
+
+    function restaurarTabActiva() {
+        const lastTab = localStorage.getItem("tabProfesorActivo");
+        if (lastTab) {
+            const match = Array.from(document.querySelectorAll(".tab-btn")).find(b => b.textContent.trim().includes(btnMap(lastTab)));
+            if (match) mostrarTab(lastTab, match);
+        }
+    }
+
+    function btnMap(id) {
+        return { "tab1": "Resumen General", "tab2": "Alumnos", "tab3": "Pruebas", "tab4": "Ranking" }[id];
+    }
+
+
+    function cerrarModalFicha() {
+        const modal = document.getElementById('modalFichaJugador');
+        modal.style.display = 'none';
+        document.getElementById('modalFichaBody').innerHTML = '';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalFichaJugador');
+        if (event.target === modal) {
+            cerrarModalFicha();
+        }
+    }
+</script>

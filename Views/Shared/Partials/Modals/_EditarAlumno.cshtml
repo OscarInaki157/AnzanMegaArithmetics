@@ -1,0 +1,189 @@
+﻿@model AnzanMegaArithmetics.Models.UsuarioBDModel
+
+<div class="player-card" style="border-color: #4c4cff;">
+    <div class="card-header-profile">
+        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #ffa500, #ff4757);">
+            <i class="fas fa-user-edit"></i>
+        </div>
+        <div class="profile-title">
+            <h3>Modificar Estudiante</h3>
+            <p>Editando a: @Model.Nombre (ID: #@Model.Id_Usuario)</p>
+        </div>
+    </div>
+
+    <form id="formEditarAlumno" onsubmit="enviarEdicion(event)">
+        <input type="hidden" name="Id_Usuario" value="@Model.Id_Usuario" />
+        <input type="hidden" name="Activo" value="@Model.Activo.ToString().ToLower()" />
+        <input type="hidden" name="Id_Rol" value="2" />
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>Nombre Real</label>
+                <input type="text" name="Nombre" value="@Model.Nombre" class="input-game" required maxlength="80" minlength="3" />
+            </div>
+            <div class="stat-box">
+                <label>GamerTag</label>
+                <input type="text" name="Gamer_Tag" value="@Model.Gamer_Tag" class="input-game" required maxlength="20" minlength="3" pattern="^\S+$" title="El GamerTag no puede contener espacios en blanco" />
+            </div>
+            <div class="stat-box">
+                <label>Correo Electrónico</label>
+                <input type="email" name="Correo" value="@Model.Correo" class="input-game" required maxlength="100" />
+            </div>
+            <div class="stat-box">
+                <label>Contraseña</label>
+                <input type="text" name="Pass" value="@Model.Pass" class="input-game" required maxlength="30" minlength="6" />
+            </div>
+            <div class="stat-box">
+                <label>Racha (Días)</label>
+                <input type="number" name="Racha" value="@Model.Racha" class="input-game" required min="0" max="4000" />
+            </div>
+            <div class="stat-box">
+                <label>Experiencia (XP)</label>
+                <input type="number" name="Exp" value="@Model.Exp" class="input-game" required min="0" max="2000000" />
+                <small style="color: #a0a0c0; font-size: 0.7rem;">El rango se actualizará solo.</small>
+            </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" class="btn-mini-sec" style="width: auto; padding: 0 1.5rem;" onclick="cerrarModalFicha()">Cancelar</button>
+            <button type="submit" class="btn-mini" style="width: auto; padding: 0 1.5rem;">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .input-game {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        padding: 0.5rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+    }
+
+        .input-game:focus {
+            border-color: var(--color-primary);
+            background: rgba(76, 76, 255, 0.05);
+        }
+
+    .player-card {
+        background: var(--color-card-bg, #010f36);
+        color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* Decoración de fondo gamificada */
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(76, 76, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+    .card-header-profile {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4c4cff, #2a2a72);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
+    }
+
+    .profile-title h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .profile-title p {
+        margin: 0;
+        color: #a0a0c0;
+        font-size: 1rem;
+        font-family: monospace;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1rem;
+            color: white;
+            word-break: break-all;
+        }
+
+    .badge-class {
+        background: rgba(76, 76, 255, 0.2);
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin: 2px;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+    }
+
+    .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .status-on {
+        background-color: #00ff88;
+        box-shadow: 0 0 8px #00ff88;
+    }
+
+    .status-off {
+        background-color: #ff4757;
+    }
+
+    @@media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

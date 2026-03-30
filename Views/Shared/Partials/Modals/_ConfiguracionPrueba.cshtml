@@ -1,0 +1,153 @@
+﻿@model AnzanMegaArithmetics.Models.ConfiguracionPruebaModel
+
+<div class="player-card" style="border-color: #00e6ff;">
+    <div class="card-header-profile" style="border-bottom-color: rgba(0, 230, 255, 0.2);">
+        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #00e6ff, #0072ff); box-shadow: 0 0 15px rgba(0, 230, 255, 0.4);">
+            <i class="fas fa-microchip"></i>
+        </div>
+        <div class="profile-title">
+            <h3>Registro de Parámetros</h3>
+            <p>Prueba: @Model.TipoPrueba | ID de Ejecución: #@Model.Id_Prueba</p>
+        </div>
+    </div>
+
+    <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 230, 255, 0.3); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+        <label style="color: #00e6ff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.5rem;">
+            <i class="fas fa-terminal"></i> Datos de Configuración
+        </label>
+
+        @if (string.IsNullOrWhiteSpace(Model.DatosConfiguracion))
+        {
+            <div style="color: #ff4757; font-family: monospace;">[No se encontraron parámetros registrados para esta prueba]</div>
+        }
+        else
+        {
+            <pre style="color: #00ff88; font-family: monospace; font-size: 0.9rem; white-space: pre-wrap; word-break: break-all; margin: 0;">@Model.DatosConfiguracion</pre>
+        }
+    </div>
+
+    <div style="margin-top: 1.5rem; text-align: center;">
+        <button class="btn-mini-sec" style="width: 100%; border-radius: 2rem; background: linear-gradient(135deg, #00e6ff, #0072ff);" onclick="cerrarModalFicha()">
+            Cerrar Terminal
+        </button>
+    </div>
+</div>
+
+<style>
+    .player-card {
+        background: var(--color-card-bg, #010f36);
+        color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* Decoración de fondo gamificada */
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(76, 76, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+    .card-header-profile {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-placeholder {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4c4cff, #2a2a72);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.5);
+    }
+
+    .profile-title h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .profile-title p {
+        margin: 0;
+        color: #a0a0c0;
+        font-size: 1rem;
+        font-family: monospace;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1rem;
+            color: white;
+            word-break: break-all;
+        }
+
+    .badge-class {
+        background: rgba(76, 76, 255, 0.2);
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin: 2px;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+    }
+
+    .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .status-on {
+        background-color: #00ff88;
+        box-shadow: 0 0 8px #00ff88;
+    }
+
+    .status-off {
+        background-color: #ff4757;
+    }
+
+    @@media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

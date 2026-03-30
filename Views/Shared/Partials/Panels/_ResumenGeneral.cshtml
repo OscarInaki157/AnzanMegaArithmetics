@@ -1,0 +1,207 @@
+﻿@model AnzanMegaArithmetics.Models.ResumenClaseViewModel
+<style>
+    /* graficas */
+    /* Estilos para el Selector */
+    .header-resumen {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .selector-clase {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-light);
+        font-weight: 600;
+    }
+
+        .selector-clase select {
+            background-color: #292c4f;
+            color: white;
+            border: 0.06rem solid rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+            .selector-clase select:focus {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0.5rem rgba(76, 76, 255, 0.5);
+            }
+
+    /* Estilos para KPI Cards */
+    .kpi-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        flex: 1 1 15rem; /* Crece y se encoge, tamaño base 15rem */
+        background-color: #1b1e3c;
+        border-radius: 0.8rem;
+        padding: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 0.4rem 1rem rgba(0,0,0,0.2);
+        border: 0.06rem solid rgba(255,255,255,0.05);
+        transition: transform 0.2s ease;
+    }
+
+        .kpi-card:hover {
+            transform: translateY(-0.25rem);
+        }
+
+    .kpi-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .kpi-info h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .kpi-info p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-light);
+    }
+
+    /* Estilos para las Gráficas */
+    .graficas-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .grafica-card {
+        flex: 1 1 20rem;
+        background-color: #1b1e3c;
+        border-radius: 0.8rem;
+        padding: 1.5rem;
+        box-shadow: inset 0 0 1rem rgba(0,0,0,0.2);
+        border: 0.06rem solid rgba(255,255,255,0.05);
+    }
+
+        .grafica-card h3 {
+            color: white;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+            border-bottom: 0.06rem solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+    .canvas-container {
+        position: relative;
+        width: 100%;
+        height: 18rem; /* Altura relativa para los gráficos */
+    }
+    /* graficas */
+</style>
+
+<div class="form-header header-resumen">
+    <h2 style="color:white">Resumen General</h2>
+
+    <div class="selector-clase">
+        <label for="selectClase"><i class="fas fa-filter"></i> Filtrar por Clase:</label>
+        <select id="selectClase" onchange="actualizarDashboard(this.value)">
+            @if (Model.ClasesDisponibles != null && Model.ClasesDisponibles.Count > 0)
+            {
+                @foreach (var clase in Model.ClasesDisponibles)
+                {
+                    if (clase == Model.ClaseActual)
+                    {
+                        <option value="@clase" selected>@clase</option>
+                    }
+                    else
+                    {
+                        <option value="@clase">@clase</option>
+                    }
+                }
+            }
+            else
+            {
+                <option value="">Sin clases asignadas</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background-color: rgba(40, 167, 69, 0.2); color: #28a745;">
+            <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="kpi-info">
+            <h3 id="kpiAlumnos">@Model.TotalAlumnosActivos</h3>
+            <p>Alumnos Activos (-7 días)</p>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background-color: rgba(76, 76, 255, 0.2); color: #4c4cff;">
+            <i class="fas fa-clipboard-check"></i>
+        </div>
+        <div class="kpi-info">
+            <h3 id="kpiPruebas">@Model.TotalPruebasRealizadas</h3>
+            <p>Pruebas Realizadas</p>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background-color: rgba(255, 193, 7, 0.2); color: #ffc107;">
+            <i class="fas fa-star"></i>
+        </div>
+        <div class="kpi-info">
+            <h3 id="kpiPromedio">@Model.PromedioGeneralClase%</h3>
+            <p>Promedio Aciertos</p>
+        </div>
+    </div>
+</div>
+
+<div class="graficas-grid">
+    <div class="grafica-card">
+        <h3>Rendimiento por Actividad</h3>
+        <div class="canvas-container">
+            <canvas id="graficaBarras"></canvas>
+        </div>
+    </div>
+    <div class="grafica-card">
+        <h3>Distribución de Prácticas</h3>
+        <div class="canvas-container">
+            <canvas id="graficaDona"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    (function() {
+
+        const datosBarras = @Html.Raw(Json.Serialize(Model.RendimientoPorActividad));
+        const datosDona = @Html.Raw(Json.Serialize(Model.DistribucionPruebas));
+
+        function init() {
+
+            if (typeof Chart === 'undefined' || typeof inicializarGraficas !== 'function') {
+                setTimeout(init, 100);
+                return;
+            }
+
+            inicializarGraficas(datosBarras, datosDona);
+        }
+        init();
+    })();
+</script>

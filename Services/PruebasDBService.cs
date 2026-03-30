@@ -16,6 +16,108 @@ namespace AnzanMegaArithmetics.Services
             this._usersDBService = usersDBService;
         }
 
+        public ConfiguracionPruebaModel ObtenerConfiguracionPorId(int idPrueba)
+        {
+            try
+            {
+                return _context.Pruebas
+                    .Where(p => p.Id_Prueba == idPrueba)
+                    .Select(p => new ConfiguracionPruebaModel
+                    {
+                        Id_Prueba = p.Id_Prueba,
+                        TipoPrueba = p.Tipo_Prueba,
+                        DatosConfiguracion = p.Configuracion
+                    })
+                    .FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public List<string> ObtenerTiposDePruebaDisponibles()
+        {
+            try
+            {
+                return _context.Pruebas
+                    .Select(p => p.Tipo_Prueba)
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .ToList();
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        }
+
+        public List<HistorialPruebaModel> ObtenerHistorialFiltrado(string clase, string alumno, string tipoPrueba, DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            try
+            {
+                // 1. Iniciamos la consulta base
+                var query = _context.Pruebas
+                    .Include(p => p.Usuario)
+                    .ThenInclude(u => u.Usuario_Clase)
+                    .ThenInclude(uc => uc.Clase)
+                    .Where(p => p.Activo == true)
+                    .AsQueryable();
+
+                // 2. Filtramos dinámicamente si los parámetros no vienen vacíos
+                if (!string.IsNullOrEmpty(clase))
+                {
+                    query = query.Where(p => p.Usuario.Usuario_Clase.Any(uc => uc.Clase.Nombre == clase));
+                }
+
+                if (!string.IsNullOrEmpty(alumno))
+                {
+                    string search = alumno.ToLower().Trim();
+                    query = query.Where(p => p.Usuario.Nombre.ToLower().Contains(search) ||
+                                             p.Usuario.Gamer_Tag.ToLower().Contains(search));
+                }
+
+                if (!string.IsNullOrEmpty(tipoPrueba))
+                {
+                    query = query.Where(p => p.Tipo_Prueba == tipoPrueba);
+                }
+
+                if (fechaInicio.HasValue)
+                {
+                    query = query.Where(p => p.Fecha.Date >= fechaInicio.Value.Date);
+                }
+
+                if (fechaFin.HasValue)
+                {
+                    query = query.Where(p => p.Fecha.Date <= fechaFin.Value.Date);
+                }
+
+                // 3. Ordenamos, limitamos a 100 para no matar el navegador y mapeamos
+                return query.OrderByDescending(p => p.Fecha)
+                    .Take(100)
+                    .Select(p => new HistorialPruebaModel
+                    {
+                        Id_Prueba = p.Id_Prueba,
+                        Fecha = p.Fecha,
+                        NombreAlumno = p.Usuario.Nombre,
+                        GamerTag = p.Usuario.Gamer_Tag,
+                        TipoPrueba = p.Tipo_Prueba,
+                        Aciertos = p.Respuestas_Correctas,
+                        TotalPreguntas = p.Total_Preguntas,
+                        Tiempo = p.Tiempo,
+                        XP = p.ExperienciaAdquirida,
+                        // Calculamos el porcentaje de efectividad protegiendo contra división por cero
+                        Efectividad = p.Total_Preguntas > 0
+                                      ? (int)Math.Round((double)p.Respuestas_Correctas / p.Total_Preguntas * 100)
+                                      : 0
+                    })
+                    .ToList();
+            }
+            catch (Exception)
+            {
+                return new List<HistorialPruebaModel>();
+            }
+        }
 
         public List<PruebasDBModel> ObtenerPruebas()
         {
@@ -60,6 +162,74 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        //panel profes
+        public ResumenClaseViewModel ObtenerResumenPorClase(string claseSeleccionada)
+        {
+            var viewModel = new ResumenClaseViewModel
+            {
+                ClaseActual = claseSeleccionada
+            };
+
+            DateTime fechaCorte = DateTime.Now.AddDays(-7);
+
+            try
+            {
+                var datosPruebas = _context.Pruebas
+                    .Where(p => p.Ids_Clases.Contains(claseSeleccionada) && p.Activo)
+                    .Select(p => new
+                    {
+                        p.Id_Usuario,
+                        p.Tipo_Prueba,
+                        p.Total_Preguntas,
+                        p.Respuestas_Correctas,
+                        p.Fecha
+                    })
+                    .ToList();
+
+                if (!datosPruebas.Any())
+                    return viewModel;
+
+                viewModel.TotalPruebasRealizadas = datosPruebas.Count;
+                viewModel.TotalAlumnosActivos = datosPruebas
+                    .Where(p => p.Fecha >= fechaCorte) // Solo los que practicaron en la última semana
+                    .Select(p => p.Id_Usuario)
+                    .Distinct()
+                    .Count();
+
+                var totalPreguntasGral = datosPruebas.Sum(p => p.Total_Preguntas);
+                var totalAciertosGral = datosPruebas.Sum(p => p.Respuestas_Correctas);
+
+                viewModel.PromedioGeneralClase = totalPreguntasGral > 0
+                    ? Math.Round((double)totalAciertosGral / totalPreguntasGral * 100, 2)
+                    : 0;
+
+                var agrupadoPorTipo = datosPruebas.GroupBy(p => p.Tipo_Prueba).ToList();
+
+                foreach (var grupo in agrupadoPorTipo)
+                {
+                    var tipo = grupo.Key ?? "Sin Categoría";
+
+                    viewModel.DistribucionPruebas.Add(tipo, grupo.Count());
+
+                    var preguntasDelTipo = grupo.Sum(g => g.Total_Preguntas);
+                    var aciertosDelTipo = grupo.Sum(g => g.Respuestas_Correctas);
+
+                    var promedioTipo = preguntasDelTipo > 0
+                        ? Math.Round((double)aciertosDelTipo / preguntasDelTipo * 100, 2)
+                        : 0;
+
+                    viewModel.RendimientoPorActividad.Add(tipo, promedioTipo);
+                }
+
+                return viewModel;
+            }
+            catch (Exception ex)
+            {
+                return viewModel;
+            }
+        }
+
+        //panel profes
         public bool GuardarPrueba(PruebasDBModel model)
         {
             try

@@ -439,6 +439,109 @@ namespace AnzanMegaArithmetics.Services
 
         }
 
+
+        //panel profes
+        public List<UsuarioBDModel> ObtenerAlumnosPorClase(string nombreClase)
+        {
+            try
+            {
+                return _context.Usuarios
+                    .Include(u => u.Rol)
+                    .Include(u => u.Usuario_Clase)
+                        .ThenInclude(uc => uc.Clase)
+                    .Include(u => u.UsuarioLicencias)
+                        .ThenInclude(ul => ul.Licencia)
+                    .Where(u => u.Usuario_Clase.Any(uc => uc.Clase.Nombre == nombreClase)
+                           && u.Rol.Rol == "Alumno")
+                    .Select(u => new UsuarioBDModel
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Id_Rol = u.Rol.Rol,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Pass = u.Pass,
+                        Activo = u.Activo,
+                        Racha = u.Racha,
+                        Exp = u.Experiencia_Total,
+                        Rango_Actual = u.Rango_Actual,
+                        Ultima_Cnx = u.Ultima_Actividad,
+
+                        Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Licencia.Nombre)
+                            .FirstOrDefault() ?? "Sin licencia",
+
+                        Fecha_Asignacion_Licencia = u.UsuarioLicencias
+                            .Select(ul => (DateTime?)ul.Fecha_Asignacion).FirstOrDefault(),
+
+                        Fecha_Vencimiento_Licencia = u.UsuarioLicencias
+                            .Select(ul => (DateTime?)ul.Fecha_Vencimiento).FirstOrDefault(),
+
+                        Clases = u.Usuario_Clase
+                            .Where(uc => uc.Clase != null)
+                            .Select(uc => uc.Clase.Nombre)
+                            .ToList()
+                    })
+                    .OrderByDescending(u => u.Ultima_Cnx)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                return new List<UsuarioBDModel>();
+            }
+        }
+
+        public UsuarioBDModel ObtenerAlumnoPorId(int idUsuario)
+        {
+            try
+            {
+                return _context.Usuarios
+                    .Include(u => u.Rol)
+                    .Include(u => u.Usuario_Clase)
+                        .ThenInclude(uc => uc.Clase)
+                    .Include(u => u.UsuarioLicencias)
+                        .ThenInclude(ul => ul.Licencia)
+                    .Where(u => u.Id_Usuario == idUsuario)
+                    .Select(u => new UsuarioBDModel
+                    {
+                        Id_Usuario = u.Id_Usuario,
+                        Id_Rol = u.Rol.Rol,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Gamer_Tag = u.Gamer_Tag,
+                        Pass = u.Pass,
+                        Activo = u.Activo,
+                        Racha = u.Racha,
+                        Exp = u.Experiencia_Total,
+                        Rango_Actual = u.Rango_Actual,
+                        Ultima_Cnx = u.Ultima_Actividad,
+
+                        Licencia = u.UsuarioLicencias
+                            .Where(ul => ul.Licencia != null)
+                            .Select(ul => ul.Licencia.Nombre)
+                            .FirstOrDefault() ?? "Sin licencia",
+
+                        Fecha_Asignacion_Licencia = u.UsuarioLicencias
+                            .FirstOrDefault() != null ? u.UsuarioLicencias.FirstOrDefault().Fecha_Asignacion : (DateTime?)null,
+
+                        Fecha_Vencimiento_Licencia = u.UsuarioLicencias
+                            .FirstOrDefault() != null ? u.UsuarioLicencias.FirstOrDefault().Fecha_Vencimiento : (DateTime?)null,
+
+                        Clases = u.Usuario_Clase
+                            .Where(uc => uc.Clase != null)
+                            .Select(uc => uc.Clase.Nombre)
+                            .ToList()
+                    })
+                    .FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        //panel profes
+
         //CRUD de usuarios para el panel de administración
 
         public int ListarUsersTotales()
@@ -839,6 +942,72 @@ namespace AnzanMegaArithmetics.Services
             return rangoEncontrado.Nombre ?? "Bronce I";
         }
 
+        public string ActualizarDatosBasicosJugador(ActualizarUsuarioModel actualizar)
+        {
+            if (actualizar == null || actualizar.Id_Usuario <= 0)
+            {
+                return "Error: Datos de usuario inválidos";
+            }
+
+            actualizar.Nombre = actualizar.Nombre?.Trim();
+            actualizar.Gamer_Tag = actualizar.Gamer_Tag?.Trim().Replace(" ", "");
+            actualizar.Correo = actualizar.Correo?.Trim();
+            actualizar.Pass = actualizar.Pass?.Trim();
+
+            if (string.IsNullOrWhiteSpace(actualizar.Nombre) ||
+                string.IsNullOrWhiteSpace(actualizar.Gamer_Tag) ||
+                string.IsNullOrWhiteSpace(actualizar.Correo) ||
+                string.IsNullOrWhiteSpace(actualizar.Pass))
+            {
+                return "Error: Ningún campo de texto puede estar vacío.";
+            }
+
+            if (actualizar.Exp < 0) actualizar.Exp = 0;
+            if (actualizar.Exp > 2000000) actualizar.Exp = 2000000;
+
+            if (actualizar.Racha < 0) actualizar.Racha = 0;
+            if (actualizar.Racha > 4000) actualizar.Racha = 4000;
+
+            try
+            {
+
+                bool colisionGamerTagOCorreo = _context.Usuarios.Any(u =>
+                    u.Id_Usuario != actualizar.Id_Usuario &&
+                    (u.Correo.ToLower() == actualizar.Correo || u.Gamer_Tag.ToLower() == actualizar.Gamer_Tag)
+                );
+
+                if (colisionGamerTagOCorreo)
+                {
+                    return "Error: El Correo o GamerTag ya está en uso por otro jugador.";
+                }
+
+                UsuariosDB usuarioDB = _context.Usuarios.FirstOrDefault(x => x.Id_Usuario == actualizar.Id_Usuario);
+
+                if (usuarioDB == null)
+                {
+                    return "Error al actualizar: Jugador no encontrado.";
+                }
+
+                string nuevoRango = CalcularRango(actualizar.Exp);
+
+                usuarioDB.Nombre = actualizar.Nombre;
+                usuarioDB.Gamer_Tag = actualizar.Gamer_Tag;
+                usuarioDB.Correo = actualizar.Correo;
+                usuarioDB.Pass = actualizar.Pass;
+                usuarioDB.Racha = actualizar.Racha;
+                usuarioDB.Experiencia_Total = actualizar.Exp;
+                usuarioDB.Rango_Actual = nuevoRango;
+
+
+                _context.SaveChanges();
+                return "Usuario actualizado correctamente";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar el usuario: " + ex.Message;
+            }
+        }
+
 
         //retos
 
@@ -1145,7 +1314,6 @@ namespace AnzanMegaArithmetics.Services
                     RecompensaXP = 100, TipoActividad = TipoActividadEnum.AcumularPreguntasCorrectas, ValorObjetivo = 10
                 }
 
-                  //aqui poner más retos
         
             };
         }
@@ -1216,34 +1384,26 @@ namespace AnzanMegaArithmetics.Services
 
         public bool ValidateChallengeCompletion(DailyChallengeViewModel reto, List<DataBase.PruebasDB> activities)
         {
-            // Filtrar solo las pruebas que se consideran completas o activas
+ 
             var finalActivities = activities.Where(a => a.Activo == true).ToList();
             var objetivo = reto.ValorObjetivo.GetValueOrDefault();
 
-            // Obtener la clave base para búsquedas
             string tipoPruebaDB = GetDBStringForCountOrTime(reto.TipoActividad);
 
             switch (reto.TipoActividad)
             {
-                // ===========================================
-                // GRUPO 1: EFECTIVIDAD / ACIERTO (1, 2, 3)
-                // Regla: Encontrar al menos UNA prueba que cumpla el % de efectividad
-                // ===========================================
+ 
                 case TipoActividadEnum.Efectividad100:
                 case TipoActividadEnum.Efectividad90:
                 case TipoActividadEnum.Efectividad80:
                     return finalActivities.Any(a =>
-                        // Usamos StartsWith() para incluir "Fingermath Lectura", etc.
+    
                         a.Tipo_Prueba.StartsWith(tipoPruebaDB) &&
                         a.Total_Preguntas > 0 &&
-                        // Cálculo de efectividad
+       
                         ((double)a.Respuestas_Correctas / a.Total_Preguntas * 100) >= objetivo);
 
 
-                // ===========================================
-                // GRUPO 2: CONTEO DE PRUEBAS (4 - 17)
-                // Regla: Contar cuántas pruebas del tipo base hay
-                // ===========================================
                 case TipoActividadEnum.CompletarPruebasFingermath:
                 case TipoActividadEnum.CompletarPruebasSoroban:
                 case TipoActividadEnum.CompletarPruebasSumaResta:
@@ -1258,15 +1418,11 @@ namespace AnzanMegaArithmetics.Services
                 case TipoActividadEnum.CompletarPruebasRaices:
                 case TipoActividadEnum.CompletarPruebasPotencias:
                 case TipoActividadEnum.CompletarPruebasMatematicasconDados:
-                    // Contar el número de pruebas que comienzan con la clave base.
+   
                     return finalActivities.Count(a =>
                         a.Tipo_Prueba.StartsWith(tipoPruebaDB)) >= objetivo;
 
 
-                // ===========================================
-                // GRUPO 3: TIEMPO ACUMULADO (18 - 31)
-                // Regla: Sumar el tiempo total de las pruebas del tipo base
-                // ===========================================
                 case TipoActividadEnum.TiempoPruebasFingermath:
                 case TipoActividadEnum.TiempoPruebasSoroban:
                 case TipoActividadEnum.TiempoPruebasSumaResta:
@@ -1281,7 +1437,7 @@ namespace AnzanMegaArithmetics.Services
                 case TipoActividadEnum.TiempoPruebasRaices:
                 case TipoActividadEnum.TiempoPruebasPotencias:
                 case TipoActividadEnum.TiempoPruebasMatematicasconDados:
-                    // Sumar los minutos de todas las pruebas que comienzan con la clave base.
+   
                     var totalTime = finalActivities
                         .Where(a => a.Tipo_Prueba.StartsWith(tipoPruebaDB))
                         .Sum(a => a.Tiempo.TotalMinutes);
@@ -1289,17 +1445,13 @@ namespace AnzanMegaArithmetics.Services
                     return totalTime >= objetivo;
 
 
-                // ===========================================
-                // GRUPO 4: VARIOS / ACUMULACIÓN GLOBAL (32, 33)
-                // Regla: Suma global de una columna específica
-                // ===========================================
                 case TipoActividadEnum.AcumularXP:
-                    // Sumar la ExperienciaAdquirida de todas las pruebas de hoy.
+
                     var totalXP = finalActivities.Sum(a => a.ExperienciaAdquirida);
                     return totalXP >= objetivo;
 
                 case TipoActividadEnum.AcumularPreguntasCorrectas:
-                    // Sumar las Respuestas_Correctas de todas las pruebas de hoy.
+
                     var totalRespuestas = finalActivities.Sum(a => a.Respuestas_Correctas);
                     return totalRespuestas >= objetivo;
 
