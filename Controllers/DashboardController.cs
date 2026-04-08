@@ -312,19 +312,7 @@ namespace AnzanMegaArithmetics.Controllers
 
         public IActionResult PanelAdministrador()
         {
-            int usersCount = usersDBService.ListarUsersTotales();
-            int clasesCount = clasesDBService.ListarClasesTotales();
-
-            var userInfo = GetUserInfo();
-            if (userInfo.Id_Usuario == 0)
-            {
-                return RedirectToAction("Inicio", "Inicio");
-            }
-
-            ViewBag.UsersCount = usersCount;
-            ViewBag.ClasesCount = clasesCount;
-
-            return View(userInfo);
+          return View();
         }
 
         private LoginResponseModel GetUserInfo()

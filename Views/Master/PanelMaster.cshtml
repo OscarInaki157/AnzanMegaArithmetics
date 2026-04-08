@@ -1,0 +1,364 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.PanelMasterViewModel
+@{
+    ViewBag.Title = "Panel Master";
+    Layout = "_LayoutDashboard";
+}
+
+<style>
+    /* =========================================
+           1. LAYOUT PRINCIPAL Y BUSCADOR
+           ========================================= */
+
+    .master-grid-layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1rem;
+        align-items: start;
+        width: 100%;
+       /*  max-width: 85rem; */
+        box-sizing: border-box;
+    }
+
+    .omnipotent-search-bar {
+        width: 100%;
+        max-width: 85rem;
+        margin: 0 auto 1rem auto;
+        position: relative;
+    }
+
+        .omnipotent-search-bar input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border-radius: 1rem;
+            background: var(--color-card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+            .omnipotent-search-bar input:focus {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 15px rgba(76, 76, 255, 0.3);
+            }
+
+        .omnipotent-search-bar i.fa-search {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-primary);
+            font-size: 1.2rem;
+        }
+
+    .btn-primary-action {
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary-action:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+
+    /* =========================================
+           2. FONDOS OSCUROS (Izquierda y Derecha)
+           ========================================= */
+    .formulario-flash {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        background-color: var(--color-card-bg, #010f36); /* Aquí forzamos el azul oscuro */
+        box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 0.06rem solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 1.7rem);
+            font-weight: 600;
+            color:white;
+        }
+
+    /* =========================================
+           3. MODAL OCULTO POR DEFECTO
+           ========================================= */
+    .modal-overlay {
+        display: none; /* ¡Esto corrige que siempre esté visible! */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content-game {
+        position: relative;
+        width: 100%;
+        max-width: 40rem; /* Más estrecho que el de alumnos para formularios */
+        padding: 2rem;
+        animation: slideUp 0.3s ease;
+    }
+
+    .btn-close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #ff4757;
+        color: white;
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: 0.2s;
+    }
+
+        .btn-close-modal:hover {
+            transform: scale(1.1);
+            background: #ff6b81;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes slideUp {
+        from
+
+    {
+        transform: translateY(1rem);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    }
+
+    @@media (max-width: 1024px) {
+        .master-grid-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+<div class="user-top-info">
+    <div class="user-left-section">
+        <div class="user-name">
+            @Model.Nombre
+        </div>
+        <div class="user-meta-row">
+            <span class="gamertag">
+                <i class="fa-solid fa-gamepad"></i>
+                <strong>Gamertag:</strong> @Model.Gamer_Tag
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-id-card"></i>
+                <strong>Licencia:</strong> @Model.Licencia
+            </span>
+            <span class="license">
+                <i class="fa-solid fa-landmark"></i>
+                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
+            </span>
+        </div>
+    </div>
+
+    <div class="user-right-section">
+        <div class="last-connection">
+            <i class="fa-solid fa-clock"></i>
+            Última conexión: @Model.Ultima_Cnx
+        </div>
+    </div>
+</div>
+
+
+<div class="omnipotent-search-bar">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Búsqueda Global: Escribe el nombre de un alumno, clase o institución..." />
+</div>
+
+<div class="master-grid-layout">
+
+    <div class="left-column formulario-flash">
+        <partial name="~/Views/Shared/Partials/Panels/Master/_ColumnaIzquierda.cshtml" model="Model.DashboardIzquierdo" />
+    </div>
+
+    <div class="right-column">
+
+        <partial name="~/Views/Shared/Partials/Panels/Master/_DirectorioInstituciones.cshtml" model="Model.ListaInstituciones" />
+
+    </div>
+
+</div>
+
+<div id="modalMaster" class="modal-overlay">
+    <div class="modal-content-game">
+        <button class="btn-close-modal" onclick="cerrarModalMaster()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="modalMasterBody">
+            <partial name="~/Views/Shared/Partials/Panels/Master/_CrearInstitucion.cshtml" model="new AnzanMegaArithmetics.Models.MasterModels.CrearInstitucionModel { LicenciasIniciales = 1}"/>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    function abrirModalMaster() {
+        document.getElementById('modalMaster').style.display = 'flex';
+    }
+
+    function cerrarModalMaster() {
+        document.getElementById('modalMaster').style.display = 'none';
+        document.getElementById('modalMasterBody').innerHTML = '';
+    }
+
+    // Cerrar modal al hacer clic afuera
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalMaster');
+        if (event.target === modal) {
+            cerrarModalMaster();
+        }
+    }
+
+        async function abrirModalMaster() {
+        const modal = document.getElementById('modalMaster');
+        const body = document.getElementById('modalMasterBody');
+
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center; padding:2rem; color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+
+        try {
+            const response = await fetch('/Master/ObtenerFormularioInstitucion');
+            body.innerHTML = await response.text();
+        } catch (e) {
+            body.innerHTML = '<div style="color:red;">Error al cargar el formulario.</div>';
+        }
+    }
+
+    async function enviarNuevaInstitucion(event) {
+        event.preventDefault();
+        const btn = document.getElementById('btnGuardar');
+        const msgError = document.getElementById('msgErrorModal');
+        const formData = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
+        msgError.style.display = 'none';
+
+        try {
+            const response = await fetch('/Master/CrearInstitucion', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.exito) {
+                // Recargamos la página para que se vean los cambios en las gráficas y la tabla
+                window.location.reload();
+            } else {
+                msgError.textContent = result.mensaje;
+                msgError.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Guardar Institución';
+            }
+        } catch (e) {
+            msgError.textContent = "Error de conexión con el servidor.";
+            msgError.style.display = 'block';
+            btn.disabled = false;
+        }
+    }
+
+        async function abrirModalLicencias(id) {
+        const modal = document.getElementById('modalMaster');
+        const body = document.getElementById('modalMasterBody');
+
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center; padding:2rem; color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando inventario...</div>';
+
+        try {
+            const response = await fetch(`/Master/ObtenerGestionLicencias?id=${id}`);
+            body.innerHTML = await response.text();
+        } catch (e) {
+            body.innerHTML = '<div style="color:red;">Error al conectar con la bóveda.</div>';
+        }
+    }
+
+    async function enviarActualizacionLicencias(event) {
+        event.preventDefault();
+        const btn = document.getElementById('btnGuardarLic');
+        const msgError = document.getElementById('msgErrorLicencias');
+        const formData = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Actualizando...';
+
+        try {
+            const response = await fetch('/Master/ActualizarLicencias', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.exito) {
+                window.location.reload();
+            } else {
+                msgError.textContent = result.mensaje;
+                msgError.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar Bolsa';
+            }
+        } catch (e) {
+            msgError.textContent = "Error de red.";
+            btn.disabled = false;
+        }
+    }
+</script>

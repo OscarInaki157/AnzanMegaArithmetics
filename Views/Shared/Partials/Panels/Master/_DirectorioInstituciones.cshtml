@@ -1,0 +1,102 @@
+﻿@model List<AnzanMegaArithmetics.Models.MasterModels.InstitucionDirectorioModel>
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2><i class="fas fa-building"></i> Directorio de Instituciones</h2>
+
+        <button class="btn-primary-action" onclick="abrirModalMaster()">
+            <i class="fas fa-plus-circle"></i> Nueva Institución
+        </button>
+    </div>
+
+    <div style="margin-bottom: 1.5rem; position: relative;">
+        <i class="fas fa-search" style="position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: #a0a0c0;"></i>
+        <input type="text" id="filtroEscuelas" onkeyup="filtrarTablaEscuelas()" placeholder="Buscar institución por nombre..."
+               style="width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: 0.3s;">
+    </div>
+
+    <div class="smart-list" id="listaEscuelas" style="max-height: 500px; overflow-y: auto; padding-right: 0.5rem;">
+
+        @foreach (var escuela in Model)
+        {
+            string borderStyle = escuela.Id_Institucion == 1 ? "border: 1px solid var(--color-primary);" : "border: 1px solid rgba(255,255,255,0.05);";
+
+            <div class="student-row escuela-item" style="grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1.5fr; @borderStyle; background: rgba(255,255,255,0.02); margin-bottom: 0.8rem; border-radius: 0.5rem; padding: 1rem; align-items: center;">
+
+                <div class="id-tag" style="color: var(--color-primary); font-weight: bold;">#@escuela.Id_Institucion.ToString("D2")</div>
+
+                <div class="name-info" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                    <strong class="escuela-nombre" style="color: white; font-size: 1.1rem;">@escuela.Nombre</strong>
+                    <span style="font-size: 0.85rem; color: #a0a0c0;">
+                        <i class="fas fa-calendar-alt"></i> Registro: @escuela.FechaRegistro.ToString("dd/MMM/yyyy")
+                    </span>
+                </div>
+
+                <div style="overflow:hidden;">
+                    @if (escuela.Activo)
+                    {
+                        <span class="rango-badge" style="background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.3); padding: 0.4rem 0.8rem; border-radius: 2rem; font-size: 0.85rem;">
+                            <i class="fas fa-check-circle"></i> Activa
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="rango-badge" style="background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.3); padding: 0.4rem 0.8rem; border-radius: 2rem; font-size: 0.85rem;">
+                            <i class="fas fa-times-circle"></i> Inactiva
+                        </span>
+                    }
+                </div>
+
+                <div style="text-align: center;">
+                    <span style="color: white; font-weight: bold; display: block; font-size: 1.1rem;">@escuela.LicenciasUsadas / @escuela.LicenciasTotales</span>
+                    <span style="color: #a0a0c0; font-size: 0.8rem;">Licencias</span>
+                    <br />
+                    <span style="color: #a0a0c0; font-size: 0.8rem;">Usadas / Totales</span>
+                </div>
+
+                <div class="action-buttons" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+
+                    @* btn gestion licencias *@
+                    <button class="btn-primary-action"
+                            style="border-radius: 0.4rem; background: #28a745;"
+                            title="Gestionar Licencias"
+                            onclick="abrirModalLicencias(@escuela.Id_Institucion)">
+                        <i class="fas fa-key"></i>
+                    </button>
+
+                    @if (escuela.Id_Institucion != 1)
+                    {
+                        <button class="btn-primary-action" style="border-radius: 0.4rem; background: #ff4757;" title="Desactivar Institución">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    }
+
+                    <button class="btn-primary-action" style="border-radius: 0.4rem;" title="Gestionar Institución">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function filtrarTablaEscuelas() {
+        let input = document.getElementById("filtroEscuelas");
+        let filter = input.value.toUpperCase();
+        let lista = document.getElementById("listaEscuelas");
+        let filas = lista.getElementsByClassName("escuela-item");
+
+        for (let i = 0; i < filas.length; i++) {
+            let nombre = filas[i].getElementsByClassName("escuela-nombre")[0];
+            if (nombre) {
+                let textValue = nombre.textContent || nombre.innerText;
+                if (textValue.toUpperCase().indexOf(filter) > -1) {
+                    filas[i].style.display = "";
+                } else {
+                    filas[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>

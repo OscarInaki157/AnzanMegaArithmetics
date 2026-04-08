@@ -119,48 +119,6 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
-        public List<PruebasDBModel> ObtenerPruebas()
-        {
-            try
-            {
-                List<PruebasDB> pruebasDB =_context.Pruebas.ToList();
-
-                if (pruebasDB == null || pruebasDB.Count == 0)
-                {
-                    return new List<PruebasDBModel>();
-                }
-
-                List<PruebasDBModel> pruebasModel = new();
-                foreach (var prueba in pruebasDB)
-                {
-
-                    var usuario = _context.Usuarios.FirstOrDefault(u => u.Id_Usuario == prueba.Id_Usuario);
-
-                    PruebasDBModel modelo = new PruebasDBModel
-                    {
-                        Id_Prueba = prueba.Id_Prueba,
-                        Id_Usuario = prueba.Id_Usuario,
-                        Ids_Clases = prueba.Ids_Clases,
-                        Activo = prueba.Activo,
-                        Tiempo = prueba.Tiempo,
-                        Total_Preguntas = prueba.Total_Preguntas,
-                        Respuestas_Correctas = prueba.Respuestas_Correctas,
-                        Fecha = prueba.Fecha,
-                        ExperienciaAdquirida = prueba.ExperienciaAdquirida,
-                        Tipo_Prueba = prueba.Tipo_Prueba,
-
-                        NombreUsuario = usuario != null ? usuario.Nombre : "No obtenido",
-                        GamertagUsuario = usuario != null ? usuario.Gamer_Tag : "No obtenido"
-                    };
-                    pruebasModel.Add(modelo);
-                }
-                return pruebasModel;
-            }
-            catch (Exception ex)
-            {
-                return new List<PruebasDBModel>();
-            }
-        }
 
         //panel profes
         public ResumenClaseViewModel ObtenerResumenPorClase(string claseSeleccionada)

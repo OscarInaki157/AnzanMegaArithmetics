@@ -1,0 +1,114 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.DashboardIzquierdoViewModel
+
+<style>
+    .glass {
+        background-color: #1b1e3c;
+        border-radius: 0.8rem;
+        box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.2);
+        border: 0.06rem solid rgba(255, 255, 255, 0.05);
+        transition: transform 0.2s ease;
+        padding:1rem;
+    }
+</style>
+
+<div class="master-card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; color: white;"><i class="fas fa-chart-pie master-accent"></i> Resumen Global</h3>
+    <div style="display: flex; justify-content: space-between; margin-top: 1rem; text-align: center;">
+        <div class="glass">
+            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalEscuelas</div>
+            <div style="color: #a0a0c0; font-size: 0.8rem;">Escuelas</div>
+        </div>
+        <div class="glass">
+            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalAlumnos.ToString("N0")</div>
+            <div style="color: #a0a0c0; font-size: 0.8rem;">Alumnos</div>
+        </div>
+        <div class="glass">
+            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalLicenciasGeneradas.ToString("N0")</div>
+            <div style="color: #a0a0c0; font-size: 0.8rem;">Licencias</div>
+        </div>
+    </div>
+</div>
+
+<div class="master-card glass" style="margin-bottom: 1.5rem; text-align: center;">
+    <h3 style="margin-top: 0; color: white; text-align: left;"><i class="fas fa-circle-notch master-accent"></i> Licencias vendidas</h3>
+
+    <div style="position: relative; height: 200px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 1rem;">
+        <canvas id="licenciasDonutChart"></canvas>
+    </div>
+</div>
+
+<div class="master-card glass">
+    <h3 style="margin-top: 0; color: white;"><i class="fas fa-bell master-accent"></i> Alertas</h3>
+
+    @if (Model.Alertas != null && Model.Alertas.Any())
+    {
+        foreach (var alerta in Model.Alertas)
+        {
+            bool esPeligro = alerta.TipoAlerta.ToLower() == "peligro";
+            string colorBorde = esPeligro ? "#ff4757" : "#ffd700";
+            string bgSutil = esPeligro ? "rgba(255, 71, 87, 0.1)" : "rgba(255, 215, 0, 0.1)";
+            string iconoBtn = esPeligro ? "fa-plus" : "fa-envelope";
+
+            <div class="alert-card" style="border-left-color: @colorBorde; background: @bgSutil;">
+                <div>
+                    <strong style="color: white; display: block;">@alerta.NombreInstitucion</strong>
+                    <span style="color: @colorBorde; font-size: 0.85rem;">@alerta.MensajeAlerta</span>
+                </div>
+                <button class="btn-mini" style="background: @colorBorde; color: @(esPeligro ? "white" : "black");" title="Gestionar">
+                    <i class="fas @iconoBtn"></i>
+                </button>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="text-align: center; color: #a0a0c0; padding: 1rem 0;">
+            <i class="fas fa-check-circle" style="font-size: 2rem; color: #28a745; margin-bottom: 0.5rem;"></i>
+            <p style="margin: 0;">Todo bajo control. No hay alertas.</p>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('licenciasDonutChart').getContext('2d');
+
+        // Pasamos los datos del modelo de C# a Javascript
+        const asignadas = @Model.LicenciasAsignadas;
+        const disponibles = @Model.LicenciasDisponibles;
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['En Uso (Asignadas)', 'En Bóveda (Disponibles)'],
+                datasets: [{
+                    data: [asignadas, disponibles],
+                    backgroundColor: [
+                        '#28a745', // Verde para las que ya se están usando
+                        'rgba(255, 215, 0, 0.2)' // Dorado con opacidad para las guardadas
+                    ],
+                    borderColor: [
+                        '#28a745',
+                        '#ffd700'
+                    ],
+                    borderWidth: 1,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%', // Hace que la dona sea más delgada y elegante
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#a0a0c0',
+                            font: { family: "'Segoe UI', sans-serif" }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>

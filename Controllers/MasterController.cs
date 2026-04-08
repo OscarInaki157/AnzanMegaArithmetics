@@ -1,0 +1,119 @@
+﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Models.MasterModels;
+using AnzanMegaArithmetics.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace AnzanMegaArithmetics.Controllers
+{
+    [Authorize(Roles = "Master")]
+    public class MasterController : Controller
+    {
+        private readonly IMasterDBService _masterDBService;
+        private readonly IUsersDBService _usersDBService;
+
+        public MasterController(IMasterDBService masterDBService, IUsersDBService usersDBService)
+        {
+            this._masterDBService = masterDBService;
+            this._usersDBService = usersDBService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PanelMaster()
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0) return RedirectToAction("Inicio", "Inicio");
+
+            var modelo = await _masterDBService.ObtenerDatosDashboardAsync();
+
+            modelo.Id_Usuario = userInfo.Id_Usuario;
+            modelo.Id_Rol = userInfo.Id_Rol;
+            modelo.Nombre = userInfo.Nombre;
+            modelo.Gamer_Tag = userInfo.Gamer_Tag;
+            modelo.Licencia = userInfo.Licencia;
+            modelo.Exp = userInfo.Exp;
+            modelo.Ultima_Cnx = userInfo.Ultima_Cnx;
+            modelo.Clases = userInfo.Clases ?? new List<string>();
+
+            return View(modelo);
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerFormularioInstitucion()
+        {
+            var model = new CrearInstitucionModel { LicenciasIniciales = 1 };
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_CrearInstitucion.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearInstitucion(CrearInstitucionModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { exito = false, mensaje = "Datos inválidos. Revisa el formulario." });
+            }
+
+            var (exito, mensaje) = await _masterDBService.CrearInstitucionAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerGestionLicencias(int id)
+        {
+            var model = await _masterDBService.ObtenerDatosLicenciasAsync(id);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_GestionLicencias.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActualizarLicencias(GestionLicenciasModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.ActualizarLicenciasAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        private LoginResponseModel GetUserInfo()
+        {
+            try
+            {
+                int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario);
+
+                if (idUsuario == 0)
+                {
+                    return new LoginResponseModel { Id_Usuario = 0 };
+                }
+
+                LoginResponseModel response = _usersDBService.ObtenerUserDashboard(idUsuario);
+
+                if (response == null || response.Id_Usuario == 0)
+                {
+                    return new LoginResponseModel { Id_Usuario = 0 };
+                }
+
+
+                HttpContext.Session.SetInt32("Id_Usuario", response.Id_Usuario);
+
+                return new LoginResponseModel
+                {
+                    Id_Usuario = response.Id_Usuario,
+                    Nombre = response.Nombre,
+                    Id_Rol = response.Id_Rol,
+                    Gamer_Tag = response.Gamer_Tag,
+                    Correo = response.Correo,
+                    Clases = response.Clases,
+                    Racha = response.Racha,
+                    Exp = response.Exp,
+                    Ultima_Cnx = response.Ultima_Cnx,
+                    Licencia = response.Licencia,
+                    Rango_Actual = response.Rango_Actual
+                };
+            }
+            catch (Exception)
+            {
+                return new LoginResponseModel { Id_Usuario = 0 };
+            }
+        }
+
+       
+    }
+}

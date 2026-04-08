@@ -1,0 +1,183 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.GestionLicenciasModel
+
+<div class="player-card" style="border-color: #28a745;">
+    <div class="card-header-profile">
+        <div class="avatar-placeholder" style="background: linear-gradient(135deg, #28a745, #1a5c2a);">
+            <i class="fas fa-key"></i>
+        </div>
+        <div class="profile-title">
+            <h3>Gestión de Licencias</h3>
+            <p>Sede: @Model.NombreInstitucion</p>
+        </div>
+    </div>
+
+    <div id="msgErrorLicencias" style="display:none; color: #ff4757; background: rgba(255,71,87,0.1); padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ff4757; font-size: 0.9rem;">
+    </div>
+
+    <form id="formLicencias" onsubmit="enviarActualizacionLicencias(event)">
+        <input type="hidden" name="Id_Institucion" value="@Model.Id_Institucion" />
+
+        <div class="stats-grid">
+            <div class="stat-box" style="grid-column: span 2;">
+                <label>En Uso (No reducibles)</label>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #ff4757;">
+                    @Model.LicenciasUsadas
+                </div>
+            </div>
+
+            <div class="stat-box" style="grid-column: span 2;">
+                <label>Total Actual</label>
+                <div style="font-size: 1.5rem; font-weight: bold; color: white;">
+                    @Model.LicenciasTotales
+                </div>
+            </div>
+
+            <div class="stat-box" style="grid-column: span 4; border: 1px solid var(--color-primary); background: rgba(76, 76, 255, 0.05);">
+                <label style="color: var(--color-primary);">Nuevas Licencias Totales</label>
+                <input type="number" name="NuevasLicenciasTotales" value="@Model.NuevasLicenciasTotales"
+                       class="input-game" style="font-size: 1.4rem; text-align: center; font-weight: bold; color: white;"
+                       required min="@Model.LicenciasUsadas" />
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(40, 167, 69, 0.05); border-radius: 4px; border: 1px dashed rgba(40, 167, 69, 0.3);">
+            <p style="margin: 0; color: #a0a0c0; font-size: 0.8rem; text-align: center;">
+                <i class="fas fa-shield-alt" style="color: #28a745;"></i>
+                El sistema no permitirá reducir el total por debajo de <strong>@Model.LicenciasUsadas</strong> para proteger a los usuarios activos.
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" class="btn-mini-sec" onclick="cerrarModalMaster()">
+                Cancelar
+            </button>
+            <button type="submit" id="btnGuardarLic" class="btn-mini" style="background: #28a745;">
+                <i class="fas fa-sync-alt"></i> Actualizar Bolsa
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Reutilizamos tus clases exactas para consistencia total */
+    .input-game {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+        padding: 0.5rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+    }
+
+        .input-game:focus {
+            border-color: var(--color-primary);
+            background: rgba(76, 76, 255, 0.05);
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        }
+
+    .btn-mini {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 10px rgba(76, 76, 255, 0.3);
+    }
+
+        .btn-mini:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.4);
+        }
+
+    .btn-mini-sec {
+        background: rgba(255, 255, 255, 0.05);
+        color: #a0a0c0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-mini-sec:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+    .player-card {
+        background: var(--color-card-bg, #010f36);
+        color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header-profile {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.4);
+    }
+
+    .profile-title h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: white;
+    }
+
+    .profile-title p {
+        margin: 0;
+        color: #a0a0c0;
+        font-size: 0.85rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+    }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+        }
+</style>

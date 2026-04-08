@@ -13,13 +13,8 @@ namespace AnzanMegaArithmetics.Services
         public RankingSlideModel ObtenerRankingFiltrado(string periodo, string actividad, int cantidad = 10);
         public List<UsuarioBDModel> ObtenerAlumnosPorClase(string nombreClase);
         UsuarioBDModel ObtenerAlumnoPorId(int idUsuario);
-        public int ListarUsersTotales();
-        public ListUsersModel ObtenerUsuarios();
-        public string ActualizarUser(ActualizarUsuarioModel actualizar);
-        public string ActualizarClasesUsuario(List<int> clases, int Id_Usuario);
-        public string ActualizarLicenciaUsuario(string nueva, int Id_Usuario);
-        public string CrearNuevoUsuario(ActualizarUsuarioModel nuevo);
-        public string EliminarUsuario(ActualizarUsuarioModel model);
+
+      
         public string CalcularRango(int experienciaTotal);
         public string ActualizarDatosBasicosJugador(ActualizarUsuarioModel actualizar);
 

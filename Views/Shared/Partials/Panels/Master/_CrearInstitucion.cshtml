@@ -1,0 +1,199 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.CrearInstitucionModel
+
+<div class="player-card" style="border-color: var(--color-primary);">
+    <div class="card-header-profile">
+        <div class="avatar-placeholder" style="background: linear-gradient(135deg, var(--color-primary), #2a2a72);">
+            <i class="fas fa-university"></i>
+        </div>
+        <div class="profile-title">
+            <h3>Nueva Institución</h3>
+        </div>
+    </div>
+
+    <div id="msgErrorModal" style="display:none; color: #ff4757; background: rgba(255,71,87,0.1); padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #ff4757; font-size: 0.9rem;">
+    </div>
+
+    <form id="formNuevaInst" onsubmit="enviarNuevaInstitucion(event)">
+        <div class="stats-grid">
+            <div class="stat-box" style="grid-column: span 3;">
+                <label>Nombre de la Institución</label>
+                <input type="text" name="Nombre" placeholder="Ej. Universidad Tecnológica de México"
+                       class="input-game" required maxlength="150" minlength="3" autocomplete="off" />
+            </div>
+
+            <div class="stat-box">
+                <label>Licencias Base</label>
+                <input type="number" name="LicenciasIniciales" value="@Model.LicenciasIniciales"
+                       class="input-game" required min="1" max="10000" />
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(76, 76, 255, 0.05); border-radius: 4px; border: 1px dashed rgba(255,255,255,0.1);">
+            <p style="margin: 0; color: #a0a0c0; font-size: 0.8rem;">
+                <i class="fas fa-info-circle" style="color: var(--color-primary);"></i>
+                Al crear la institución, se generará automáticamente su inventario y se activará el acceso al panel administrativo para sus directores.
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" class="btn-mini-sec" onclick="cerrarModalMaster()">
+                Cancelar
+            </button>
+            <button type="submit" id="btnGuardar" class="btn-mini">
+                <i class="fas fa-save"></i> Registrar Sede
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* --- BOTONES ESTILO GAMER --- */
+    .btn-mini {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 10px rgba(76, 76, 255, 0.3);
+    }
+
+        .btn-mini:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 15px rgba(76, 76, 255, 0.4);
+        }
+
+    .btn-mini-sec {
+        background: rgba(255, 255, 255, 0.05);
+        color: #a0a0c0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-mini-sec:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+    /* --- INPUTS Y CARDS --- */
+    .input-game {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        padding: 0.5rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+    }
+
+        .input-game:focus {
+            border-color: var(--color-primary);
+            background: rgba(76, 76, 255, 0.05);
+            box-shadow: 0 0 10px rgba(76, 76, 255, 0.2);
+        }
+
+    .player-card {
+        background: var(--color-card-bg, #010f36);
+        color: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(76, 76, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(76, 76, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+    .card-header-profile {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px rgba(76, 76, 255, 0.4);
+    }
+
+    .profile-title h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: white;
+    }
+
+    .profile-title p {
+        margin: 0;
+        color: #a0a0c0;
+        font-size: 0.85rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+    @@media (max-width: 768px) {
+        .stats-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-box {
+        grid-column: span 1 !important;
+    }
+
+    }
+</style>

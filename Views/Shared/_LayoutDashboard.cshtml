@@ -1257,7 +1257,7 @@
                         <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li> *@
 
-                    @if (Model.Id_Rol != "Alumno")
+                    @if (!User.IsInRole("Alumno"))
                     {
                         <li>
                             <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
@@ -1270,7 +1270,7 @@
                             </a>
                         </li>
                     }
-                    @if (Model.Id_Rol == "Profesor" || Model.Id_Rol == "Master")
+                    @if (User.IsInRole("Profesor") || User.IsInRole("Master"))
                     {
                         <li>
                             <a href="@Url.Action("PanelProfesor", "Dashboard")" id="PanelProfesores">
@@ -1278,11 +1278,19 @@
                             </a>
                         </li>
                     }
-                    @if (Model.Id_Rol == "Master")
+                    @* @if (Model.Id_Rol == "Administrador")
                     {
                         <li>
                             <a href="@Url.Action("PanelAdministrador", "Dashboard")" id="admini">
                                 <i class="fas fa-chart-line"></i> Panel Admin
+                            </a>
+                        </li>
+                    } *@
+                    @if (User.IsInRole("Master"))
+                    {
+                        <li>
+                            <a href="@Url.Action("PanelMaster", "Master")" id="PanelMaster">
+                                <i class="fas fa-crown"></i> Panel Master
                             </a>
                         </li>
                     }
@@ -1315,6 +1323,7 @@
             const rank = document.getElementById('Ranking');
             const hojas = document.getElementById('Hojas');
             const panelProfesores = document.getElementById('PanelProfesores');
+            const panelMaster = document.getElementById('PanelMaster');
 
             if (hamburgerBtn && sidebar) {
                 hamburgerBtn.addEventListener('click', function() {
@@ -1366,6 +1375,11 @@
             if (pageTitle.includes('ofesor')) {
                 if (panelProfesores) {
                     panelProfesores.classList.add('active');
+                }
+            }
+            if (pageTitle.includes('aster')) {
+                if (panelMaster) {
+                    panelMaster.classList.add('active');
                 }
             }
 
@@ -1567,19 +1581,19 @@
             animarBarraXP();
 
             // Protección (opcional)
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            // });
 
-            document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-            });
+            // document.addEventListener('keydown', function(e) {
+            //      if (
+            //          e.key === 'F12' ||
+            //          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            //          (e.ctrlKey && e.key === 'U')
+            //      ) {
+            //          e.preventDefault();
+            //      }
+            // });
         });
     </script>
 
