@@ -1,0 +1,345 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.DetalleInstitucionViewModel
+
+<div class="header-gestion">
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="txtBuscarClase" placeholder="Buscar salón por nombre..." onkeyup="filtrarClasesLocal()">
+    </div>
+
+    <div class="action-buttons-header">
+        <button class="btn-primary-action" onclick="abrirModalNuevaClase(@Model.Id_Institucion)" style="padding: 0.7rem 1.5rem; border-radius: 2rem; background: var(--color-primary); color: white; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 10px rgba(76, 76, 255, 0.3);">
+            <i class="fas fa-plus-circle"></i> Nuevo Salón
+        </button>
+    </div>
+</div>
+
+<div class="stats-summary">
+    <div class="stat-item">
+        <i class="fas fa-school icon-total"></i>
+        <div class="stat-info">
+            <span class="label">Total Salones</span>
+            <span class="value">@(Model.ListaClases?.Count ?? 0)</span>
+        </div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="clase-actual" style="color: #a0a0c0;">
+        <i class="fas fa-info-circle"></i> Gestionando estructura académica de la sede
+    </div>
+</div>
+
+<div class="smart-list" id="listaClasesSede">
+    @if (Model.ListaClases != null && Model.ListaClases.Any())
+    {
+        @foreach (var clase in Model.ListaClases)
+        {
+            <div class="clase-row" data-search="@clase.Nombre.ToLower()">
+
+                <div class="id-tag">#@clase.Id_Clase.ToString("D3")</div>
+
+                <div class="name-info">
+                    <strong>@clase.Nombre</strong>
+                    <span><i class="fas fa-bookmark"></i> Grupo Escolar</span>
+                </div>
+
+                <div style="text-align: center;">
+                    <span class="rango-badge" style="background: rgba(76, 76, 255, 0.1); color: #8c8cff; border-color: rgba(76, 76, 255, 0.2);">
+                        <i class="fas fa-users"></i> @clase.CantidadAlumnos Alumnos
+                    </span>
+                </div>
+
+                <div class="racha" style="font-size: 0.95rem; font-weight: 600;">
+                    @if (clase.Activa)
+                    {
+                        <span style="color: #28a745;"><i class="fas fa-check-circle"></i> Activa</span>
+                    }
+                    else
+                    {
+                        <span style="color: #ff4757;"><i class="fas fa-times-circle"></i> Inactiva</span>
+                    }
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-mini-sec" onclick="verAlumnosDeClase(@clase.Id_Clase)" title="Ver Alumnos">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-mini" onclick="abrirEditarClase(@clase.Id_Clase)" title="Editar Clase">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="text-align:center; padding: 3rem; color: #a0a0c0; border: 1px dashed rgba(255,255,255,0.1); border-radius: 1rem;">
+            <i class="fas fa-chalkboard fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Aún no hay salones registrados en esta institución.</p>
+            <button class="btn-mini-sec" onclick="abrirModalNuevaClase(@Model.Id_Institucion)" style="margin-top: 1rem; width: auto; padding: 0 1.5rem;">
+                <i class="fas fa-plus"></i> Crear el primer salón
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .header-gestion {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+        .search-container input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(76, 76, 255, 0.3);
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 2rem;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+            .search-container input:focus {
+                border-color: var(--color-primary);
+                box-shadow: 0 0 10px rgba(76, 76, 255, 0.3);
+            }
+
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-primary);
+        }
+
+    .stats-summary {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 0.8rem 1.2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+        .stat-item i {
+            font-size: 1.2rem;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .stat-info .label {
+            font-size: 0.85rem;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            line-height: 1;
+            overflow:hidden;
+        }
+
+    .icon-total {
+        background: rgba(76, 76, 255, 0.2);
+        color: #4c4cff;
+    }
+
+    .stat-divider {
+        width: 1px;
+        height: 25px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .smart-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+    /* Ajustamos el grid para quitar la columna ancha del profesor y equilibrar el espacio */
+    .clase-row {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.6rem;
+        display: grid;
+        grid-template-columns: 0.8fr 3fr 2fr 1.5fr 1.5fr;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        transition: 0.2s;
+    }
+
+        .clase-row:hover {
+            background: rgba(76, 76, 255, 0.1);
+            transform: translateX(5px);
+            border-color: rgba(76, 76, 255, 0.3);
+        }
+
+    .id-tag {
+        font-size: 1rem;
+        color: var(--color-primary);
+        font-family: monospace;
+        font-weight: bold;
+    }
+
+    .name-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .name-info strong {
+            display: block;
+            color: white;
+            font-size: 1.15rem;
+        }
+
+        .name-info span {
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.2rem;
+        }
+
+    .rango-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+    }
+
+    .btn-mini, .btn-mini-sec {
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        color: white;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-mini {
+        background: linear-gradient(135deg, #ffa500, #ff8c00);
+        box-shadow: 0 4px 10px rgba(255, 165, 0, 0.2);
+    }
+
+    .btn-mini-sec {
+        background: linear-gradient(135deg, #4c4cff, #2a2a72);
+        box-shadow: 0 4px 10px rgba(76, 76, 255, 0.2);
+    }
+
+        .btn-mini:hover, .btn-mini-sec:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 768px) {
+        .clase-row
+
+    {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        text-align: center;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+
+    .header-gestion {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-container {
+        max-width: 100%;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+
+    .stats-summary {
+        flex-direction: column;
+    }
+
+    }
+</style>
+
+<script>
+    function filtrarClasesLocal() {
+        const busqueda = document.getElementById('txtBuscarClase').value.toLowerCase();
+        const filas = document.querySelectorAll('.clase-row');
+
+        filas.forEach(fila => {
+            const contenido = fila.getAttribute('data-search');
+            if (contenido.includes(busqueda)) {
+                fila.style.display = "";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+    }
+
+    function abrirModalNuevaClase(idSede) {
+        console.log("Abrir modal nueva clase para sede: " + idSede);
+        // Aquí conectaremos con el controller para traer la modal de creación
+    }
+
+    function abrirEditarClase(idClase) {
+        console.log("Editando clase: " + idClase);
+    }
+
+    function verAlumnosDeClase(idClase) {
+        console.log("Navegando a la pestaña de alumnos de la clase: " + idClase);
+        // Esto puede disparar un evento que cambie la Tab a "Alumnos" y pre-filtre la tabla
+    }
+</script>

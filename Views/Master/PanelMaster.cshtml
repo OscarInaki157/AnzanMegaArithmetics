@@ -189,35 +189,6 @@
 
     }
 </style>
-<div class="user-top-info">
-    <div class="user-left-section">
-        <div class="user-name">
-            @Model.Nombre
-        </div>
-        <div class="user-meta-row">
-            <span class="gamertag">
-                <i class="fa-solid fa-gamepad"></i>
-                <strong>Gamertag:</strong> @Model.Gamer_Tag
-            </span>
-            <span class="license">
-                <i class="fa-solid fa-id-card"></i>
-                <strong>Licencia:</strong> @Model.Licencia
-            </span>
-            <span class="license">
-                <i class="fa-solid fa-landmark"></i>
-                <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)
-            </span>
-        </div>
-    </div>
-
-    <div class="user-right-section">
-        <div class="last-connection">
-            <i class="fa-solid fa-clock"></i>
-            Última conexión: @Model.Ultima_Cnx
-        </div>
-    </div>
-</div>
-
 
 <div class="omnipotent-search-bar">
     <i class="fas fa-search"></i>

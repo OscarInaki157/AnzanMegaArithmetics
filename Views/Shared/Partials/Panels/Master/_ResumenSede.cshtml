@@ -1,0 +1,244 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.DetalleInstitucionViewModel
+
+<div class="resumen-sede-container">
+    <div class="stats-grid" style="margin-bottom: 2rem;">
+        <div class="stat-box">
+            <label><i class="fas fa-users"></i> Alumnos</label>
+            <div class="stat-value">@Model.TotalAlumnos</div>
+        </div>
+        <div class="stat-box">
+            <label><i class="fas fa-chalkboard-teacher"></i> Profesores</label>
+            <div class="stat-value">@Model.TotalProfesores</div>
+        </div>
+        <div class="stat-box">
+            <label><i class="fas fa-school"></i> Clases</label>
+            <div class="stat-value">@Model.TotalClases</div>
+        </div>
+        <div class="stat-box">
+            <label><i class="fas fa-star"></i> Rendimiento</label>
+            <div class="stat-value">@Model.PromedioGeneral%</div>
+        </div>
+    </div>
+
+    <div class="main-dashboard-grid">
+        <div class="side-panel">
+            <div class="internal-card" style="margin-bottom: 1.5rem;">
+                <h4 class="card-title">Distribución de Licencias</h4>
+                <div style="height: 180px; position: relative;">
+                    <canvas id="chartLicenciasSede"></canvas>
+                </div>
+                <div class="chart-legend-custom">
+                    <span><i class="fas fa-circle" style="color: var(--color-primary);"></i> @Model.LicenciasEnUso Usadas</span>
+                    <span><i class="fas fa-circle" style="color: rgba(255,255,255,0.1);"></i> @(Model.TotalLicencias - Model.LicenciasEnUso) Libres</span>
+                </div>
+            </div>
+
+            <div class="internal-card">
+                <h4 class="card-title">Vigencia de Contrato</h4>
+                <div class="expiration-info">
+                    <span class="days-left @(Model.DiasRestantes < 30 ? "critical" : "")">
+                        @Model.DiasRestantes Días restantes
+                    </span>
+                    <span class="date-label">Vence: @Model.FechaVencimiento?.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" style="width: @(100 - Model.PorcentajeTiempoTranscurrido)%"></div>
+                </div>
+                <small style="color: #a0a0c0; display:block; margin-top: 10px; text-align: center;">
+                    Estado: @(Model.Activa ? "Suscripción Activa" : "Bloqueado")
+                </small>
+            </div>
+        </div>
+
+        <div class="activity-panel">
+            <div class="internal-card" style="height: 100%;">
+                <h4 class="card-title">Gráfica de Actividad (Últimas Pruebas)</h4>
+                <div style="height: 350px;">
+                    <canvas id="chartActividadMensual"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .stat-box {
+        background-color: #1b1e3c;
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+        transition: 0.3s;
+    }
+
+        .stat-box:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-primary);
+            
+        }
+
+        .stat-box label {
+            display: block;
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+            .stat-box label i {
+                color: var(--color-primary);
+                margin-right: 5px;
+                font-size: 1rem;
+            }
+
+    .stat-value {
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: white;
+    }
+    .resumen-sede-container {
+        animation: fadeIn 0.5s ease;
+    }
+
+    .main-dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1.5rem;
+    }
+
+    .internal-card {
+        background-color: #1b1e3c;
+        padding: 1.5rem;
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-title {
+        color: #a0a0c0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .chart-legend-custom {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: #d1d1f0;
+    }
+
+    /* Estilos Barra de Progreso */
+    .expiration-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        align-items: center;
+    }
+
+    .days-left {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+        .days-left.critical {
+            color: #ff4757;
+        }
+
+    .date-label {
+        color: #a0a0c0;
+        font-size: 0.85rem;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-primary), #00ff88);
+        box-shadow: 0 0 10px rgba(76, 76, 255, 0.5);
+        border-radius: 5px;
+    }
+
+    @@media (max-width: 768px) {
+        .main-dashboard-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+        .stats-grid {
+            grid-template-columns: 1fr; /* 1 columna en celulares */
+        }
+
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- GRÁFICA DE DONA (LICENCIAS) ---
+        const ctxDona = document.getElementById('chartLicenciasSede').getContext('2d');
+        new Chart(ctxDona, {
+            type: 'doughnut',
+            data: {
+                labels: ['Usadas', 'Libres'],
+                datasets: [{
+                    data: [@Model.LicenciasEnUso, @(Model.TotalLicencias - Model.LicenciasEnUso)],
+                    backgroundColor: ['#4c4cff', 'rgba(255,255,255,0.05)'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                cutout: '80%'
+            }
+        });
+
+        // --- GRÁFICA DE LÍNEAS (ACTIVIDAD) ---
+        const ctxLine = document.getElementById('chartActividadMensual').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.LabelsActividad)),
+                datasets: [{
+                    label: 'Pruebas Realizadas',
+                    data: @Html.Raw(Json.Serialize(Model.ValoresActividad)),
+                    borderColor: '#4c4cff',
+                    backgroundColor: 'rgba(76, 76, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+</script>

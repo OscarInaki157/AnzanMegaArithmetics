@@ -71,9 +71,13 @@
                         </button>
                     }
 
-                    <button class="btn-primary-action" style="border-radius: 0.4rem;" title="Gestionar Institución">
+                    <a href="@Url.Action("DetalleInstitucion", "Master", new { id = escuela.Id_Institucion })"
+                       class="btn-primary-action"
+                       style="padding: 0.5rem 1rem; border-radius: 0.4rem; text-decoration: none;"
+                       title="Gestionar Institución">
                         <i class="fas fa-arrow-right"></i>
-                    </button>
+                    </a>
+
                 </div>
             </div>
         }

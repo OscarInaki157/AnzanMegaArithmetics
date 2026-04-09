@@ -29,12 +29,8 @@ namespace AnzanMegaArithmetics.Controllers
 
             modelo.Id_Usuario = userInfo.Id_Usuario;
             modelo.Id_Rol = userInfo.Id_Rol;
-            modelo.Nombre = userInfo.Nombre;
-            modelo.Gamer_Tag = userInfo.Gamer_Tag;
-            modelo.Licencia = userInfo.Licencia;
+           
             modelo.Exp = userInfo.Exp;
-            modelo.Ultima_Cnx = userInfo.Ultima_Cnx;
-            modelo.Clases = userInfo.Clases ?? new List<string>();
 
             return View(modelo);
         }
@@ -70,6 +66,24 @@ namespace AnzanMegaArithmetics.Controllers
         {
             var (exito, mensaje) = await _masterDBService.ActualizarLicenciasAsync(model);
             return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DetalleInstitucion(int id)
+        {
+            var userInfo = GetUserInfo();
+            if (userInfo.Id_Usuario == 0) return RedirectToAction("Inicio", "Inicio");
+
+            var modelo = await _masterDBService.ObtenerDetalleInstitucionAsync(id);
+
+            if (modelo == null) return RedirectToAction("Inicio", "Inicio");
+
+            modelo.Id_Usuario = userInfo.Id_Usuario;
+            modelo.Id_Rol = userInfo.Id_Rol;
+            modelo.Exp = userInfo.Exp;
+          
+
+            return View(modelo);
         }
 
         private LoginResponseModel GetUserInfo()

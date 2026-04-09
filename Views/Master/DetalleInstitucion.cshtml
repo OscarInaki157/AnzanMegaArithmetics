@@ -1,0 +1,243 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.DetalleInstitucionViewModel
+@{
+    ViewBag.Title = "Gestión de Sede";
+    Layout = "_LayoutDashboard";
+}
+
+<div class="institution-header-container">
+    <div class="header-content">
+        <div class="info-group">
+            <div class="main-title">
+                <i class="fas fa-building"></i>
+                <h1>@Model.Nombre</h1>
+            </div>
+            <div class="meta-info-row">
+                <span class="meta-item">
+                    <i class="fa-solid fa-hashtag"></i>
+                    <strong>ID:</strong> #@Model.Id_Institucion.ToString("D3")
+                </span>
+                <span class="meta-item">
+                    <i class="fa-solid fa-calendar-alt"></i>
+                    <strong>Desde:</strong> @Model.FechaRegistro.ToString("dd/MMM/yyyy")
+                </span>
+                <span class="meta-item">
+                    <i class="fa-solid fa-key"></i>
+                    <strong>Bolsa de Licencias:</strong> @Model.LicenciasEnUso / @Model.TotalLicencias
+                </span>
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <a href="@Url.Action("PanelMaster", "Master")" class="btn-return">
+                <i class="fas fa-undo"></i> Volver al Panel Master
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="tabs-container">
+    <div class="tab-buttons">
+        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)"><i class="fas fa-chart-pie"></i> Resumen Sede</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)"><i class="fas fa-chalkboard"></i> Clases</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)"><i class="fas fa-users"></i> Alumnos</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab4', this)"><i class="fas fa-user-tie"></i> Profesores</button>
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab5', this)"><i class="fas fa-cog"></i> Configuración</button>
+    </div>
+
+    <div class="formulario-flash tab-content active" id="tab1">
+        <partial name="~/Views/Shared/Partials/Panels/Master/_ResumenSede.cshtml" model="Model" />
+    </div>
+
+    <div class="formulario-flash tab-content" id="tab2">
+        <partial name="~/Views/Shared/Partials/Panels/_ListadoClases.cshtml" model="Model" />
+    </div>
+
+
+    <div class="formulario-flash tab-content" id="tab3"></div>
+    <div class="formulario-flash tab-content" id="tab4"></div>
+    <div class="formulario-flash tab-content" id="tab5"></div>
+</div>
+
+<style>
+    /* --- NUEVO HEADER INSTITUCIONAL (FLAT & PROFESIONAL) --- */
+    .institution-header-container {
+        width: 100%;
+        background-color: #010f36; /* Color sólido de tus contenedores */
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        margin: 0 auto 1.5rem auto;
+        max-width: 85rem;
+        box-sizing: border-box;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .main-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+    }
+
+        .main-title i {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+        }
+
+        .main-title h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+    .meta-info-row {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        color: #a0a0c0;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .meta-item i {
+            color: var(--color-primary);
+        }
+
+    /* --- BOTÓN VOLVER --- */
+    .btn-return {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        text-decoration: none;
+        padding: 0.7rem 1.2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+        .btn-return:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(-3px);
+        }
+
+    /* --- TABS & CONTENIDO --- */
+    .tabs-container {
+        width: 100%;
+        max-width: 85rem;
+        margin: 0 auto 2rem auto;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 0.6rem;
+    }
+
+    .tab-btn {
+        background: rgba(41, 44, 79, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.8rem 1.5rem;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        border-radius: 0.6rem 0.6rem 0 0;
+        font-weight: 600;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+        .tab-btn:hover {
+            background: rgba(76, 76, 255, 0.1);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            box-shadow: 0 -4px 15px rgba(76, 76, 255, 0.2);
+        }
+
+    .formulario-flash {
+        background-color: #010f36;
+        border-radius: 0 1rem 1rem 1rem;
+        padding: 2rem;
+        box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .header-content
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tab-buttons {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    }
+</style>
+
+<script>
+    function mostrarTab(id, btn) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+        document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        btn.classList.add("active");
+        localStorage.setItem("tabSedeActiva", id);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const lastTab = localStorage.getItem("tabSedeActiva");
+        if (lastTab) {
+            const btn = document.querySelector(`button[onclick*='${lastTab}']`);
+            if (btn) btn.click();
+        }
+    });
+</script>
