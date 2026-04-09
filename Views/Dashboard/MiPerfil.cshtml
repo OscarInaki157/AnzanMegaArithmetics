@@ -63,14 +63,24 @@
 
     <div class="user-info-card">
         <div class="contenedorR">
-            <div class="R3">
-                <p class="txt"><strong>🔥<br />@Model.Racha</strong></p>
+            <div class="R3" id="racha-container">
+                <p class="txt">
+                    <strong>
+                        <span class="fire-icon" id="fire-icon">🔥</span><br />
+                        <span id="racha-counter">0</span>
+                    </strong>
+                </p>
             </div>
             <div class="R2 @rangoClase">
                 <p class="txt"><strong>🎖️<br />@Model.Rango_Actual</strong></p>
             </div>
-            <div class="R1">
-                <p class="txt"><strong>✨<br /><span id="xp-counter">@Model.Exp</span></strong></p>
+            <div class="R1" id="xp-container">
+                <p class="txt">
+                    <strong>
+                        <span class="star-icon" id="star-icon">✨</span><br />
+                        <span id="xp-counter">0</span>
+                    </strong>
+                </p>
             </div>
         </div>
 
@@ -205,6 +215,14 @@
 
 
 <style>
+
+    .user-welcome-card::before{
+        border:none;
+    }
+
+    .user-welcome-card{
+        border: 0.2rem solid #4c4cff;
+    }
 
     /* Estilos para mensajes de TempData */
     .alert {

@@ -20,9 +20,9 @@
             --color-danger: #df312c;
         }
 
-        *, html, body, *::before, *::after{
-            box-sizing:border-box;
-            overflow-x:hidden;
+        *, html, body, *::before, *::after {
+            box-sizing: border-box;
+            overflow-x: hidden;
             user-select: none;
         }
 
@@ -233,7 +233,7 @@
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
-            flex-direction:row;
+            flex-direction: row;
         }
 
         .gamertag, .license {
@@ -312,7 +312,7 @@
             align-items: stretch;
         }
 
-        .names{
+        .names {
             color: #ffffff;
             font-size: 2rem;
             position: absolute;
@@ -353,7 +353,7 @@
             }
 
         .user-welcome-card {
-           /*  background: linear-gradient(to top, var(--color-card-bg) 60%, transparent 40%); */
+            /*  background: linear-gradient(to top, var(--color-card-bg) 60%, transparent 40%); */
             background: transparent;
             border-radius: 1rem;
             display: flex;
@@ -370,7 +370,7 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                height: 62%; 
+                height: 62%;
                 background-color: var(--color-card-bg);
                 border: 0.2rem solid #4c4cff;
                 /* box-shadow: 0 0 20px rgba(76, 76, 255, 0.3); */
@@ -388,8 +388,8 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            position:relative;
-            z-index:1;
+            position: relative;
+            z-index: 1;
         }
 
 
@@ -686,7 +686,7 @@
             text-align: center;
             margin-bottom: -3rem;
             box-shadow: 0 4px 12px rgba(76, 76, 255, 0.3);
-            order: 1; 
+            order: 1;
         }
 
             .speech-bubble::after {
@@ -799,75 +799,63 @@
 
         /* --- KEYFRAMES PARA LA EXP --- */
         @@keyframes star-spin-pulse {
-            0%
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
 
-        {
-            transform: scale(1) rotate(0deg);
-        }
+            50% {
+                transform: scale(1.4) rotate(180deg);
+            }
 
-        50% {
-            transform: scale(1.4) rotate(180deg);
-        }
-
-        100% {
-            transform: scale(1) rotate(360deg);
-        }
-
+            100% {
+                transform: scale(1) rotate(360deg);
+            }
         }
 
         @@keyframes golden-bg-flash {
-            0%
+            0% {
+                background-color: #4c4cff;
+                box-shadow: none;
+            }
 
-        {
-            background-color: #4c4cff;
-            box-shadow: none;
-        }
+            30% {
+                background-color: #6a6aff;
+                box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            }
 
-        30% {
-            background-color: #6a6aff;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
-        }
-
-        100% {
-            background-color: #4c4cff;
-            box-shadow: none;
-        }
-
+            100% {
+                background-color: #4c4cff;
+                box-shadow: none;
+            }
         }
 
         @@keyframes star-pop-magic {
-            0%
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
 
-        {
-            transform: scale(1) rotate(0deg);
-        }
+            50% {
+                transform: scale(1.8) rotate(20deg);
+                filter: drop-shadow(0 0 15px #ffffff);
+            }
 
-        50% {
-            transform: scale(1.8) rotate(20deg);
-            filter: drop-shadow(0 0 15px #ffffff);
-        }
-
-        100% {
-            transform: scale(1) rotate(0deg);
-        }
-
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
         }
 
         @@keyframes twinkle-star {
-            0%
+            0% {
+                opacity: 0.7;
+                transform: scale(0.95);
+                filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.3));
+            }
 
-        {
-            opacity: 0.7;
-            transform: scale(0.95);
-            filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.3));
-        }
-
-        100% {
-            opacity: 1;
-            transform: scale(1.15);
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-        }
-
+            100% {
+                opacity: 1;
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+            }
         }
 
         .R2 {
@@ -880,60 +868,57 @@
             background-color: #798478;
         }
 
-        .R2.bronze {
-            background: linear-gradient(135deg, #cd7f32, #a56c2c);
-            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
-        }
-
-        .R2.silver {
-            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
-            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
-        }
-
-        .R2.gold {
-            background: linear-gradient(135deg, #ffd700, #ffa500);
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        }
-
-        .R2.diamond {
-            background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
-            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
-        }
-
-        .R2.heroic {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .R2.dark-matter {
-            background: linear-gradient(135deg, #2d1b69, #1a1033, #000000);
-            box-shadow: 0 4px 15px rgba(106, 13, 173, 0.6);
-            position: relative;
-            overflow: hidden;
-        }
-
-            .R2.dark-matter::before {
-                content: "";
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 234, 0.1) 50%, transparent 70%);
-                animation: dark-matter-shine 3s infinite linear;
+            .R2.bronze {
+                background: linear-gradient(135deg, #cd7f32, #a56c2c);
+                box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
             }
 
+            .R2.silver {
+                background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+                box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
+            }
+
+            .R2.gold {
+                background: linear-gradient(135deg, #ffd700, #ffa500);
+                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            }
+
+            .R2.diamond {
+                background: linear-gradient(135deg, #b9f2ff, #4cc9f0);
+                box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+            }
+
+            .R2.heroic {
+                background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            }
+
+            .R2.dark-matter {
+                background: linear-gradient(135deg, #2d1b69, #1a1033, #000000);
+                box-shadow: 0 4px 15px rgba(106, 13, 173, 0.6);
+                position: relative;
+                overflow: hidden;
+            }
+
+                .R2.dark-matter::before {
+                    content: "";
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 234, 0.1) 50%, transparent 70%);
+                    animation: dark-matter-shine 3s infinite linear;
+                }
+
         @@keyframes dark-matter-shine {
-            0%
+            0% {
+                transform: rotate(0deg) translateX(-50%);
+            }
 
-        {
-            transform: rotate(0deg) translateX(-50%);
-        }
-
-        100% {
-            transform: rotate(360deg) translateX(-50%);
-        }
-
+            100% {
+                transform: rotate(360deg) translateX(-50%);
+            }
         }
 
         /* Asegurar que el texto sea legible en todos los fondos */
@@ -999,40 +984,34 @@
             }
 
         @@keyframes impact-bg-pop {
-            0%
+            0% {
+                background-color: #A40E4C;
+                box-shadow: none;
+            }
 
-        {
-            background-color: #A40E4C;
-            box-shadow: none;
-        }
+            50% {
+                background-color: #ff3366;
+                box-shadow: 0 0 30px rgba(255, 51, 102, 0.6);
+            }
 
-        50% {
-            background-color: #ff3366;
-            box-shadow: 0 0 30px rgba(255, 51, 102, 0.6);
-        }
-
-        100% {
-            background-color: #A40E4C;
-            box-shadow: none;
-        }
-
+            100% {
+                background-color: #A40E4C;
+                box-shadow: none;
+            }
         }
 
         @@keyframes impact-text-pop {
-            0%
+            0% {
+                transform: scale(1);
+            }
 
-        {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.3);
-        }
-        /* El texto e icono crecen un 30% y rebotan */
-        100% {
-            transform: scale(1);
-        }
-
+            50% {
+                transform: scale(1.3);
+            }
+            /* El texto e icono crecen un 30% y rebotan */
+            100% {
+                transform: scale(1);
+            }
         }
 
         /* FASE 3: La Llama Viva (Estado de reposo infinito) */
@@ -1049,42 +1028,34 @@
 
         /* Animaciones infinitas para Fase 3 */
         @@keyframes pulse-container-heat {
-            0%
+            0% {
+                box-shadow: 0 0 10px rgba(216, 27, 96, 0.2);
+            }
 
-        {
-            box-shadow: 0 0 10px rgba(216, 27, 96, 0.2);
-        }
-
-        100% {
-            box-shadow: 0 0 25px rgba(216, 27, 96, 0.5);
-        }
-
+            100% {
+                box-shadow: 0 0 25px rgba(216, 27, 96, 0.5);
+            }
         }
 
         @@keyframes float-fire {
-            0%, 100%
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
 
-        {
-            transform: translateY(0) scale(1);
-        }
-
-        50% {
-            transform: translateY(-4px) scale(1.1);
-        }
-        /* Levita y respira un poco */
+            50% {
+                transform: translateY(-4px) scale(1.1);
+            }
+            /* Levita y respira un poco */
         }
 
         @@keyframes glow-fire {
-            0%
+            0% {
+                text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+            }
 
-        {
-            text-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
-        }
-
-        100% {
-            text-shadow: 0 0 15px rgba(255, 69, 0, 0.9), 0 0 25px rgba(255, 0, 0, 0.6);
-        }
-
+            100% {
+                text-shadow: 0 0 15px rgba(255, 69, 0, 0.9), 0 0 25px rgba(255, 0, 0, 0.6);
+            }
         }
 
         .txt {
@@ -1131,9 +1102,10 @@
             }
 
         @@keyframes xp-shine {
-            0%{
+            0% {
                 left: -100%;
             }
+
             100% {
                 left: 100%;
             }
@@ -1175,7 +1147,7 @@
         }
 
         @@keyframes level-up-pulse {
-            0%{
+            0% {
                 box-shadow: 0 0 0 0 rgba(76, 255, 76, 0.7);
                 transform: scale(1);
             }
@@ -1198,10 +1170,11 @@
         }
 
         @@keyframes loading-shimmer {
-            0%{
+            0% {
                 background-position: -200% 0;
             }
-            100%{
+
+            100% {
                 background-position: 200% 0;
             }
         }
@@ -1336,30 +1309,28 @@
 
         /* ====== RESPONSIVE ====== */
         @@media (max-width: 768px) {
-            .dashboard-sidebar
+            .dashboard-sidebar {
+                left: -15.625rem;
+                transition: left 0.3s ease;
+            }
 
-        {
-            left: -15.625rem;
-            transition: left 0.3s ease;
-        }
+                .dashboard-sidebar.open {
+                    left: 0;
+                }
 
-        .dashboard-sidebar.open {
-            left: 0;
-        }
+            .dashboard-main {
+                margin-left: 0;
+                padding-top: 4.375rem;
+            }
 
-        .dashboard-main {
-            margin-left: 0;
-            padding-top: 4.375rem;
-        }
+            .dashboard-header {
+                display: flex;
+            }
 
-        .dashboard-header {
-            display: flex;
-        }
-
-        .sidebar-logo img{
-            margin-top: 3.5rem;
-            margin-bottom: -1.5rem;
-        }
+            .sidebar-logo img {
+                margin-top: 3.5rem;
+                margin-bottom: -1.5rem;
+            }
 
             .modulos-wrapper {
                 grid-template-columns: 1fr;
@@ -1418,7 +1389,6 @@
                 left: 0;
                 transform: none;
             }
-
             /* modal */
             .modal-content {
                 width: 95%;
@@ -1461,8 +1431,6 @@
             .user-right-section {
                 align-items: end;
             }
-            
-
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -1506,7 +1474,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("Dashboard","Dashboard")" id="Neuros">
+                        <a href="@Url.Action("Dashboard", "Dashboard")" id="Neuros">
                             <i class="fas fa-bolt"></i> Neuroactividades
                         </a>
                     </li>
@@ -1516,10 +1484,11 @@
                         </a>
                     </li>
                     <li>
-                        <a href="@Url.Action("Desafios","Dashboard")" id="Challenge">
-                            <i class="fa-solid fa-atom"></i> Zona de desafios</a>
+                        <a href="@Url.Action("Desafios", "Dashboard")" id="Challenge">
+                            <i class="fa-solid fa-atom"></i> Zona de desafios
+                        </a>
                     </li>
-                  @*   <li>
+                    @*   <li>
                         <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
                     </li> *@
 
@@ -1573,7 +1542,6 @@
 
 
     <footer class="page-footer">
-        
     </footer>
 
     <script>
@@ -1686,259 +1654,22 @@
                 });
             });
 
-            // Sistema de rangos mejorado con límites
-            function determinarRango(exp) {
-                const xp = parseInt(exp) || 0;
-
-                if (xp >= 500000 && xp <= 749999) return { nombre: "Materia Oscura I", clase: "dark-matter", min: 500000, max: 749999 };
-                if (xp >= 750000 && xp <= 1000000) return { nombre: "Materia Oscura II", clase: "dark-matter", min: 750000, max: 1000000 };
-                if (xp > 1000000) return { nombre: "Materia Oscura III", clase: "dark-matter", min: 1000001, max: Infinity };
-                if (xp >= 260001 && xp <= 280000) return { nombre: "Heroico I", clase: "heroic", min: 260001, max: 280000 };
-                if (xp >= 280001 && xp <= 300000) return { nombre: "Heroico II", clase: "heroic", min: 280001, max: 300000 };
-                if (xp >= 300001 && xp <= 320000) return { nombre: "Heroico III", clase: "heroic", min: 300001, max: 320000 };
-                if (xp >= 220001 && xp <= 260000) return { nombre: "Diamante III", clase: "diamond", min: 220001, max: 260000 };
-                if (xp >= 200001 && xp <= 220000) return { nombre: "Diamante II", clase: "diamond", min: 200001, max: 220000 };
-                if (xp >= 180001 && xp <= 200000) return { nombre: "Diamante I", clase: "diamond", min: 180001, max: 200000 };
-                if (xp >= 160001 && xp <= 180000) return { nombre: "Oro III", clase: "gold", min: 160001, max: 180000 };
-                if (xp >= 140001 && xp <= 160000) return { nombre: "Oro II", clase: "gold", min: 140001, max: 160000 };
-                if (xp >= 120001 && xp <= 140000) return { nombre: "Oro I", clase: "gold", min: 120001, max: 140000 };
-                if (xp >= 100001 && xp <= 120000) return { nombre: "Plata III", clase: "silver", min: 100001, max: 120000 };
-                if (xp >= 80001 && xp <= 100000) return { nombre: "Plata II", clase: "silver", min: 80001, max: 100000 };
-                if (xp >= 60001 && xp <= 80000) return { nombre: "Plata I", clase: "silver", min: 60001, max: 80000 };
-                if (xp >= 40001 && xp <= 60000) return { nombre: "Bronce III", clase: "bronze", min: 40001, max: 60000 };
-                if (xp >= 20001 && xp <= 40000) return { nombre: "Bronce II", clase: "bronze", min: 20001, max: 40000 };
-
-                return { nombre: "Bronce I", clase: "bronze", min: 0, max: 20000 };
-            }
-
-            // Función para calcular el próximo rango y progreso
-            function calcularProximoRango(exp) {
-                const rangos = [
-                    { nombre: "Bronce I", min: 0, max: 20000 },
-                    { nombre: "Bronce II", min: 20001, max: 40000 },
-                    { nombre: "Bronce III", min: 40001, max: 60000 },
-                    { nombre: "Plata I", min: 60001, max: 80000 },
-                    { nombre: "Plata II", min: 80001, max: 100000 },
-                    { nombre: "Plata III", min: 100001, max: 120000 },
-                    { nombre: "Oro I", min: 120001, max: 140000 },
-                    { nombre: "Oro II", min: 140001, max: 160000 },
-                    { nombre: "Oro III", min: 160001, max: 180000 },
-                    { nombre: "Diamante I", min: 180001, max: 200000 },
-                    { nombre: "Diamante II", min: 200001, max: 220000 },
-                    { nombre: "Diamante III", min: 220001, max: 260000 },
-                    { nombre: "Heroico I", min: 260001, max: 280000 },
-                    { nombre: "Heroico II", min: 280001, max: 300000 },
-                    { nombre: "Heroico III", min: 300001, max: 320000 },
-                    { nombre: "Materia Oscura I", min: 500000, max: 749999 },
-                    { nombre: "Materia Oscura II", min: 750000, max: 1000000 },
-                    { nombre: "Materia Oscura III", min: 1000001, max: Infinity }
-                ];
-
-                const xp = parseInt(exp) || 0;
-                const rangoActual = determinarRango(xp);
-
-                // Encontrar índice del rango actual
-                const indiceActual = rangos.findIndex(r => r.nombre === rangoActual.nombre);
-
-                // Si es el último rango
-                if (indiceActual === rangos.length - 1) {
-                    return {
-                        proximoRango: null,
-                        xpRestante: 0,
-                        porcentaje: 100,
-                        esNivelMaximo: true
-                    };
-                }
-
-                const proximoRango = rangos[indiceActual + 1];
-                const xpRestante = proximoRango.min - xp;
-                const xpEnRangoActual = xp - rangoActual.min;
-                const xpTotalRangoActual = rangoActual.max - rangoActual.min;
-                const porcentaje = Math.min(100, (xpEnRangoActual / xpTotalRangoActual) * 100);
-
-                return {
-                    proximoRango: proximoRango.nombre,
-                    xpRestante: xpRestante,
-                    porcentaje: porcentaje,
-                    esNivelMaximo: false
-                };
-            }
-
-            function animarBarraXP() {
-                const xpBar = document.getElementById('xp-progress-bar');
-                if (!xpBar) return;
-
-                const xpActual = parseInt(xpBar.dataset.xp) || 0;
-                const progreso = calcularProximoRango(xpActual);
-
-                xpBar.classList.add('loading');
-
-                setTimeout(() => {
-                    xpBar.classList.remove('loading');
-                    xpBar.style.width = `${progreso.porcentaje}%`;
-
-                    if (progreso.porcentaje >= 100) {
-                        xpBar.classList.add('xp-level-up');
-                        setTimeout(() => {
-                            xpBar.classList.remove('xp-level-up');
-                        }, 800);
-                    }
-                }, 600);
-
-                const xpNextLevel = document.getElementById('xp-next-level-text');
-                if (xpNextLevel) {
-                    if (progreso.esNivelMaximo) {
-                        xpNextLevel.textContent = "¡Nivel Máximo Alcanzado!";
-                        xpNextLevel.style.color = '#ffd700';
-                        xpNextLevel.style.fontWeight = 'bold';
-                    } else {
-                        xpNextLevel.textContent = `Próximo nivel en: ${progreso.xpRestante} XP`;
-
-                        // Cambiar color cuando está cerca de subir de nivel (10% o menos del rango actual)
-                        if (progreso.porcentaje >= 90) {
-                            xpNextLevel.style.color = '#4cff4c';
-                            xpNextLevel.style.fontWeight = 'bold';
-                        } else {
-                            xpNextLevel.style.color = 'var(--color-light)';
-                            xpNextLevel.style.fontWeight = 'normal';
-                        }
-                    }
-                }
-            }
-
-            function actualizarXP(nuevaXP) {
-                const xpElement = document.getElementById('xp-counter');
-                const xpBar = document.getElementById('xp-progress-bar');
-
-                if (xpElement) {
-                    xpElement.textContent = nuevaXP + 'XP';
-                }
-
-                if (xpBar) {
-                    xpBar.dataset.xp = nuevaXP;
-                    animarBarraXP();
-                }
-
-            }
-
-            // Contador de XP con animación
-            // === LÓGICA DE ANIMACIÓN DE EXPERIENCIA (✨) ===
-        const xpElement = document.getElementById("xp-counter");
-        const xpContainer = document.getElementById("xp-container");
-
-        if (xpElement) {
-            const targetXP = @Model.Exp; // Tu valor de C#
-            const duration = 2000;
-            const frameRate = 60;
-            const totalFrames = Math.round((duration / 1000) * frameRate);
-            let currentFrame = 0;
-
-            // Iniciamos con 0 para que haga el efecto completo
-            xpElement.textContent = '0 XP';
-
-            // FASE 1: Activamos el estado de recolección de energía
-            if(xpContainer) xpContainer.classList.add('xp-charging');
-
-            const counter = setInterval(() => {
-                currentFrame++;
-                // Easing out: empieza muy rápido y frena al acercarse al número final
-                const progress = currentFrame / totalFrames;
-                const easeOutProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-                const value = Math.round(targetXP * easeOutProgress);
-
-                xpElement.textContent = value + ' XP'; 
-
-                if (currentFrame >= totalFrames) {
-                    clearInterval(counter);
-                    xpElement.textContent = targetXP + ' XP';
-
-                    if(xpContainer) {
-                        // Limpiamos la clase de carga
-                        xpContainer.classList.remove('xp-charging');
-
-                        // FASE 2: Aplicamos el destello de subida de nivel
-                        xpContainer.classList.add('xp-flash');
-
-                        // Esperamos a que pase el impacto visual (600ms)
-                        setTimeout(() => {
-                            xpContainer.classList.remove('xp-flash');
-                            // FASE 3: Dejamos la magia latente pulsando suavemente
-                            xpContainer.classList.add('xp-resting');
-                        }, 600);
-                    }
-                }
-            }, 1000 / frameRate);
-        }
-
-            animarBarraXP();
-
-                    // === LÓGICA DE ANIMACIÓN DE RACHA ===
-        const rachaTarget = @Model.Racha; // Obtén el valor real del modelo
-        const rachaCounterElement = document.getElementById('racha-counter');
-        const rachaContainer = document.getElementById('racha-container');
-        const fireIcon = document.getElementById('fire-icon');
-
-        function animarRacha(targetValue) {
-            // Si la racha es 0, no hacemos nada, se queda apagado.
-            if (targetValue <= 0) {
-                rachaCounterElement.textContent = targetValue;
-                return;
-            }
-
-            // Configuración de la animación
-            const duration = 1500; // 1.5 segundos de escalada
-            const frameRate = 60;
-            const totalFrames = Math.round((duration / 1000) * frameRate);
-            let currentFrame = 0;
-
-            // Fase 1: La Escalada
-            const counterInterval = setInterval(() => {
-                currentFrame++;
-                const progress = currentFrame / totalFrames;
-
-                // Usamos una curva de easing (easeOutExpo) para que empiece rápido y frene al final
-                const easeOutProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-                const currentValue = Math.round(targetValue * easeOutProgress);
-
-                rachaCounterElement.textContent = currentValue;
-
-                if (currentFrame >= totalFrames) {
-                    clearInterval(counterInterval);
-                    rachaCounterElement.textContent = targetValue; // Aseguramos el valor final
-
-                    // Fase 2: El Impacto (El Pop)
-                    rachaContainer.classList.add('racha-impact');
-
-                    // Esperamos a que termine el impacto (400ms según el CSS) para pasar a la Fase 3
-                    setTimeout(() => {
-                        rachaContainer.classList.remove('racha-impact'); // Limpiamos la clase de impacto
-
-                        // Fase 3: La Llama Viva (Estado infinito)
-                        rachaContainer.classList.add('racha-viva');
-                    }, 400);
-                }
-            }, 1000 / frameRate);
-        }
-
-        // Iniciar la animación
-        if (rachaCounterElement) {
-            animarRacha(rachaTarget);
-        }
+           
 
             // Protección (opcional)
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-            });
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            // });
 
-            document.addEventListener('keydown', function(e) {
-                 if (
-                     e.key === 'F12' ||
-                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
-                     (e.ctrlKey && e.key === 'U')
-                 ) {
-                     e.preventDefault();
-                 }
-            });
+            // document.addEventListener('keydown', function(e) {
+            //      if (
+            //          e.key === 'F12' ||
+            //          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            //          (e.ctrlKey && e.key === 'U')
+            //      ) {
+            //          e.preventDefault();
+            //      }
+            // });
         });
     </script>
 
