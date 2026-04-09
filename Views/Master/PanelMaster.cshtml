@@ -332,4 +332,78 @@
             btn.disabled = false;
         }
     }
+
+    // 1. Modificamos la función que ABRE la modal para agregar el efecto del Foco
+    function abrirModalEditarInstitucion(idInstitucion) {
+        const modal = document.getElementById('modalMaster');
+        const modalBody = document.getElementById('modalMasterBody');
+
+        modal.style.display = 'flex';
+        modalBody.innerHTML = '<div class="text-center" style="padding: 3rem; color: white;"><i class="fas fa-sync fa-spin fa-2x"></i><p>Cargando datos de la institución...</p></div>';
+
+        fetch(`/Master/EditarInstitucion?id=${idInstitucion}`)
+            .then(response => response.text())
+            .then(html => {
+                modalBody.innerHTML = html;
+
+                // UX Trick: Ponemos el foco en el input UNA VEZ que el HTML ya se inyectó
+                setTimeout(() => {
+                    const input = document.getElementById('inputNuevoNombre');
+                    if(input) {
+                        input.focus();
+                        input.select();
+                    }
+                }, 150);
+            })
+            .catch(error => {
+                modalBody.innerHTML = '<div style="color: #ff4757; text-align: center; padding: 2rem;">Error al cargar.</div>';
+            });
+    }
+
+    // 2. Agregamos la función global que RECIBE el formulario de la modal
+    async function enviarEdicionInstitucion(event) {
+        event.preventDefault(); // Evitamos que el formulario recargue la página a lo bruto
+
+        const btn = document.getElementById('btnGuardarEdicion');
+        const form = event.target;
+        const formData = new FormData(form);
+        const divError = document.getElementById('msgErrorEdicion');
+
+        // Estado de carga visual
+        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Procesando...';
+        btn.disabled = true;
+        divError.style.display = 'none';
+
+        try {
+            const response = await fetch('/Master/GuardarEdicionInstitucion', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.exito) {
+                // Éxito: Cerramos y recargamos para ver la tabla actualizada
+                cerrarModalMaster();
+                window.location.reload();
+            } else {
+                // Error (Duplicado o vacío)
+                divError.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + result.mensaje;
+                divError.style.display = 'block';
+
+                // Restaurar botón
+                btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+                btn.disabled = false;
+
+                // Regresar el foco al input
+                document.getElementById('inputNuevoNombre').focus();
+            }
+
+        } catch (error) {
+            divError.innerHTML = '<i class="fas fa-wifi"></i> Error de conexión con el servidor.';
+            divError.style.display = 'block';
+            btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+            btn.disabled = false;
+        }
+    }
 </script>

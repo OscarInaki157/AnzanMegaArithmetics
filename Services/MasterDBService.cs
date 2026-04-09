@@ -309,5 +309,56 @@ namespace AnzanMegaArithmetics.Services
                 ListaClases = listaClasesSede
             };
         }
+
+        public async Task<EditarInstitucionModel> ObtenerInstitucionParaEdicionAsync(int id)
+        {
+            var inst = await _context.Instituciones.FindAsync(id);
+            if (inst == null) return null;
+
+            return new EditarInstitucionModel
+            {
+                Id_Institucion = inst.Id_Institucion,
+                NombreActual = inst.Nombre,
+                NuevoNombre = inst.Nombre
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> EditarNombreInstitucionAsync(int id, string nuevoNombre)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nuevoNombre))
+                    return (false, "El nombre de la institución no puede estar vacío.");
+
+                string nombreLimpio = nuevoNombre.Trim();
+
+                if (nombreLimpio.Length < 3)
+                    return (false, "El nombre debe tener al menos 3 caracteres.");
+
+                bool existeOtra = await _context.Instituciones
+                    .AnyAsync(i => i.Nombre.ToLower() == nombreLimpio.ToLower() && i.Id_Institucion != id);
+
+                if (existeOtra)
+                    return (false, $"Ya existe OTRA institución registrada como '{nombreLimpio}'.");
+
+                var inst = await _context.Instituciones.FindAsync(id);
+                if (inst == null)
+                    return (false, "La institución no existe o fue eliminada.");
+
+                // Solo cambiamos el valor. ¡EF Core hace el resto mágicamente!
+                inst.Nombre = nombreLimpio;
+
+                await _context.SaveChangesAsync();
+
+                return (true, "Institución actualizada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                // Así sabremos la verdad si hay un error de base de datos
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+
     }
 }

@@ -3,6 +3,7 @@ using AnzanMegaArithmetics.Models.MasterModels;
 using AnzanMegaArithmetics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace AnzanMegaArithmetics.Controllers
@@ -66,6 +67,24 @@ namespace AnzanMegaArithmetics.Controllers
         {
             var (exito, mensaje) = await _masterDBService.ActualizarLicenciasAsync(model);
             return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarInstitucion(int id)
+        {
+            var model = await _masterDBService.ObtenerInstitucionParaEdicionAsync(id);
+
+            if (model == null) return NotFound();
+
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_EditarInstitucion.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarEdicionInstitucion(EditarInstitucionModel model)
+        {
+            var resultado = await _masterDBService.EditarNombreInstitucionAsync(model.Id_Institucion, model.NuevoNombre);
+
+            return Json(new { exito = resultado.Exito, mensaje = resultado.Mensaje });
         }
 
         [HttpGet]

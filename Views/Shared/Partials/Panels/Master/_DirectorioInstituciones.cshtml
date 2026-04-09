@@ -21,7 +21,7 @@
         {
             string borderStyle = escuela.Id_Institucion == 1 ? "border: 1px solid var(--color-primary);" : "border: 1px solid rgba(255,255,255,0.05);";
 
-            <div class="student-row escuela-item" style="grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1.5fr; @borderStyle; background: rgba(255,255,255,0.02); margin-bottom: 0.8rem; border-radius: 0.5rem; padding: 1rem; align-items: center;">
+            <div class="student-row escuela-item" style="grid-template-columns: 0.5fr 2fr 1.5fr 1fr 2fr; @borderStyle; background: rgba(255,255,255,0.02); margin-bottom: 0.8rem; border-radius: 0.5rem; padding: 1rem; align-items: center;">
 
                 <div class="id-tag" style="color: var(--color-primary); font-weight: bold;">#@escuela.Id_Institucion.ToString("D2")</div>
 
@@ -49,14 +49,22 @@
 
                 <div style="text-align: center;">
                     <span style="color: white; font-weight: bold; display: block; font-size: 1.1rem;">@escuela.LicenciasUsadas / @escuela.LicenciasTotales</span>
-                    <span style="color: #a0a0c0; font-size: 0.8rem;">Licencias</span>
-                    <br />
-                    <span style="color: #a0a0c0; font-size: 0.8rem;">Usadas / Totales</span>
+                    <span style="color: #a0a0c0; font-size: 0.8rem;">Licencias Totales</span>
                 </div>
 
                 <div class="action-buttons" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                   
+                    @if (escuela.Id_Institucion != 1)
+                    {
+                        <button class="btn-primary-action"
+                        style="border-radius: 0.4rem; background: #ffa500; color: white;"
+                        title="Editar Institución"
+                        onclick="abrirModalEditarInstitucion(@escuela.Id_Institucion)">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    }
 
-                    @* btn gestion licencias *@
+                    @* Botón Gestionar Licencias *@
                     <button class="btn-primary-action"
                             style="border-radius: 0.4rem; background: #28a745;"
                             title="Gestionar Licencias"
@@ -64,6 +72,7 @@
                         <i class="fas fa-key"></i>
                     </button>
 
+                    @* Botón Desactivar (Si no es la escuela #1) *@
                     @if (escuela.Id_Institucion != 1)
                     {
                         <button class="btn-primary-action" style="border-radius: 0.4rem; background: #ff4757;" title="Desactivar Institución">
@@ -71,16 +80,18 @@
                         </button>
                     }
 
+                    @* Botón Entrar al Detalle *@
                     <a href="@Url.Action("DetalleInstitucion", "Master", new { id = escuela.Id_Institucion })"
                        class="btn-primary-action"
                        style="padding: 0.5rem 1rem; border-radius: 0.4rem; text-decoration: none;"
-                       title="Gestionar Institución">
+                       title="Gestionar Sede">
                         <i class="fas fa-arrow-right"></i>
                     </a>
 
                 </div>
             </div>
         }
+
     </div>
 </div>
 
@@ -102,5 +113,22 @@
                 }
             }
         }
+    }
+
+    function abrirModalEditarInstitucion(idInstitucion) {
+        const modal = document.getElementById('modalMaster');
+        const modalBody = document.getElementById('modalMasterBody');
+
+        modal.style.display = 'flex';
+        modalBody.innerHTML = '<div class="text-center" style="padding: 3rem; color: white;"><i class="fas fa-sync fa-spin fa-2x"></i><p>Cargando datos de la institución...</p></div>';
+
+        fetch(`/Master/EditarInstitucion?id=${idInstitucion}`)
+            .then(response => response.text())
+            .then(html => {
+                modalBody.innerHTML = html;
+            })
+            .catch(error => {
+                modalBody.innerHTML = '<div style="color: #ff4757; text-align: center; padding: 2rem;">Error al cargar.</div>';
+            });
     }
 </script>

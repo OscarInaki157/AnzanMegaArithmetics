@@ -9,5 +9,7 @@ namespace AnzanMegaArithmetics.Services
         Task<GestionLicenciasModel> ObtenerDatosLicenciasAsync(int idInstitucion);
         Task<(bool Exito, string Mensaje)> ActualizarLicenciasAsync(GestionLicenciasModel model);
         Task<DetalleInstitucionViewModel> ObtenerDetalleInstitucionAsync(int id);
+        Task<EditarInstitucionModel> ObtenerInstitucionParaEdicionAsync(int id);
+        Task<(bool Exito, string Mensaje)> EditarNombreInstitucionAsync(int id, string nuevoNombre);
     }
 }
