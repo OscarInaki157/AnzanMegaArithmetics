@@ -58,7 +58,76 @@
     <div class="formulario-flash tab-content" id="tab5"></div>
 </div>
 
+<div id="modalSede" class="modal-overlay">
+    <div class="modal-content-game">
+        <button class="btn-close-modal" onclick="cerrarModalSede()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="modalSedeBody"></div>
+    </div>
+</div>
+
 <style>
+    /* ── MODAL ─────────────────────────────────────────────── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content-game {
+        position: relative;
+        width: 100%;
+        max-width: 40rem;
+        padding: 2rem;
+        animation: slideUp 0.3s ease;
+    }
+
+    .btn-close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #ff4757;
+        color: white;
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: 0.2s;
+    }
+
+        .btn-close-modal:hover {
+            transform: scale(1.1);
+            background: #ff6b81;
+        }
+
+    @@keyframes slideUp {
+        from {
+            transform: translateY(1rem);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
     /* --- NUEVO HEADER INSTITUCIONAL (FLAT & PROFESIONAL) --- */
     .institution-header-container {
         width: 100%;
@@ -240,4 +309,115 @@
             if (btn) btn.click();
         }
     });
+
+        // ── MODAL SEDE ──────────────────────────────────────────
+    function cerrarModalSede() {
+        document.getElementById('modalSede').style.display = 'none';
+        document.getElementById('modalSedeBody').innerHTML = '';
+    }
+
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('modalSede');
+        if (e.target === modal) cerrarModalSede();
+    });
+
+    // ── NUEVA CLASE ─────────────────────────────────────────
+    async function abrirModalNuevaClase(idInstitucion) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioNuevaClase?idInstitucion=${idInstitucion}`);
+            body.innerHTML = await res.text();
+            setTimeout(() => document.getElementById('inputNombreClase')?.focus(), 150);
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarNuevaClase(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnGuardarClase');
+        const msgErr = document.getElementById('msgErrorClase');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/CrearClase', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                cerrarModalSede();
+                window.location.reload();
+            } else {
+                msgErr.textContent      = result.mensaje;
+                msgErr.style.display    = 'block';
+                btn.disabled            = false;
+                btn.innerHTML           = '<i class="fas fa-save"></i> Crear Salón';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Crear Salón';
+        }
+    }
+
+    // ── EDITAR CLASE ────────────────────────────────────────
+    async function abrirEditarClase(idClase) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioEditarClase?idClase=${idClase}`);
+            body.innerHTML = await res.text();
+            setTimeout(() => {
+                const input = document.getElementById('inputNuevoNombreClase');
+                if (input) { input.focus(); input.select(); }
+            }, 150);
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarEdicionClase(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnGuardarEdicionClase');
+        const msgErr = document.getElementById('msgErrorEdicionClase');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Procesando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/GuardarEdicionClase', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                cerrarModalSede();
+                window.location.reload();
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+                document.getElementById('inputNuevoNombreClase')?.focus();
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+        }
+    }
 </script>

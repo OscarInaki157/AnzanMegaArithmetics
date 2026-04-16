@@ -1,0 +1,54 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.EditarClaseModel
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2><i class="fas fa-edit" style="color: #ffa500; margin-right: 0.5rem;"></i> Editar Salón</h2>
+    </div>
+
+    <form onsubmit="enviarEdicionClase(event)">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id_Clase" value="@Model.Id_Clase" />
+
+        <div style="margin-bottom: 0.6rem;">
+            <label style="color: #a0a0c0; font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">
+                Nombre actual
+            </label>
+            <p style="color: rgba(255,255,255,0.4); margin: 0.2rem 0 1rem; font-style: italic;">@Model.NombreActual</p>
+        </div>
+
+        <div style="margin-bottom: 1.2rem;">
+            <label style="display:block; color: #a0a0c0; font-size: 0.85rem; margin-bottom: 0.4rem; text-transform: uppercase; font-weight: 600;">
+                Nuevo Nombre
+            </label>
+            <input type="text"
+                   name="NuevoNombre"
+                   id="inputNuevoNombreClase"
+                   value="@Model.NuevoNombre"
+                   maxlength="100"
+                   autocomplete="off"
+                   style="width:100%; padding:0.8rem 1rem; background: rgba(0,0,0,0.3);
+                          border: 1px solid rgba(255,165,0,0.3); border-radius: 0.5rem;
+                          color: white; font-size: 1rem; outline: none; box-sizing: border-box;"
+                   onfocus="this.style.borderColor='#ffa500'"
+                   onblur="this.style.borderColor='rgba(255,165,0,0.3)'" />
+        </div>
+
+        <div id="msgErrorEdicionClase" style="display:none; color:#ff4757; background: rgba(255,71,87,0.1);
+             border: 1px solid rgba(255,71,87,0.3); border-radius: 0.5rem;
+             padding: 0.7rem 1rem; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+        <div style="display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="button" onclick="cerrarModalSede()"
+                    style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);
+                           padding: 0.7rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600;">
+                Cancelar
+            </button>
+            <button type="submit" id="btnGuardarEdicionClase"
+                    style="background: linear-gradient(135deg, #ffa500, #ff8c00); color: white; border: none;
+                           padding: 0.7rem 1.5rem; border-radius: 0.5rem; cursor: pointer;
+                           font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>

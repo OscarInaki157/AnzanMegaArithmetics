@@ -147,6 +147,38 @@ namespace AnzanMegaArithmetics.Controllers
             }
         }
 
-       
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioNuevaClase(int idInstitucion)
+        {
+            var model = new CrearClaseModel { Id_Institucion = idInstitucion };
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_CrearClase.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearClase(CrearClaseModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { exito = false, mensaje = "Datos inválidos." });
+
+            var (exito, mensaje) = await _masterDBService.CrearClaseAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioEditarClase(int idClase)
+        {
+            var model = await _masterDBService.ObtenerClaseParaEdicionAsync(idClase);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_EditarClase.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarEdicionClase(EditarClaseModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.EditarNombreClaseAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+
     }
 }

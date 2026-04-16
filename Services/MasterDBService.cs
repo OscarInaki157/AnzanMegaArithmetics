@@ -359,6 +359,83 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public async Task<(bool Exito, string Mensaje)> CrearClaseAsync(CrearClaseModel model)
+        {
+            try
+            {
+                string nombreLimpio = model.Nombre.Trim();
+
+                bool existe = await _context.Clases
+                    .AnyAsync(c => c.Id_Institucion == model.Id_Institucion
+                                && c.Nombre.ToLower() == nombreLimpio.ToLower());
+
+                if (existe)
+                    return (false, $"Ya existe un salón llamado '{nombreLimpio}' en esta institución.");
+
+                var nuevaClase = new ClaseDB
+                {
+                    Nombre = nombreLimpio,
+                    Id_Institucion = model.Id_Institucion,
+                    Activo = true
+                };
+
+                _context.Clases.Add(nuevaClase);
+                await _context.SaveChangesAsync();
+
+                return (true, "Salón creado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<EditarClaseModel?> ObtenerClaseParaEdicionAsync(int idClase)
+        {
+            var clase = await _context.Clases.FindAsync(idClase);
+            if (clase == null) return null;
+
+            return new EditarClaseModel
+            {
+                Id_Clase = clase.Id_Clase,
+                NombreActual = clase.Nombre,
+                NuevoNombre = clase.Nombre
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> EditarNombreClaseAsync(EditarClaseModel model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.NuevoNombre))
+                    return (false, "El nombre no puede estar vacío.");
+
+                string nombreLimpio = model.NuevoNombre.Trim();
+
+                var clase = await _context.Clases.FindAsync(model.Id_Clase);
+                if (clase == null)
+                    return (false, "El salón no existe o fue eliminado.");
+
+                // Verificar duplicado dentro de la misma institución (excluyendo este mismo)
+                bool existeOtra = await _context.Clases
+                    .AnyAsync(c => c.Id_Institucion == clase.Id_Institucion
+                                && c.Nombre.ToLower() == nombreLimpio.ToLower()
+                                && c.Id_Clase != model.Id_Clase);
+
+                if (existeOtra)
+                    return (false, $"Ya existe otro salón llamado '{nombreLimpio}' en esta institución.");
+
+                clase.Nombre = nombreLimpio;
+                await _context.SaveChangesAsync();
+
+                return (true, "Salón actualizado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
 
     }
 }
