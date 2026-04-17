@@ -799,4 +799,26 @@
             btn.disabled = false;
         }
     }
+
+        // ── BUSCADORES ───────────────────────────────────────────
+    function filtrarAlumnosMasterLocal() {
+        const busqueda = document.getElementById('txtBuscarAlumnoMaster')?.value.toLowerCase() ?? '';
+        document.querySelectorAll('#tab3 .alumno-row').forEach(fila => {
+            fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
+        });
+    }
+
+    function filtrarProfesLocal() {
+        const busqueda = document.getElementById('txtBuscarProfe')?.value.toLowerCase() ?? '';
+        document.querySelectorAll('#tab4 .profe-row').forEach(fila => {
+            fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
+        });
+    }
+
+    function filtrarAdminsLocal() {
+        const busqueda = document.getElementById('txtBuscarAdmin')?.value.toLowerCase() ?? '';
+        document.querySelectorAll('#tab5 .admin-row').forEach(fila => {
+            fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
+        });
+    }
 </script>

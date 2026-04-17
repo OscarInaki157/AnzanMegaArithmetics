@@ -177,12 +177,3 @@
         .search-container { max-width:100%; }
     }
 </style>
-
-<script>
-    function filtrarAlumnosMasterLocal() {
-        const busqueda = document.getElementById('txtBuscarAlumnoMaster').value.toLowerCase();
-        document.querySelectorAll('.alumno-row').forEach(fila => {
-            fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
-        });
-    }
-</script>

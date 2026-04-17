@@ -280,12 +280,3 @@
         }
     }
 </style>
-
-<script>
-    function filtrarProfesLocal() {
-        const busqueda = document.getElementById('txtBuscarProfe').value.toLowerCase();
-        document.querySelectorAll('.profe-row').forEach(fila => {
-            fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
-        });
-    }
-</script>
