@@ -1,0 +1,162 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.CrearProfesorMasterModel
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2><i class="fas fa-user-tie" style="color:var(--color-primary); margin-right:0.5rem;"></i> Nuevo Profesor</h2>
+    </div>
+
+    @if (Model.LicenciasDisponibles <= 0)
+    {
+        <div style="text-align:center; padding:2rem;">
+            <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+            <h3 style="color:#ff4757; margin-bottom:0.5rem;">Sin licencias disponibles</h3>
+            <p style="color:#a0a0c0; margin-bottom:1.5rem;">
+                Esta institución no tiene licencias libres.<br>
+                Aumenta el inventario antes de agregar profesores.
+            </p>
+            <button type="button" onclick="cerrarModalSede()"
+                    style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.2);
+                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600; margin-right:0.8rem;">
+                Cancelar
+            </button>
+            <button type="button" onclick="cerrarModalSede(); abrirModalLicencias(@Model.Id_Institucion)"
+                    style="background:linear-gradient(135deg,#ffa500,#ff8c00); color:white; border:none;
+                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
+                               display:inline-flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-plus-circle"></i> Aumentar Licencias
+            </button>
+        </div>
+    }
+    else
+    {
+        <div style="background:rgba(0,255,136,0.07); border:1px solid rgba(0,255,136,0.2);
+                        border-radius:0.5rem; padding:0.6rem 1rem; margin-bottom:1.2rem;
+                        color:#00ff88; font-size:0.9rem; display:flex; align-items:center; gap:0.5rem;">
+            <i class="fas fa-key"></i> Licencias disponibles: <strong>@Model.LicenciasDisponibles</strong>
+        </div>
+
+        <form onsubmit="enviarCrearProfesorMaster(event)">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id_Institucion" value="@Model.Id_Institucion" />
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div>
+                    <label class="lbl-form">Nombre completo</label>
+                    <input type="text" name="Nombre" class="input-game" placeholder="Nombre del profesor"
+                           required maxlength="80" minlength="3" />
+                </div>
+                <div>
+                    <label class="lbl-form">GamerTag</label>
+                    <input type="text" name="Gamer_Tag" class="input-game" placeholder="Sin espacios"
+                           required maxlength="20" minlength="3" pattern="^\S+$" title="Sin espacios" />
+                </div>
+                <div>
+                    <label class="lbl-form">Correo electrónico</label>
+                    <input type="email" name="Correo" class="input-game" placeholder="correo@ejemplo.com"
+                           required maxlength="100" />
+                </div>
+                <div>
+                    <label class="lbl-form">Contraseña inicial</label>
+                    <input type="text" name="Pass" class="input-game" placeholder="Mínimo 6 caracteres"
+                           required maxlength="30" minlength="6" />
+                </div>
+
+                {{!-- Clases: checkboxes múltiples --}}
+                <div style="grid-column:1/-1;">
+                    <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clases (selecciona una o más)</label>
+                    @if (Model.ClasesDisponibles.Any())
+                    {
+                        <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.4rem;">
+                            @foreach (var c in Model.ClasesDisponibles)
+                            {
+                                <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
+                                                          background:rgba(76,76,255,0.1); border:1px solid rgba(76,76,255,0.3);
+                                                          border-radius:0.5rem; padding:0.4rem 0.8rem; transition:0.2s;"
+                                       onmouseover="this.style.background='rgba(76,76,255,0.25)'"
+                                       onmouseout="this.style.background='rgba(76,76,255,0.1)'">
+                                    <input type="checkbox" name="Ids_Clases" value="@c.Id_Clase"
+                                           style="accent-color:var(--color-primary);" />
+                                    <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
+                                </label>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="color:#ff4757; font-size:0.9rem; margin-top:0.4rem;">
+                            <i class="fas fa-exclamation-triangle"></i> No hay clases activas en esta institución.
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <div id="msgErrorCrearProfe" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+                     border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
+                     margin-top:1rem; font-size:0.9rem;"></div>
+
+            <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.5rem;">
+                <button type="button" onclick="cerrarModalSede()"
+                        style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);
+                                   padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
+                    Cancelar
+                </button>
+                <button type="submit" id="btnCrearProfe"
+                        style="background:var(--color-primary); color:white; border:none; padding:0.7rem 1.5rem;
+                                   border-radius:0.5rem; cursor:pointer; font-weight:600;
+                                   display:inline-flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-save"></i> Crear Profesor
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+<style>
+    .lbl-form {
+        display: block;
+        color: #a0a0c0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .input-game {
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+        .input-game:focus {
+            border-color: var(--color-primary);
+        }
+
+    .formulario-flash {
+        background: #010f36;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+</style>

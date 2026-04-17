@@ -822,6 +822,310 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public async Task<ListadoProfesoresInstitucionViewModel> ObtenerProfesoresInstitucionAsync(int idInstitucion)
+        {
+            var profesoresBD = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .Where(u => u.Id_Institucion == idInstitucion && u.Rol.Rol == "Profesor")
+                .ToListAsync();
+
+            var lista = profesoresBD.Select(u =>
+            {
+                var licencia = u.UsuarioLicencias
+                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                    .FirstOrDefault();
+
+                return new UsuarioBDModel
+                {
+                    Id_Usuario = u.Id_Usuario,
+                    Nombre = u.Nombre,
+                    Gamer_Tag = u.Gamer_Tag,
+                    Correo = u.Correo,
+                    Pass = u.Pass,
+                    Activo = u.Activo,
+                    Racha = u.Racha,
+                    Exp = u.Experiencia_Total,
+                    Rango_Actual = u.Rango_Actual,
+                    Ultima_Cnx = u.Ultima_Actividad,
+                    Clases = u.Usuario_Clase
+                                    .Where(uc => uc.Activo)
+                                    .Select(uc => uc.Clase.Nombre)
+                                    .ToList(),
+                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
+                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                };
+            }).ToList();
+
+            return new ListadoProfesoresInstitucionViewModel
+            {
+                Id_Institucion = idInstitucion,
+                ListaProfesores = lista
+            };
+        }
+
+        public async Task<CrearProfesorMasterModel> ObtenerFormularioCrearProfesorAsync(int idInstitucion)
+        {
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var inventario = await _context.Instituciones_Inventario_Licencias
+                .FirstOrDefaultAsync(i => i.Id_Institucion == idInstitucion);
+
+            int disponibles = inventario != null
+                ? inventario.Cantidad_Total - inventario.Cantidad_Asignada
+                : 0;
+
+            return new CrearProfesorMasterModel
+            {
+                Id_Institucion = idInstitucion,
+                ClasesDisponibles = clases,
+                LicenciasDisponibles = disponibles
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CrearProfesorMasterAsync(CrearProfesorMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Validaciones
+                bool correoExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Correo.ToLower() == model.Correo.Trim().ToLower());
+                if (correoExiste)
+                    return (false, "Ese correo ya está registrado en la plataforma.");
+
+                bool gtExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Gamer_Tag.ToLower() == model.Gamer_Tag.Trim().ToLower());
+                if (gtExiste)
+                    return (false, "Ese GamerTag ya está en uso.");
+
+                if (model.Ids_Clases == null || !model.Ids_Clases.Any())
+                    return (false, "Debes asignar al menos una clase al profesor.");
+
+                // Validar que todas las clases pertenecen a la institución
+                foreach (var idClase in model.Ids_Clases)
+                {
+                    bool claseValida = await _context.Clases
+                        .AnyAsync(c => c.Id_Clase == idClase
+                                    && c.Id_Institucion == model.Id_Institucion
+                                    && c.Activo);
+                    if (!claseValida)
+                        return (false, "Una o más clases seleccionadas no pertenecen a esta institución.");
+                }
+
+                // Verificar licencias
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+
+                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
+                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+
+                // Crear profesor — Id_Rol = 2
+                var nuevoProfesor = new UsuariosDB
+                {
+                    Id_Rol = 2,
+                    Id_Institucion = model.Id_Institucion,
+                    Nombre = model.Nombre.Trim(),
+                    Correo = model.Correo.Trim().ToLower(),
+                    Gamer_Tag = model.Gamer_Tag.Trim(),
+                    Pass = model.Pass,
+                    Activo = true,
+                    Racha = 0,
+                    Experiencia_Total = 0,
+                    Rango_Actual = "Bronce I",
+                    Ultima_Actividad = DateTime.Now
+                };
+
+                _context.Usuarios.Add(nuevoProfesor);
+                await _context.SaveChangesAsync();
+
+                // Asignar múltiples clases
+                foreach (var idClase in model.Ids_Clases)
+                {
+                    _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                    {
+                        Id_Usuario = nuevoProfesor.Id_Usuario,
+                        Id_Clase = idClase,
+                        Activo = true
+                    });
+                }
+
+                // Asignar licencia
+                var licenciaDB = await _context.Licencias.FindAsync(inventario.Id_Licencia);
+                int vigencia = licenciaDB?.Vigencia ?? 12;
+
+                _context.Usuarios_Licencias.Add(new Usuarios_LicenciasDB
+                {
+                    Id_Usuario = nuevoProfesor.Id_Usuario,
+                    Id_Licencia = inventario.Id_Licencia,
+                    Fecha_Asignacion = DateTime.Now,
+                    Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia),
+                    Vigencia = vigencia
+                });
+
+                inventario.Cantidad_Asignada++;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Profesor '{nuevoProfesor.Nombre}' creado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<EditarProfesorMasterModel> ObtenerDatosEditarProfesorMasterAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
+
+            if (u == null) return null;
+
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var licencia = u.UsuarioLicencias
+                .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                .FirstOrDefault();
+
+            return new EditarProfesorMasterModel
+            {
+                Id_Usuario = u.Id_Usuario,
+                Nombre = u.Nombre,
+                Gamer_Tag = u.Gamer_Tag,
+                Correo = u.Correo,
+                Pass = u.Pass,
+                Racha = u.Racha,
+                Exp = u.Experiencia_Total,
+                Activo = u.Activo,
+                Ids_Clases_Actuales = u.Usuario_Clase.Where(uc => uc.Activo).Select(uc => uc.Id_Clase).ToList(),
+                Ids_Clases_Nuevas = u.Usuario_Clase.Where(uc => uc.Activo).Select(uc => uc.Id_Clase).ToList(),
+                ClasesDisponibles = clases,
+                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licencia?.Id,
+                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
+                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> GuardarEdicionProfesorMasterAsync(EditarProfesorMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var u = await _context.Usuarios
+                    .Include(u => u.Usuario_Clase)
+                    .FirstOrDefaultAsync(u => u.Id_Usuario == model.Id_Usuario);
+
+                if (u == null) return (false, "Usuario no encontrado.");
+
+                bool gtDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Gamer_Tag == model.Gamer_Tag && x.Id_Usuario != model.Id_Usuario);
+                if (gtDuplicado) return (false, "Ese GamerTag ya está en uso.");
+
+                bool correoDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Correo == model.Correo && x.Id_Usuario != model.Id_Usuario);
+                if (correoDuplicado) return (false, "Ese correo ya está registrado.");
+
+                if (model.Ids_Clases_Nuevas == null || !model.Ids_Clases_Nuevas.Any())
+                    return (false, "El profesor debe tener al menos una clase asignada.");
+
+                // Validar que las clases pertenecen a la institución
+                foreach (var idClase in model.Ids_Clases_Nuevas)
+                {
+                    bool valida = await _context.Clases
+                        .AnyAsync(c => c.Id_Clase == idClase
+                                    && c.Id_Institucion == u.Id_Institucion
+                                    && c.Activo);
+                    if (!valida)
+                        return (false, "Una o más clases seleccionadas no son válidas.");
+                }
+
+                // Actualizar datos básicos
+                u.Nombre = model.Nombre.Trim();
+                u.Gamer_Tag = model.Gamer_Tag.Trim();
+                u.Correo = model.Correo.Trim();
+                u.Pass = model.Pass;
+                u.Racha = model.Racha;
+                u.Experiencia_Total = model.Exp;
+                u.Activo = model.Activo;
+
+                // Reasignar clases: desactivar todas y reactivar las seleccionadas
+                foreach (var uc in u.Usuario_Clase)
+                    uc.Activo = false;
+
+                foreach (var idClase in model.Ids_Clases_Nuevas)
+                {
+                    var ucExistente = u.Usuario_Clase.FirstOrDefault(uc => uc.Id_Clase == idClase);
+                    if (ucExistente != null)
+                        ucExistente.Activo = true;
+                    else
+                        _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                        {
+                            Id_Usuario = model.Id_Usuario,
+                            Id_Clase = idClase,
+                            Activo = true
+                        });
+                }
+
+                // Actualizar licencia
+                if (model.Id_UsuarioLicencia.HasValue &&
+                    model.Fecha_Inicio_Licencia.HasValue &&
+                    model.Fecha_Fin_Licencia.HasValue)
+                {
+                    if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
+                        return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
+
+                    var lic = await _context.Usuarios_Licencias.FindAsync(model.Id_UsuarioLicencia.Value);
+                    if (lic != null)
+                    {
+                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
+                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
+                        lic.Vigencia = (int)Math.Ceiling(
+                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
+                        );
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return (true, "Profesor actualizado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ToggleActivoProfesorAsync(int idUsuario)
+        {
+            try
+            {
+                var u = await _context.Usuarios.FindAsync(idUsuario);
+                if (u == null) return (false, "Usuario no encontrado.");
+                u.Activo = !u.Activo;
+                await _context.SaveChangesAsync();
+                return (true, u.Activo ? "Profesor activado." : "Profesor desactivado.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
 
     }
 }

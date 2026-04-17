@@ -240,5 +240,58 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerTabProfesores(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerProfesoresInstitucionAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_ListadoProfesMaster.cshtml", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFichaProfesorMaster(int idUsuario)
+        {
+            var model = await _masterDBService.ObtenerFichaAlumnoAsync(idUsuario); // mismo método, mismo modelo
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_FichaAlumnoMaster.cshtml", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioCrearProfesor(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerFormularioCrearProfesorAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_CrearProfesorMaster.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearProfesorMaster(CrearProfesorMasterModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { exito = false, mensaje = "Datos inválidos." });
+            var (exito, mensaje) = await _masterDBService.CrearProfesorMasterAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioEditarProfesorMaster(int idUsuario)
+        {
+            var model = await _masterDBService.ObtenerDatosEditarProfesorMasterAsync(idUsuario);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_EditarProfesorMaster.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarEdicionProfesorMaster(EditarProfesorMasterModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.GuardarEdicionProfesorMasterAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleActivoProfesor(int idUsuario)
+        {
+            var (exito, mensaje) = await _masterDBService.ToggleActivoProfesorAsync(idUsuario);
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

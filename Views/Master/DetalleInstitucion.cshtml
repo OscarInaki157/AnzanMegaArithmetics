@@ -45,7 +45,11 @@
             <i class="fas fa-users"></i> Alumnos
         </button>
 
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab4', this)"><i class="fas fa-user-tie"></i> Profesores</button>
+        <button type="button" class="tab-btn"
+                onclick="mostrarTab('tab4', this); cargarTabProfesores(@Model.Id_Institucion)">
+            <i class="fas fa-user-tie"></i> Profesores
+        </button>
+
         <button type="button" class="tab-btn" onclick="mostrarTab('tab5', this)"><i class="fas fa-cog"></i> Configuración</button>
     </div>
 
@@ -86,16 +90,20 @@
         backdrop-filter: blur(5px);
         z-index: 9999;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start; /* ← era center, ahora flex-start */
+        overflow-y: auto; /* ← nuevo */
+        padding: 2rem 1rem; /* ← nuevo, da espacio arriba y abajo */
+        box-sizing: border-box; /* ← nuevo */
         animation: fadeIn 0.3s ease;
     }
 
     .modal-content-game {
         position: relative;
         width: 100%;
-        max-width: 40rem;
+        max-width: 52rem; /* ← más ancho para los formularios de edición */
         padding: 2rem;
         animation: slideUp 0.3s ease;
+        margin: auto; /* ← centra verticalmente cuando el contenido es corto */
     }
 
     .btn-close-modal {
@@ -644,6 +652,151 @@
             alert('Error de conexión.');
             btn.disabled     = false;
             iconEl.className = claseOriginal;
+        }
+    }
+
+        // ── TAB PROFESORES ───────────────────────────────────────
+    async function cargarTabProfesores(idInstitucion) {
+        const tab = document.getElementById('tab4');
+        if (tab.dataset.cargado) return;
+        tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerTabProfesores?idInstitucion=${idInstitucion}`);
+            tab.innerHTML = await res.text();
+            tab.dataset.cargado = '1';
+        } catch {
+            tab.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar profesores.</div>';
+        }
+    }
+
+    // ── CREAR PROFESOR ───────────────────────────────────────
+    async function abrirCrearProfesorMaster(idInstitucion) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioCrearProfesor?idInstitucion=${idInstitucion}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarCrearProfesorMaster(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnCrearProfe');
+        const msgErr = document.getElementById('msgErrorCrearProfe');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Creando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/CrearProfesorMaster', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                const tab = document.getElementById('tab4');
+                tab.dataset.cargado = '';
+                cargarTabProfesores(@Model.Id_Institucion);
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Crear Profesor';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Crear Profesor';
+        }
+    }
+
+    // ── FICHA PROFESOR ───────────────────────────────────────
+    async function abrirFichaProfesorMaster(idUsuario) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-circle-notch fa-spin fa-2x"></i><p>Cargando ficha...</p></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFichaProfesorMaster?idUsuario=${idUsuario}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar ficha.</div>';
+        }
+    }
+
+    // ── EDITAR PROFESOR ──────────────────────────────────────
+    async function abrirEditarProfesorMaster(idUsuario) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando editor...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioEditarProfesorMaster?idUsuario=${idUsuario}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarEdicionProfesorMaster(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnGuardarProfe');
+        const msgErr = document.getElementById('msgErrorEditarProfe');
+        const fd     = new FormData(event.target);
+
+        if (!event.target.querySelector('[name="Activo"]').checked)
+            fd.set('Activo', 'false');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/GuardarEdicionProfesorMaster', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                const tab = document.getElementById('tab4');
+                tab.dataset.cargado = '';
+                cargarTabProfesores(@Model.Id_Institucion);
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+        }
+    }
+
+    // ── TOGGLE ACTIVO PROFESOR ───────────────────────────────
+    async function toggleActivoProfesor(idUsuario, btn) {
+        btn.disabled = true;
+        try {
+            const fd = new FormData();
+            fd.append('idUsuario', idUsuario);
+            const res    = await fetch('/Master/ToggleActivoProfesor', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                const tab = document.getElementById('tab4');
+                tab.dataset.cargado = '';
+                cargarTabProfesores(@Model.Id_Institucion);
+            } else {
+                alert(result.mensaje);
+                btn.disabled = false;
+            }
+        } catch {
+            alert('Error de conexión.');
+            btn.disabled = false;
         }
     }
 </script>
