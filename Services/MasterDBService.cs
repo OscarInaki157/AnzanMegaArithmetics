@@ -286,6 +286,12 @@ namespace AnzanMegaArithmetics.Services
                 });
             }
 
+            var tiposDePrueba = await _context.Pruebas
+                .Where(p => p.Usuario.Id_Institucion == id)
+                .Select(p => p.Tipo_Prueba)
+                .Distinct()
+                .ToListAsync();
+
             return new DetalleInstitucionViewModel
             {
                 Id_Institucion = inst.Id_Institucion,
@@ -307,7 +313,8 @@ namespace AnzanMegaArithmetics.Services
                 LabelsActividad = labelsActividad,
                 ValoresActividad = valoresActividad,
 
-                ListaClases = listaClasesSede
+                ListaClases = listaClasesSede,
+                TiposDePruebaDisponibles = tiposDePrueba
             };
         }
 

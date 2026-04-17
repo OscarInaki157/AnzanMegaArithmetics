@@ -26,5 +26,7 @@
 
         public List<ClaseSedeModel> ListaClases { get; set; } = new List<ClaseSedeModel>();
 
+        public List<string> TiposDePruebaDisponibles { get; set; } = new();
+
     }
 }
