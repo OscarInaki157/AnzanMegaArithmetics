@@ -32,5 +32,12 @@ namespace AnzanMegaArithmetics.Services
         Task<EditarProfesorMasterModel> ObtenerDatosEditarProfesorMasterAsync(int idUsuario);
         Task<(bool Exito, string Mensaje)> GuardarEdicionProfesorMasterAsync(EditarProfesorMasterModel model);
         Task<(bool Exito, string Mensaje)> ToggleActivoProfesorAsync(int idUsuario);
+
+        Task<ListadoAdminsViewModel> ObtenerAdminsInstitucionAsync(int idInstitucion);
+        Task<CrearAdminMasterModel> ObtenerFormularioCrearAdminAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> CrearAdminMasterAsync(CrearAdminMasterModel model);
+        Task<EditarAdminMasterModel> ObtenerDatosEditarAdminMasterAsync(int idUsuario);
+        Task<(bool Exito, string Mensaje)> GuardarEdicionAdminMasterAsync(EditarAdminMasterModel model);
+        Task<(bool Exito, string Mensaje)> ToggleActivoAdminAsync(int idUsuario);
     }
 }

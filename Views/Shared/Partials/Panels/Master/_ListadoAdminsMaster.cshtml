@@ -1,0 +1,290 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.ListadoAdminsViewModel
+
+<div class="header-gestion">
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="txtBuscarAdmin" placeholder="Buscar por nombre o GamerTag..."
+               onkeyup="filtrarAdminsLocal()" />
+    </div>
+    <button onclick="abrirCrearAdminMaster(@Model.Id_Institucion)"
+            style="background:linear-gradient(135deg,#a855f7,#7c3aed); color:white; border:none;
+                   padding:0.7rem 1.5rem; border-radius:2rem; font-weight:bold; cursor:pointer;
+                   display:flex; align-items:center; gap:0.5rem;
+                   box-shadow:0 4px 10px rgba(168,85,247,0.3);">
+        <i class="fas fa-user-shield"></i> Nuevo Admin / Master
+    </button>
+</div>
+
+<div class="stats-summary">
+    <div class="stat-item">
+        <i class="fas fa-user-shield" style="background:rgba(168,85,247,0.2); color:#a855f7;
+           width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:50%;"></i>
+        <div class="stat-info">
+            <span class="label">Total</span>
+            <span class="value">@(Model.ListaAdmins?.Count ?? 0)</span>
+        </div>
+    </div>
+</div>
+
+<div class="smart-list" id="listaAdmins">
+    @if (Model.ListaAdmins != null && Model.ListaAdmins.Any())
+    {
+        @foreach (var admin in Model.ListaAdmins)
+        {
+            bool esMaster = admin.Id_Rol == "4";
+            string colorRol = esMaster ? "#f59e0b" : "#a855f7";
+            string bgRol = esMaster ? "rgba(245,158,11,0.15)" : "rgba(168,85,247,0.15)";
+            string labelRol = esMaster ? "Master" : "Administrador";
+            string iconoRol = esMaster ? "fa-crown" : "fa-user-shield";
+
+            <div class="admin-row" data-search="@admin.Nombre.ToLower() @admin.Gamer_Tag.ToLower()"
+                 style="@(!admin.Activo ? "opacity:0.5;" : "")">
+
+                <div class="id-tag">#@admin.Id_Usuario.ToString("D3")</div>
+
+                <div class="name-info">
+                    <strong>@admin.Nombre</strong>
+                    <span>
+                        @admin.Gamer_Tag
+                        @if (!admin.Activo)
+                        {
+                            <span style="color:#ff4757; margin-left:0.5rem;">
+                                <i class="fas fa-ban"></i> Inactivo
+                            </span>
+                        }
+                    </span>
+                </div>
+
+                <div>
+                    <span style="background:@bgRol; color:@colorRol; border:1px solid @colorRol;
+                                         border-radius:1rem; padding:0.3rem 0.8rem; font-size:0.8rem; font-weight:600;">
+                        <i class="fas @iconoRol"></i> @labelRol
+                    </span>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:0.3rem;">
+                    @if (admin.Clases.Any())
+                    {
+                        @foreach (var clase in admin.Clases)
+                        {
+                            <span style="background:rgba(76,76,255,0.15); color:#8c8cff;
+                                                         border:1px solid rgba(76,76,255,0.3); border-radius:1rem;
+                                                         padding:0.2rem 0.5rem; font-size:0.75rem; font-weight:600;">
+                                @clase
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span style="color:#a0a0c0; font-size:0.85rem;">Sin clases</span>
+                    }
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-mini-sec" onclick="abrirFichaAdminMaster(@admin.Id_Usuario)" title="Ver Perfil">
+                        <i class="fas fa-address-card"></i>
+                    </button>
+                    <button class="btn-mini" onclick="abrirEditarAdminMaster(@admin.Id_Usuario)" title="Editar">
+                        <i class="fas fa-user-edit"></i>
+                    </button>
+                    <button onclick="toggleActivoAdmin(@admin.Id_Usuario, this)"
+                            title="@(admin.Activo ? "Desactivar" : "Activar")"
+                            style="border:none; width:2.5rem; height:2.5rem; border-radius:0.5rem; cursor:pointer;
+                                           background:@(admin.Activo ? "rgba(255,71,87,0.2)" : "rgba(0,255,136,0.2)");
+                                           color:@(admin.Activo ? "#ff4757" : "#00ff88");
+                                           font-size:1rem; display:inline-flex; align-items:center; justify-content:center;">
+                        <i class="fas @(admin.Activo ? "fa-ban" : "fa-check-circle")"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="text-align:center; padding:3rem; color:#a0a0c0;
+                        border:1px dashed rgba(255,255,255,0.1); border-radius:1rem;">
+            <i class="fas fa-user-shield fa-3x" style="margin-bottom:1rem; opacity:0.5;"></i>
+            <p>No hay administrativos registrados en esta institución.</p>
+            <button onclick="abrirCrearAdminMaster(@Model.Id_Institucion)"
+                    style="margin-top:1rem; background:linear-gradient(135deg,#a855f7,#7c3aed); color:white;
+                               border:none; padding:0.6rem 1.5rem; border-radius:2rem; cursor:pointer; font-weight:bold;">
+                <i class="fas fa-user-plus"></i> Agregar primero
+            </button>
+        </div>
+    }
+</div>
+
+<style>
+    .admin-row {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 0.6rem;
+        display: grid;
+        grid-template-columns: 0.7fr 2.5fr 1.8fr 3fr 2fr;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        transition: 0.2s;
+    }
+
+        .admin-row:hover {
+            background: rgba(168,85,247,0.1);
+            transform: translateX(5px);
+            border-color: rgba(168,85,247,0.3);
+        }
+
+    .header-gestion {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+    }
+
+        .search-container input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(168,85,247,0.3);
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 2rem;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+            .search-container input:focus {
+                border-color: #a855f7;
+            }
+
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a855f7;
+        }
+
+    .stats-summary {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 0.8rem 1.2rem;
+        background: rgba(255,255,255,0.03);
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255,255,255,0.05);
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .stat-info .label {
+            font-size: 0.85rem;
+            color: #a0a0c0;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            line-height: 1;
+        }
+
+    .smart-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .id-tag {
+        font-size: 1rem;
+        color: #a855f7;
+        font-family: monospace;
+        font-weight: bold;
+    }
+
+    .name-info strong {
+        display: block;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .name-info span {
+        font-size: 0.85rem;
+        color: #a0a0c0;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .btn-mini {
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        color: white;
+        font-size: 1rem;
+        background: linear-gradient(135deg,#ffa500,#ff8c00);
+    }
+
+    .btn-mini-sec {
+        border: none;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        color: white;
+        font-size: 1rem;
+        background: linear-gradient(135deg,#4c4cff,#2a2a72);
+    }
+
+        .btn-mini:hover, .btn-mini-sec:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width:768px) {
+        .admin-row {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            justify-content: center;
+        }
+    }
+</style>

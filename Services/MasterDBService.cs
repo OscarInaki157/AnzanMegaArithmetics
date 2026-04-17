@@ -1137,5 +1137,304 @@ namespace AnzanMegaArithmetics.Services
         }
 
 
+        public async Task<ListadoAdminsViewModel> ObtenerAdminsInstitucionAsync(int idInstitucion)
+        {
+            var adminsBD = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .Where(u => u.Id_Institucion == idInstitucion &&
+                           (u.Id_Rol == 3 || u.Id_Rol == 4))
+                .ToListAsync();
+
+            var lista = adminsBD.Select(u =>
+            {
+                var licencia = u.UsuarioLicencias
+                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                    .FirstOrDefault();
+
+                return new UsuarioBDModel
+                {
+                    Id_Usuario = u.Id_Usuario,
+                    Id_Rol = u.Id_Rol.ToString(),
+                    Nombre = u.Nombre,
+                    Gamer_Tag = u.Gamer_Tag,
+                    Correo = u.Correo,
+                    Pass = u.Pass,
+                    Activo = u.Activo,
+                    Racha = u.Racha,
+                    Exp = u.Experiencia_Total,
+                    Rango_Actual = u.Rango_Actual,
+                    Ultima_Cnx = u.Ultima_Actividad,
+                    Clases = u.Usuario_Clase
+                                    .Select(uc => uc.Clase.Nombre)
+                                    .ToList(),
+                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
+                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                };
+            }).ToList();
+
+            return new ListadoAdminsViewModel
+            {
+                Id_Institucion = idInstitucion,
+                ListaAdmins = lista
+            };
+        }
+
+        public async Task<CrearAdminMasterModel> ObtenerFormularioCrearAdminAsync(int idInstitucion)
+        {
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var inventario = await _context.Instituciones_Inventario_Licencias
+                .FirstOrDefaultAsync(i => i.Id_Institucion == idInstitucion);
+
+            int disponibles = inventario != null
+                ? inventario.Cantidad_Total - inventario.Cantidad_Asignada
+                : 0;
+
+            return new CrearAdminMasterModel
+            {
+                Id_Institucion = idInstitucion,
+                ClasesDisponibles = clases,
+                LicenciasDisponibles = disponibles,
+                Id_Rol = 3 // default Admin
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CrearAdminMasterAsync(CrearAdminMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (model.Id_Rol != 3 && model.Id_Rol != 4)
+                    return (false, "Rol inválido.");
+
+                bool correoExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Correo.ToLower() == model.Correo.Trim().ToLower());
+                if (correoExiste)
+                    return (false, "Ese correo ya está registrado en la plataforma.");
+
+                bool gtExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Gamer_Tag.ToLower() == model.Gamer_Tag.Trim().ToLower());
+                if (gtExiste)
+                    return (false, "Ese GamerTag ya está en uso.");
+
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+
+                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
+                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+
+                var nuevo = new UsuariosDB
+                {
+                    Id_Rol = model.Id_Rol,
+                    Id_Institucion = model.Id_Institucion,
+                    Nombre = model.Nombre.Trim(),
+                    Correo = model.Correo.Trim().ToLower(),
+                    Gamer_Tag = model.Gamer_Tag.Trim(),
+                    Pass = model.Pass,
+                    Activo = true,
+                    Racha = 0,
+                    Experiencia_Total = 0,
+                    Rango_Actual = "Bronce I",
+                    Ultima_Actividad = DateTime.Now,
+                    Fecha_Ultimo_Reclamo = DateTime.Now.AddDays(-1)
+                };
+
+                _context.Usuarios.Add(nuevo);
+                await _context.SaveChangesAsync();
+
+                // Clases (opcionales para admins)
+                if (model.Ids_Clases != null)
+                {
+                    foreach (var idClase in model.Ids_Clases)
+                    {
+                        bool claseValida = await _context.Clases
+                            .AnyAsync(c => c.Id_Clase == idClase
+                                        && c.Id_Institucion == model.Id_Institucion
+                                        && c.Activo);
+                        if (claseValida)
+                        {
+                            _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                            {
+                                Id_Usuario = nuevo.Id_Usuario,
+                                Id_Clase = idClase,
+                                Activo = true
+                            });
+                        }
+                    }
+                }
+
+                var licenciaDB = await _context.Licencias.FindAsync(inventario.Id_Licencia);
+                int vigencia = licenciaDB?.Vigencia ?? 12;
+
+                _context.Usuarios_Licencias.Add(new Usuarios_LicenciasDB
+                {
+                    Id_Usuario = nuevo.Id_Usuario,
+                    Id_Licencia = inventario.Id_Licencia,
+                    Fecha_Asignacion = DateTime.Now,
+                    Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia),
+                    Vigencia = vigencia
+                });
+
+                inventario.Cantidad_Asignada++;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Usuario '{nuevo.Nombre}' creado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<EditarAdminMasterModel> ObtenerDatosEditarAdminMasterAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
+
+            if (u == null) return null;
+
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var licencia = u.UsuarioLicencias
+                .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                .FirstOrDefault();
+
+            return new EditarAdminMasterModel
+            {
+                Id_Usuario = u.Id_Usuario,
+                Nombre = u.Nombre,
+                Gamer_Tag = u.Gamer_Tag,
+                Correo = u.Correo,
+                Pass = u.Pass,
+                Racha = u.Racha,
+                Exp = u.Experiencia_Total,
+                Activo = u.Activo,
+                Id_Rol = u.Id_Rol,
+                NombreRol = u.Rol?.Rol ?? "",
+                Ids_Clases_Actuales = u.Usuario_Clase.Select(uc => uc.Id_Clase).ToList(),
+                Ids_Clases_Nuevas = u.Usuario_Clase.Select(uc => uc.Id_Clase).ToList(),
+                ClasesDisponibles = clases,
+                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licencia?.Id,
+                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
+                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> GuardarEdicionAdminMasterAsync(EditarAdminMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var u = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Id_Usuario == model.Id_Usuario);
+
+                if (u == null) return (false, "Usuario no encontrado.");
+
+                if (model.Id_Rol != 3 && model.Id_Rol != 4)
+                    return (false, "Rol inválido.");
+
+                bool gtDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Gamer_Tag == model.Gamer_Tag && x.Id_Usuario != model.Id_Usuario);
+                if (gtDuplicado) return (false, "Ese GamerTag ya está en uso.");
+
+                bool correoDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Correo == model.Correo && x.Id_Usuario != model.Id_Usuario);
+                if (correoDuplicado) return (false, "Ese correo ya está registrado.");
+
+                u.Nombre = model.Nombre.Trim();
+                u.Gamer_Tag = model.Gamer_Tag.Trim();
+                u.Correo = model.Correo.Trim();
+                u.Pass = model.Pass;
+                u.Racha = model.Racha;
+                u.Experiencia_Total = model.Exp;
+                u.Activo = model.Activo;
+                u.Id_Rol = model.Id_Rol;
+
+                // Reasignar clases
+                var registrosActuales = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Usuario == model.Id_Usuario)
+                    .ToListAsync();
+
+                var idsNuevos = model.Ids_Clases_Nuevas ?? new List<int>();
+
+                var aEliminar = registrosActuales
+                    .Where(uc => !idsNuevos.Contains(uc.Id_Clase))
+                    .ToList();
+                _context.Usuarios_Clases.RemoveRange(aEliminar);
+
+                var idsExistentes = registrosActuales.Select(uc => uc.Id_Clase).ToList();
+                foreach (var idClase in idsNuevos)
+                {
+                    if (!idsExistentes.Contains(idClase))
+                        _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                        {
+                            Id_Usuario = model.Id_Usuario,
+                            Id_Clase = idClase,
+                            Activo = true
+                        });
+                }
+
+                // Licencia
+                if (model.Id_UsuarioLicencia.HasValue &&
+                    model.Fecha_Inicio_Licencia.HasValue &&
+                    model.Fecha_Fin_Licencia.HasValue)
+                {
+                    if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
+                        return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
+
+                    var lic = await _context.Usuarios_Licencias.FindAsync(model.Id_UsuarioLicencia.Value);
+                    if (lic != null)
+                    {
+                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
+                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
+                        lic.Vigencia = (int)Math.Ceiling(
+                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
+                        );
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return (true, "Usuario actualizado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ToggleActivoAdminAsync(int idUsuario)
+        {
+            try
+            {
+                var u = await _context.Usuarios.FindAsync(idUsuario);
+                if (u == null) return (false, "Usuario no encontrado.");
+                u.Activo = !u.Activo;
+                await _context.SaveChangesAsync();
+                return (true, u.Activo ? "Usuario activado." : "Usuario desactivado.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
     }
 }

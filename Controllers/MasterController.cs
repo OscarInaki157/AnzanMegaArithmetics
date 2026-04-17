@@ -293,5 +293,58 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerTabAdmins(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerAdminsInstitucionAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_ListadoAdminsMaster.cshtml", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioCrearAdmin(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerFormularioCrearAdminAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_CrearAdminMaster.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearAdminMaster(CrearAdminMasterModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { exito = false, mensaje = "Datos inválidos." });
+            var (exito, mensaje) = await _masterDBService.CrearAdminMasterAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioEditarAdminMaster(int idUsuario)
+        {
+            var model = await _masterDBService.ObtenerDatosEditarAdminMasterAsync(idUsuario);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_EditarAdminMaster.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarEdicionAdminMaster(EditarAdminMasterModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.GuardarEdicionAdminMasterAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFichaAdminMaster(int idUsuario)
+        {
+            var model = await _masterDBService.ObtenerFichaAlumnoAsync(idUsuario);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_FichaAlumnoMaster.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleActivoAdmin(int idUsuario)
+        {
+            var (exito, mensaje) = await _masterDBService.ToggleActivoAdminAsync(idUsuario);
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

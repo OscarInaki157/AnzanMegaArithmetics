@@ -1,8 +1,8 @@
-﻿@model AnzanMegaArithmetics.Models.MasterModels.CrearProfesorMasterModel
+﻿@model AnzanMegaArithmetics.Models.MasterModels.CrearAdminMasterModel
 
 <div class="formulario-flash">
     <div class="form-header">
-        <h2><i class="fas fa-user-tie" style="color:var(--color-primary); margin-right:0.5rem;"></i> Nuevo Profesor</h2>
+        <h2><i class="fas fa-user-shield" style="color:#a855f7; margin-right:0.5rem;"></i> Nuevo Admin / Master</h2>
     </div>
 
     @if (Model.LicenciasDisponibles <= 0)
@@ -10,10 +10,7 @@
         <div style="text-align:center; padding:2rem;">
             <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
             <h3 style="color:#ff4757; margin-bottom:0.5rem;">Sin licencias disponibles</h3>
-            <p style="color:#a0a0c0; margin-bottom:1.5rem;">
-                Esta institución no tiene licencias libres.<br>
-                Aumenta el inventario antes de agregar profesores.
-            </p>
+            <p style="color:#a0a0c0; margin-bottom:1.5rem;">Aumenta el inventario antes de agregar usuarios.</p>
             <button type="button" onclick="cerrarModalSede()"
                     style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.2);
                                padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600; margin-right:0.8rem;">
@@ -21,8 +18,7 @@
             </button>
             <button type="button" onclick="cerrarModalSede(); abrirModalLicencias(@Model.Id_Institucion)"
                     style="background:linear-gradient(135deg,#ffa500,#ff8c00); color:white; border:none;
-                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
-                               display:inline-flex; align-items:center; gap:0.5rem;">
+                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
                 <i class="fas fa-plus-circle"></i> Aumentar Licencias
             </button>
         </div>
@@ -35,35 +31,50 @@
             <i class="fas fa-key"></i> Licencias disponibles: <strong>@Model.LicenciasDisponibles</strong>
         </div>
 
-        <form onsubmit="enviarCrearProfesorMaster(event)">
+        <form onsubmit="enviarCrearAdminMaster(event)">
             @Html.AntiForgeryToken()
             <input type="hidden" name="Id_Institucion" value="@Model.Id_Institucion" />
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div>
                     <label class="lbl-form">Nombre completo</label>
-                    <input type="text" name="Nombre" class="input-game" placeholder="Nombre del profesor"
-                           required maxlength="80" minlength="3" />
+                    <input type="text" name="Nombre" class="input-game" required maxlength="80" minlength="3" />
                 </div>
                 <div>
                     <label class="lbl-form">GamerTag</label>
-                    <input type="text" name="Gamer_Tag" class="input-game" placeholder="Sin espacios"
-                           required maxlength="20" minlength="3" pattern="^\S+$" title="Sin espacios" />
+                    <input type="text" name="Gamer_Tag" class="input-game" required maxlength="20" minlength="3" pattern="^\S+$" />
                 </div>
                 <div>
-                    <label class="lbl-form">Correo electrónico</label>
-                    <input type="email" name="Correo" class="input-game" placeholder="correo@ejemplo.com"
-                           required maxlength="100" />
+                    <label class="lbl-form">Correo</label>
+                    <input type="email" name="Correo" class="input-game" required maxlength="100" />
                 </div>
                 <div>
-                    <label class="lbl-form">Contraseña inicial</label>
-                    <input type="text" name="Pass" class="input-game" placeholder="Mínimo 6 caracteres"
-                           required maxlength="30" minlength="6" />
+                    <label class="lbl-form">Contraseña</label>
+                    <input type="text" name="Pass" class="input-game" required maxlength="30" minlength="6" />
                 </div>
 
-   
                 <div style="grid-column:1/-1;">
-                    <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clases (selecciona una o más)</label>
+                    <label class="lbl-form"><i class="fas fa-id-badge"></i> Rol a asignar</label>
+                    <div style="display:flex; gap:1rem; margin-top:0.4rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                                          background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4);
+                                          border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="3" checked
+                                   style="accent-color:#a855f7;" />
+                            <span style="color:white;"><i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                                          background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4);
+                                          border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="4"
+                                   style="accent-color:#f59e0b;" />
+                            <span style="color:white;"><i class="fas fa-crown" style="color:#f59e0b;"></i> Master</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="grid-column:1/-1;">
+                    <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clases (opcional)</label>
                     @if (Model.ClasesDisponibles.Any())
                     {
                         <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.4rem;">
@@ -71,9 +82,7 @@
                             {
                                 <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
                                                           background:rgba(76,76,255,0.1); border:1px solid rgba(76,76,255,0.3);
-                                                          border-radius:0.5rem; padding:0.4rem 0.8rem; transition:0.2s;"
-                                       onmouseover="this.style.background='rgba(76,76,255,0.25)'"
-                                       onmouseout="this.style.background='rgba(76,76,255,0.1)'">
+                                                          border-radius:0.5rem; padding:0.4rem 0.8rem;">
                                     <input type="checkbox" name="Ids_Clases" value="@c.Id_Clase"
                                            style="accent-color:var(--color-primary);" />
                                     <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
@@ -83,14 +92,12 @@
                     }
                     else
                     {
-                        <p style="color:#ff4757; font-size:0.9rem; margin-top:0.4rem;">
-                            <i class="fas fa-exclamation-triangle"></i> No hay clases activas en esta institución.
-                        </p>
+                        <p style="color:#a0a0c0; font-size:0.85rem; margin-top:0.4rem;">No hay clases activas.</p>
                     }
                 </div>
             </div>
 
-            <div id="msgErrorCrearProfe" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+            <div id="msgErrorCrearAdmin" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
                      border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
                      margin-top:1rem; font-size:0.9rem;"></div>
 
@@ -100,11 +107,11 @@
                                    padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
                     Cancelar
                 </button>
-                <button type="submit" id="btnCrearProfe"
-                        style="background:var(--color-primary); color:white; border:none; padding:0.7rem 1.5rem;
-                                   border-radius:0.5rem; cursor:pointer; font-weight:600;
+                <button type="submit" id="btnCrearAdmin"
+                        style="background:linear-gradient(135deg,#a855f7,#7c3aed); color:white; border:none;
+                                   padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
                                    display:inline-flex; align-items:center; gap:0.5rem;">
-                    <i class="fas fa-save"></i> Crear Profesor
+                    <i class="fas fa-save"></i> Crear Usuario
                 </button>
             </div>
         </form>
@@ -135,7 +142,7 @@
     }
 
         .input-game:focus {
-            border-color: var(--color-primary);
+            border-color: #a855f7;
         }
 
     .formulario-flash {

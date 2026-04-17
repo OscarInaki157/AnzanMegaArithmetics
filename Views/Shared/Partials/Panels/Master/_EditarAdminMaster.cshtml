@@ -1,11 +1,11 @@
-﻿@model AnzanMegaArithmetics.Models.MasterModels.EditarProfesorMasterModel
+﻿@model AnzanMegaArithmetics.Models.MasterModels.EditarAdminMasterModel
 
 <div class="formulario-flash">
     <div class="form-header">
-        <h2><i class="fas fa-user-edit" style="color:#ffa500; margin-right:0.5rem;"></i> Editar Profesor</h2>
+        <h2><i class="fas fa-user-edit" style="color:#a855f7; margin-right:0.5rem;"></i> Editar — @Model.NombreRol</h2>
     </div>
 
-    <form onsubmit="enviarEdicionProfesorMaster(event)">
+    <form onsubmit="enviarEdicionAdminMaster(event)">
         @Html.AntiForgeryToken()
         <input type="hidden" name="Id_Usuario" value="@Model.Id_Usuario" />
         <input type="hidden" name="Id_UsuarioLicencia" value="@Model.Id_UsuarioLicencia" />
@@ -37,31 +37,55 @@
             </div>
 
             <div style="grid-column:1/-1;">
+                <label class="lbl-form"><i class="fas fa-id-badge"></i> Rol</label>
+                <div style="display:flex; gap:1rem; margin-top:0.4rem;">
+                    @if (Model.Id_Rol == 3)
+                    {
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="3" checked style="accent-color:#a855f7;" />
+                            <span style="color:white;"><i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="4" style="accent-color:#f59e0b;" />
+                            <span style="color:white;"><i class="fas fa-crown" style="color:#f59e0b;"></i> Master</span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="3" style="accent-color:#a855f7;" />
+                            <span style="color:white;"><i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
+                            <input type="radio" name="Id_Rol" value="4" checked style="accent-color:#f59e0b;" />
+                            <span style="color:white;"><i class="fas fa-crown" style="color:#f59e0b;"></i> Master</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div style="grid-column:1/-1;">
                 <label class="lbl-form"><i class="fas fa-chalkboard"></i> Clases asignadas</label>
                 <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.4rem;">
                     @foreach (var c in Model.ClasesDisponibles)
                     {
-                        bool estaAsignado = Model.Ids_Clases_Actuales.Contains(c.Id_Clase);
-                        if (estaAsignado)
-                        {
-                            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
-                                                  background:rgba(76,76,255,0.25); border:1px solid rgba(76,76,255,0.5);
-                                                  border-radius:0.5rem; padding:0.4rem 0.8rem;">
+                        bool asignado = Model.Ids_Clases_Actuales.Contains(c.Id_Clase);
+                        <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
+                                          background:@(asignado ? "rgba(76,76,255,0.25)" : "rgba(76,76,255,0.1)");
+                                          border:1px solid @(asignado ? "rgba(76,76,255,0.5)" : "rgba(76,76,255,0.3)");
+                                          border-radius:0.5rem; padding:0.4rem 0.8rem;">
+                            @if (asignado)
+                            {
                                 <input type="checkbox" name="Ids_Clases_Nuevas" value="@c.Id_Clase" checked
                                        style="accent-color:var(--color-primary);" />
-                                <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
-                            </label>
-                        }
-                        else
-                        {
-                            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
-                                                  background:rgba(76,76,255,0.1); border:1px solid rgba(76,76,255,0.3);
-                                                  border-radius:0.5rem; padding:0.4rem 0.8rem;">
+                            }
+                            else
+                            {
                                 <input type="checkbox" name="Ids_Clases_Nuevas" value="@c.Id_Clase"
                                        style="accent-color:var(--color-primary);" />
-                                <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
-                            </label>
-                        }
+                            }
+                            <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
+                        </label>
                     }
                 </div>
             </div>
@@ -70,7 +94,7 @@
                 <label class="lbl-form" style="margin:0;">Estado cuenta</label>
                 <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin:0;">
                     <input type="checkbox" name="Activo" value="true" @(Model.Activo ? "checked" : "")
-                           style="width:1.2rem; height:1.2rem; accent-color:var(--color-primary);"
+                           style="width:1.2rem; height:1.2rem; accent-color:#a855f7;"
                            onchange="this.nextElementSibling.textContent = this.checked ? 'Activa' : 'Inactiva';
                                      this.nextElementSibling.style.color = this.checked ? '#00ff88' : '#ff4757';" />
                     <span style="color:@(Model.Activo ? "#00ff88" : "#ff4757"); font-weight:600;">
@@ -82,7 +106,7 @@
             <div style="grid-column:1/-1;">
                 <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:0.5rem; padding:1rem;">
                     <label class="lbl-form" style="margin-bottom:0.8rem;">
-                        <i class="fas fa-id-card" style="color:var(--color-primary);"></i>
+                        <i class="fas fa-id-card" style="color:#a855f7;"></i>
                         Licencia — <span style="color:#a0a0c0; text-transform:none; font-weight:400;">@Model.LicenciaActual</span>
                     </label>
                     @if (Model.Id_UsuarioLicencia.HasValue)
@@ -110,7 +134,7 @@
             </div>
         </div>
 
-        <div id="msgErrorEditarProfe" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+        <div id="msgErrorEditarAdmin" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
              border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
              margin-top:1rem; font-size:0.9rem;"></div>
 
@@ -120,8 +144,8 @@
                            padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
                 Cancelar
             </button>
-            <button type="submit" id="btnGuardarProfe"
-                    style="background:linear-gradient(135deg,#ffa500,#ff8c00); color:white; border:none;
+            <button type="submit" id="btnGuardarAdmin"
+                    style="background:linear-gradient(135deg,#a855f7,#7c3aed); color:white; border:none;
                            padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
                            display:inline-flex; align-items:center; gap:0.5rem;">
                 <i class="fas fa-save"></i> Guardar Cambios
@@ -154,7 +178,7 @@
     }
 
         .input-game:focus {
-            border-color: var(--color-primary);
+            border-color: #a855f7;
         }
 
         .input-game option {
