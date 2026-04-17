@@ -705,39 +705,34 @@ namespace AnzanMegaArithmetics.Services
                 u.Experiencia_Total = model.Exp;
                 u.Activo = model.Activo;
 
-                // Antes del cambio de clase, verifica que pertenece a la institución
-                if (model.Id_Clase_Nueva.HasValue && model.Id_Clase_Nueva != model.Id_Clase_Actual)
+                // Cambio de clase: ELIMINAR la anterior y CREAR la nueva
+                if (model.Id_Clase_Nueva.HasValue)
                 {
-                    var usuario = await _context.Usuarios.FindAsync(model.Id_Usuario);
-                    bool claseValida = await _context.Clases
-                        .AnyAsync(c => c.Id_Clase == model.Id_Clase_Nueva.Value
-                                    && c.Id_Institucion == usuario.Id_Institucion
-                                    && c.Activo);
-                    if (!claseValida)
-                        return (false, "La clase seleccionada no es válida para esta institución.");
-                }
+                    var registrosActuales = await _context.Usuarios_Clases
+                        .Where(uc => uc.Id_Usuario == model.Id_Usuario)
+                        .ToListAsync();
 
-                // Cambio de clase
-                if (model.Id_Clase_Nueva.HasValue && model.Id_Clase_Nueva != model.Id_Clase_Actual)
-                {
-                    foreach (var uc in u.Usuario_Clase.Where(uc => uc.Activo))
-                        uc.Activo = false;
+                    // Eliminar todos los que no sean la clase nueva
+                    var aEliminar = registrosActuales
+                        .Where(uc => uc.Id_Clase != model.Id_Clase_Nueva.Value)
+                        .ToList();
+                    _context.Usuarios_Clases.RemoveRange(aEliminar);
 
-                    var ucExistente = u.Usuario_Clase
+                    // Crear o reactivar la clase nueva
+                    var ucNueva = registrosActuales
                         .FirstOrDefault(uc => uc.Id_Clase == model.Id_Clase_Nueva.Value);
 
-                    if (ucExistente != null)
-                        ucExistente.Activo = true;
-                    else
+                    if (ucNueva == null)
                         _context.Usuarios_Clases.Add(new Usuario_ClaseDB
                         {
                             Id_Usuario = model.Id_Usuario,
                             Id_Clase = model.Id_Clase_Nueva.Value,
                             Activo = true
                         });
+                    else
+                        ucNueva.Activo = true;
                 }
 
-                // Al final, antes del SaveChangesAsync, agrega:
                 if (model.Id_UsuarioLicencia.HasValue &&
                     model.Fecha_Inicio_Licencia.HasValue &&
                     model.Fecha_Fin_Licencia.HasValue)
@@ -938,7 +933,8 @@ namespace AnzanMegaArithmetics.Services
                     Racha = 0,
                     Experiencia_Total = 0,
                     Rango_Actual = "Bronce I",
-                    Ultima_Actividad = DateTime.Now
+                    Ultima_Actividad = DateTime.Now,
+                    Fecha_Ultimo_Reclamo = DateTime.Now.AddDays(-1)
                 };
 
                 _context.Usuarios.Add(nuevoProfesor);
@@ -1063,21 +1059,35 @@ namespace AnzanMegaArithmetics.Services
                 u.Activo = model.Activo;
 
                 // Reasignar clases: desactivar todas y reactivar las seleccionadas
-                foreach (var uc in u.Usuario_Clase)
-                    uc.Activo = false;
+                var registrosActuales = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Usuario == model.Id_Usuario)
+                    .ToListAsync();
 
+                // Eliminar los que ya no están seleccionados
+                var aEliminar = registrosActuales
+                    .Where(uc => !model.Ids_Clases_Nuevas.Contains(uc.Id_Clase))
+                    .ToList();
+                _context.Usuarios_Clases.RemoveRange(aEliminar);
+
+                // Insertar los que no existen aún
+                var idsExistentes = registrosActuales.Select(uc => uc.Id_Clase).ToList();
                 foreach (var idClase in model.Ids_Clases_Nuevas)
                 {
-                    var ucExistente = u.Usuario_Clase.FirstOrDefault(uc => uc.Id_Clase == idClase);
-                    if (ucExistente != null)
-                        ucExistente.Activo = true;
-                    else
+                    if (!idsExistentes.Contains(idClase))
+                    {
                         _context.Usuarios_Clases.Add(new Usuario_ClaseDB
                         {
                             Id_Usuario = model.Id_Usuario,
                             Id_Clase = idClase,
                             Activo = true
                         });
+                    }
+                    else
+                    {
+                        // Si existe pero estaba inactivo, reactivarlo
+                        var ucExistente = registrosActuales.FirstOrDefault(uc => uc.Id_Clase == idClase);
+                        if (ucExistente != null) ucExistente.Activo = true;
+                    }
                 }
 
                 // Actualizar licencia
