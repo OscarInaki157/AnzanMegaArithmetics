@@ -1,0 +1,73 @@
+﻿@model int
+@* Recibe el Id_Rol actual *@
+
+<div style="grid-column:1/-1;">
+    <label class="lbl-form"><i class="fas fa-id-badge"></i> Rol del usuario</label>
+    <div style="display:flex; flex-wrap:wrap; gap:0.8rem; margin-top:0.5rem;">
+
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                      background:rgba(76,76,255,0.15); border:1px solid rgba(76,76,255,0.4);
+                      border-radius:0.5rem; padding:0.6rem 1.2rem; transition:0.2s;">
+            @if (Model == 1)
+            {
+                <input type="radio" name="Id_Rol" value="1" checked style="accent-color:#4c4cff;" />
+            }
+            else
+            {
+                <input type="radio" name="Id_Rol" value="1" style="accent-color:#4c4cff;" />
+            }
+            <span style="color:white; font-size:0.9rem;">
+                <i class="fas fa-graduation-cap" style="color:#4c4cff;"></i> Alumno
+            </span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                      background:rgba(0,200,150,0.15); border:1px solid rgba(0,200,150,0.4);
+                      border-radius:0.5rem; padding:0.6rem 1.2rem; transition:0.2s;">
+            @if (Model == 2)
+            {
+                <input type="radio" name="Id_Rol" value="2" checked style="accent-color:#00c896;" />
+            }
+            else
+            {
+                <input type="radio" name="Id_Rol" value="2" style="accent-color:#00c896;" />
+            }
+            <span style="color:white; font-size:0.9rem;">
+                <i class="fas fa-chalkboard-teacher" style="color:#00c896;"></i> Profesor
+            </span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                      background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4);
+                      border-radius:0.5rem; padding:0.6rem 1.2rem; transition:0.2s;">
+            @if (Model == 3)
+            {
+                <input type="radio" name="Id_Rol" value="3" checked style="accent-color:#a855f7;" />
+            }
+            else
+            {
+                <input type="radio" name="Id_Rol" value="3" style="accent-color:#a855f7;" />
+            }
+            <span style="color:white; font-size:0.9rem;">
+                <i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador
+            </span>
+        </label>
+
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                      background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4);
+                      border-radius:0.5rem; padding:0.6rem 1.2rem; transition:0.2s;">
+            @if (Model == 4)
+            {
+                <input type="radio" name="Id_Rol" value="4" checked style="accent-color:#f59e0b;" />
+            }
+            else
+            {
+                <input type="radio" name="Id_Rol" value="4" style="accent-color:#f59e0b;" />
+            }
+            <span style="color:white; font-size:0.9rem;">
+                <i class="fas fa-crown" style="color:#f59e0b;"></i> Master
+            </span>
+        </label>
+
+    </div>
+</div>

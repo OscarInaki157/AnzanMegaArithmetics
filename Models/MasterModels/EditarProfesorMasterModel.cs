@@ -36,5 +36,8 @@ namespace AnzanMegaArithmetics.Models.MasterModels
         public int? Id_UsuarioLicencia { get; set; }
         public DateTime? Fecha_Inicio_Licencia { get; set; }
         public DateTime? Fecha_Fin_Licencia { get; set; }
+
+        public int Id_Rol { get; set; }
+        public string NombreRol { get; set; } = string.Empty;
     }
 }

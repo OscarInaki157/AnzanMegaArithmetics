@@ -643,6 +643,7 @@ namespace AnzanMegaArithmetics.Services
             var u = await _context.Usuarios
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
                 .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
 
             if (u == null) return null;
@@ -674,7 +675,9 @@ namespace AnzanMegaArithmetics.Services
                 LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
                 Id_UsuarioLicencia = licencia?.Id,
                 Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento
+                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento,
+                Id_Rol = u.Id_Rol,
+                NombreRol = u.Rol?.Rol ?? ""
             };
         }
 
@@ -704,6 +707,9 @@ namespace AnzanMegaArithmetics.Services
                 u.Racha = model.Racha;
                 u.Experiencia_Total = model.Exp;
                 u.Activo = model.Activo;
+
+                if (model.Id_Rol >= 1 && model.Id_Rol <= 4)
+                    u.Id_Rol = model.Id_Rol;
 
                 // Cambio de clase: ELIMINAR la anterior y CREAR la nueva
                 if (model.Id_Clase_Nueva.HasValue)
@@ -983,6 +989,7 @@ namespace AnzanMegaArithmetics.Services
             var u = await _context.Usuarios
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
                 .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
 
             if (u == null) return null;
@@ -1012,7 +1019,9 @@ namespace AnzanMegaArithmetics.Services
                 LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
                 Id_UsuarioLicencia = licencia?.Id,
                 Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento
+                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento,
+                Id_Rol = u.Id_Rol,
+                NombreRol = u.Rol?.Rol ?? ""
             };
         }
 
@@ -1057,6 +1066,9 @@ namespace AnzanMegaArithmetics.Services
                 u.Racha = model.Racha;
                 u.Experiencia_Total = model.Exp;
                 u.Activo = model.Activo;
+
+                if (model.Id_Rol >= 1 && model.Id_Rol <= 4)
+                    u.Id_Rol = model.Id_Rol;
 
                 // Reasignar clases: desactivar todas y reactivar las seleccionadas
                 var registrosActuales = await _context.Usuarios_Clases
@@ -1210,7 +1222,7 @@ namespace AnzanMegaArithmetics.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                if (model.Id_Rol != 3 && model.Id_Rol != 4)
+                if (model.Id_Rol < 1  || model.Id_Rol > 4)
                     return (false, "Rol inválido.");
 
                 bool correoExiste = await _context.Usuarios
@@ -1346,7 +1358,7 @@ namespace AnzanMegaArithmetics.Services
 
                 if (u == null) return (false, "Usuario no encontrado.");
 
-                if (model.Id_Rol != 3 && model.Id_Rol != 4)
+                if (model.Id_Rol < 1 || model.Id_Rol > 4)
                     return (false, "Rol inválido.");
 
                 bool gtDuplicado = await _context.Usuarios

@@ -36,33 +36,7 @@
                 <input type="number" name="Exp" value="@Model.Exp" class="input-game" min="0" max="2000000" />
             </div>
 
-            <div style="grid-column:1/-1;">
-                <label class="lbl-form"><i class="fas fa-id-badge"></i> Rol</label>
-                <div style="display:flex; gap:1rem; margin-top:0.4rem;">
-                    @if (Model.Id_Rol == 3)
-                    {
-                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
-                            <input type="radio" name="Id_Rol" value="3" checked style="accent-color:#a855f7;" />
-                            <span style="color:white;"><i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador</span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
-                            <input type="radio" name="Id_Rol" value="4" style="accent-color:#f59e0b;" />
-                            <span style="color:white;"><i class="fas fa-crown" style="color:#f59e0b;"></i> Master</span>
-                        </label>
-                    }
-                    else
-                    {
-                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
-                            <input type="radio" name="Id_Rol" value="3" style="accent-color:#a855f7;" />
-                            <span style="color:white;"><i class="fas fa-user-shield" style="color:#a855f7;"></i> Administrador</span>
-                        </label>
-                        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:0.5rem; padding:0.6rem 1.2rem;">
-                            <input type="radio" name="Id_Rol" value="4" checked style="accent-color:#f59e0b;" />
-                            <span style="color:white;"><i class="fas fa-crown" style="color:#f59e0b;"></i> Master</span>
-                        </label>
-                    }
-                </div>
-            </div>
+            <partial name="~/Views/Shared/Partials/Panels/Master/_SelectorRol.cshtml" model="Model.Id_Rol" />
 
             <div style="grid-column:1/-1;">
                 <label class="lbl-form"><i class="fas fa-chalkboard"></i> Clases asignadas</label>
