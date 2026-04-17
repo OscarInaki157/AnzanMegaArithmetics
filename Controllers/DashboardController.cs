@@ -320,21 +320,18 @@ namespace AnzanMegaArithmetics.Controllers
             try
             {
                 int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int idUsuario);
-
-                if (idUsuario == 0)
-                {
-                    return new LoginResponseModel { Id_Usuario = 0 };
-                }
+                if (idUsuario == 0) return new LoginResponseModel { Id_Usuario = 0 };
 
                 LoginResponseModel response = usersDBService.ObtenerUserDashboard(idUsuario);
-
                 if (response == null || response.Id_Usuario == 0)
-                {
                     return new LoginResponseModel { Id_Usuario = 0 };
-                }
+
+                // ── MÓDULOS ──────────────────────────────────────────
+                var modulos = usersDBService.ObtenerModulosHabilitados(idUsuario);
+                ViewBag.Modulos = modulos;
+                // ─────────────────────────────────────────────────────
 
                 string FraseBienvenida = SetFraseBienvenida(response.Nombre);
-
                 HttpContext.Session.SetInt32("Id_Usuario", response.Id_Usuario);
 
                 return new LoginResponseModel

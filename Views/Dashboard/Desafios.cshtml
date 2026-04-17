@@ -3,6 +3,7 @@
     ViewBag.Title = "Desafios Rápidos";
     Layout = "_LayoutDashboard";
 
+    var modulos = ViewBag.Modulos as HashSet<string> ?? new HashSet<string>();
 
     string rangoNombre = Model.Rango_Actual ?? "Bronce I";
     string rangoClase = "";
@@ -14,13 +15,9 @@
     else { rangoClase = "bronze"; }
 }
 
-
-<!-- Barra Superior - Información Personal -->
 <div class="user-top-info">
     <div class="user-left-section">
-        <div class="user-name">
-            @Model.Nombre
-        </div>
+        <div class="user-name">@Model.Nombre</div>
         <div class="user-meta-row">
             <span class="gamertag">
                 <i class="fa-solid fa-gamepad"></i>
@@ -36,12 +33,7 @@
             </span>
         </div>
     </div>
-
     <div class="user-right-section">
-        @* <div class="user-coins">
-            <i class="fa-solid fa-coins"></i>
-            <strong>Abacoins:</strong> <span id="user-coins">0</span>
-        </div> *@
         <div class="last-connection">
             <i class="fa-solid fa-clock"></i>
             Última conexión: @Model.Ultima_Cnx
@@ -52,9 +44,7 @@
 <div class="dashboard-top">
     <div class="user-welcome-card">
         <div class="welcome-container">
-            <div class="speech-bubble">
-                @Model.Frase_Bienvenida
-            </div>
+            <div class="speech-bubble">@Model.Frase_Bienvenida</div>
             <div class="character-section">
                 <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
                 <p class="character-name"><strong>Jerry</strong></p>
@@ -62,12 +52,6 @@
         </div>
     </div>
     <div class="user-info-card">
-        @*  <p><strong>Licencia @Model.Licencia</strong></p>
-        <p>Última conexión: @Model.Ultima_Cnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
             <div class="R3" id="racha-container">
                 <p class="txt">
@@ -89,7 +73,6 @@
                 </p>
             </div>
         </div>
-
         <div class="xp-progress-container">
             <div class="xp-bar">
                 <span id="xp-next-level-text" class="xp-text-overlay" style="color:white;">
@@ -98,129 +81,137 @@
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
             </div>
         </div>
-
     </div>
 </div>
 
-
 <div class="modulos-wrapper">
-    
-    @* Calendario Mental *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/Calendario.gif" alt="Calendario" />
-            </div>
-            <div class="modulo-text">
-                <h2>Calendario Mental</h2>
-                <p>Ejercicios</p>
-            </div>
-            <button class="modulo-toggle" data-menu-id="Calendar-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="Calendar-menu" class="modulo-menu">
-            <a href="@Url.Action("CompetenciaCalendario","Calendario")">
-                <i class="fa-solid fa-trophy"></i> Modo Competencia
-            </a>
-            <a href="@Url.Action("FormularioCalendario", "Calendario")">
-                <i class="fas fa-pencil-alt"></i> Modo Práctica
-            </a>
-        </div>
-    </div>
 
-    @* cuadros de velocidad *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/Flashicon.gif" alt="Cuadros" />
+    @* CALENDARIO MENTAL *@
+    @if (modulos.Contains("desafio_calendario_competencia") || modulos.Contains("desafio_calendario_practica"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/Calendario.gif" alt="Calendario" /></div>
+                <div class="modulo-text"><h2>Calendario Mental</h2><p>Ejercicios</p></div>
+                <button class="modulo-toggle" data-menu-id="Calendar-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Cuadros de velocidad</h2>
-                <p>Ejercicios de cálculo veloces</p>
+            <div id="Calendar-menu" class="modulo-menu">
+                @if (modulos.Contains("desafio_calendario_competencia"))
+                {
+                    <a href="@Url.Action("CompetenciaCalendario", "Calendario")">
+                        <i class="fa-solid fa-trophy"></i> Modo Competencia
+                    </a>
+                }
+                @if (modulos.Contains("desafio_calendario_practica"))
+                {
+                    <a href="@Url.Action("FormularioCalendario", "Calendario")">
+                        <i class="fas fa-pencil-alt"></i> Modo Práctica
+                    </a>
+                }
             </div>
-            <button class="modulo-toggle" data-menu-id="Cuadros-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="Cuadros-menu" class="modulo-menu">
+    }
 
-            <a href="#" onclick="submitCompetenciaForm()">
-                <i class="fa-solid fa-trophy"></i> Modo Competencia
-            </a>
-
-            <a href="@Url.Action("CuadrosForm", "Cuadros")">
-                <i class="fas fa-pencil-alt"></i> Modo Práctica
-            </a>
-        </div>
-    </div>
-
-    <form id="competenciaForm" asp-action="CuadrosCompetencia" asp-controller="Cuadros" method="post" style="display: none;">
-    </form>
-
-    @* Raices y potencias *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/raices.gif" alt="potencias" />
+    @* CUADROS DE VELOCIDAD *@
+    @if (modulos.Contains("desafio_cuadros_competencia") || modulos.Contains("desafio_cuadros_practica"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/Flashicon.gif" alt="Cuadros" /></div>
+                <div class="modulo-text"><h2>Cuadros de velocidad</h2><p>Ejercicios de cálculo veloces</p></div>
+                <button class="modulo-toggle" data-menu-id="Cuadros-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Números al cuadrado</h2>
-                <p>Ejercicios de potencias</p>
+            <div id="Cuadros-menu" class="modulo-menu">
+                @if (modulos.Contains("desafio_cuadros_competencia"))
+                {
+                    <a href="#" onclick="submitCompetenciaForm()">
+                        <i class="fa-solid fa-trophy"></i> Modo Competencia
+                    </a>
+                }
+                @if (modulos.Contains("desafio_cuadros_practica"))
+                {
+                    <a href="@Url.Action("CuadrosForm", "Cuadros")">
+                        <i class="fas fa-pencil-alt"></i> Modo Práctica
+                    </a>
+                }
             </div>
-            <button class="modulo-toggle" data-menu-id="Potencia-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="Potencia-menu" class="modulo-menu">
-            <a href="@Url.Action("CompetenciaPotencias", "Potencias")">
-                <i class="fa-solid fa-trophy"></i> Modo Competencia
-            </a>
-            <a href="@Url.Action("FormularioPotencias", "Potencias")">
-                <i class="fas fa-pencil-alt"></i> Modo Práctica
-            </a>
-        </div>
-    </div>
+        <form id="competenciaForm" asp-action="CuadrosCompetencia" asp-controller="Cuadros" method="post" style="display:none;"></form>
+    }
 
+    @* POTENCIAS *@
+    @if (modulos.Contains("desafio_potencias_competencia") || modulos.Contains("desafio_potencias_practica"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/raices.gif" alt="potencias" /></div>
+                <div class="modulo-text"><h2>Números al cuadrado</h2><p>Ejercicios de potencias</p></div>
+                <button class="modulo-toggle" data-menu-id="Potencia-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div id="Potencia-menu" class="modulo-menu">
+                @if (modulos.Contains("desafio_potencias_competencia"))
+                {
+                    <a href="@Url.Action("CompetenciaPotencias", "Potencias")">
+                        <i class="fa-solid fa-trophy"></i> Modo Competencia
+                    </a>
+                }
+                @if (modulos.Contains("desafio_potencias_practica"))
+                {
+                    <a href="@Url.Action("FormularioPotencias", "Potencias")">
+                        <i class="fas fa-pencil-alt"></i> Modo Práctica
+                    </a>
+                }
+            </div>
+        </div>
+    }
 
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/raices.gif" alt="potencias" />
+    @* RAÍCES *@
+    @if (modulos.Contains("desafio_raices_competencia") || modulos.Contains("desafio_raices_practica"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/raices.gif" alt="raices" /></div>
+                <div class="modulo-text"><h2>Raíces cuadradas</h2><p>Ejercicios de raíces cuadradas</p></div>
+                <button class="modulo-toggle" data-menu-id="Raices-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Raices cuadradas</h2>
-                <p>Ejercicios de raices cuadradas</p>
+            <div id="Raices-menu" class="modulo-menu">
+                @if (modulos.Contains("desafio_raices_competencia"))
+                {
+                    <a href="@Url.Action("CompetenciaRaices", "Raices")">
+                        <i class="fa-solid fa-trophy"></i> Modo Competencia
+                    </a>
+                }
+                @if (modulos.Contains("desafio_raices_practica"))
+                {
+                    <a href="@Url.Action("FormularioRaices", "Raices")">
+                        <i class="fas fa-pencil-alt"></i> Modo Práctica
+                    </a>
+                }
             </div>
-            <button class="modulo-toggle" data-menu-id="Raices-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="Raices-menu" class="modulo-menu">
-            <a href="@Url.Action("CompetenciaRaices", "Raices")">
-                <i class="fa-solid fa-trophy"></i> Modo Competencia
-            </a>
-            <a href="@Url.Action("FormularioRaices", "Raices")">
-                <i class="fas fa-pencil-alt"></i> Modo Práctica
-            </a>
-        </div>
-    </div>
+    }
 
-    @* matematicas con dados *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/dados.gif" alt="Division" />
+    @* MATEMÁTICAS CON DADOS *@
+    @if (modulos.Contains("desafio_dados"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/dados.gif" alt="Division" /></div>
+                <div class="modulo-text"><h2>Matemáticas con dados</h2><p>Ejercicios</p></div>
+                <a href="@Url.Action("FormularioDados", "Dados")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Matemáticas con dados</h2>
-                <p>Ejercicios</p>
-            </div>
-            <a href="@Url.Action("FormularioDados", "Dados")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
 </div>
 

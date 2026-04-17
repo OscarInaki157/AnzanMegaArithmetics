@@ -3,6 +3,8 @@
     ViewBag.Title = "Memorización";
     Layout = "_LayoutDashboard";
 
+    var modulos = ViewBag.Modulos as HashSet<string> ?? new HashSet<string>();
+
     string rangoNombre = Model.Rango_Actual ?? "Bronce I";
     string rangoClase = "";
     if (rangoNombre.Contains("Materia Oscura", StringComparison.OrdinalIgnoreCase)) { rangoClase = "dark-matter"; }
@@ -13,13 +15,9 @@
     else { rangoClase = "bronze"; }
 }
 
-
-<!-- Barra Superior - Información Personal -->
 <div class="user-top-info">
     <div class="user-left-section">
-        <div class="user-name">
-            @Model.Nombre
-        </div>
+        <div class="user-name">@Model.Nombre</div>
         <div class="user-meta-row">
             <span class="gamertag">
                 <i class="fa-solid fa-gamepad"></i>
@@ -35,12 +33,7 @@
             </span>
         </div>
     </div>
-
     <div class="user-right-section">
-        @* <div class="user-coins">
-            <i class="fa-solid fa-coins"></i>
-            <strong>Abacoins:</strong> <span id="user-coins">0</span>
-        </div> *@
         <div class="last-connection">
             <i class="fa-solid fa-clock"></i>
             Última conexión: @Model.Ultima_Cnx
@@ -51,9 +44,7 @@
 <div class="dashboard-top">
     <div class="user-welcome-card">
         <div class="welcome-container">
-            <div class="speech-bubble">
-                @Model.Frase_Bienvenida
-            </div>
+            <div class="speech-bubble">@Model.Frase_Bienvenida</div>
             <div class="character-section">
                 <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
                 <p class="character-name"><strong>Jerry</strong></p>
@@ -82,7 +73,6 @@
                 </p>
             </div>
         </div>
-
         <div class="xp-progress-container">
             <div class="xp-bar">
                 <span id="xp-next-level-text" class="xp-text-overlay" style="color:white;">
@@ -91,75 +81,77 @@
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
             </div>
         </div>
-
     </div>
 </div>
 
-
 <div class="modulos-wrapper">
 
-    @* Asociacion nf *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/brain.gif" alt="Asociacion" />
+    @* NÚMERO A FIGURA *@
+    @if (modulos.Contains("memoria_numero_figura"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/brain.gif" alt="Asociacion" /></div>
+                <div class="modulo-text">
+                    <h2>Relación Número a Figura</h2>
+                    <p>Ejercicios de memoria asociativa</p>
+                </div>
+                <a href="@Url.Action("FormNumeroFigura", "Memorizacion")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Relación Número a Figura</h2>
-                <p>Ejercicios de memoria asociativa</p>
-            </div>
-            <a href="@Url.Action("FormNumeroFigura", "Memorizacion")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
-    @* parejas *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/parejas.gif" alt="Parejas" />
+    @* RUTAS DE MEMORIA *@
+    @if (modulos.Contains("memoria_rutas"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/parejas.gif" alt="Parejas" /></div>
+                <div class="modulo-text">
+                    <h2>Rutas de memoria</h2>
+                    <p>Ejercicios de memorización</p>
+                </div>
+                <a href="@Url.Action("FormRutasMemoria", "RutasMemoria")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Rutas de memoria</h2>
-                <p>Ejercicios de memorización</p>
-            </div>
-            <a href="@Url.Action("FormRutasMemoria", "RutasMemoria")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
-    @* Memoria Flash *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/memorias.gif" alt="Asociacion" />
+    @* MEMORIA FLASH *@
+    @if (modulos.Contains("memoria_flash"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/memorias.gif" alt="Memoria Flash" /></div>
+                <div class="modulo-text">
+                    <h2>Memoria Números Flash</h2>
+                    <p>Ejercicios de memoria flash</p>
+                </div>
+                <a href="@Url.Action("FormularioMemoriaFlash", "MemoriaFlash")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Memoria Números Flash</h2>
-                <p>Ejercicios de memoria flash</p>
-            </div>
-            <a href="@Url.Action("FormularioMemoriaFlash", "MemoriaFlash")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
-    @* Memoria cartas *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/póker.gif" alt="Asociacion" />
+    @* MEMORIA CARTAS *@
+    @if (modulos.Contains("memoria_cartas"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/póker.gif" alt="Memoria Cartas" /></div>
+                <div class="modulo-text">
+                    <h2>Memoria Cartas</h2>
+                    <p>Ejercicios de memoria cartas</p>
+                </div>
+                <a href="#" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Memoria Cartas</h2>
-                <p>Ejercicios de memoria cartas</p>
-            </div>
-            <a href="#" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
 </div>

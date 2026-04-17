@@ -3,6 +3,7 @@
     ViewBag.Title = "Neuroactividades";
     Layout = "_LayoutDashboard";
 
+    var modulos = ViewBag.Modulos as HashSet<string> ?? new HashSet<string>();
 
     string rangoNombre = Model.Rango_Actual ?? "Bronce I";
     string rangoClase = "";
@@ -17,9 +18,7 @@
 <!-- Barra Superior - Información Personal -->
 <div class="user-top-info">
     <div class="user-left-section">
-        <div class="user-name">
-            @Model.Nombre
-        </div>
+        <div class="user-name">@Model.Nombre</div>
         <div class="user-meta-row">
             <span class="gamertag">
                 <i class="fa-solid fa-gamepad"></i>
@@ -35,12 +34,7 @@
             </span>
         </div>
     </div>
-
     <div class="user-right-section">
-        @* <div class="user-coins">
-            <i class="fa-solid fa-coins"></i>
-            <strong>Abacoins:</strong> <span id="user-coins">0</span>
-        </div> *@
         <div class="last-connection">
             <i class="fa-solid fa-clock"></i>
             Última conexión: @Model.Ultima_Cnx
@@ -51,9 +45,7 @@
 <div class="dashboard-top">
     <div class="user-welcome-card">
         <div class="welcome-container">
-            <div class="speech-bubble">
-                @Model.Frase_Bienvenida
-            </div>
+            <div class="speech-bubble">@Model.Frase_Bienvenida</div>
             <div class="character-section">
                 <img src="/Content/Images/ProfS.png" alt="Profesor saludando" class="professor-img" />
                 <p class="character-name"><strong>Jerry</strong></p>
@@ -61,12 +53,6 @@
         </div>
     </div>
     <div class="user-info-card">
-       @*  <p><strong>Licencia @Model.Licencia</strong></p>
-        <p>Última conexión: @Model.Ultima_Cnx</p>
-        <p><i class="fa-solid fa-user-tie"></i>@Model.Nombre</p>
-        <p><i class="fa-solid fa-landmark"></i> <strong>Tus clases:</strong> @string.Join(", ", Model.Clases)</p>
-        <p><i class="fas fa-envelope"></i> <strong>Usuario:</strong> @ViewBag.Usuario</p>
-        <p><i class="fa-solid fa-gamepad"></i> <strong>Gamertag:</strong> @Model.Gamer_Tag</p> *@
         <div class="contenedorR">
             <div class="R3" id="racha-container">
                 <p class="txt">
@@ -88,7 +74,6 @@
                 </p>
             </div>
         </div>
-
         <div class="xp-progress-container">
             <div class="xp-bar">
                 <span id="xp-next-level-text" class="xp-text-overlay" style="color:white;">
@@ -97,140 +82,157 @@
                 <div class="xp-progress" id="xp-progress-bar" data-xp="@Model.Exp"></div>
             </div>
         </div>
-
     </div>
 </div>
 
 <div class="modulos-wrapper">
-    <!-- FINGERMATH -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/ManosF.gif" alt="Fingermath" />
-            </div>
-            <div class="modulo-text">
-                <h2>Fingermath</h2>
-                <p>Lectura y escritura</p>
-            </div>
-            <button class="modulo-toggle" data-menu-id="fingermath-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div id="fingermath-menu" class="modulo-menu">
-            <a href="@Url.Action("LecturaFinger", "Fingermath")">
-                <i class="fas fa-eye"></i> Ejercicios Lectura
-            </a>
-            <a href="@Url.Action("EscrituraFinger", "Fingermath")">
-                <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
-            </a>
-        </div>
-    </div>
 
-    <!-- SOROBAN -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/abacoicon.gif" alt="Soroban" />
+    @* FINGERMATH *@
+    @if (modulos.Contains("fingermath_lectura") || modulos.Contains("fingermath_escritura"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/ManosF.gif" alt="Fingermath" /></div>
+                <div class="modulo-text"><h2>Fingermath</h2><p>Lectura y escritura</p></div>
+                <button class="modulo-toggle" data-menu-id="fingermath-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Soroban</h2>
-                <p>Lectura y escritura</p>
+            <div id="fingermath-menu" class="modulo-menu">
+                @if (modulos.Contains("fingermath_lectura"))
+                {
+                    <a href="@Url.Action("LecturaFinger", "Fingermath")">
+                        <i class="fas fa-eye"></i> Ejercicios Lectura
+                    </a>
+                }
+                @if (modulos.Contains("fingermath_escritura"))
+                {
+                    <a href="@Url.Action("EscrituraFinger", "Fingermath")">
+                        <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
+                    </a>
+                }
             </div>
-            <button class="modulo-toggle" data-menu-id="soroban-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="soroban-menu" class="modulo-menu">
-            <a href="@Url.Action("LecturaSoroban", "Soroban")">
-                <i class="fas fa-eye"></i> Ejercicios Lectura
-            </a>
-            <a href="@Url.Action("EscrituraSoroban", "Soroban")">
-                <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
-            </a>
-        </div>
-    </div>
+    }
 
-    <!-- SUMA Y RESTA -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/SRlottie.gif" alt="Suma y Resta" />
+    @* SOROBAN *@
+    @if (modulos.Contains("soroban_lectura") || modulos.Contains("soroban_escritura"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/abacoicon.gif" alt="Soroban" /></div>
+                <div class="modulo-text"><h2>Soroban</h2><p>Lectura y escritura</p></div>
+                <button class="modulo-toggle" data-menu-id="soroban-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Suma y Resta</h2>
-                <p>Ejercicios</p>
+            <div id="soroban-menu" class="modulo-menu">
+                @if (modulos.Contains("soroban_lectura"))
+                {
+                    <a href="@Url.Action("LecturaSoroban", "Soroban")">
+                        <i class="fas fa-eye"></i> Ejercicios Lectura
+                    </a>
+                }
+                @if (modulos.Contains("soroban_escritura"))
+                {
+                    <a href="@Url.Action("EscrituraSoroban", "Soroban")">
+                        <i class="fas fa-pencil-alt"></i> Ejercicios Escritura
+                    </a>
+                }
             </div>
-            <a href="@Url.Action("FormularioSR", "SumaResta")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
 
-    <!-- NÚMEROS FLASH -->
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/Flashicon.gif" alt="Anzan Flash" />
+    @* SUMA Y RESTA *@
+    @if (modulos.Contains("suma_resta"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/SRlottie.gif" alt="Suma y Resta" /></div>
+                <div class="modulo-text"><h2>Suma y Resta</h2><p>Ejercicios</p></div>
+                <a href="@Url.Action("FormularioSR", "SumaResta")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <div class="modulo-text">
-                <h2>Números Flash</h2>
-                <p>Mentes Flash</p>
-            </div>
-            <button class="modulo-toggle" data-menu-id="flash-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="flash-menu" class="modulo-menu">
-            <a href="@Url.Action("FormularioFlash", "Flash")">
-                <i class="fa-solid fa-bolt"></i> Ejercicios Números Flash
-            </a>
-            <a href="@Url.Action("FormularioDictadoFlash", "Flash")">
-                <i class="fa-solid fa-bolt"></i> Ejercicios Dictado Flash
-            </a>
-        </div>
-    </div>
+    }
 
-    @* Multiplicacion *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img src="/Content/Images/multip.gif" alt="Soroban" />
+    @* NÚMEROS FLASH *@
+    @if (modulos.Contains("flash_numeros") || modulos.Contains("flash_dictado"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/Flashicon.gif" alt="Anzan Flash" /></div>
+                <div class="modulo-text"><h2>Números Flash</h2><p>Mentes Flash</p></div>
+                <button class="modulo-toggle" data-menu-id="flash-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>Multiplicación</h2>
-                <p>Tablas de multiplicar y competencia</p>
+            <div id="flash-menu" class="modulo-menu">
+                @if (modulos.Contains("flash_numeros"))
+                {
+                    <a href="@Url.Action("FormularioFlash", "Flash")">
+                        <i class="fa-solid fa-bolt"></i> Ejercicios Números Flash
+                    </a>
+                }
+                @if (modulos.Contains("flash_dictado"))
+                {
+                    <a href="@Url.Action("FormularioDictadoFlash", "Flash")">
+                        <i class="fa-solid fa-bolt"></i> Ejercicios Dictado Flash
+                    </a>
+                }
             </div>
-            <button class="modulo-toggle" data-menu-id="multi-menu">
-                <i class="fas fa-chevron-down"></i>
-            </button>
         </div>
-        <div id="multi-menu" class="modulo-menu">
-            <a href="@Url.Action("TablasForm", "Multiplicacion")">
-                <i class="fa-solid fa-x"></i> Tablas de multiplicar
-            </a>
-            <a href="@Url.Action("MultiplicacionForm", "Multiplicacion")">
-                <i class="fa-solid fa-circle-xmark"></i> Multiplicación
-            </a>
-            <a href="@Url.Action("FormCompetenciaMulti", "Multiplicacion")">
-                <i class="fa-solid fa-trophy"></i> Ejercicios de competencia
-            </a>
-        </div>
-    </div>
+    }
 
-    @* Division *@
-    <div class="modulo-card">
-        <div class="modulo-header">
-            <div class="modulo-image">
-                <img style="transform:rotate(45deg);" src="/Content/Images/division.gif" alt="Division" />
+    @* MULTIPLICACIÓN *@
+    @if (modulos.Contains("multiplicacion_tablas") || modulos.Contains("multiplicacion_ejercicios") || modulos.Contains("multiplicacion_competencia"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image"><img src="/Content/Images/multip.gif" alt="Multiplicación" /></div>
+                <div class="modulo-text"><h2>Multiplicación</h2><p>Tablas de multiplicar y competencia</p></div>
+                <button class="modulo-toggle" data-menu-id="multi-menu">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
-            <div class="modulo-text">
-                <h2>División</h2>
-                <p>Ejercicios de división</p>
+            <div id="multi-menu" class="modulo-menu">
+                @if (modulos.Contains("multiplicacion_tablas"))
+                {
+                    <a href="@Url.Action("TablasForm", "Multiplicacion")">
+                        <i class="fa-solid fa-x"></i> Tablas de multiplicar
+                    </a>
+                }
+                @if (modulos.Contains("multiplicacion_ejercicios"))
+                {
+                    <a href="@Url.Action("MultiplicacionForm", "Multiplicacion")">
+                        <i class="fa-solid fa-circle-xmark"></i> Multiplicación
+                    </a>
+                }
+                @if (modulos.Contains("multiplicacion_competencia"))
+                {
+                    <a href="@Url.Action("FormCompetenciaMulti", "Multiplicacion")">
+                        <i class="fa-solid fa-trophy"></i> Ejercicios de competencia
+                    </a>
+                }
             </div>
-            <a href="@Url.Action("DivisionForm", "Division")" class="modulo-link">
-                <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
-    </div>
+    }
+
+    @* DIVISIÓN *@
+    @if (modulos.Contains("division"))
+    {
+        <div class="modulo-card">
+            <div class="modulo-header">
+                <div class="modulo-image">
+                    <img style="transform:rotate(45deg);" src="/Content/Images/division.gif" alt="Division" />
+                </div>
+                <div class="modulo-text"><h2>División</h2><p>Ejercicios de división</p></div>
+                <a href="@Url.Action("DivisionForm", "Division")" class="modulo-link">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    }
 
 </div>

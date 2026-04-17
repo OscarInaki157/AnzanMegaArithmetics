@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var modulos = ViewBag.Modulos as HashSet<string> ?? new HashSet<string>();
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -1454,6 +1457,7 @@
                 <img src="/Content/Images/MMlogo.png" alt="MentesM Logo" style="max-width: 9.375rem;" />
             </div>
             <h1>Dashboard</h1>
+
             <nav class="sidebar-nav">
                 <ul>
                     <li>
@@ -1463,75 +1467,78 @@
                             </button>
                         </form>
                     </li>
-                    <li>
-                        <a href="@Url.Action("Ranking", "Dashboard")" id="Ranking">
-                            <i class="fa fa-certificate"></i> Ranking
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("MiPerfil", "Dashboard")" id="Perfil">
-                            <i class="fas fa-user"></i> Mi perfil
-                        </a>
-                    </li>
+
+                    @if (modulos.Contains("ranking"))
+                    {
+                        <li>
+                            <a href="@Url.Action("Ranking", "Dashboard")" id="Ranking">
+                                <i class="fa fa-certificate"></i> Ranking
+                            </a>
+                        </li>
+                    }
+
+                    @if (modulos.Contains("mi_perfil"))
+                    {
+                        <li>
+                            <a href="@Url.Action("MiPerfil", "Dashboard")" id="Perfil">
+                                <i class="fas fa-user"></i> Mi perfil
+                            </a>
+                        </li>
+                    }
+
                     <li>
                         <a href="@Url.Action("Dashboard", "Dashboard")" id="Neuros">
                             <i class="fas fa-bolt"></i> Neuroactividades
                         </a>
                     </li>
-                    <li>
-                        <a href="@Url.Action("Memorizacion", "Dashboard")" id="Memos">
-                            <i class="fa-solid fa-brain"></i> Memorización
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Desafios", "Dashboard")" id="Challenge">
-                            <i class="fa-solid fa-atom"></i> Zona de desafios
-                        </a>
-                    </li>
-                    @*   <li>
-                        <a href="#"><i class="fa fa-trophy"></i>JMCWC COMPETITION</a>
-                    </li> *@
 
-                    @if (!User.IsInRole("Alumno"))
+                    @if (modulos.Contains("memorizacion"))
+                    {
+                        <li>
+                            <a href="@Url.Action("Memorizacion", "Dashboard")" id="Memos">
+                                <i class="fa-solid fa-brain"></i> Memorización
+                            </a>
+                        </li>
+                    }
+
+                    @if (modulos.Contains("desafios"))
+                    {
+                        <li>
+                            <a href="@Url.Action("Desafios", "Dashboard")" id="Challenge">
+                                <i class="fa-solid fa-atom"></i> Zona de desafios
+                            </a>
+                        </li>
+                    }
+
+                    @if (!User.IsInRole("Alumno") && modulos.Contains("conferencias"))
                     {
                         <li>
                             <a href="@Url.Action("Conferencias", "Dashboard")" id="Conf">
                                 <i class="fa fa-graduation-cap"></i> Panel de conferencias
                             </a>
                         </li>
+                    }
+
+                    @if (!User.IsInRole("Alumno") && modulos.Contains("hojas_ejercicios"))
+                    {
                         <li>
-                            <a href="@Url.Action("HojasEjercicios", "Dashboard")" id="Hojas">
+                            <a href="#" id="Hojas">
                                 <i class="fas fa-file-alt"></i> Hojas de Ejercicios
                             </a>
                         </li>
                     }
-                    @if (User.IsInRole("Profesor") || User.IsInRole("Master"))
-                    {
-                        <li>
-                            <a href="@Url.Action("PanelProfesor", "Dashboard")" id="PanelProfesores">
-                                <i class="fas fa-chalkboard-teacher"></i> Panel Profesor
-                            </a>
-                        </li>
-                    }
-                    @* @if (Model.Id_Rol == "Administrador")
+
+                    @if (User.IsInRole("Master"))
                     {
                         <li>
                             <a href="@Url.Action("PanelAdministrador", "Dashboard")" id="admini">
                                 <i class="fas fa-chart-line"></i> Panel Admin
                             </a>
                         </li>
-                    } *@
-                    @if (User.IsInRole("Master"))
-                    {
-                        <li>
-                            <a href="@Url.Action("PanelMaster", "Master")" id="PanelMaster">
-                                <i class="fas fa-crown"></i> Panel Master
-                            </a>
-                        </li>
                     }
                 </ul>
-
             </nav>
+
         </aside>
         <div class="dashboard-main">
             <main role="main" class="pb-3">
