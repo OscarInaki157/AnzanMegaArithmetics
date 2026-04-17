@@ -346,5 +346,27 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EliminarUsuario(int idUsuario)
+        {
+            var (exito, mensaje) = await _masterDBService.EliminarUsuarioAsync(idUsuario);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioEliminarClase(int idClase)
+        {
+            var model = await _masterDBService.ObtenerFormularioEliminarClaseAsync(idClase);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_EliminarClase.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EliminarClase(EliminarClaseModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.EliminarClaseAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

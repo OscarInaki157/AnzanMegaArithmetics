@@ -61,6 +61,14 @@
                 </div>
 
                 <div class="action-buttons">
+
+                    <button onclick="abrirEliminarClase(@clase.Id_Clase)" title="Eliminar Clase"
+                            style="border:none; width:2.5rem; height:2.5rem; border-radius:0.5rem; cursor:pointer;
+                       background:rgba(255,71,87,0.2); color:#ff4757; font-size:1rem;
+                       display:inline-flex; align-items:center; justify-content:center; transition:0.3s;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+
                     <button class="btn-mini-sec" onclick="verAlumnosDeClase('@clase.Nombre')" title="Ver Alumnos">
                         <i class="fas fa-eye"></i>
                     </button>

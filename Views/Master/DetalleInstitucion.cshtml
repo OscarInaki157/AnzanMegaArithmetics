@@ -968,4 +968,93 @@
             btn.disabled = false;
         }
     }
+
+        // ── ELIMINAR USUARIO ─────────────────────────────────────
+    async function confirmarEliminarUsuario(idUsuario, nombre) {
+        const confirmar = confirm(
+            `¿Eliminar permanentemente a "${nombre}"?\n\n` +
+            `Se borrarán:\n• Su cuenta\n• Sus clases asignadas\n• Su licencia\n• Todas sus pruebas\n\n` +
+            `Esta acción NO se puede deshacer.`
+        );
+        if (!confirmar) return;
+
+        try {
+            const fd = new FormData();
+            fd.append('idUsuario', idUsuario);
+            const res    = await fetch('/Master/EliminarUsuario', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                // Refrescar el tab activo
+                const tabActivo = document.querySelector('.tab-content.active');
+                if (tabActivo) {
+                    tabActivo.dataset.cargado = '';
+                    const idTab = tabActivo.id;
+                    if (idTab === 'tab3') cargarTabAlumnos(@Model.Id_Institucion);
+                    else if (idTab === 'tab4') cargarTabProfesores(@Model.Id_Institucion);
+                    else if (idTab === 'tab5') cargarTabAdmins(@Model.Id_Institucion);
+                }
+            } else {
+                alert('Error: ' + result.mensaje);
+            }
+        } catch {
+            alert('Error de conexión.');
+        }
+    }
+
+    // ── ELIMINAR CLASE ───────────────────────────────────────
+    async function abrirEliminarClase(idClase) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioEliminarClase?idClase=${idClase}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function confirmarEliminarClase(idClase) {
+        const btn    = document.getElementById('btnConfirmarEliminarClase');
+        const msgErr = document.getElementById('msgErrorEliminarClase');
+        const select = document.getElementById('ddlClaseDestino');
+
+        const idDestino = select ? parseInt(select.value) : 0;
+
+        if (select && idDestino === 0) {
+            msgErr.textContent   = 'Debes seleccionar una clase destino para los usuarios.';
+            msgErr.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Eliminando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const fd = new FormData();
+            fd.append('Id_Clase', idClase);
+            fd.append('Id_Clase_Destino', idDestino);
+
+            const res    = await fetch('/Master/EliminarClase', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                cerrarModalSede();
+                window.location.reload();
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-trash-alt"></i> Confirmar Eliminación';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-trash-alt"></i> Confirmar Eliminación';
+        }
+    }
 </script>

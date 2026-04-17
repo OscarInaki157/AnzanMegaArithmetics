@@ -89,6 +89,12 @@
                 </div>
 
                 <div class="action-buttons">
+                    <button onclick="confirmarEliminarUsuario(@alumno.Id_Usuario, '@alumno.Nombre')" title="Eliminar"
+                            style="border:none; width:2.5rem; height:2.5rem; border-radius:0.5rem; cursor:pointer;
+                       background:rgba(255,71,87,0.2); color:#ff4757; font-size:1rem;
+                       display:inline-flex; align-items:center; justify-content:center; transition:0.3s;">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                     <button class="btn-mini-sec" onclick="abrirFichaAlumnoMaster(@alumno.Id_Usuario)" title="Ver Perfil">
                         <i class="fas fa-address-card"></i>
                     </button>

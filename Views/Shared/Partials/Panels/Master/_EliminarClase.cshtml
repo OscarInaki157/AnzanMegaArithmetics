@@ -1,0 +1,139 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.EliminarClaseModel
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2>
+            <i class="fas fa-trash-alt" style="color:#ff4757; margin-right:0.5rem;"></i>
+            Eliminar Clase
+        </h2>
+    </div>
+
+    <div style="background:rgba(255,71,87,0.08); border:1px solid rgba(255,71,87,0.3);
+                border-radius:0.8rem; padding:1.2rem; margin-bottom:1.5rem;">
+        <p style="color:white; margin:0 0 0.5rem; font-size:1.1rem; font-weight:600;">
+            <i class="fas fa-exclamation-triangle" style="color:#ff4757;"></i>
+            Estás eliminando: <strong style="color:#ff4757;">@Model.NombreClase</strong>
+        </p>
+        <p style="color:#a0a0c0; margin:0; font-size:0.9rem;">
+            Esta acción es <strong>irreversible</strong>. La clase será eliminada permanentemente.
+        </p>
+    </div>
+
+    @if (Model.CantidadUsuarios > 0)
+    {
+        <div style="background:rgba(255,165,0,0.08); border:1px solid rgba(255,165,0,0.3);
+                        border-radius:0.8rem; padding:1.2rem; margin-bottom:1.5rem;">
+            <p style="color:#ffa500; margin:0 0 0.8rem; font-weight:600;">
+                <i class="fas fa-users"></i>
+                Esta clase tiene <strong>@Model.CantidadUsuarios usuario(s)</strong> asignados.
+                Debes reasignarlos antes de eliminar.
+            </p>
+
+            @if (Model.ClasesDisponibles.Any())
+            {
+                <label class="lbl-form">Reasignar usuarios a:</label>
+                <select id="ddlClaseDestino" name="Id_Clase_Destino" class="input-game" required>
+                    <option value="0">— Selecciona una clase destino —</option>
+                    @foreach (var c in Model.ClasesDisponibles)
+                    {
+                        <option value="@c.Id_Clase">@c.Nombre</option>
+                    }
+                </select>
+            }
+            else
+            {
+                <div style="color:#ff4757; font-size:0.9rem;">
+                    <i class="fas fa-ban"></i>
+                    No hay otras clases disponibles en esta institución.
+                    Debes crear otra clase antes de poder eliminar esta.
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <input type="hidden" id="ddlClaseDestino" value="0" />
+        <div style="background:rgba(0,255,136,0.07); border:1px solid rgba(0,255,136,0.2);
+                        border-radius:0.8rem; padding:1rem; margin-bottom:1.5rem;
+                        color:#00ff88; font-size:0.9rem;">
+            <i class="fas fa-check-circle"></i>
+            Esta clase no tiene usuarios asignados. Puede eliminarse directamente.
+        </div>
+    }
+
+    <div id="msgErrorEliminarClase" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+         border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
+         margin-bottom:1rem; font-size:0.9rem;"></div>
+
+    <div style="display:flex; gap:0.8rem; justify-content:flex-end;">
+        <button type="button" onclick="cerrarModalSede()"
+                style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);
+                       padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
+            Cancelar
+        </button>
+        @if (Model.CantidadUsuarios == 0 || Model.ClasesDisponibles.Any())
+        {
+            <button type="button" id="btnConfirmarEliminarClase"
+                    onclick="confirmarEliminarClase(@Model.Id_Clase)"
+                    style="background:linear-gradient(135deg,#ff4757,#c0392b); color:white; border:none;
+                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
+                               display:inline-flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-trash-alt"></i> Confirmar Eliminación
+            </button>
+        }
+    </div>
+</div>
+
+<style>
+    .lbl-form {
+        display: block;
+        color: #a0a0c0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .input-game {
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+        .input-game:focus {
+            border-color: #ff4757;
+        }
+
+        .input-game option {
+            background: #010f36;
+        }
+
+    .formulario-flash {
+        background: #010f36;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+</style>

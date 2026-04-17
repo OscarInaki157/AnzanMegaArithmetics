@@ -1448,5 +1448,149 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public async Task<(bool Exito, string Mensaje)> EliminarUsuarioAsync(int idUsuario)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var usuario = await _context.Usuarios.FindAsync(idUsuario);
+                if (usuario == null)
+                    return (false, "Usuario no encontrado.");
+
+                // 1. Descontar licencia del inventario de la institución
+                var licenciasUsuario = await _context.Usuarios_Licencias
+                    .Where(ul => ul.Id_Usuario == idUsuario)
+                    .ToListAsync();
+
+                if (licenciasUsuario.Any() && usuario.Id_Institucion.HasValue)
+                {
+                    var inventario = await _context.Instituciones_Inventario_Licencias
+                        .FirstOrDefaultAsync(i => i.Id_Institucion == usuario.Id_Institucion.Value);
+
+                    if (inventario != null)
+                        inventario.Cantidad_Asignada = Math.Max(0, inventario.Cantidad_Asignada - 1);
+                }
+
+                // 2. Eliminar relaciones
+                _context.Usuarios_Licencias.RemoveRange(licenciasUsuario);
+
+                var clases = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Usuario == idUsuario)
+                    .ToListAsync();
+                _context.Usuarios_Clases.RemoveRange(clases);
+
+                var pruebas = await _context.Pruebas
+                    .Where(p => p.Id_Usuario == idUsuario)
+                    .ToListAsync();
+                _context.Pruebas.RemoveRange(pruebas);
+
+                // 3. Eliminar usuario
+                _context.Usuarios.Remove(usuario);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, "Usuario eliminado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<EliminarClaseModel?> ObtenerFormularioEliminarClaseAsync(int idClase)
+        {
+            var clase = await _context.Clases.FindAsync(idClase);
+            if (clase == null) return null;
+
+            // Clases disponibles de la misma institución, excluyendo la que se va a eliminar
+            var clasesDestino = await _context.Clases
+                .Where(c => c.Id_Institucion == clase.Id_Institucion
+                         && c.Id_Clase != idClase
+                         && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            // Contar usuarios únicos asignados a esta clase
+            int cantidadUsuarios = await _context.Usuarios_Clases
+                .Where(uc => uc.Id_Clase == idClase)
+                .Select(uc => uc.Id_Usuario)
+                .Distinct()
+                .CountAsync();
+
+            return new EliminarClaseModel
+            {
+                Id_Clase = idClase,
+                NombreClase = clase.Nombre,
+                CantidadUsuarios = cantidadUsuarios,
+                ClasesDisponibles = clasesDestino
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> EliminarClaseAsync(EliminarClaseModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var clase = await _context.Clases.FindAsync(model.Id_Clase);
+                if (clase == null)
+                    return (false, "La clase no existe.");
+
+                // Si hay usuarios, reasignarlos
+                var registrosClase = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Clase == model.Id_Clase)
+                    .ToListAsync();
+
+                if (registrosClase.Any())
+                {
+                    if (model.Id_Clase_Destino == 0)
+                        return (false, "Debes seleccionar una clase destino para los usuarios.");
+
+                    // Verificar que la clase destino existe y es de la misma institución
+                    bool destinoValido = await _context.Clases
+                        .AnyAsync(c => c.Id_Clase == model.Id_Clase_Destino
+                                    && c.Id_Institucion == clase.Id_Institucion
+                                    && c.Activo);
+                    if (!destinoValido)
+                        return (false, "La clase destino no es válida.");
+
+                    foreach (var registro in registrosClase)
+                    {
+                        // Verificar si el usuario ya tiene un registro en la clase destino
+                        bool yaExiste = await _context.Usuarios_Clases
+                            .AnyAsync(uc => uc.Id_Usuario == registro.Id_Usuario
+                                         && uc.Id_Clase == model.Id_Clase_Destino);
+
+                        if (!yaExiste)
+                        {
+                            _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                            {
+                                Id_Usuario = registro.Id_Usuario,
+                                Id_Clase = model.Id_Clase_Destino,
+                                Activo = true
+                            });
+                        }
+                    }
+
+                    // Eliminar todos los registros de la clase a borrar
+                    _context.Usuarios_Clases.RemoveRange(registrosClase);
+                }
+
+                // Eliminar la clase
+                _context.Clases.Remove(clase);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, "Clase eliminada y usuarios reasignados correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
     }
 }
