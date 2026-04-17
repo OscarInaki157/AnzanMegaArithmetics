@@ -368,5 +368,42 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioMoverUsuario(int idUsuario)
+        {
+            var model = await _masterDBService.ObtenerFormularioMoverUsuarioAsync(idUsuario);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_MoverUsuario.cshtml", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerClasesPorInstitucion(int idInstitucion)
+        {
+            var clases = await _masterDBService.ObtenerClasesPorInstitucionAsync(idInstitucion);
+            return Json(clases);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MoverUsuario(MoverUsuarioModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.MoverUsuarioAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFormularioMoverClase(int idClase)
+        {
+            var model = await _masterDBService.ObtenerFormularioMoverClaseAsync(idClase);
+            if (model == null) return NotFound();
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_MoverClase.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MoverClase(MoverClaseModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.MoverClaseAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

@@ -1,0 +1,138 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.MoverClaseModel
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2>
+            <i class="fas fa-exchange-alt" style="color:#00c896; margin-right:0.5rem;"></i>
+            Mover Clase
+        </h2>
+    </div>
+
+    <div style="background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.3);
+                border-radius:0.8rem; padding:1rem; margin-bottom:1rem;">
+        <p style="color:white; margin:0 0 0.3rem; font-weight:600;">
+            <i class="fas fa-chalkboard" style="color:#00c896;"></i> @Model.NombreClase
+        </p>
+        <p style="color:#a0a0c0; margin:0; font-size:0.9rem;">
+            <i class="fas fa-building"></i> Institución actual: <strong style="color:white;">@Model.NombreInstitucionOrigen</strong>
+        </p>
+        <p style="color:#a0a0c0; margin:0.3rem 0 0; font-size:0.9rem;">
+            <i class="fas fa-users"></i> Usuarios a mover: <strong style="color:white;">@Model.CantidadUsuarios</strong>
+        </p>
+    </div>
+
+    @if (Model.CantidadUsuarios > 0)
+    {
+        <div style="background:rgba(255,165,0,0.08); border:1px solid rgba(255,165,0,0.3);
+                        border-radius:0.5rem; padding:0.8rem 1rem; margin-bottom:1.2rem;
+                        color:#ffa500; font-size:0.85rem;">
+            <i class="fas fa-info-circle"></i>
+            La institución destino debe tener al menos <strong>@Model.CantidadUsuarios licencia(s)</strong> disponibles.
+            La clase se creará automáticamente en destino con el mismo nombre.
+        </div>
+    }
+
+    <form onsubmit="enviarMoverClase(event)">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id_Clase" value="@Model.Id_Clase" />
+        <input type="hidden" name="Id_Institucion_Origen" value="@Model.Id_Institucion_Origen" />
+        <input type="hidden" name="CantidadUsuarios" value="@Model.CantidadUsuarios" />
+
+        <div>
+            <label class="lbl-form">
+                <i class="fas fa-building"></i> Institución destino
+            </label>
+            <select name="Id_Institucion_Destino" class="input-game" required>
+                <option value="">— Selecciona institución —</option>
+                @foreach (var inst in Model.InstitucionesDisponibles)
+                {
+                    bool suficientes = inst.LicenciasDisponibles >= Model.CantidadUsuarios;
+                    if (suficientes)
+                    {
+                        <option value="@inst.Id_Institucion">
+                            @inst.Nombre — @inst.LicenciasDisponibles lic. disponibles ✓
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@inst.Id_Institucion" disabled style="color:#ff4757;">
+                            @inst.Nombre — @inst.LicenciasDisponibles lic. (insuficientes)
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div id="msgErrorMoverClase" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+             border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
+             margin-top:1rem; font-size:0.9rem;"></div>
+
+        <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.5rem;">
+            <button type="button" onclick="cerrarModalSede()"
+                    style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);
+                           padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
+                Cancelar
+            </button>
+            <button type="submit" id="btnMoverClase"
+                    style="background:linear-gradient(135deg,#00c896,#00a876); color:white; border:none;
+                           padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
+                           display:inline-flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-exchange-alt"></i> Mover Clase
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .lbl-form {
+        display: block;
+        color: #a0a0c0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .input-game {
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+        .input-game:focus {
+            border-color: #00c896;
+        }
+
+        .input-game option {
+            background: #010f36;
+        }
+
+    .formulario-flash {
+        background: #010f36;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+</style>

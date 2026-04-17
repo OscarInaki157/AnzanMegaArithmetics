@@ -1122,22 +1122,26 @@
         }
     }
 
-    async function confirmarEliminarClase(idClase) {
+        async function confirmarEliminarClase(idClase) {
         const btn    = document.getElementById('btnConfirmarEliminarClase');
         const msgErr = document.getElementById('msgErrorEliminarClase');
         const select = document.getElementById('ddlClaseDestino');
 
-        const idDestino = select ? parseInt(select.value) : 0;
-
-        if (select && idDestino === 0) {
-            msgErr.textContent   = 'Debes seleccionar una clase destino para los usuarios.';
-            msgErr.style.display = 'block';
-            return;
+        // Solo validar si el select es un <select> real (no el hidden con value=0)
+        if (select && select.tagName === 'SELECT') {
+            const idDestino = parseInt(select.value);
+            if (idDestino === 0 || isNaN(idDestino)) {
+                msgErr.textContent   = 'Debes seleccionar una clase destino para los usuarios.';
+                msgErr.style.display = 'block';
+                return;
+            }
         }
 
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Eliminando...';
         msgErr.style.display = 'none';
+
+        const idDestino = select && select.tagName === 'SELECT' ? parseInt(select.value) : 0;
 
         try {
             const fd = new FormData();
@@ -1173,4 +1177,127 @@
         const modalFicha = document.getElementById('modalFichaJugador');
         if (e.target === modalFicha) cerrarModalFicha();
     });
+
+        // ── MOVER USUARIO ────────────────────────────────────────
+    async function abrirMoverUsuario(idUsuario) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioMoverUsuario?idUsuario=${idUsuario}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function cargarClasesDestino(idInstitucion) {
+        const ddl = document.getElementById('ddlClaseDestino');
+        ddl.innerHTML = '<option value="">Cargando...</option>';
+
+        if (!idInstitucion) {
+            ddl.innerHTML = '<option value="">— Primero selecciona institución —</option>';
+            return;
+        }
+
+        try {
+            const res   = await fetch(`/Master/ObtenerClasesPorInstitucion?idInstitucion=${idInstitucion}`);
+            const clases = await res.json();
+
+            if (clases.length === 0) {
+                ddl.innerHTML = '<option value="">Sin clases disponibles</option>';
+                return;
+            }
+
+            ddl.innerHTML = '<option value="">— Selecciona clase —</option>';
+            clases.forEach(c => {
+                ddl.innerHTML += `<option value="${c.id_Clase}">${c.nombre}</option>`;
+            });
+        } catch {
+            ddl.innerHTML = '<option value="">Error al cargar clases</option>';
+        }
+    }
+
+    async function enviarMoverUsuario(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnMoverUsuario');
+        const msgErr = document.getElementById('msgErrorMoverUsuario');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Moviendo...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/MoverUsuario', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                // Refrescar tab activo
+                const tabActivo = document.querySelector('.tab-content.active');
+                if (tabActivo) {
+                    tabActivo.dataset.cargado = '';
+                    const idTab = tabActivo.id;
+                    if (idTab === 'tab3') cargarTabAlumnos(@Model.Id_Institucion);
+                    else if (idTab === 'tab4') cargarTabProfesores(@Model.Id_Institucion);
+                    else if (idTab === 'tab5') cargarTabAdmins(@Model.Id_Institucion);
+                }
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-exchange-alt"></i> Mover Usuario';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-exchange-alt"></i> Mover Usuario';
+        }
+    }
+
+    // ── MOVER CLASE ──────────────────────────────────────────
+    async function abrirMoverClase(idClase) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioMoverClase?idClase=${idClase}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarMoverClase(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnMoverClase');
+        const msgErr = document.getElementById('msgErrorMoverClase');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Moviendo...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/MoverClase', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                window.location.reload();
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-exchange-alt"></i> Mover Clase';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-exchange-alt"></i> Mover Clase';
+        }
+    }
 </script>

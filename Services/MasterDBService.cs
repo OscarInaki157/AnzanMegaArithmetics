@@ -1599,5 +1599,253 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        private async Task<List<InstitucionOpcionModel>> ObtenerInstitucionesConLicencias(int excluirId)
+        {
+            var instituciones = await _context.Instituciones
+                .Where(i => i.Activo && i.Id_Institucion != excluirId)
+                .ToListAsync();
+
+            var inventarios = await _context.Instituciones_Inventario_Licencias.ToListAsync();
+
+            return instituciones.Select(i =>
+            {
+                var inv = inventarios.FirstOrDefault(x => x.Id_Institucion == i.Id_Institucion);
+                return new InstitucionOpcionModel
+                {
+                    Id_Institucion = i.Id_Institucion,
+                    Nombre = i.Nombre,
+                    LicenciasDisponibles = inv != null ? inv.Cantidad_Total - inv.Cantidad_Asignada : 0
+                };
+            }).ToList();
+        }
+
+        public async Task<List<ClaseSedeModel>> ObtenerClasesPorInstitucionAsync(int idInstitucion)
+        {
+            return await _context.Clases
+                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+        }
+
+        public async Task<MoverUsuarioModel?> ObtenerFormularioMoverUsuarioAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Institucion)
+                .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
+
+            if (u == null) return null;
+
+            var instituciones = await ObtenerInstitucionesConLicencias(u.Id_Institucion ?? 0);
+
+            return new MoverUsuarioModel
+            {
+                Id_Usuario = u.Id_Usuario,
+                NombreUsuario = u.Nombre,
+                RolUsuario = u.Rol?.Rol ?? "",
+                Id_Institucion_Origen = u.Id_Institucion ?? 0,
+                NombreInstitucionOrigen = u.Institucion?.Nombre ?? "",
+                InstitucionesDisponibles = instituciones
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> MoverUsuarioAsync(MoverUsuarioModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var usuario = await _context.Usuarios.FindAsync(model.Id_Usuario);
+                if (usuario == null) return (false, "Usuario no encontrado.");
+
+                // Verificar licencias en destino
+                var invDestino = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion_Destino);
+
+                if (invDestino == null || invDestino.Cantidad_Asignada >= invDestino.Cantidad_Total)
+                    return (false, "La institución destino no tiene licencias disponibles.");
+
+                // Verificar que la clase destino pertenece a la institución destino
+                bool claseValida = await _context.Clases
+                    .AnyAsync(c => c.Id_Clase == model.Id_Clase_Destino
+                                && c.Id_Institucion == model.Id_Institucion_Destino
+                                && c.Activo);
+                if (!claseValida)
+                    return (false, "La clase destino no es válida.");
+
+                // Restaurar licencia en institución origen
+                var invOrigen = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == usuario.Id_Institucion);
+                if (invOrigen != null)
+                    invOrigen.Cantidad_Asignada = Math.Max(0, invOrigen.Cantidad_Asignada - 1);
+
+                // Actualizar licencia del usuario a la de la institución destino
+                var licenciaUsuario = await _context.Usuarios_Licencias
+                    .FirstOrDefaultAsync(ul => ul.Id_Usuario == model.Id_Usuario);
+                if (licenciaUsuario != null)
+                    licenciaUsuario.Id_Licencia = invDestino.Id_Licencia;
+
+                // Sumar en destino
+                invDestino.Cantidad_Asignada++;
+
+                // Cambiar institución
+                usuario.Id_Institucion = model.Id_Institucion_Destino;
+
+                // Reasignar clase: eliminar clases anteriores y asignar la nueva
+                var clasesActuales = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Usuario == model.Id_Usuario)
+                    .ToListAsync();
+                _context.Usuarios_Clases.RemoveRange(clasesActuales);
+
+                _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                {
+                    Id_Usuario = model.Id_Usuario,
+                    Id_Clase = model.Id_Clase_Destino,
+                    Activo = true
+                });
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Usuario '{usuario.Nombre}' movido correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<MoverClaseModel?> ObtenerFormularioMoverClaseAsync(int idClase)
+        {
+            var clase = await _context.Clases
+                .Include(c => c.Institucion)
+                .FirstOrDefaultAsync(c => c.Id_Clase == idClase);
+
+            if (clase == null) return null;
+
+            int cantidadUsuarios = await _context.Usuarios_Clases
+                .Where(uc => uc.Id_Clase == idClase)
+                .Select(uc => uc.Id_Usuario)
+                .Distinct()
+                .CountAsync();
+
+            var instituciones = await ObtenerInstitucionesConLicencias(clase.Id_Institucion ?? 0);
+
+            return new MoverClaseModel
+            {
+                Id_Clase = idClase,
+                NombreClase = clase.Nombre,
+                CantidadUsuarios = cantidadUsuarios,
+                Id_Institucion_Origen = clase.Id_Institucion ?? 0,
+                NombreInstitucionOrigen = clase.Institucion?.Nombre ?? "",
+                InstitucionesDisponibles = instituciones
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> MoverClaseAsync(MoverClaseModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var clase = await _context.Clases.FindAsync(model.Id_Clase);
+                if (clase == null) return (false, "Clase no encontrada.");
+
+                // Obtener usuarios de la clase
+                var usuariosIds = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Clase == model.Id_Clase)
+                    .Select(uc => uc.Id_Usuario)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Verificar licencias disponibles en destino
+                var invDestino = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion_Destino);
+
+                if (invDestino == null)
+                    return (false, "La institución destino no tiene inventario de licencias.");
+
+                int licenciasNecesarias = usuariosIds.Count;
+                int licenciasDisponibles = invDestino.Cantidad_Total - invDestino.Cantidad_Asignada;
+
+                if (licenciasNecesarias > licenciasDisponibles)
+                    return (false, $"La institución destino solo tiene {licenciasDisponibles} licencias disponibles y se necesitan {licenciasNecesarias}.");
+
+                // Crear la clase en la institución destino con el mismo nombre
+                bool claseYaExiste = await _context.Clases
+                    .AnyAsync(c => c.Id_Institucion == model.Id_Institucion_Destino
+                                && c.Nombre.ToLower() == clase.Nombre.ToLower());
+
+                ClaseDB claseDestino;
+                if (claseYaExiste)
+                {
+                    claseDestino = await _context.Clases
+                        .FirstAsync(c => c.Id_Institucion == model.Id_Institucion_Destino
+                                      && c.Nombre.ToLower() == clase.Nombre.ToLower());
+                }
+                else
+                {
+                    claseDestino = new ClaseDB
+                    {
+                        Nombre = clase.Nombre,
+                        Id_Institucion = model.Id_Institucion_Destino,
+                        Activo = true
+                    };
+                    _context.Clases.Add(claseDestino);
+                    await _context.SaveChangesAsync(); // Para obtener el Id_Clase generado
+                }
+
+                // Inventario origen
+                var invOrigen = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == clase.Id_Institucion);
+
+                // Mover cada usuario
+                foreach (var idUsuario in usuariosIds)
+                {
+                    var usuario = await _context.Usuarios.FindAsync(idUsuario);
+                    if (usuario == null) continue;
+
+                    // Cambiar institución
+                    usuario.Id_Institucion = model.Id_Institucion_Destino;
+
+                    // Ajustar inventarios
+                    if (invOrigen != null)
+                        invOrigen.Cantidad_Asignada = Math.Max(0, invOrigen.Cantidad_Asignada - 1);
+                    invDestino.Cantidad_Asignada++;
+
+                    // Actualizar licencia
+                    var licenciaUsuario = await _context.Usuarios_Licencias
+                        .FirstOrDefaultAsync(ul => ul.Id_Usuario == idUsuario);
+                    if (licenciaUsuario != null)
+                        licenciaUsuario.Id_Licencia = invDestino.Id_Licencia;
+
+                    // Reasignar clase
+                    var clasesActuales = await _context.Usuarios_Clases
+                        .Where(uc => uc.Id_Usuario == idUsuario)
+                        .ToListAsync();
+                    _context.Usuarios_Clases.RemoveRange(clasesActuales);
+
+                    _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                    {
+                        Id_Usuario = idUsuario,
+                        Id_Clase = claseDestino.Id_Clase,
+                        Activo = true
+                    });
+                }
+
+                // Eliminar la clase origen
+                _context.Clases.Remove(clase);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Clase '{clase.Nombre}' y {usuariosIds.Count} usuario(s) movidos correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
     }
 }

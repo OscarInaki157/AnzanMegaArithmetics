@@ -43,5 +43,11 @@ namespace AnzanMegaArithmetics.Services
         Task<(bool Exito, string Mensaje)> EliminarUsuarioAsync(int idUsuario);
         Task<EliminarClaseModel?> ObtenerFormularioEliminarClaseAsync(int idClase);
         Task<(bool Exito, string Mensaje)> EliminarClaseAsync(EliminarClaseModel model);
+
+        Task<MoverUsuarioModel?> ObtenerFormularioMoverUsuarioAsync(int idUsuario);
+        Task<List<ClaseSedeModel>> ObtenerClasesPorInstitucionAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> MoverUsuarioAsync(MoverUsuarioModel model);
+        Task<MoverClaseModel?> ObtenerFormularioMoverClaseAsync(int idClase);
+        Task<(bool Exito, string Mensaje)> MoverClaseAsync(MoverClaseModel model);
     }
 }
