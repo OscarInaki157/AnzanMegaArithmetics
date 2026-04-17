@@ -1847,5 +1847,102 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public async Task<(bool Exito, string Mensaje)> EliminarInstitucionAsync(int idInstitucion)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var institucion = await _context.Instituciones.FindAsync(idInstitucion);
+                if (institucion == null)
+                    return (false, "Institución no encontrada.");
+
+                // Obtener todos los usuarios de la institución
+                var usuarios = await _context.Usuarios
+                    .Where(u => u.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+
+                var idsUsuarios = usuarios.Select(u => u.Id_Usuario).ToList();
+
+                // Eliminar pruebas de todos los usuarios
+                var pruebas = await _context.Pruebas
+                    .Where(p => idsUsuarios.Contains(p.Id_Usuario))
+                    .ToListAsync();
+                _context.Pruebas.RemoveRange(pruebas);
+
+                // Eliminar licencias de todos los usuarios
+                var licencias = await _context.Usuarios_Licencias
+                    .Where(ul => idsUsuarios.Contains(ul.Id_Usuario))
+                    .ToListAsync();
+                _context.Usuarios_Licencias.RemoveRange(licencias);
+
+                // Eliminar relaciones de clases de todos los usuarios
+                var clasesUsuarios = await _context.Usuarios_Clases
+                    .Where(uc => idsUsuarios.Contains(uc.Id_Usuario))
+                    .ToListAsync();
+                _context.Usuarios_Clases.RemoveRange(clasesUsuarios);
+
+                // Eliminar usuarios
+                _context.Usuarios.RemoveRange(usuarios);
+
+                // Eliminar clases de la institución
+                var clases = await _context.Clases
+                    .Where(c => c.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+                _context.Clases.RemoveRange(clases);
+
+                // Eliminar inventario de licencias
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .Where(i => i.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+                _context.Instituciones_Inventario_Licencias.RemoveRange(inventario);
+
+                // Eliminar institución
+                _context.Instituciones.Remove(institucion);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Institución '{institucion.Nombre}' eliminada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ToggleActivoInstitucionAsync(int idInstitucion)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var institucion = await _context.Instituciones.FindAsync(idInstitucion);
+                if (institucion == null)
+                    return (false, "Institución no encontrada.");
+
+                bool nuevoEstado = !institucion.Activo;
+                institucion.Activo = nuevoEstado;
+
+                // Activar/desactivar todos los usuarios de la institución
+                var usuarios = await _context.Usuarios
+                    .Where(u => u.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+
+                foreach (var u in usuarios)
+                    u.Activo = nuevoEstado;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                string accion = nuevoEstado ? "activada" : "desactivada";
+                return (true, $"Institución {accion}. {usuarios.Count} usuarios afectados.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
     }
 }

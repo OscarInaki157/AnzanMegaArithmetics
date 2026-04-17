@@ -49,5 +49,8 @@ namespace AnzanMegaArithmetics.Services
         Task<(bool Exito, string Mensaje)> MoverUsuarioAsync(MoverUsuarioModel model);
         Task<MoverClaseModel?> ObtenerFormularioMoverClaseAsync(int idClase);
         Task<(bool Exito, string Mensaje)> MoverClaseAsync(MoverClaseModel model);
+
+        Task<(bool Exito, string Mensaje)> EliminarInstitucionAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> ToggleActivoInstitucionAsync(int idInstitucion);
     }
 }

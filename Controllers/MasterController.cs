@@ -405,5 +405,19 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EliminarInstitucion(int idInstitucion)
+        {
+            var (exito, mensaje) = await _masterDBService.EliminarInstitucionAsync(idInstitucion);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleActivoInstitucion(int idInstitucion)
+        {
+            var (exito, mensaje) = await _masterDBService.ToggleActivoInstitucionAsync(idInstitucion);
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

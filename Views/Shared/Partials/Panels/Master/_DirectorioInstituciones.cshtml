@@ -52,43 +52,52 @@
                     <span style="color: #a0a0c0; font-size: 0.8rem;">Licencias Totales</span>
                 </div>
 
-                <div class="action-buttons" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                   
+                <div class="action-buttons" style="display:flex; gap:0.5rem; justify-content:flex-end;">
+
                     @if (escuela.Id_Institucion != 1)
                     {
                         <button class="btn-primary-action"
-                        style="border-radius: 0.4rem; background: #ffa500; color: white;"
-                        title="Editar Institución"
-                        onclick="abrirModalEditarInstitucion(@escuela.Id_Institucion)">
+                                style="border-radius:0.4rem; background:#ff4757;"
+                                title="Eliminar institución permanentemente"
+                                onclick="confirmarEliminarInstitucion(@escuela.Id_Institucion, '@escuela.Nombre')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+
+                        <button class="btn-primary-action"
+                                style="border-radius:0.4rem; background:@(escuela.Activo ? "#6c757d" : "#28a745");"
+                                title="@(escuela.Activo ? "Desactivar institución y usuarios" : "Activar institución y usuarios")"
+                                onclick="toggleActivoInstitucion(@escuela.Id_Institucion, '@escuela.Nombre', @escuela.Activo.ToString().ToLower(), this)">
+                            <i class="fas @(escuela.Activo ? "fa-power-off" : "fa-check-circle")"></i>
+                        </button>
+                    }
+
+                    @if (escuela.Id_Institucion != 1)
+                    {
+                        <button class="btn-primary-action"
+                                style="border-radius:0.4rem; background:#ffa500;"
+                                title="Editar Institución"
+                                onclick="abrirModalEditarInstitucion(@escuela.Id_Institucion)">
                             <i class="fas fa-edit"></i>
                         </button>
                     }
 
-                    @* Botón Gestionar Licencias *@
                     <button class="btn-primary-action"
-                            style="border-radius: 0.4rem; background: #28a745;"
+                            style="border-radius:0.4rem; background:#28a745;"
                             title="Gestionar Licencias"
                             onclick="abrirModalLicencias(@escuela.Id_Institucion)">
                         <i class="fas fa-key"></i>
                     </button>
 
-                    @* Botón Desactivar (Si no es la escuela #1) *@
-                    @if (escuela.Id_Institucion != 1)
-                    {
-                        <button class="btn-primary-action" style="border-radius: 0.4rem; background: #ff4757;" title="Desactivar Institución">
-                            <i class="fas fa-power-off"></i>
-                        </button>
-                    }
 
-                    @* Botón Entrar al Detalle *@
                     <a href="@Url.Action("DetalleInstitucion", "Master", new { id = escuela.Id_Institucion })"
                        class="btn-primary-action"
-                       style="padding: 0.5rem 1rem; border-radius: 0.4rem; text-decoration: none;"
+                       style="padding:0.5rem 1rem; border-radius:0.4rem; text-decoration:none;"
                        title="Gestionar Sede">
                         <i class="fas fa-arrow-right"></i>
                     </a>
 
                 </div>
+
             </div>
         }
 

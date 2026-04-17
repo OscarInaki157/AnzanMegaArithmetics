@@ -190,10 +190,6 @@
     }
 </style>
 
-<div class="omnipotent-search-bar">
-    <i class="fas fa-search"></i>
-    <input type="text" placeholder="Búsqueda Global: Escribe el nombre de un alumno, clase o institución..." />
-</div>
 
 <div class="master-grid-layout">
 
@@ -404,6 +400,69 @@
             divError.style.display = 'block';
             btn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
             btn.disabled = false;
+        }
+    }
+
+        // ── TOGGLE ACTIVO INSTITUCIÓN ────────────────────────────
+    async function toggleActivoInstitucion(idInstitucion, nombre, estaActiva, btn) {
+        const accion = estaActiva ? 'desactivar' : 'activar';
+        const confirmar = confirm(
+            `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} la institución "${nombre}"?\n\n` +
+            `Se ${estaActiva ? 'desactivarán' : 'activarán'} también todos sus usuarios.`
+        );
+        if (!confirmar) return;
+
+        btn.disabled = true;
+        const iconEl = btn.querySelector('i');
+        const claseOriginal = iconEl.className;
+        iconEl.className = 'fas fa-circle-notch fa-spin';
+
+        try {
+            const fd = new FormData();
+            fd.append('idInstitucion', idInstitucion);
+            const res    = await fetch('/Master/ToggleActivoInstitucion', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + result.mensaje);
+                btn.disabled     = false;
+                iconEl.className = claseOriginal;
+            }
+        } catch {
+            alert('Error de conexión.');
+            btn.disabled     = false;
+            iconEl.className = claseOriginal;
+        }
+    }
+
+    // ── ELIMINAR INSTITUCIÓN ─────────────────────────────────
+    async function confirmarEliminarInstitucion(idInstitucion, nombre) {
+        const confirmar = confirm(
+            `⚠️ ELIMINAR PERMANENTEMENTE: "${nombre}"\n\n` +
+            `Se eliminarán:\n• Todas sus clases\n• Todos sus usuarios\n• Todas sus pruebas\n• Todas sus licencias\n\n` +
+            `Esta acción es IRREVERSIBLE. ¿Estás seguro?`
+        );
+        if (!confirmar) return;
+
+        // Segunda confirmación por ser destructivo
+        const confirmar2 = confirm(`¿Confirmas que deseas eliminar "${nombre}" y TODOS sus datos?`);
+        if (!confirmar2) return;
+
+        try {
+            const fd = new FormData();
+            fd.append('idInstitucion', idInstitucion);
+            const res    = await fetch('/Master/EliminarInstitucion', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + result.mensaje);
+            }
+        } catch {
+            alert('Error de conexión.');
         }
     }
 </script>
