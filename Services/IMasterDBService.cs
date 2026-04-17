@@ -1,4 +1,5 @@
-﻿using AnzanMegaArithmetics.Models.MasterModels;
+﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Models.MasterModels;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -15,5 +16,14 @@ namespace AnzanMegaArithmetics.Services
         Task<(bool Exito, string Mensaje)> CrearClaseAsync(CrearClaseModel model);
         Task<EditarClaseModel?> ObtenerClaseParaEdicionAsync(int idClase);
         Task<(bool Exito, string Mensaje)> EditarNombreClaseAsync(EditarClaseModel model);
+
+        Task<ListadoAlumnosInstitucionViewModel> ObtenerAlumnosInstitucionAsync(int idInstitucion, string clase = "Todas");
+        Task<UsuarioBDModel> ObtenerFichaAlumnoAsync(int idUsuario);
+        Task<CrearAlumnoMasterModel> ObtenerFormularioCrearAlumnoAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> CrearAlumnoMasterAsync(CrearAlumnoMasterModel model);
+        Task<EditarAlumnoMasterModel> ObtenerDatosEditarAlumnoMasterAsync(int idUsuario);
+        Task<(bool Exito, string Mensaje)> GuardarEdicionAlumnoMasterAsync(EditarAlumnoMasterModel model);
+        Task<(bool Exito, string Mensaje)> ToggleActivoAlumnoAsync(int idUsuario);
+        Task<(bool Exito, string Mensaje)> ToggleActivoClaseAsync(int idClase);
     }
 }

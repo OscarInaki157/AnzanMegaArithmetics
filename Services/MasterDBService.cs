@@ -1,4 +1,5 @@
-﻿using AnzanMegaArithmetics.Models.MasterModels;
+﻿using AnzanMegaArithmetics.Models;
+using AnzanMegaArithmetics.Models.MasterModels;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
 
@@ -432,6 +433,391 @@ namespace AnzanMegaArithmetics.Services
             }
             catch (Exception ex)
             {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<ListadoAlumnosInstitucionViewModel> ObtenerAlumnosInstitucionAsync(int idInstitucion, string clase = "Todas")
+        {
+            var alumnosQuery = _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .Where(u => u.Id_Institucion == idInstitucion && u.Rol.Rol == "Alumno");
+
+            if (clase != "Todas")
+                alumnosQuery = alumnosQuery.Where(u =>
+                    u.Usuario_Clase.Any(uc => uc.Clase.Nombre == clase && uc.Activo));
+
+            var alumnosBD = await alumnosQuery.ToListAsync();
+
+            var clasesDeSede = await _context.Clases
+                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
+                .Select(c => c.Nombre)
+                .ToListAsync();
+
+            var clases = new List<string> { "Todas" };
+            clases.AddRange(clasesDeSede);
+
+            var lista = alumnosBD.Select(u =>
+            {
+                var licencia = u.UsuarioLicencias
+                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                    .FirstOrDefault();
+
+                return new UsuarioBDModel
+                {
+                    Id_Usuario = u.Id_Usuario,
+                    Nombre = u.Nombre,
+                    Gamer_Tag = u.Gamer_Tag,
+                    Correo = u.Correo,
+                    Pass = u.Pass,
+                    Activo = u.Activo,
+                    Racha = u.Racha,
+                    Exp = u.Experiencia_Total,
+                    Rango_Actual = u.Rango_Actual,
+                    Ultima_Cnx = u.Ultima_Actividad,
+                    Clases = u.Usuario_Clase
+                                    .Where(uc => uc.Activo)
+                                    .Select(uc => uc.Clase.Nombre)
+                                    .ToList(),
+                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
+                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                };
+            }).ToList();
+
+            return new ListadoAlumnosInstitucionViewModel
+            {
+                Id_Institucion = idInstitucion,
+                ListaAlumnos = lista,
+                ClasesDisponibles = clases,
+                ClaseActual = clase
+            };
+        }
+
+        public async Task<UsuarioBDModel> ObtenerFichaAlumnoAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
+
+            if (u == null) return null;
+
+            var licencia = u.UsuarioLicencias
+                .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                .FirstOrDefault();
+
+            return new UsuarioBDModel
+            {
+                Id_Usuario = u.Id_Usuario,
+                Nombre = u.Nombre,
+                Gamer_Tag = u.Gamer_Tag,
+                Correo = u.Correo,
+                Pass = u.Pass,
+                Activo = u.Activo,
+                Racha = u.Racha,
+                Exp = u.Experiencia_Total,
+                Rango_Actual = u.Rango_Actual,
+                Ultima_Cnx = u.Ultima_Actividad,
+                Clases = u.Usuario_Clase
+                                .Where(uc => uc.Activo)
+                                .Select(uc => uc.Clase.Nombre)
+                                .ToList(),
+                Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
+                Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
+                Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+            };
+        }
+
+        public async Task<CrearAlumnoMasterModel> ObtenerFormularioCrearAlumnoAsync(int idInstitucion)
+        {
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var inventario = await _context.Instituciones_Inventario_Licencias
+                .FirstOrDefaultAsync(i => i.Id_Institucion == idInstitucion);
+
+            int disponibles = inventario != null
+                ? inventario.Cantidad_Total - inventario.Cantidad_Asignada
+                : 0;
+
+            return new CrearAlumnoMasterModel
+            {
+                Id_Institucion = idInstitucion,
+                ClasesDisponibles = clases,
+                LicenciasDisponibles = disponibles
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CrearAlumnoMasterAsync(CrearAlumnoMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Correo único global
+                bool correoExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Correo.ToLower() == model.Correo.Trim().ToLower());
+                if (correoExiste)
+                    return (false, "Ese correo ya está registrado en la plataforma.");
+
+                // 2. GamerTag único global
+                bool gtExiste = await _context.Usuarios
+                    .AnyAsync(u => u.Gamer_Tag.ToLower() == model.Gamer_Tag.Trim().ToLower());
+                if (gtExiste)
+                    return (false, "Ese GamerTag ya está en uso.");
+
+                // 3. Verificar que la clase pertenece a esta institución (evita manipulación)
+                bool claseValida = await _context.Clases
+                    .AnyAsync(c => c.Id_Clase == model.Id_Clase
+                                && c.Id_Institucion == model.Id_Institucion
+                                && c.Activo);
+                if (!claseValida)
+                    return (false, "La clase seleccionada no pertenece a esta institución.");
+
+                // 4. Verificar licencias disponibles (doble candado, por si acaso)
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+
+                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
+                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+
+                // 5. Crear usuario
+                var nuevoUsuario = new UsuariosDB
+                {
+                    Id_Rol = 1, // Alumno
+                    Id_Institucion = model.Id_Institucion,
+                    Nombre = model.Nombre.Trim(),
+                    Correo = model.Correo.Trim().ToLower(),
+                    Gamer_Tag = model.Gamer_Tag.Trim(),
+                    Pass = model.Pass,
+                    Activo = true,
+                    Racha = 0,
+                    Experiencia_Total = 0,
+                    Rango_Actual = "Bronce I",
+                    Ultima_Actividad = DateTime.Now,
+                    Fecha_Ultimo_Reclamo = DateTime.Now.AddDays(-1)
+                };
+
+                _context.Usuarios.Add(nuevoUsuario);
+                await _context.SaveChangesAsync();
+
+                // 6. Asignar clase
+                _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                {
+                    Id_Usuario = nuevoUsuario.Id_Usuario,
+                    Id_Clase = model.Id_Clase,
+                    Activo = true
+                });
+
+                // 7. Asignar licencia y descontar del inventario
+                _context.Usuarios_Licencias.Add(new Usuarios_LicenciasDB
+                {
+                    Id_Usuario = nuevoUsuario.Id_Usuario,
+                    Id_Licencia = inventario.Id_Licencia,
+                    Fecha_Asignacion = DateTime.Now,
+                    Fecha_Vencimiento = DateTime.Now.AddMonths(12),
+                    Vigencia = 12
+                });
+
+                inventario.Cantidad_Asignada++;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return (true, $"Alumno '{nuevoUsuario.Nombre}' creado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<EditarAlumnoMasterModel> ObtenerDatosEditarAlumnoMasterAsync(int idUsuario)
+        {
+            var u = await _context.Usuarios
+                .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
+
+            if (u == null) return null;
+
+            var clases = await _context.Clases
+                .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .ToListAsync();
+
+            var claseActual = u.Usuario_Clase.FirstOrDefault(uc => uc.Activo);
+
+            var licencia = u.UsuarioLicencias
+                .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                .FirstOrDefault();
+
+            return new EditarAlumnoMasterModel
+            {
+                Id_Usuario = u.Id_Usuario,
+                Nombre = u.Nombre,
+                Gamer_Tag = u.Gamer_Tag,
+                Correo = u.Correo,
+                Pass = u.Pass,
+                Racha = u.Racha,
+                Exp = u.Experiencia_Total,
+                Activo = u.Activo,
+                Id_Clase_Actual = claseActual?.Id_Clase,
+                Id_Clase_Nueva = claseActual?.Id_Clase,
+                ClasesDisponibles = clases,
+                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licencia?.Id,
+                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
+                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> GuardarEdicionAlumnoMasterAsync(EditarAlumnoMasterModel model)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var u = await _context.Usuarios
+                    .Include(u => u.Usuario_Clase)
+                    .FirstOrDefaultAsync(u => u.Id_Usuario == model.Id_Usuario);
+
+                if (u == null) return (false, "Usuario no encontrado.");
+
+                bool gtDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Gamer_Tag == model.Gamer_Tag && x.Id_Usuario != model.Id_Usuario);
+                if (gtDuplicado) return (false, "Ese GamerTag ya está en uso.");
+
+                bool correoDuplicado = await _context.Usuarios
+                    .AnyAsync(x => x.Correo == model.Correo && x.Id_Usuario != model.Id_Usuario);
+                if (correoDuplicado) return (false, "Ese correo ya está registrado.");
+
+                u.Nombre = model.Nombre.Trim();
+                u.Gamer_Tag = model.Gamer_Tag.Trim();
+                u.Correo = model.Correo.Trim();
+                u.Pass = model.Pass;
+                u.Racha = model.Racha;
+                u.Experiencia_Total = model.Exp;
+                u.Activo = model.Activo;
+
+                // Antes del cambio de clase, verifica que pertenece a la institución
+                if (model.Id_Clase_Nueva.HasValue && model.Id_Clase_Nueva != model.Id_Clase_Actual)
+                {
+                    var usuario = await _context.Usuarios.FindAsync(model.Id_Usuario);
+                    bool claseValida = await _context.Clases
+                        .AnyAsync(c => c.Id_Clase == model.Id_Clase_Nueva.Value
+                                    && c.Id_Institucion == usuario.Id_Institucion
+                                    && c.Activo);
+                    if (!claseValida)
+                        return (false, "La clase seleccionada no es válida para esta institución.");
+                }
+
+                // Cambio de clase
+                if (model.Id_Clase_Nueva.HasValue && model.Id_Clase_Nueva != model.Id_Clase_Actual)
+                {
+                    foreach (var uc in u.Usuario_Clase.Where(uc => uc.Activo))
+                        uc.Activo = false;
+
+                    var ucExistente = u.Usuario_Clase
+                        .FirstOrDefault(uc => uc.Id_Clase == model.Id_Clase_Nueva.Value);
+
+                    if (ucExistente != null)
+                        ucExistente.Activo = true;
+                    else
+                        _context.Usuarios_Clases.Add(new Usuario_ClaseDB
+                        {
+                            Id_Usuario = model.Id_Usuario,
+                            Id_Clase = model.Id_Clase_Nueva.Value,
+                            Activo = true
+                        });
+                }
+
+                // Al final, antes del SaveChangesAsync, agrega:
+                if (model.Id_UsuarioLicencia.HasValue &&
+                    model.Fecha_Inicio_Licencia.HasValue &&
+                    model.Fecha_Fin_Licencia.HasValue)
+                {
+                    var lic = await _context.Usuarios_Licencias
+                        .FindAsync(model.Id_UsuarioLicencia.Value);
+
+                    if (lic != null)
+                    {
+                        if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
+                            return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
+
+                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
+                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
+                        lic.Vigencia = (int)Math.Ceiling(
+                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
+                        );
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return (true, "Alumno actualizado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ToggleActivoAlumnoAsync(int idUsuario)
+        {
+            try
+            {
+                var u = await _context.Usuarios.FindAsync(idUsuario);
+                if (u == null) return (false, "Usuario no encontrado.");
+
+                u.Activo = !u.Activo;
+                await _context.SaveChangesAsync();
+
+                return (true, u.Activo ? "Alumno activado." : "Alumno desactivado.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ToggleActivoClaseAsync(int idClase)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var clase = await _context.Clases.FindAsync(idClase);
+                if (clase == null) return (false, "Clase no encontrada.");
+
+                // Obtener todos los usuarios activos en esta clase
+                var usuariosEnClase = await _context.Usuarios_Clases
+                    .Include(uc => uc.Usuario)
+                    .Where(uc => uc.Id_Clase == idClase && uc.Activo)
+                    .Select(uc => uc.Usuario)
+                    .ToListAsync();
+
+                // Determinar acción: si todos están activos, desactivar; si alguno inactivo, activar todos
+                bool todosActivos = usuariosEnClase.All(u => u.Activo);
+                bool nuevoEstado = !todosActivos;
+
+                foreach (var u in usuariosEnClase)
+                    u.Activo = nuevoEstado;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                string accion = nuevoEstado ? "activados" : "desactivados";
+                return (true, $"{usuariosEnClase.Count} usuarios {accion} correctamente.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
                 return (false, $"Error interno: {ex.Message}");
             }
         }

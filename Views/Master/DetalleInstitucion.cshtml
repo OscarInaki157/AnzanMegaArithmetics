@@ -39,7 +39,12 @@
     <div class="tab-buttons">
         <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)"><i class="fas fa-chart-pie"></i> Resumen Sede</button>
         <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)"><i class="fas fa-chalkboard"></i> Clases</button>
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)"><i class="fas fa-users"></i> Alumnos</button>
+
+        <button type="button" class="tab-btn"
+                onclick="mostrarTab('tab3', this); cargarTabAlumnos(@Model.Id_Institucion)">
+            <i class="fas fa-users"></i> Alumnos
+        </button>
+
         <button type="button" class="tab-btn" onclick="mostrarTab('tab4', this)"><i class="fas fa-user-tie"></i> Profesores</button>
         <button type="button" class="tab-btn" onclick="mostrarTab('tab5', this)"><i class="fas fa-cog"></i> Configuración</button>
     </div>
@@ -52,8 +57,9 @@
         <partial name="~/Views/Shared/Partials/Panels/_ListadoClases.cshtml" model="Model" />
     </div>
 
+    <div class="formulario-flash tab-content" id="tab3">
+    </div>
 
-    <div class="formulario-flash tab-content" id="tab3"></div>
     <div class="formulario-flash tab-content" id="tab4"></div>
     <div class="formulario-flash tab-content" id="tab5"></div>
 </div>
@@ -418,6 +424,226 @@
             msgErr.style.display = 'block';
             btn.disabled         = false;
             btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+        }
+    }
+
+        // ── TAB ALUMNOS ──────────────────────────────────────────
+    async function cargarTabAlumnos(idInstitucion) {
+        const tab = document.getElementById('tab3');
+        if (tab.dataset.cargado) return;
+        tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerTabAlumnos?idInstitucion=${idInstitucion}`);
+            tab.innerHTML = await res.text();
+            tab.dataset.cargado = '1';
+        } catch {
+            tab.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar alumnos.</div>';
+        }
+    }
+
+    async function filtrarPorClaseMaster(clase, idInstitucion) {
+        const tab = document.getElementById('tab3');
+        tab.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerTabAlumnos?idInstitucion=${idInstitucion}&clase=${encodeURIComponent(clase)}`);
+            tab.innerHTML = await res.text();
+            tab.dataset.cargado = '1';
+        } catch {
+            tab.innerHTML = '<div style="color:red;">Error al filtrar.</div>';
+        }
+    }
+
+    // ── CREAR ALUMNO ─────────────────────────────────────────
+    async function abrirCrearAlumnoMaster(idInstitucion) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioCrearAlumno?idInstitucion=${idInstitucion}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarCrearAlumnoMaster(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnCrearAlumno');
+        const msgErr = document.getElementById('msgErrorCrearAlumno');
+        const fd     = new FormData(event.target);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Creando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/CrearAlumnoMaster', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                const tab = document.getElementById('tab3');
+                tab.dataset.cargado = '';
+                cargarTabAlumnos(@Model.Id_Institucion);
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Crear Alumno';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Crear Alumno';
+        }
+    }
+
+    // ── FICHA ALUMNO ─────────────────────────────────────────
+    async function abrirFichaAlumnoMaster(idUsuario) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-circle-notch fa-spin fa-2x"></i><p>Cargando ficha...</p></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFichaAlumnoMaster?idUsuario=${idUsuario}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar ficha.</div>';
+        }
+    }
+
+    // ── EDITAR ALUMNO ────────────────────────────────────────
+    async function abrirEditarAlumnoMaster(idUsuario) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando editor...</div>';
+        try {
+            const res = await fetch(`/Master/ObtenerFormularioEditarAlumnoMaster?idUsuario=${idUsuario}`);
+            body.innerHTML = await res.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar.</div>';
+        }
+    }
+
+    async function enviarEdicionAlumnoMaster(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnGuardarAlumnoMaster');
+        const msgErr = document.getElementById('msgErrorEditarAlumnoMaster');
+        const fd     = new FormData(event.target);
+
+        // Checkbox no incluido si no está marcado
+        if (!event.target.querySelector('[name="Activo"]').checked)
+            fd.set('Activo', 'false');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
+        msgErr.style.display = 'none';
+
+        try {
+            const res    = await fetch('/Master/GuardarEdicionAlumnoMaster', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                const tab = document.getElementById('tab3');
+                tab.dataset.cargado = '';
+                cargarTabAlumnos(@Model.Id_Institucion);
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-save"></i> Guardar Cambios';
+        }
+    }
+
+    // ── TOGGLE ACTIVO ────────────────────────────────────────
+    async function toggleActivoAlumno(idUsuario, btn) {
+        btn.disabled = true;
+        try {
+            const fd = new FormData();
+            fd.append('idUsuario', idUsuario);
+            const res    = await fetch('/Master/ToggleActivoAlumno', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                // Refrescamos el tab sin recargar la página
+                const tab = document.getElementById('tab3');
+                tab.dataset.cargado = '';
+                cargarTabAlumnos(@Model.Id_Institucion);
+            } else {
+                alert(result.mensaje);
+                btn.disabled = false;
+            }
+        } catch {
+            alert('Error de conexión.');
+            btn.disabled = false;
+        }
+    }
+        // Reutilizamos la misma función de gestión de licencias
+    async function abrirModalLicencias(id) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando inventario...</div>';
+        try {
+            const response = await fetch(`/Master/ObtenerGestionLicencias?id=${id}`);
+            body.innerHTML = await response.text();
+        } catch {
+            body.innerHTML = '<div style="color:red;">Error al conectar.</div>';
+        }
+    }
+
+        // ── VER ALUMNOS DE CLASE ─────────────────────────────────
+    function verAlumnosDeClase(nombreClase) {
+        // 1. Cambiar al tab de alumnos
+        const tabBtn = document.querySelector("button[onclick*='tab3']");
+        if (tabBtn) tabBtn.click();
+
+        // 2. Forzar recarga con el filtro de clase
+        const tab = document.getElementById('tab3');
+        tab.dataset.cargado = '';
+
+        filtrarPorClaseMaster(nombreClase, @Model.Id_Institucion);
+    }
+
+    // ── TOGGLE ACTIVO CLASE ──────────────────────────────────
+    async function toggleActivoClase(idClase, btn) {
+        const confirmar = confirm(
+            "¿Confirmas cambiar el estado de TODOS los usuarios de esta clase?\n" +
+            "Si todos están activos se desactivarán, y viceversa."
+        );
+        if (!confirmar) return;
+
+        btn.disabled = true;
+        const iconEl = btn.querySelector('i');
+        const claseOriginal = iconEl.className;
+        iconEl.className = 'fas fa-circle-notch fa-spin';
+
+        try {
+            const fd = new FormData();
+            fd.append('idClase', idClase);
+
+            const res    = await fetch('/Master/ToggleActivoClase', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            if (result.exito) {
+                // Recargar el tab de clases
+                window.location.reload();
+            } else {
+                alert(result.mensaje);
+                btn.disabled   = false;
+                iconEl.className = claseOriginal;
+            }
+        } catch {
+            alert('Error de conexión.');
+            btn.disabled     = false;
+            iconEl.className = claseOriginal;
         }
     }
 </script>

@@ -61,13 +61,24 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn-mini-sec" onclick="verAlumnosDeClase(@clase.Id_Clase)" title="Ver Alumnos">
+                    <button class="btn-mini-sec" onclick="verAlumnosDeClase('@clase.Nombre')" title="Ver Alumnos">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button class="btn-mini" onclick="abrirEditarClase(@clase.Id_Clase)" title="Editar Clase">
                         <i class="fas fa-edit"></i>
                     </button>
+                    <button onclick="toggleActivoClase(@clase.Id_Clase, this)"
+                            title="@(clase.Activa ? "Desactivar usuarios" : "Activar usuarios")"
+                            style="border:none; width:2.5rem; height:2.5rem; border-radius:0.5rem; cursor:pointer;
+                           background:@(clase.Activa ? "rgba(255,71,87,0.2)" : "rgba(0,255,136,0.2)");
+                           color:@(clase.Activa ? "#ff4757" : "#00ff88");
+                           font-size:1rem; display:inline-flex; align-items:center; justify-content:center;
+                           transition:0.3s;">
+                        <i class="fas @(clase.Activa ? "fa-ban" : "fa-check-circle")"></i>
+                    </button>
                 </div>
+
+
             </div>
         }
     }

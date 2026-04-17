@@ -1,0 +1,133 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.EditarAlumnoMasterModel
+
+<div class="formulario-flash">
+    <div class="form-header">
+        <h2><i class="fas fa-user-edit" style="color:#ffa500; margin-right:0.5rem;"></i> Editar Alumno</h2>
+    </div>
+
+    <form onsubmit="enviarEdicionAlumnoMaster(event)">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id_Usuario" value="@Model.Id_Usuario" />
+        <input type="hidden" name="Id_Clase_Actual" value="@Model.Id_Clase_Actual" />
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+                <label class="lbl-form">Nombre completo</label>
+                <input type="text" name="Nombre" value="@Model.Nombre" class="input-game" required maxlength="80" minlength="3" />
+            </div>
+            <div>
+                <label class="lbl-form">GamerTag</label>
+                <input type="text" name="Gamer_Tag" value="@Model.Gamer_Tag" class="input-game" required maxlength="20" minlength="3" pattern="^\S+$" />
+            </div>
+            <div>
+                <label class="lbl-form">Correo</label>
+                <input type="email" name="Correo" value="@Model.Correo" class="input-game" required maxlength="100" />
+            </div>
+            <div>
+                <label class="lbl-form">Contraseña</label>
+                <input type="text" name="Pass" value="@Model.Pass" class="input-game" required maxlength="30" minlength="6" />
+            </div>
+            <div>
+                <label class="lbl-form">Racha (días)</label>
+                <input type="number" name="Racha" value="@Model.Racha" class="input-game" min="0" max="4000" />
+            </div>
+            <div>
+                <label class="lbl-form">Experiencia (XP)</label>
+                <input type="number" name="Exp" value="@Model.Exp" class="input-game" min="0" max="2000000" />
+                <small style="color:#a0a0c0; font-size:0.7rem;">El rango se recalcula automáticamente.</small>
+            </div>
+            <div>
+                <label class="lbl-form"><i class="fas fa-chalkboard"></i> Cambiar clase</label>
+                <select name="Id_Clase_Nueva" class="input-game">
+                    <option value="">— Sin cambio —</option>
+                    @foreach (var c in Model.ClasesDisponibles)
+                    {
+                        if (c.Id_Clase == Model.Id_Clase_Actual)
+                        {
+                            <option value="@c.Id_Clase" selected>@c.Nombre ✓ actual</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Id_Clase">@c.Nombre</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem; padding-top:1.5rem;">
+                <label class="lbl-form" style="margin:0;">Estado cuenta</label>
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; margin:0;">
+                    <input type="checkbox" id="chkActivo" name="Activo" value="true" @(Model.Activo ? "checked" : "")
+                           style="width:1.2rem; height:1.2rem; accent-color:var(--color-primary);"
+                           onchange="this.nextElementSibling.textContent = this.checked ? 'Activa' : 'Inactiva';
+                                     this.nextElementSibling.style.color = this.checked ? '#00ff88' : '#ff4757';" />
+                    <span style="color:@(Model.Activo ? "#00ff88" : "#ff4757"); font-weight:600;">
+                        @(Model.Activo ? "Activa" : "Inactiva")
+                    </span>
+                </label>
+            </div>
+            @* Sección de licencia *@
+            <input type="hidden" name="Id_UsuarioLicencia" value="@Model.Id_UsuarioLicencia" />
+
+            <div style="grid-column:1/-1; margin-top:0.5rem;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
+                border-radius:0.5rem; padding:1rem;">
+                    <label class="lbl-form" style="margin-bottom:0.8rem;">
+                        <i class="fas fa-id-card" style="color:var(--color-primary);"></i>
+                        Licencia — <span style="color:#a0a0c0; text-transform:none; font-weight:400;">@Model.LicenciaActual</span>
+                    </label>
+
+                    @if (Model.Id_UsuarioLicencia.HasValue)
+                    {
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div>
+                                <label class="lbl-form">Fecha de inicio</label>
+                                <input type="date" name="Fecha_Inicio_Licencia" class="input-game"
+                                       value="@Model.Fecha_Inicio_Licencia?.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div>
+                                <label class="lbl-form">Fecha de vencimiento</label>
+                                <input type="date" name="Fecha_Fin_Licencia" class="input-game"
+                                       value="@Model.Fecha_Fin_Licencia?.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="color:#ff4757; font-size:0.9rem; margin:0;">
+                            <i class="fas fa-exclamation-triangle"></i> Este alumno no tiene licencia asignada.
+                        </p>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <div id="msgErrorEditarAlumnoMaster" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+             border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem; padding:0.7rem 1rem;
+             margin-top:1rem; font-size:0.9rem;"></div>
+
+        <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.5rem;">
+            <button type="button" onclick="cerrarModalSede()"
+                    style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);
+                           padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;">
+                Cancelar
+            </button>
+            <button type="submit" id="btnGuardarAlumnoMaster"
+                    style="background:linear-gradient(135deg,#ffa500,#ff8c00); color:white; border:none;
+                           padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
+                           display:inline-flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .lbl-form { display:block; color:#a0a0c0; font-size:0.8rem; text-transform:uppercase; font-weight:600; margin-bottom:0.4rem; }
+    .input-game { width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none; transition:0.3s; box-sizing:border-box; font-size:0.95rem; }
+    .input-game:focus { border-color:var(--color-primary); }
+    .input-game option { background:#010f36; }
+    .formulario-flash { background:#010f36; border-radius:1rem; padding:1.5rem; }
+    .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .form-header h2 { margin:0; font-size:1.5rem; color:white; font-weight:600; }
+</style>
