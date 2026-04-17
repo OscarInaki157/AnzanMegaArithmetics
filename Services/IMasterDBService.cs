@@ -55,5 +55,9 @@ namespace AnzanMegaArithmetics.Services
 
         Task<ConfiguracionInstitucionViewModel> ObtenerConfiguracionModulosAsync(int idInstitucion);
         Task<(bool Exito, string Mensaje)> GuardarConfiguracionModulosAsync(int idInstitucion, List<string> modulosActivos);
+
+        Task<List<LicenciaDisponibleModel>> ObtenerLicenciasDisponiblesAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> AsignarLicenciaIndividualAsync(int idLicenciaIndividual, int idUsuario);
+        Task<(bool Exito, string Mensaje)> DesasignarLicenciaIndividualAsync(int idUsuario);
     }
 }

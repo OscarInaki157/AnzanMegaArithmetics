@@ -27,6 +27,7 @@ namespace AnzanMegaArithmetics.Models.MasterModels
         public List<ClaseSedeModel> ClasesDisponibles { get; set; } = new();
 
         // Para bloquear si no hay licencias
-        public int LicenciasDisponibles { get; set; }
+        public int Id_Licencia_Individual { get; set; }
+        public List<LicenciaDisponibleModel> LicenciasDisponibles { get; set; } = new();
     }
 }

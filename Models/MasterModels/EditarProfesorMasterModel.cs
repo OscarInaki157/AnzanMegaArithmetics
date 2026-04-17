@@ -39,5 +39,7 @@ namespace AnzanMegaArithmetics.Models.MasterModels
 
         public int Id_Rol { get; set; }
         public string NombreRol { get; set; } = string.Empty;
+        public int Id_Licencia_Individual { get; set; }
+        public List<LicenciaDisponibleModel> LicenciasDisponibles { get; set; } = new();
     }
 }

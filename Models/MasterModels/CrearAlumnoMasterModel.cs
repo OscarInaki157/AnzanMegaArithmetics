@@ -28,6 +28,8 @@ namespace AnzanMegaArithmetics.Models.MasterModels
 
         // Para poblar el dropdown en el formulario
         public List<ClaseSedeModel> ClasesDisponibles { get; set; } = new();
-        public int LicenciasDisponibles { get; set; }
+        
+        public int Id_Licencia_Individual { get; set; }
+        public List<LicenciaDisponibleModel> LicenciasDisponibles { get; set; } = new();
     }
 }

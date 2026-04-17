@@ -15,5 +15,8 @@
         // Para poblar dropdowns
         public List<InstitucionOpcionModel> InstitucionesDisponibles { get; set; } = new();
         public List<ClaseSedeModel> ClasesDestino { get; set; } = new();
+
+        public int Id_Licencia_Individual { get; set; }
+        public List<LicenciaDisponibleModel> LicenciasDisponibles { get; set; } = new();
     }
 }

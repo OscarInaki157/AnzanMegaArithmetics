@@ -1,0 +1,93 @@
+﻿@model dynamic
+
+@{
+    var licencias = (List<AnzanMegaArithmetics.Models.MasterModels.LicenciaDisponibleModel>)Model.Licencias;
+    int idActual = (int)Model.IdActual;
+}
+
+<div style="grid-column:1/-1;">
+    <label style="display:block; color:var(--color-light); font-size:0.85rem;
+                  font-weight:600; margin-bottom:0.5rem;">
+        <i class="fas fa-id-card" style="color:var(--color-primary);"></i>
+        Licencia a asignar
+    </label>
+
+    @if (licencias != null && licencias.Any())
+    {
+        <select name="Id_Licencia_Individual" class="input-game" required
+                style="width:100%; background:#0d1b4b; color:white; border:1px solid rgba(76,76,255,0.3);
+                           border-radius:0.5rem; padding:0.7rem 1rem; font-size:0.9rem;">
+            <option value="0">— Selecciona una licencia —</option>
+
+            @* Licencias libres *@
+            @foreach (var lic in licencias.Where(l => l.Libre))
+            {
+                string color = lic.DiasRestantes <= 30 ? "#ff4757" :
+                lic.DiasRestantes <= 90 ? "#ffa500" : "#00ff88";
+
+                if (lic.Id == idActual)
+                {
+                    <option value="@lic.Id" selected>
+                        ✓ ACTUAL | @lic.TipoLicencia — Vence: @lic.Fecha_Vencimiento.ToString("dd/MMM/yyyy") (@lic.DiasRestantes días)
+                    </option>
+                }
+                else
+                {
+                    <option value="@lic.Id">
+                        🟢 LIBRE | @lic.TipoLicencia — Vence: @lic.Fecha_Vencimiento.ToString("dd/MMM/yyyy") (@lic.DiasRestantes días)
+                    </option>
+                }
+            }
+
+            @* Licencias asignadas a otros *@
+            @foreach (var lic in licencias.Where(l => !l.Libre))
+            {
+                if (lic.Id == idActual)
+                {
+                    <option value="@lic.Id" selected>
+                        ✓ ACTUAL | @lic.TipoLicencia — Asignada a @lic.NombreUsuarioActual — Vence: @lic.Fecha_Vencimiento.ToString("dd/MMM/yyyy") (@lic.DiasRestantes días)
+                    </option>
+                }
+                else
+                {
+                    <option value="@lic.Id">
+                        🔶 ASIGNADA a @lic.NombreUsuarioActual | @lic.TipoLicencia — Vence: @lic.Fecha_Vencimiento.ToString("dd/MMM/yyyy") (@lic.DiasRestantes días)
+                    </option>
+                }
+            }
+        </select>
+
+        @* Aviso de días restantes de la licencia actual *@
+        @if (idActual > 0)
+        {
+            var licActual = licencias.FirstOrDefault(l => l.Id == idActual);
+            if (licActual != null)
+            {
+                string bg = licActual.DiasRestantes <= 30 ? "rgba(255,71,87,0.1)" :
+                licActual.DiasRestantes <= 90 ? "rgba(255,165,0,0.1)" : "rgba(0,255,136,0.07)";
+                string bd = licActual.DiasRestantes <= 30 ? "rgba(255,71,87,0.3)" :
+                licActual.DiasRestantes <= 90 ? "rgba(255,165,0,0.3)" : "rgba(0,255,136,0.2)";
+                string txt = licActual.DiasRestantes <= 30 ? "#ff4757" :
+                licActual.DiasRestantes <= 90 ? "#ffa500" : "#00ff88";
+                string ico = licActual.DiasRestantes <= 30 ? "fa-exclamation-triangle" :
+                licActual.DiasRestantes <= 90 ? "fa-clock" : "fa-check-circle";
+
+                <div style="background:@bg; border:1px solid @bd; border-radius:0.5rem;
+                                        padding:0.5rem 1rem; margin-top:0.5rem; color:@txt; font-size:0.85rem;">
+                    <i class="fas @ico"></i>
+                    Licencia actual vence el <strong>@licActual.Fecha_Vencimiento.ToString("dd/MMM/yyyy")</strong>
+                    — @licActual.DiasRestantes días restantes
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <div style="color:#ff4757; background:rgba(255,71,87,0.1);
+                        border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem;
+                        padding:0.7rem 1rem; font-size:0.9rem;">
+            <i class="fas fa-exclamation-triangle"></i>
+            No hay licencias disponibles en esta institución. Aumenta el inventario primero.
+        </div>
+    }
+</div>

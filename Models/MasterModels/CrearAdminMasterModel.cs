@@ -24,6 +24,8 @@ namespace AnzanMegaArithmetics.Models.MasterModels
 
         public List<int> Ids_Clases { get; set; } = new();
         public List<ClaseSedeModel> ClasesDisponibles { get; set; } = new();
-        public int LicenciasDisponibles { get; set; }
+
+        public int Id_Licencia_Individual { get; set; }
+        public List<LicenciaDisponibleModel> LicenciasDisponibles { get; set; } = new();
     }
 }

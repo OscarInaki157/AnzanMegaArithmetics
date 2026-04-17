@@ -8,97 +8,72 @@
         </h2>
     </div>
 
-    @if (Model.LicenciasDisponibles <= 0)
-    {
-        <div style="text-align:center; padding:2rem;">
-            <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
-            <h3 style="color:#ff4757; margin-bottom:0.5rem;">Sin licencias disponibles</h3>
-            <p style="color:#a0a0c0; margin-bottom:1.5rem;">
-                Esta institución no tiene licencias libres para asignar a un nuevo alumno.<br>
-                Debes aumentar el inventario antes de agregar más alumnos.
-            </p>
+    <form onsubmit="enviarCrearAlumnoMaster(event)">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id_Institucion" value="@Model.Id_Institucion" />
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+                <label class="lbl-form">Nombre completo</label>
+                <input type="text" name="Nombre" class="input-game"
+                       placeholder="Nombre del alumno" required maxlength="80" minlength="3" />
+            </div>
+            <div>
+                <label class="lbl-form">GamerTag</label>
+                <input type="text" name="Gamer_Tag" class="input-game"
+                       placeholder="Sin espacios" required maxlength="20" minlength="3"
+                       pattern="^\S+$" title="Sin espacios" />
+            </div>
+            <div>
+                <label class="lbl-form">Correo electrónico</label>
+                <input type="email" name="Correo" class="input-game"
+                       placeholder="correo@ejemplo.com" required maxlength="100" />
+            </div>
+            <div>
+                <label class="lbl-form">Contraseña inicial</label>
+                <input type="text" name="Pass" class="input-game"
+                       placeholder="Mínimo 6 caracteres" required maxlength="30" minlength="6" />
+            </div>
+            <div style="grid-column:1/-1;">
+                <label class="lbl-form">
+                    <i class="fas fa-chalkboard"></i> Asignar a clase
+                </label>
+                <select name="Id_Clase" class="input-game" required>
+                    <option value="">— Selecciona una clase —</option>
+                    @foreach (var c in Model.ClasesDisponibles)
+                    {
+                        <option value="@c.Id_Clase">@c.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            @* ↓ AQUÍ VA EL SELECTOR DE LICENCIA *@
+            @await Html.PartialAsync(
+            "~/Views/Shared/Partials/Panels/Master/_SelectorLicencia.cshtml",
+                        new { Licencias = Model.LicenciasDisponibles, IdActual = 0 }
+                        )
+        </div>
+
+        <div id="msgErrorCrearAlumno"
+             style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
+                    border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem;
+                    padding:0.7rem 1rem; margin-top:1rem; font-size:0.9rem;"></div>
+
+        <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.5rem;">
             <button type="button" onclick="cerrarModalSede()"
-                    style="background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.2);
-                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600; margin-right:0.8rem;">
+                    style="background:rgba(255,255,255,0.05); color:white;
+                           border:1px solid rgba(255,255,255,0.1); padding:0.7rem 1.5rem;
+                           border-radius:0.5rem; cursor:pointer; font-weight:600;">
                 Cancelar
             </button>
-            <button type="button"
-                    onclick="cerrarModalSede(); abrirModalLicencias(@Model.Id_Institucion)"
-                    style="background:linear-gradient(135deg,#ffa500,#ff8c00); color:white; border:none;
-                               padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer; font-weight:600;
-                               display:inline-flex; align-items:center; gap:0.5rem;">
-                <i class="fas fa-plus-circle"></i> Aumentar Licencias
+            <button type="submit" id="btnCrearAlumno"
+                    style="background:var(--color-primary); color:white; border:none;
+                           padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer;
+                           font-weight:600; display:inline-flex; align-items:center; gap:0.5rem;">
+                <i class="fas fa-save"></i> Crear Alumno
             </button>
         </div>
-    }
-    else
-    {
-        <div style="background:rgba(0,255,136,0.07); border:1px solid rgba(0,255,136,0.2);
-                        border-radius:0.5rem; padding:0.6rem 1rem; margin-bottom:1.2rem;
-                        color:#00ff88; font-size:0.9rem; display:flex; align-items:center; gap:0.5rem;">
-            <i class="fas fa-key"></i>
-            Licencias disponibles: <strong>@Model.LicenciasDisponibles</strong>
-        </div>
-
-        <form onsubmit="enviarCrearAlumnoMaster(event)">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Id_Institucion" value="@Model.Id_Institucion" />
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                <div>
-                    <label class="lbl-form">Nombre completo</label>
-                    <input type="text" name="Nombre" class="input-game"
-                           placeholder="Nombre del alumno" required maxlength="80" minlength="3" />
-                </div>
-                <div>
-                    <label class="lbl-form">GamerTag</label>
-                    <input type="text" name="Gamer_Tag" class="input-game"
-                           placeholder="Sin espacios" required maxlength="20" minlength="3"
-                           pattern="^\S+$" title="Sin espacios" />
-                </div>
-                <div>
-                    <label class="lbl-form">Correo electrónico</label>
-                    <input type="email" name="Correo" class="input-game"
-                           placeholder="correo@ejemplo.com" required maxlength="100" />
-                </div>
-                <div>
-                    <label class="lbl-form">Contraseña inicial</label>
-                    <input type="text" name="Pass" class="input-game"
-                           placeholder="Mínimo 6 caracteres" required maxlength="30" minlength="6" />
-                </div>
-                <div style="grid-column:1/-1;">
-                    <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clase</label>
-                    <select name="Id_Clase" class="input-game" required>
-                        <option value="">— Selecciona una clase —</option>
-                        @foreach (var c in Model.ClasesDisponibles)
-                        {
-                            <option value="@c.Id_Clase">@c.Nombre</option>
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <div id="msgErrorCrearAlumno"
-                 style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
-                            border:1px solid rgba(255,71,87,0.3); border-radius:0.5rem;
-                            padding:0.7rem 1rem; margin-top:1rem; font-size:0.9rem;"></div>
-
-            <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1.5rem;">
-                <button type="button" onclick="cerrarModalSede()"
-                        style="background:rgba(255,255,255,0.05); color:white;
-                                   border:1px solid rgba(255,255,255,0.1); padding:0.7rem 1.5rem;
-                                   border-radius:0.5rem; cursor:pointer; font-weight:600;">
-                    Cancelar
-                </button>
-                <button type="submit" id="btnCrearAlumno"
-                        style="background:var(--color-primary); color:white; border:none;
-                                   padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer;
-                                   font-weight:600; display:inline-flex; align-items:center; gap:0.5rem;">
-                    <i class="fas fa-save"></i> Crear Alumno
-                </button>
-            </div>
-        </form>
-    }
+    </form>
 </div>
 
 <style>
