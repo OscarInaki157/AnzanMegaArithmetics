@@ -419,5 +419,20 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerTabConfiguracion(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerConfiguracionModulosAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_ConfiguracionModulos.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarConfiguracionModulos(int idInstitucion, List<string> modulosActivos)
+        {
+            var (exito, mensaje) = await _masterDBService.GuardarConfiguracionModulosAsync(
+                idInstitucion, modulosActivos ?? new List<string>());
+            return Json(new { exito, mensaje });
+        }
+
     }
 }

@@ -143,6 +143,34 @@ namespace AnzanMegaArithmetics.Services
                 _context.Instituciones_Inventario_Licencias.Add(dbInventario);
                 await _context.SaveChangesAsync();
 
+                var modulosDefault = new List<string>
+                {
+                    "ranking", "mi_perfil", "conferencias", "hojas_ejercicios",
+                    "panel_profesor", "desafios", "memorizacion",
+                    "fingermath_lectura", "fingermath_escritura",
+                    "soroban_lectura", "soroban_escritura",
+                    "suma_resta", "flash_numeros", "flash_dictado",
+                    "multiplicacion_tablas", "multiplicacion_ejercicios",
+                    "multiplicacion_competencia", "division",
+                    "memoria_numero_figura", "memoria_rutas",
+                    "memoria_flash", "memoria_cartas",
+                    "desafio_calendario_competencia", "desafio_calendario_practica",
+                    "desafio_cuadros_competencia", "desafio_cuadros_practica",
+                    "desafio_potencias_competencia", "desafio_potencias_practica",
+                    "desafio_raices_competencia", "desafio_raices_practica",
+                    "desafio_dados"
+                };
+
+                foreach (var clave in modulosDefault)
+                {
+                    _context.Instituciones_Modulos.Add(new InstitucionesModulosDB
+                    {
+                        Id_Institucion = dbInstitucion.Id_Institucion,
+                        Clave_Modulo = clave,
+                        Activo = true
+                    });
+                }
+
                 await transaction.CommitAsync();
 
                 return (true, "Institución registrada correctamente.");
@@ -1940,6 +1968,44 @@ namespace AnzanMegaArithmetics.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<ConfiguracionInstitucionViewModel> ObtenerConfiguracionModulosAsync(int idInstitucion)
+        {
+            var inst = await _context.Instituciones.FindAsync(idInstitucion);
+
+            var modulosActivos = await _context.Instituciones_Modulos
+                .Where(m => m.Id_Institucion == idInstitucion && m.Activo)
+                .Select(m => m.Clave_Modulo)
+                .ToHashSetAsync();
+
+            return new ConfiguracionInstitucionViewModel
+            {
+                Id_Institucion = idInstitucion,
+                NombreInstitucion = inst?.Nombre ?? "",
+                ModulosActivos = modulosActivos
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> GuardarConfiguracionModulosAsync(
+            int idInstitucion, List<string> modulosActivos)
+        {
+            try
+            {
+                var registros = await _context.Instituciones_Modulos
+                    .Where(m => m.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+
+                foreach (var registro in registros)
+                    registro.Activo = modulosActivos.Contains(registro.Clave_Modulo);
+
+                await _context.SaveChangesAsync();
+                return (true, "Configuración guardada correctamente.");
+            }
+            catch (Exception ex)
+            {
                 return (false, $"Error interno: {ex.Message}");
             }
         }

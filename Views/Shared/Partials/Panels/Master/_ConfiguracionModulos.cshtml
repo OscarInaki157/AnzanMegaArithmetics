@@ -1,0 +1,448 @@
+﻿@model AnzanMegaArithmetics.Models.MasterModels.ConfiguracionInstitucionViewModel
+
+@functions {
+    bool On(string clave) => Model.ModulosActivos.Contains(clave);
+    string Clr(bool a) => a ? "#00ff88" : "#ff4757";
+    string Txt(bool a) => a ? "Activo" : "Inactivo";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;
+            padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1);">
+    <h2 style="margin:0; color:white; font-size:1.5rem;">
+        <i class="fas fa-cog" style="color:var(--color-primary);"></i> Configuración de Módulos
+    </h2>
+    <button onclick="guardarConfiguracion(@Model.Id_Institucion)" id="btnGuardarConfig"
+            style="background:var(--color-primary); color:white; border:none; padding:0.7rem 1.5rem;
+                   border-radius:0.5rem; cursor:pointer; font-weight:600;
+                   display:inline-flex; align-items:center; gap:0.5rem;">
+        <i class="fas fa-save"></i> Guardar cambios
+    </button>
+</div>
+
+<div id="msgConfiguracion" style="display:none; border-radius:0.5rem; padding:0.7rem 1rem; margin-bottom:1rem; font-size:0.9rem;"></div>
+
+<div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+    <div class="config-grupo">
+        <div class="config-grupo-header" onclick="toggleGrupo('sidebar')">
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+                <i class="fas fa-bars" style="color:var(--color-primary);"></i>
+                <strong>Pestañas del menú lateral</strong>
+                <span class="config-badge" id="badge-sidebar">
+                    @(new[] { "ranking", "mi_perfil", "conferencias", "hojas_ejercicios", "panel_profesor", "desafios", "memorizacion" }.Count(On)) / 7
+                </span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('sidebar', true)" class="btn-grupo-toggle">Activar todo</button>
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('sidebar', false)" class="btn-grupo-toggle btn-grupo-off">Desactivar todo</button>
+                <i class="fas fa-chevron-down config-chevron" id="chevron-sidebar"></i>
+            </div>
+        </div>
+        <div class="config-grupo-body" id="body-sidebar">
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-trophy" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Ranking</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="ranking" @(On("ranking") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("ranking"));">@Txt(On("ranking"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-user" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Mi Perfil</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="mi_perfil" @(On("mi_perfil") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("mi_perfil"));">@Txt(On("mi_perfil"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-graduation-cap" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Conferencias</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="conferencias" @(On("conferencias") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("conferencias"));">@Txt(On("conferencias"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-file-alt" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Hojas de Ejercicios</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="hojas_ejercicios" @(On("hojas_ejercicios") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("hojas_ejercicios"));">@Txt(On("hojas_ejercicios"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-chalkboard-teacher" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Panel Profesor</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="panel_profesor" @(On("panel_profesor") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("panel_profesor"));">@Txt(On("panel_profesor"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-atom" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Zona de Desafíos</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="desafios" @(On("desafios") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("desafios"));">@Txt(On("desafios"))</span>
+                </div>
+            </label>
+
+            <label class="config-item" data-grupo="sidebar">
+                <div style="display:flex;align-items:center;gap:0.8rem;">
+                    <i class="fas fa-brain" style="color:var(--color-primary);width:1rem;"></i>
+                    <span style="color:white;">Memorización</span>
+                </div>
+                <div class="config-toggle-wrap">
+                    <input type="checkbox" class="config-checkbox" data-clave="memorizacion" @(On("memorizacion") ? "checked" : "") onchange="actualizarBadge(this)" />
+                    <span class="config-toggle-label" style="color:@Clr(On("memorizacion"));">@Txt(On("memorizacion"))</span>
+                </div>
+            </label>
+
+        </div>
+    </div>
+
+    <div class="config-grupo">
+        <div class="config-grupo-header" onclick="toggleGrupo('neuro')">
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+                <i class="fas fa-bolt" style="color:#ffa500;"></i>
+                <strong>Neuroactividades</strong>
+                <span class="config-badge" id="badge-neuro">
+                    @(new[] { "fingermath_lectura", "fingermath_escritura", "soroban_lectura", "soroban_escritura", "suma_resta", "flash_numeros", "flash_dictado", "multiplicacion_tablas", "multiplicacion_ejercicios", "multiplicacion_competencia", "division" }.Count(On)) / 11
+                </span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('neuro', true)" class="btn-grupo-toggle">Activar todo</button>
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('neuro', false)" class="btn-grupo-toggle btn-grupo-off">Desactivar todo</button>
+                <i class="fas fa-chevron-down config-chevron" id="chevron-neuro"></i>
+            </div>
+        </div>
+        <div class="config-grupo-body" id="body-neuro">
+
+            @foreach (var item in new[] {
+                        ("fingermath_lectura",       "fa-eye",        "Fingermath — Lectura"),
+                        ("fingermath_escritura",     "fa-pencil-alt", "Fingermath — Escritura"),
+                        ("soroban_lectura",          "fa-eye",        "Soroban — Lectura"),
+                        ("soroban_escritura",        "fa-pencil-alt", "Soroban — Escritura"),
+                        ("suma_resta",               "fa-plus",       "Suma y Resta"),
+                        ("flash_numeros",            "fa-bolt",       "Números Flash"),
+                        ("flash_dictado",            "fa-bolt",       "Dictado Flash"),
+                        ("multiplicacion_tablas",    "fa-times",      "Multiplicación — Tablas"),
+                        ("multiplicacion_ejercicios","fa-times",      "Multiplicación — Ejercicios"),
+                        ("multiplicacion_competencia","fa-trophy",    "Multiplicación — Competencia"),
+                        ("division",                 "fa-divide",     "División")
+                        })
+            {
+                <label class="config-item" data-grupo="neuro">
+                    <div style="display:flex;align-items:center;gap:0.8rem;">
+                        <i class="fas @item.Item2" style="color:#ffa500;width:1rem;"></i>
+                        <span style="color:white;">@item.Item3</span>
+                    </div>
+                    <div class="config-toggle-wrap">
+                        <input type="checkbox" class="config-checkbox" data-clave="@item.Item1"
+                               @(On(item.Item1) ? "checked" : "") onchange="actualizarBadge(this)" />
+                        <span class="config-toggle-label" style="color:@Clr(On(item.Item1));">@Txt(On(item.Item1))</span>
+                    </div>
+                </label>
+            }
+
+        </div>
+    </div>
+
+    <div class="config-grupo">
+        <div class="config-grupo-header" onclick="toggleGrupo('memo')">
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+                <i class="fas fa-brain" style="color:#a855f7;"></i>
+                <strong>Memorización</strong>
+                <span class="config-badge" id="badge-memo">
+                    @(new[] { "memoria_numero_figura", "memoria_rutas", "memoria_flash", "memoria_cartas" }.Count(On)) / 4
+                </span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('memo', true)" class="btn-grupo-toggle">Activar todo</button>
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('memo', false)" class="btn-grupo-toggle btn-grupo-off">Desactivar todo</button>
+                <i class="fas fa-chevron-down config-chevron" id="chevron-memo"></i>
+            </div>
+        </div>
+        <div class="config-grupo-body" id="body-memo">
+
+            @foreach (var item in new[] {
+                        ("memoria_numero_figura", "fa-hashtag", "Relación Número a Figura"),
+                        ("memoria_rutas",         "fa-route",   "Rutas de Memoria"),
+                        ("memoria_flash",         "fa-bolt",    "Memoria Números Flash"),
+                        ("memoria_cartas",        "fa-clone",   "Memoria Cartas")
+                        })
+            {
+                <label class="config-item" data-grupo="memo">
+                    <div style="display:flex;align-items:center;gap:0.8rem;">
+                        <i class="fas @item.Item2" style="color:#a855f7;width:1rem;"></i>
+                        <span style="color:white;">@item.Item3</span>
+                    </div>
+                    <div class="config-toggle-wrap">
+                        <input type="checkbox" class="config-checkbox" data-clave="@item.Item1"
+                               @(On(item.Item1) ? "checked" : "") onchange="actualizarBadge(this)" />
+                        <span class="config-toggle-label" style="color:@Clr(On(item.Item1));">@Txt(On(item.Item1))</span>
+                    </div>
+                </label>
+            }
+
+        </div>
+    </div>
+
+    <div class="config-grupo">
+        <div class="config-grupo-header" onclick="toggleGrupo('desafios')">
+            <div style="display:flex; align-items:center; gap:0.8rem;">
+                <i class="fas fa-atom" style="color:#00c896;"></i>
+                <strong>Zona de Desafíos</strong>
+                <span class="config-badge" id="badge-desafios">
+                    @(new[] { "desafio_calendario_competencia", "desafio_calendario_practica", "desafio_cuadros_competencia", "desafio_cuadros_practica", "desafio_potencias_competencia", "desafio_potencias_practica", "desafio_raices_competencia", "desafio_raices_practica", "desafio_dados" }.Count(On)) / 9
+                </span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('desafios', true)" class="btn-grupo-toggle">Activar todo</button>
+                <button type="button" onclick="event.stopPropagation(); toggleGrupoCheckboxes('desafios', false)" class="btn-grupo-toggle btn-grupo-off">Desactivar todo</button>
+                <i class="fas fa-chevron-down config-chevron" id="chevron-desafios"></i>
+            </div>
+        </div>
+        <div class="config-grupo-body" id="body-desafios">
+
+            @foreach (var item in new[] {
+                        ("desafio_calendario_competencia", "fa-trophy",     "Calendario Mental — Competencia"),
+                        ("desafio_calendario_practica",    "fa-pencil-alt", "Calendario Mental — Práctica"),
+                        ("desafio_cuadros_competencia",    "fa-trophy",     "Cuadros de Velocidad — Competencia"),
+                        ("desafio_cuadros_practica",       "fa-pencil-alt", "Cuadros de Velocidad — Práctica"),
+                        ("desafio_potencias_competencia",  "fa-trophy",     "Potencias — Competencia"),
+                        ("desafio_potencias_practica",     "fa-pencil-alt", "Potencias — Práctica"),
+                        ("desafio_raices_competencia",     "fa-trophy",     "Raíces — Competencia"),
+                        ("desafio_raices_practica",        "fa-pencil-alt", "Raíces — Práctica"),
+                        ("desafio_dados",                  "fa-dice",       "Matemáticas con Dados")
+                        })
+            {
+                <label class="config-item" data-grupo="desafios">
+                    <div style="display:flex;align-items:center;gap:0.8rem;">
+                        <i class="fas @item.Item2" style="color:#00c896;width:1rem;"></i>
+                        <span style="color:white;">@item.Item3</span>
+                    </div>
+                    <div class="config-toggle-wrap">
+                        <input type="checkbox" class="config-checkbox" data-clave="@item.Item1"
+                               @(On(item.Item1) ? "checked" : "") onchange="actualizarBadge(this)" />
+                        <span class="config-toggle-label" style="color:@Clr(On(item.Item1));">@Txt(On(item.Item1))</span>
+                    </div>
+                </label>
+            }
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .config-grupo {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 0.8rem;
+        overflow: hidden;
+    }
+
+    .config-grupo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        cursor: pointer;
+        background: rgba(255,255,255,0.04);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        transition: 0.2s;
+        color: white;
+    }
+
+        .config-grupo-header:hover {
+            background: rgba(76,76,255,0.1);
+        }
+
+    .config-grupo-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        max-height: 1000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+        .config-grupo-body.collapsed {
+            max-height: 0;
+        }
+
+    .config-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-item:hover {
+            background: rgba(76,76,255,0.07);
+        }
+
+    .config-toggle-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .config-checkbox {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--color-primary);
+        cursor: pointer;
+    }
+
+    .config-toggle-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        min-width: 50px;
+        text-align: right;
+    }
+
+    .config-badge {
+        background: rgba(76,76,255,0.2);
+        color: #8c8cff;
+        border: 1px solid rgba(76,76,255,0.3);
+        border-radius: 1rem;
+        padding: 0.1rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .config-chevron {
+        color: #a0a0c0;
+        transition: 0.3s;
+    }
+
+        .config-chevron.open {
+            transform: rotate(180deg);
+        }
+
+    .btn-grupo-toggle {
+        background: rgba(76,76,255,0.15);
+        color: #8c8cff;
+        border: 1px solid rgba(76,76,255,0.3);
+        border-radius: 0.4rem;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-grupo-toggle:hover {
+            background: rgba(76,76,255,0.3);
+        }
+
+    .btn-grupo-off {
+        background: rgba(255,71,87,0.1);
+        color: #ff4757;
+        border-color: rgba(255,71,87,0.3);
+    }
+
+        .btn-grupo-off:hover {
+            background: rgba(255,71,87,0.25);
+        }
+</style>
+
+<script>
+    function toggleGrupo(grupo) {
+        const body    = document.getElementById('body-' + grupo);
+        const chevron = document.getElementById('chevron-' + grupo);
+        body.classList.toggle('collapsed');
+        chevron.classList.toggle('open');
+    }
+
+    function toggleGrupoCheckboxes(grupo, estado) {
+        document.querySelectorAll('.config-item[data-grupo="' + grupo + '"] .config-checkbox').forEach(cb => {
+            cb.checked = estado;
+            actualizarLabel(cb);
+        });
+        actualizarBadgeGrupo(grupo);
+    }
+
+    function actualizarBadge(checkbox) {
+        actualizarLabel(checkbox);
+        const grupo = checkbox.closest('.config-item')?.dataset.grupo;
+        if (grupo) actualizarBadgeGrupo(grupo);
+    }
+
+    function actualizarLabel(checkbox) {
+        const label = checkbox.nextElementSibling;
+        if (label) {
+            label.textContent = checkbox.checked ? 'Activo' : 'Inactivo';
+            label.style.color = checkbox.checked ? '#00ff88' : '#ff4757';
+        }
+    }
+
+    function actualizarBadgeGrupo(grupo) {
+        const items   = document.querySelectorAll('.config-item[data-grupo="' + grupo + '"]');
+        const activos = Array.from(items).filter(i => i.querySelector('.config-checkbox')?.checked).length;
+        const badge   = document.getElementById('badge-' + grupo);
+        if (badge) badge.textContent = activos + ' / ' + items.length;
+    }
+
+    async function guardarConfiguracion(idInstitucion) {
+        const btn = document.getElementById('btnGuardarConfig');
+        const msg = document.getElementById('msgConfiguracion');
+
+        const modulosActivos = Array.from(
+            document.querySelectorAll('.config-checkbox:checked')
+        ).map(cb => cb.dataset.clave);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
+        msg.style.display = 'none';
+
+        try {
+            const fd = new FormData();
+            fd.append('idInstitucion', idInstitucion);
+            modulosActivos.forEach(m => fd.append('modulosActivos', m));
+
+            const res    = await fetch('/Master/GuardarConfiguracionModulos', { method: 'POST', body: fd });
+            const result = await res.json();
+
+            msg.textContent          = result.mensaje;
+            msg.style.display        = 'block';
+            msg.style.color          = result.exito ? '#00ff88' : '#ff4757';
+            msg.style.background     = result.exito ? 'rgba(0,255,136,0.08)' : 'rgba(255,71,87,0.08)';
+            msg.style.border         = result.exito ? '1px solid rgba(0,255,136,0.3)' : '1px solid rgba(255,71,87,0.3)';
+        } catch {
+            msg.textContent      = 'Error de conexión.';
+            msg.style.display    = 'block';
+            msg.style.color      = '#ff4757';
+        } finally {
+            btn.disabled     = false;
+            btn.innerHTML    = '<i class="fas fa-save"></i> Guardar cambios';
+        }
+    }
+</script>

@@ -52,5 +52,8 @@ namespace AnzanMegaArithmetics.Services
 
         Task<(bool Exito, string Mensaje)> EliminarInstitucionAsync(int idInstitucion);
         Task<(bool Exito, string Mensaje)> ToggleActivoInstitucionAsync(int idInstitucion);
+
+        Task<ConfiguracionInstitucionViewModel> ObtenerConfiguracionModulosAsync(int idInstitucion);
+        Task<(bool Exito, string Mensaje)> GuardarConfiguracionModulosAsync(int idInstitucion, List<string> modulosActivos);
     }
 }

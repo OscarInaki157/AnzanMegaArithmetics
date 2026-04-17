@@ -1091,6 +1091,48 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+        public HashSet<string> ObtenerModulosHabilitados(int idUsuario)
+        {
+            try
+            {
+                var usuario = _context.Usuarios.Find(idUsuario);
+                if (usuario?.Id_Institucion == null)
+                    return ObtenerTodosLosModulos();
+
+                var modulos = _context.Instituciones_Modulos
+                    .Where(m => m.Id_Institucion == usuario.Id_Institucion && m.Activo)
+                    .Select(m => m.Clave_Modulo)
+                    .ToHashSet();
+
+                return modulos;
+            }
+            catch
+            {
+                return ObtenerTodosLosModulos();
+            }
+        }
+
+        private HashSet<string> ObtenerTodosLosModulos()
+        {
+            return new HashSet<string>
+            {
+                "ranking", "mi_perfil", "conferencias", "hojas_ejercicios",
+                "panel_profesor", "desafios", "memorizacion",
+                "fingermath_lectura", "fingermath_escritura",
+                "soroban_lectura", "soroban_escritura",
+                "suma_resta", "flash_numeros", "flash_dictado",
+                "multiplicacion_tablas", "multiplicacion_ejercicios",
+                "multiplicacion_competencia", "division",
+                "memoria_numero_figura", "memoria_rutas",
+                "memoria_flash", "memoria_cartas",
+                "desafio_calendario_competencia", "desafio_calendario_practica",
+                "desafio_cuadros_competencia", "desafio_cuadros_practica",
+                "desafio_potencias_competencia", "desafio_potencias_practica",
+                "desafio_raices_competencia", "desafio_raices_practica",
+                "desafio_dados"
+            };
+        }
+
 
 
     }

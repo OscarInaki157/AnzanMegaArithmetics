@@ -60,7 +60,10 @@
             <i class="fas fa-clipboard-list"></i> Pruebas
         </button>
 
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab7', this)"><i class="fas fa-cog"></i> Configuración</button>
+        <button type="button" class="tab-btn"
+                onclick="mostrarTab('tab7', this); cargarTabConfiguracion(@Model.Id_Institucion)">
+            <i class="fas fa-cog"></i> Configuración
+        </button>
     </div>
 
     <div class="formulario-flash tab-content active" id="tab1">
@@ -1298,6 +1301,19 @@
             msgErr.style.display = 'block';
             btn.disabled         = false;
             btn.innerHTML        = '<i class="fas fa-exchange-alt"></i> Mover Clase';
+        }
+    }
+
+        async function cargarTabConfiguracion(idInstitucion) {
+        const tab = document.getElementById('tab7');
+        if (tab.dataset.cargado) return;
+        tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerTabConfiguracion?idInstitucion=${idInstitucion}`);
+            tab.innerHTML = await res.text();
+            tab.dataset.cargado = '1';
+        } catch {
+            tab.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar configuración.</div>';
         }
     }
 </script>

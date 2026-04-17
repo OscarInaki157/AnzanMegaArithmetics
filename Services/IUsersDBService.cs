@@ -23,5 +23,7 @@ namespace AnzanMegaArithmetics.Services
         public List<DailyChallengeViewModel> GetMasterChallenges();
         public string GetDBStringForCountOrTime(TipoActividadEnum tipo);
         public bool ValidateChallengeCompletion(DailyChallengeViewModel reto, List<DataBase.PruebasDB> activities);
+
+        HashSet<string> ObtenerModulosHabilitados(int idUsuario);
     }
 }
