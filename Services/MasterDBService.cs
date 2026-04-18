@@ -18,7 +18,6 @@ namespace AnzanMegaArithmetics.Services
         {
             var modelo = new PanelMasterViewModel();
 
-
             modelo.DashboardIzquierdo.TotalEscuelas = await _context.Instituciones
                 .CountAsync(i => i.Activo && i.Id_Institucion != 1);
 
@@ -26,51 +25,57 @@ namespace AnzanMegaArithmetics.Services
                 .Include(u => u.Rol)
                 .CountAsync(u => u.Activo && u.Rol.Rol == "Alumno");
 
-            var inventarios = await _context.Instituciones_Inventario_Licencias.ToListAsync();
+            // Totales desde la fuente real
+            modelo.DashboardIzquierdo.TotalLicenciasGeneradas = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Activo);
 
-            int totalLicenciasCompradas = inventarios.Sum(i => i.Cantidad_Total);
-            int totalLicenciasAsignadas = inventarios.Sum(i => i.Cantidad_Asignada);
+            modelo.DashboardIzquierdo.LicenciasAsignadas = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Activo && l.Id_Usuario != null);
 
-            modelo.DashboardIzquierdo.TotalLicenciasGeneradas = totalLicenciasCompradas;
-            modelo.DashboardIzquierdo.LicenciasAsignadas = totalLicenciasAsignadas;
-            modelo.DashboardIzquierdo.LicenciasDisponibles = totalLicenciasCompradas - totalLicenciasAsignadas;
+            modelo.DashboardIzquierdo.LicenciasDisponibles =
+                modelo.DashboardIzquierdo.TotalLicenciasGeneradas -
+                modelo.DashboardIzquierdo.LicenciasAsignadas;
 
+            // Alertas desde la fuente real
             var listaAlertas = new List<AlertaMasterModel>();
 
-            foreach (var inv in inventarios)
+            var institucionesActivas = await _context.Instituciones
+                .Where(i => i.Activo && i.Id_Institucion != 1)
+                .ToListAsync();
+
+            foreach (var inst in institucionesActivas)
             {
-                if (inv.Id_Institucion == 1) continue;
+                int total = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == inst.Id_Institucion && l.Activo);
 
-                int licenciasLibres = inv.Cantidad_Total - inv.Cantidad_Asignada;
+                int usadas = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == inst.Id_Institucion
+                                  && l.Activo
+                                  && l.Id_Usuario != null);
 
-                if (licenciasLibres <= 10)
+                int libres = total - usadas;
+
+                if (libres <= 10)
                 {
-                    var escuela = await _context.Instituciones.FindAsync(inv.Id_Institucion);
-
-                    if (escuela != null && escuela.Activo)
+                    listaAlertas.Add(new AlertaMasterModel
                     {
-                        listaAlertas.Add(new AlertaMasterModel
-                        {
-                            NombreInstitucion = escuela.Nombre,
-                            MensajeAlerta = licenciasLibres == 0 ? "¡Sin licencias disponibles!" : $"Solo quedan {licenciasLibres} licencias",
-                            TipoAlerta = licenciasLibres == 0 ? "Peligro" : "Advertencia"
-                        });
-                    }
+                        NombreInstitucion = inst.Nombre,
+                        MensajeAlerta = libres == 0
+                            ? "¡Sin licencias disponibles!"
+                            : $"Solo quedan {libres} licencias",
+                        TipoAlerta = libres == 0 ? "Peligro" : "Advertencia"
+                    });
                 }
             }
 
             modelo.DashboardIzquierdo.Alertas = listaAlertas;
 
-            // ==========================================
-            // 4. DIRECTORIO DE INSTITUCIONES (Columna Derecha)
-            // ==========================================
+            // Directorio de instituciones
             var institucionesBD = await _context.Instituciones.ToListAsync();
-
             var listaInstituciones = new List<InstitucionDirectorioModel>();
 
             foreach (var inst in institucionesBD)
             {
-                // Calcular desde la tabla real de licencias individuales
                 var totalLicencias = await _context.Licencias_Inventario_Individual
                     .CountAsync(l => l.Id_Institucion == inst.Id_Institucion && l.Activo);
 
@@ -90,12 +95,10 @@ namespace AnzanMegaArithmetics.Services
                 });
             }
 
-            // Ordenamos: Mentes México (1) primero, las demás alfabéticamente
             modelo.ListaInstituciones = listaInstituciones
                 .OrderBy(i => i.Id_Institucion != 1)
                 .ThenBy(i => i.Nombre)
                 .ToList();
-
 
             return modelo;
         }
@@ -197,13 +200,21 @@ namespace AnzanMegaArithmetics.Services
             var inv = await _context.Instituciones_Inventario_Licencias
                 .FirstOrDefaultAsync(i => i.Id_Institucion == idInstitucion);
 
+            int totalReal = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Id_Institucion == idInstitucion && l.Activo);
+
+            int usadasReal = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Id_Institucion == idInstitucion
+                              && l.Activo
+                              && l.Id_Usuario != null);
+
             return new GestionLicenciasModel
             {
                 Id_Institucion = idInstitucion,
-                NombreInstitucion = inst.Nombre,
-                LicenciasTotales = inv?.Cantidad_Total ?? 0,
-                LicenciasUsadas = inv?.Cantidad_Asignada ?? 0,
-                NuevasLicenciasTotales = inv?.Cantidad_Total ?? 0
+                NombreInstitucion = inst?.Nombre ?? string.Empty,
+                LicenciasTotales = totalReal,
+                LicenciasUsadas = usadasReal,
+                NuevasLicenciasTotales = inv?.Cantidad_Total ?? totalReal
             };
         }
 
@@ -275,9 +286,6 @@ namespace AnzanMegaArithmetics.Services
             var inst = await _context.Instituciones.FindAsync(id);
             if (inst == null) return null;
 
-            var inv = await _context.Instituciones_Inventario_Licencias
-                .FirstOrDefaultAsync(i => i.Id_Institucion == id);
-
             var totalAlumnos = await _context.Usuarios
                 .Include(u => u.Rol)
                 .CountAsync(u => u.Id_Institucion == id && u.Rol.Rol == "Alumno");
@@ -306,7 +314,6 @@ namespace AnzanMegaArithmetics.Services
                 .Select(p => new { p.Fecha, p.Respuestas_Correctas, p.Total_Preguntas })
                 .ToListAsync();
 
-
             var fechasRecientes = datosPruebas
                 .Where(p => p.Fecha >= fechaCorteActividad)
                 .Select(p => p.Fecha)
@@ -329,26 +336,24 @@ namespace AnzanMegaArithmetics.Services
                 valoresActividad.Add(conteo);
             }
 
-            // CÁLCULO DEL PROMEDIO GENERAL DE LA ESCUELA
             double promedioReal = 0;
             long totalPreguntasEscuela = datosPruebas.Sum(p => (long)p.Total_Preguntas);
             long totalAciertosEscuela = datosPruebas.Sum(p => (long)p.Respuestas_Correctas);
 
             if (totalPreguntasEscuela > 0)
-            {
                 promedioReal = Math.Round((double)totalAciertosEscuela / totalPreguntasEscuela * 100, 1);
-            }
 
             var clasesDB = await _context.Clases
-            .Where(c => c.Id_Institucion == id)
-            .ToListAsync();
+                .Where(c => c.Id_Institucion == id)
+                .ToListAsync();
 
             var listaClasesSede = new List<ClaseSedeModel>();
 
             foreach (var c in clasesDB)
             {
                 int alumnosEnClase = await _context.Usuarios
-                    .Where(u => u.Id_Institucion == id && u.Usuario_Clase.Any(uc => uc.Id_Clase == c.Id_Clase))
+                    .Where(u => u.Id_Institucion == id
+                             && u.Usuario_Clase.Any(uc => uc.Id_Clase == c.Id_Clase))
                     .CountAsync();
 
                 listaClasesSede.Add(new ClaseSedeModel
@@ -366,6 +371,13 @@ namespace AnzanMegaArithmetics.Services
                 .Distinct()
                 .ToListAsync();
 
+            // ↓ CORRECCIÓN: desde la fuente real
+            int totalLicencias = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Id_Institucion == id && l.Activo);
+
+            int licenciasEnUso = await _context.Licencias_Inventario_Individual
+                .CountAsync(l => l.Id_Institucion == id && l.Activo && l.Id_Usuario != null);
+
             return new DetalleInstitucionViewModel
             {
                 Id_Institucion = inst.Id_Institucion,
@@ -374,8 +386,9 @@ namespace AnzanMegaArithmetics.Services
                 FechaVencimiento = fechaVencimiento,
                 Activa = inst.Activo,
 
-                TotalLicencias = inv?.Cantidad_Total ?? 0,
-                LicenciasEnUso = inv?.Cantidad_Asignada ?? 0,
+                TotalLicencias = totalLicencias,   // ← corregido
+                LicenciasEnUso = licenciasEnUso,   // ← corregido
+
                 DiasRestantes = diasRestantes,
                 PorcentajeTiempoTranscurrido = porcentajeTranscurrido,
 
@@ -645,7 +658,7 @@ namespace AnzanMegaArithmetics.Services
                 if (gtExiste)
                     return (false, "Ese GamerTag ya está en uso.");
 
-                // 3. Verificar que la clase pertenece a esta institución (evita manipulación)
+                // 3. Clase válida
                 bool claseValida = await _context.Clases
                     .AnyAsync(c => c.Id_Clase == model.Id_Clase
                                 && c.Id_Institucion == model.Id_Institucion
@@ -653,17 +666,26 @@ namespace AnzanMegaArithmetics.Services
                 if (!claseValida)
                     return (false, "La clase seleccionada no pertenece a esta institución.");
 
-                // 4. Verificar licencias disponibles (doble candado, por si acaso)
-                var inventario = await _context.Instituciones_Inventario_Licencias
-                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                // 4. Validar licencia individual seleccionada
+                if (model.Id_Licencia_Individual <= 0)
+                    return (false, "Debes seleccionar una licencia para asignar al alumno.");
 
-                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
-                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+                var licInd = await _context.Licencias_Inventario_Individual
+                    .FindAsync(model.Id_Licencia_Individual);
+
+                if (licInd == null)
+                    return (false, "La licencia seleccionada no existe.");
+
+                if (licInd.Id_Usuario.HasValue)
+                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
+
+                if (licInd.Id_Institucion != model.Id_Institucion)
+                    return (false, "La licencia no pertenece a esta institución.");
 
                 // 5. Crear usuario
                 var nuevoUsuario = new UsuariosDB
                 {
-                    Id_Rol = 1, // Alumno
+                    Id_Rol = 1,
                     Id_Institucion = model.Id_Institucion,
                     Nombre = model.Nombre.Trim(),
                     Correo = model.Correo.Trim().ToLower(),
@@ -688,18 +710,14 @@ namespace AnzanMegaArithmetics.Services
                     Activo = true
                 });
 
-                // 7. Asignar licencia y descontar del inventario
-                if (model.Id_Licencia_Individual > 0)
-                {
-                    var licInd = await _context.Licencias_Inventario_Individual
-                        .FindAsync(model.Id_Licencia_Individual);
+                // 7. Asignar licencia individual
+                licInd.Id_Usuario = nuevoUsuario.Id_Usuario;
 
-                    if (licInd == null || (licInd.Id_Usuario.HasValue && licInd.Id_Usuario != nuevoUsuario.Id_Usuario))
-                        return (false, "La licencia seleccionada no está disponible.");
-
-                    licInd.Id_Usuario = nuevoUsuario.Id_Usuario;
+                // 8. Actualizar inventario
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                if (inventario != null)
                     inventario.Cantidad_Asignada++;
-                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -817,25 +835,7 @@ namespace AnzanMegaArithmetics.Services
                         ucNueva.Activo = true;
                 }
 
-                if (model.Id_UsuarioLicencia.HasValue &&
-                    model.Fecha_Inicio_Licencia.HasValue &&
-                    model.Fecha_Fin_Licencia.HasValue)
-                {
-                    var lic = await _context.Usuarios_Licencias
-                        .FindAsync(model.Id_UsuarioLicencia.Value);
-
-                    if (lic != null)
-                    {
-                        if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
-                            return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
-
-                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
-                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
-                        lic.Vigencia = (int)Math.Ceiling(
-                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
-                        );
-                    }
-                }
+                
 
                 // Reasignar licencia si cambió
                 if (model.Id_Licencia_Individual > 0)
@@ -981,7 +981,6 @@ namespace AnzanMegaArithmetics.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Validaciones
                 bool correoExiste = await _context.Usuarios
                     .AnyAsync(u => u.Correo.ToLower() == model.Correo.Trim().ToLower());
                 if (correoExiste)
@@ -995,7 +994,6 @@ namespace AnzanMegaArithmetics.Services
                 if (model.Ids_Clases == null || !model.Ids_Clases.Any())
                     return (false, "Debes asignar al menos una clase al profesor.");
 
-                // Validar que todas las clases pertenecen a la institución
                 foreach (var idClase in model.Ids_Clases)
                 {
                     bool claseValida = await _context.Clases
@@ -1006,14 +1004,23 @@ namespace AnzanMegaArithmetics.Services
                         return (false, "Una o más clases seleccionadas no pertenecen a esta institución.");
                 }
 
-                // Verificar licencias
-                var inventario = await _context.Instituciones_Inventario_Licencias
-                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                // Validar licencia individual seleccionada
+                if (model.Id_Licencia_Individual <= 0)
+                    return (false, "Debes seleccionar una licencia para asignar al profesor.");
 
-                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
-                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+                var licInd = await _context.Licencias_Inventario_Individual
+                    .FindAsync(model.Id_Licencia_Individual);
 
-                // Crear profesor — Id_Rol = 2
+                if (licInd == null)
+                    return (false, "La licencia seleccionada no existe.");
+
+                if (licInd.Id_Usuario.HasValue)
+                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
+
+                if (licInd.Id_Institucion != model.Id_Institucion)
+                    return (false, "La licencia no pertenece a esta institución.");
+
+                // Crear profesor
                 var nuevoProfesor = new UsuariosDB
                 {
                     Id_Rol = 2,
@@ -1033,7 +1040,7 @@ namespace AnzanMegaArithmetics.Services
                 _context.Usuarios.Add(nuevoProfesor);
                 await _context.SaveChangesAsync();
 
-                // Asignar múltiples clases
+                // Asignar clases
                 foreach (var idClase in model.Ids_Clases)
                 {
                     _context.Usuarios_Clases.Add(new Usuario_ClaseDB
@@ -1044,21 +1051,14 @@ namespace AnzanMegaArithmetics.Services
                     });
                 }
 
-                // Asignar licencia
-                var licenciaDB = await _context.Licencias.FindAsync(inventario.Id_Licencia);
-                int vigencia = licenciaDB?.Vigencia ?? 12;
+                // Asignar licencia individual
+                licInd.Id_Usuario = nuevoProfesor.Id_Usuario;
 
-                if (model.Id_Licencia_Individual > 0)
-                {
-                    var licInd = await _context.Licencias_Inventario_Individual
-                        .FindAsync(model.Id_Licencia_Individual);
-
-                    if (licInd == null || (licInd.Id_Usuario.HasValue && licInd.Id_Usuario != nuevoProfesor.Id_Usuario))
-                        return (false, "La licencia seleccionada no está disponible.");
-
-                    licInd.Id_Usuario = nuevoProfesor.Id_Usuario;
+                // Actualizar inventario
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                if (inventario != null)
                     inventario.Cantidad_Asignada++;
-                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -1193,24 +1193,8 @@ namespace AnzanMegaArithmetics.Services
                     }
                 }
 
-                // Actualizar licencia
-                if (model.Id_UsuarioLicencia.HasValue &&
-                    model.Fecha_Inicio_Licencia.HasValue &&
-                    model.Fecha_Fin_Licencia.HasValue)
-                {
-                    if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
-                        return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
-
-                    var lic = await _context.Usuarios_Licencias.FindAsync(model.Id_UsuarioLicencia.Value);
-                    if (lic != null)
-                    {
-                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
-                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
-                        lic.Vigencia = (int)Math.Ceiling(
-                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
-                        );
-                    }
-                }
+                
+                
 
                 // Reasignar licencia si cambió
                 if (model.Id_Licencia_Individual > 0)
@@ -1322,7 +1306,7 @@ namespace AnzanMegaArithmetics.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                if (model.Id_Rol < 1  || model.Id_Rol > 4)
+                if (model.Id_Rol < 1 || model.Id_Rol > 4)
                     return (false, "Rol inválido.");
 
                 bool correoExiste = await _context.Usuarios
@@ -1335,12 +1319,23 @@ namespace AnzanMegaArithmetics.Services
                 if (gtExiste)
                     return (false, "Ese GamerTag ya está en uso.");
 
-                var inventario = await _context.Instituciones_Inventario_Licencias
-                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                // Validar licencia individual seleccionada
+                if (model.Id_Licencia_Individual <= 0)
+                    return (false, "Debes seleccionar una licencia para asignar al usuario.");
 
-                if (inventario == null || inventario.Cantidad_Asignada >= inventario.Cantidad_Total)
-                    return (false, "No hay licencias disponibles. Aumenta el inventario primero.");
+                var licInd = await _context.Licencias_Inventario_Individual
+                    .FindAsync(model.Id_Licencia_Individual);
 
+                if (licInd == null)
+                    return (false, "La licencia seleccionada no existe.");
+
+                if (licInd.Id_Usuario.HasValue)
+                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
+
+                if (licInd.Id_Institucion != model.Id_Institucion)
+                    return (false, "La licencia no pertenece a esta institución.");
+
+                // Crear usuario
                 var nuevo = new UsuariosDB
                 {
                     Id_Rol = model.Id_Rol,
@@ -1381,20 +1376,14 @@ namespace AnzanMegaArithmetics.Services
                     }
                 }
 
-                var licenciaDB = await _context.Licencias.FindAsync(inventario.Id_Licencia);
-                int vigencia = licenciaDB?.Vigencia ?? 12;
+                // Asignar licencia individual
+                licInd.Id_Usuario = nuevo.Id_Usuario;
 
-                if (model.Id_Licencia_Individual > 0)
-                {
-                    var licInd = await _context.Licencias_Inventario_Individual
-                        .FindAsync(model.Id_Licencia_Individual);
-
-                    if (licInd == null || (licInd.Id_Usuario.HasValue && licInd.Id_Usuario != nuevo.Id_Usuario))
-                        return (false, "La licencia seleccionada no está disponible.");
-
-                    licInd.Id_Usuario = nuevo.Id_Usuario;
+                // Actualizar inventario
+                var inventario = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                if (inventario != null)
                     inventario.Cantidad_Asignada++;
-                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -1506,24 +1495,8 @@ namespace AnzanMegaArithmetics.Services
                         });
                 }
 
-                // Licencia
-                if (model.Id_UsuarioLicencia.HasValue &&
-                    model.Fecha_Inicio_Licencia.HasValue &&
-                    model.Fecha_Fin_Licencia.HasValue)
-                {
-                    if (model.Fecha_Fin_Licencia <= model.Fecha_Inicio_Licencia)
-                        return (false, "La fecha de vencimiento debe ser posterior a la de inicio.");
-
-                    var lic = await _context.Usuarios_Licencias.FindAsync(model.Id_UsuarioLicencia.Value);
-                    if (lic != null)
-                    {
-                        lic.Fecha_Asignacion = model.Fecha_Inicio_Licencia.Value;
-                        lic.Fecha_Vencimiento = model.Fecha_Fin_Licencia.Value;
-                        lic.Vigencia = (int)Math.Ceiling(
-                            (model.Fecha_Fin_Licencia.Value - model.Fecha_Inicio_Licencia.Value).TotalDays / 30
-                        );
-                    }
-                }
+               
+               
 
                 // Reasignar licencia si cambió
                 if (model.Id_Licencia_Individual > 0)
@@ -1577,34 +1550,30 @@ namespace AnzanMegaArithmetics.Services
                 if (usuario == null)
                     return (false, "Usuario no encontrado.");
 
-                // 1. Descontar licencia del inventario
-                var licenciasUsuario = await _context.Usuarios_Licencias
-                    .Where(ul => ul.Id_Usuario == idUsuario)
-                    .ToListAsync();
+                var inventario = usuario.Id_Institucion.HasValue
+                    ? await _context.Instituciones_Inventario_Licencias
+                        .FirstOrDefaultAsync(i => i.Id_Institucion == usuario.Id_Institucion.Value)
+                    : null;
 
-                Instituciones_Inventario_LicenciasDB? inventario = null;
-
-                if (usuario.Id_Institucion.HasValue)
-                {
-                    inventario = await _context.Instituciones_Inventario_Licencias
-                        .FirstOrDefaultAsync(i => i.Id_Institucion == usuario.Id_Institucion.Value);
-
-                    if (licenciasUsuario.Any() && inventario != null)
-                        inventario.Cantidad_Asignada = Math.Max(0, inventario.Cantidad_Asignada - 1);
-                }
-
-                // 2. Eliminar relaciones
-                _context.Usuarios_Licencias.RemoveRange(licenciasUsuario);
-
-                var clases = await _context.Usuarios_Clases
-                    .Where(uc => uc.Id_Usuario == idUsuario).ToListAsync();
-                _context.Usuarios_Clases.RemoveRange(clases);
-
+                // 1. Pruebas
                 var pruebas = await _context.Pruebas
-                    .Where(p => p.Id_Usuario == idUsuario).ToListAsync();
+                    .Where(p => p.Id_Usuario == idUsuario)
+                    .ToListAsync();
                 _context.Pruebas.RemoveRange(pruebas);
 
-                // Desasignar licencia individual
+                // 2. Historial de licencias (Usuarios_Licencias) — solo eliminar, sin tocar contadores
+                var licenciasHistorial = await _context.Usuarios_Licencias
+                    .Where(ul => ul.Id_Usuario == idUsuario)
+                    .ToListAsync();
+                _context.Usuarios_Licencias.RemoveRange(licenciasHistorial);
+
+                // 3. Clases
+                var clases = await _context.Usuarios_Clases
+                    .Where(uc => uc.Id_Usuario == idUsuario)
+                    .ToListAsync();
+                _context.Usuarios_Clases.RemoveRange(clases);
+
+                // 4. Licencia individual — aquí sí descontamos UNA VEZ
                 var licInd = await _context.Licencias_Inventario_Individual
                     .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario);
                 if (licInd != null)
@@ -1614,6 +1583,7 @@ namespace AnzanMegaArithmetics.Services
                         inventario.Cantidad_Asignada = Math.Max(0, inventario.Cantidad_Asignada - 1);
                 }
 
+                // 5. Eliminar usuario
                 _context.Usuarios.Remove(usuario);
 
                 await _context.SaveChangesAsync();
@@ -1727,18 +1697,24 @@ namespace AnzanMegaArithmetics.Services
                 .Where(i => i.Activo && i.Id_Institucion != excluirId)
                 .ToListAsync();
 
-            var inventarios = await _context.Instituciones_Inventario_Licencias.ToListAsync();
+            var lista = new List<InstitucionOpcionModel>();
 
-            return instituciones.Select(i =>
+            foreach (var inst in instituciones)
             {
-                var inv = inventarios.FirstOrDefault(x => x.Id_Institucion == i.Id_Institucion);
-                return new InstitucionOpcionModel
+                int libres = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == inst.Id_Institucion
+                                  && l.Activo
+                                  && l.Id_Usuario == null);
+
+                lista.Add(new InstitucionOpcionModel
                 {
-                    Id_Institucion = i.Id_Institucion,
-                    Nombre = i.Nombre,
-                    LicenciasDisponibles = inv != null ? inv.Cantidad_Total - inv.Cantidad_Asignada : 0
-                };
-            }).ToList();
+                    Id_Institucion = inst.Id_Institucion,
+                    Nombre = inst.Nombre,
+                    LicenciasDisponibles = libres
+                });
+            }
+
+            return lista;
         }
 
         public async Task<List<ClaseSedeModel>> ObtenerClasesPorInstitucionAsync(int idInstitucion)
@@ -1779,13 +1755,6 @@ namespace AnzanMegaArithmetics.Services
                 var usuario = await _context.Usuarios.FindAsync(model.Id_Usuario);
                 if (usuario == null) return (false, "Usuario no encontrado.");
 
-                // Verificar licencias en destino
-                var invDestino = await _context.Instituciones_Inventario_Licencias
-                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion_Destino);
-
-                if (invDestino == null || invDestino.Cantidad_Asignada >= invDestino.Cantidad_Total)
-                    return (false, "La institución destino no tiene licencias disponibles.");
-
                 // Verificar que la clase destino pertenece a la institución destino
                 bool claseValida = await _context.Clases
                     .AnyAsync(c => c.Id_Clase == model.Id_Clase_Destino
@@ -1794,9 +1763,28 @@ namespace AnzanMegaArithmetics.Services
                 if (!claseValida)
                     return (false, "La clase destino no es válida.");
 
-                // Inventario origen
+                // Verificar licencia seleccionada en destino desde la fuente real
+                if (model.Id_Licencia_Individual <= 0)
+                    return (false, "Debes seleccionar una licencia en la institución destino.");
+
+                var licDestino = await _context.Licencias_Inventario_Individual
+                    .FindAsync(model.Id_Licencia_Individual);
+
+                if (licDestino == null)
+                    return (false, "La licencia seleccionada no existe.");
+
+                if (licDestino.Id_Usuario.HasValue)
+                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
+
+                if (licDestino.Id_Institucion != model.Id_Institucion_Destino)
+                    return (false, "La licencia no pertenece a la institución destino.");
+
+                // Inventarios
                 var invOrigen = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == usuario.Id_Institucion);
+
+                var invDestino = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion_Destino);
 
                 // Desasignar licencia en origen
                 var licOrigen = await _context.Licencias_Inventario_Individual
@@ -1809,21 +1797,14 @@ namespace AnzanMegaArithmetics.Services
                 }
 
                 // Asignar licencia en destino
-                if (model.Id_Licencia_Individual > 0)
-                {
-                    var licDestino = await _context.Licencias_Inventario_Individual
-                        .FindAsync(model.Id_Licencia_Individual);
-                    if (licDestino != null)
-                    {
-                        licDestino.Id_Usuario = model.Id_Usuario;
-                        invDestino.Cantidad_Asignada++;
-                    }
-                }
+                licDestino.Id_Usuario = model.Id_Usuario;
+                if (invDestino != null)
+                    invDestino.Cantidad_Asignada++;
 
                 // Cambiar institución
                 usuario.Id_Institucion = model.Id_Institucion_Destino;
 
-                // Reasignar clase: eliminar clases anteriores y asignar la nueva
+                // Reasignar clase
                 var clasesActuales = await _context.Usuarios_Clases
                     .Where(uc => uc.Id_Usuario == model.Id_Usuario)
                     .ToListAsync();
@@ -1883,27 +1864,29 @@ namespace AnzanMegaArithmetics.Services
                 var clase = await _context.Clases.FindAsync(model.Id_Clase);
                 if (clase == null) return (false, "Clase no encontrada.");
 
-                // Obtener usuarios de la clase
                 var usuariosIds = await _context.Usuarios_Clases
                     .Where(uc => uc.Id_Clase == model.Id_Clase)
                     .Select(uc => uc.Id_Usuario)
                     .Distinct()
                     .ToListAsync();
 
-                // Verificar licencias disponibles en destino
                 var invDestino = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion_Destino);
 
                 if (invDestino == null)
                     return (false, "La institución destino no tiene inventario de licencias.");
 
-                int licenciasNecesarias = usuariosIds.Count;
-                int licenciasDisponibles = invDestino.Cantidad_Total - invDestino.Cantidad_Asignada;
+                // Verificar licencias disponibles en destino desde la fuente real
+                int licenciasDisponibles = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == model.Id_Institucion_Destino
+                                  && l.Activo
+                                  && l.Id_Usuario == null);
 
-                if (licenciasNecesarias > licenciasDisponibles)
-                    return (false, $"La institución destino solo tiene {licenciasDisponibles} licencias disponibles y se necesitan {licenciasNecesarias}.");
+                if (usuariosIds.Count > licenciasDisponibles)
+                    return (false, $"La institución destino solo tiene {licenciasDisponibles} licencias " +
+                                   $"disponibles y se necesitan {usuariosIds.Count}.");
 
-                // Crear la clase en la institución destino con el mismo nombre
+                // Crear o reutilizar clase en destino
                 bool claseYaExiste = await _context.Clases
                     .AnyAsync(c => c.Id_Institucion == model.Id_Institucion_Destino
                                 && c.Nombre.ToLower() == clase.Nombre.ToLower());
@@ -1924,32 +1907,49 @@ namespace AnzanMegaArithmetics.Services
                         Activo = true
                     };
                     _context.Clases.Add(claseDestino);
-                    await _context.SaveChangesAsync(); // Para obtener el Id_Clase generado
+                    await _context.SaveChangesAsync();
                 }
 
-                // Inventario origen
                 var invOrigen = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == clase.Id_Institucion);
 
-                // Mover cada usuario
+                // Obtener licencias libres del destino para asignarlas
+                var licenciasLibresDestino = await _context.Licencias_Inventario_Individual
+                    .Where(l => l.Id_Institucion == model.Id_Institucion_Destino
+                             && l.Activo
+                             && l.Id_Usuario == null)
+                    .OrderBy(l => l.Fecha_Vencimiento)
+                    .Take(usuariosIds.Count)
+                    .ToListAsync();
+
+                int indexLicencia = 0;
+
                 foreach (var idUsuario in usuariosIds)
                 {
                     var usuario = await _context.Usuarios.FindAsync(idUsuario);
                     if (usuario == null) continue;
 
-                    // Cambiar institución
+                    // Desasignar licencia individual en origen
+                    var licOrigen = await _context.Licencias_Inventario_Individual
+                        .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario);
+                    if (licOrigen != null)
+                    {
+                        licOrigen.Id_Usuario = null;
+                        if (invOrigen != null)
+                            invOrigen.Cantidad_Asignada = Math.Max(0, invOrigen.Cantidad_Asignada - 1);
+                    }
+
+                    // Asignar licencia libre en destino
+                    if (indexLicencia < licenciasLibresDestino.Count)
+                    {
+                        var licDestino = licenciasLibresDestino[indexLicencia];
+                        licDestino.Id_Usuario = idUsuario;
+                        invDestino.Cantidad_Asignada++;
+                        indexLicencia++;
+                    }
+
+                    // Cambiar institución del usuario
                     usuario.Id_Institucion = model.Id_Institucion_Destino;
-
-                    // Ajustar inventarios
-                    if (invOrigen != null)
-                        invOrigen.Cantidad_Asignada = Math.Max(0, invOrigen.Cantidad_Asignada - 1);
-                    invDestino.Cantidad_Asignada++;
-
-                    // Actualizar licencia
-                    var licenciaUsuario = await _context.Usuarios_Licencias
-                        .FirstOrDefaultAsync(ul => ul.Id_Usuario == idUsuario);
-                    if (licenciaUsuario != null)
-                        licenciaUsuario.Id_Licencia = invDestino.Id_Licencia;
 
                     // Reasignar clase
                     var clasesActuales = await _context.Usuarios_Clases
@@ -1965,7 +1965,7 @@ namespace AnzanMegaArithmetics.Services
                     });
                 }
 
-                // Eliminar la clase origen
+                // Eliminar clase origen
                 _context.Clases.Remove(clase);
 
                 await _context.SaveChangesAsync();
@@ -1989,59 +1989,59 @@ namespace AnzanMegaArithmetics.Services
                 if (institucion == null)
                     return (false, "Institución no encontrada.");
 
-                // Obtener todos los usuarios de la institución
                 var usuarios = await _context.Usuarios
                     .Where(u => u.Id_Institucion == idInstitucion)
                     .ToListAsync();
 
                 var idsUsuarios = usuarios.Select(u => u.Id_Usuario).ToList();
 
-                // Eliminar pruebas de todos los usuarios
+                // 1. Pruebas
                 var pruebas = await _context.Pruebas
                     .Where(p => idsUsuarios.Contains(p.Id_Usuario))
                     .ToListAsync();
                 _context.Pruebas.RemoveRange(pruebas);
 
-                // Eliminar licencias históricas (Usuarios_Licencias)
-                var licencias = await _context.Usuarios_Licencias
+                // 2. Usuarios_Licencias (historial)
+                var licenciasHistorial = await _context.Usuarios_Licencias
                     .Where(ul => idsUsuarios.Contains(ul.Id_Usuario))
                     .ToListAsync();
-                _context.Usuarios_Licencias.RemoveRange(licencias);
+                _context.Usuarios_Licencias.RemoveRange(licenciasHistorial);
 
-                // Eliminar relaciones de clases de todos los usuarios
+                // 3. Usuarios_Clases
                 var clasesUsuarios = await _context.Usuarios_Clases
                     .Where(uc => idsUsuarios.Contains(uc.Id_Usuario))
                     .ToListAsync();
                 _context.Usuarios_Clases.RemoveRange(clasesUsuarios);
 
-                // Eliminar usuarios
-                _context.Usuarios.RemoveRange(usuarios);
-
-                // Eliminar clases de la institución
-                var clases = await _context.Clases
-                    .Where(c => c.Id_Institucion == idInstitucion)
-                    .ToListAsync();
-                _context.Clases.RemoveRange(clases);
-
-                // Eliminar licencias individuales de la institución
+                // 4. Licencias individuales — ANTES de eliminar usuarios
+                //    para evitar conflictos de FK con Id_Usuario
                 var licenciasIndividuales = await _context.Licencias_Inventario_Individual
                     .Where(l => l.Id_Institucion == idInstitucion)
                     .ToListAsync();
                 _context.Licencias_Inventario_Individual.RemoveRange(licenciasIndividuales);
 
-                // Eliminar módulos de la institución
+                // 5. Usuarios
+                _context.Usuarios.RemoveRange(usuarios);
+
+                // 6. Clases
+                var clases = await _context.Clases
+                    .Where(c => c.Id_Institucion == idInstitucion)
+                    .ToListAsync();
+                _context.Clases.RemoveRange(clases);
+
+                // 7. Módulos
                 var modulos = await _context.Instituciones_Modulos
                     .Where(m => m.Id_Institucion == idInstitucion)
                     .ToListAsync();
                 _context.Instituciones_Modulos.RemoveRange(modulos);
 
-                // Eliminar inventario de licencias
+                // 8. Inventario de licencias
                 var inventario = await _context.Instituciones_Inventario_Licencias
                     .Where(i => i.Id_Institucion == idInstitucion)
                     .ToListAsync();
                 _context.Instituciones_Inventario_Licencias.RemoveRange(inventario);
 
-                // Eliminar institución
+                // 9. Institución
                 _context.Instituciones.Remove(institucion);
 
                 await _context.SaveChangesAsync();
