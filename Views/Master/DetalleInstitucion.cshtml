@@ -1195,30 +1195,64 @@
         }
     }
 
-    async function cargarClasesDestino(idInstitucion) {
-        const ddl = document.getElementById('ddlClaseDestino');
-        ddl.innerHTML = '<option value="">Cargando...</option>';
+       async function cargarClasesYLicenciasDestino(idInstitucion) {
+        const ddlClase     = document.getElementById('ddlClaseDestino');
+        const ddlLicencia  = document.getElementById('ddlLicenciaDestino');
+        const divLicencia  = document.getElementById('divLicenciaDestino');
+        const msgSin       = document.getElementById('msgSinLicencias');
+
+        ddlClase.innerHTML = '<option value="">Cargando...</option>';
 
         if (!idInstitucion) {
-            ddl.innerHTML = '<option value="">— Primero selecciona institución —</option>';
+            ddlClase.innerHTML    = '<option value="">— Primero selecciona institución —</option>';
+            divLicencia.style.display = 'none';
             return;
         }
 
+        // Cargar clases
         try {
-            const res   = await fetch(`/Master/ObtenerClasesPorInstitucion?idInstitucion=${idInstitucion}`);
+            const res    = await fetch(`/Master/ObtenerClasesPorInstitucion?idInstitucion=${idInstitucion}`);
             const clases = await res.json();
 
             if (clases.length === 0) {
-                ddl.innerHTML = '<option value="">Sin clases disponibles</option>';
+                ddlClase.innerHTML = '<option value="">Sin clases disponibles</option>';
+            } else {
+                ddlClase.innerHTML = '<option value="">— Selecciona clase —</option>';
+                clases.forEach(c => {
+                    ddlClase.innerHTML += `<option value="${c.id_Clase}">${c.nombre}</option>`;
+                });
+            }
+        } catch {
+            ddlClase.innerHTML = '<option value="">Error al cargar clases</option>';
+        }
+
+        // Cargar licencias
+        divLicencia.style.display = 'block';
+        ddlLicencia.innerHTML     = '<option value="0">Cargando licencias...</option>';
+        msgSin.style.display      = 'none';
+
+        try {
+            const res  = await fetch(`/Master/ObtenerLicenciasInstitucion?idInstitucion=${idInstitucion}`);
+            const data = await res.json();
+
+            if (!data.length) {
+                ddlLicencia.innerHTML    = '<option value="0">Sin licencias disponibles</option>';
+                msgSin.style.display     = 'block';
                 return;
             }
 
-            ddl.innerHTML = '<option value="">— Selecciona clase —</option>';
-            clases.forEach(c => {
-                ddl.innerHTML += `<option value="${c.id_Clase}">${c.nombre}</option>`;
+            ddlLicencia.innerHTML = '<option value="0">— Selecciona una licencia —</option>';
+            data.forEach(lic => {
+                const emoji = lic.libre
+                    ? '🟢 LIBRE'
+                    : `🔶 ASIGNADA a ${lic.nombreUsuarioActual}`;
+                const opt         = document.createElement('option');
+                opt.value         = lic.id;
+                opt.textContent   = `${emoji} | ${lic.tipoLicencia} — Vence: ${lic.fechaVencimiento} (${lic.diasRestantes} días)`;
+                ddlLicencia.appendChild(opt);
             });
         } catch {
-            ddl.innerHTML = '<option value="">Error al cargar clases</option>';
+            ddlLicencia.innerHTML = '<option value="0">Error al cargar licencias</option>';
         }
     }
 

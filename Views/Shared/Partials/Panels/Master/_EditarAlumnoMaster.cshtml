@@ -65,42 +65,14 @@
                     </span>
                 </label>
             </div>
+
             <partial name="~/Views/Shared/Partials/Panels/Master/_SelectorRol.cshtml" model="Model.Id_Rol" />
-            @* Sección de licencia *@
-            <input type="hidden" name="Id_UsuarioLicencia" value="@Model.Id_UsuarioLicencia" />
 
-            <div style="grid-column:1/-1; margin-top:0.5rem;">
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
-                border-radius:0.5rem; padding:1rem;">
-                    <label class="lbl-form" style="margin-bottom:0.8rem;">
-                        <i class="fas fa-id-card" style="color:var(--color-primary);"></i>
-                        Licencia — <span style="color:#a0a0c0; text-transform:none; font-weight:400;">@Model.LicenciaActual</span>
-                    </label>
-
-                    @if (Model.Id_UsuarioLicencia.HasValue)
-                    {
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label class="lbl-form">Fecha de inicio</label>
-                                <input type="date" name="Fecha_Inicio_Licencia" class="input-game"
-                                       value="@Model.Fecha_Inicio_Licencia?.ToString("yyyy-MM-dd")" />
-                            </div>
-                            <div>
-                                <label class="lbl-form">Fecha de vencimiento</label>
-                                <input type="date" name="Fecha_Fin_Licencia" class="input-game"
-                                       value="@Model.Fecha_Fin_Licencia?.ToString("yyyy-MM-dd")" />
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <p style="color:#ff4757; font-size:0.9rem; margin:0;">
-                            <i class="fas fa-exclamation-triangle"></i> Este alumno no tiene licencia asignada.
-                        </p>
-                    }
-                </div>
-            </div>
-
+            @* ↓ REEMPLAZA el bloque de fechas de licencia por esto *@
+            @await Html.PartialAsync(
+            "~/Views/Shared/Partials/Panels/Master/_SelectorLicencia.cshtml",
+                        new { Licencias = Model.LicenciasDisponibles, IdActual = Model.Id_Licencia_Individual }
+                        )
         </div>
 
         <div id="msgErrorEditarAlumnoMaster" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);
@@ -124,11 +96,55 @@
 </div>
 
 <style>
-    .lbl-form { display:block; color:#a0a0c0; font-size:0.8rem; text-transform:uppercase; font-weight:600; margin-bottom:0.4rem; }
-    .input-game { width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none; transition:0.3s; box-sizing:border-box; font-size:0.95rem; }
-    .input-game:focus { border-color:var(--color-primary); }
-    .input-game option { background:#010f36; }
-    .formulario-flash { background:#010f36; border-radius:1rem; padding:1.5rem; }
-    .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); }
-    .form-header h2 { margin:0; font-size:1.5rem; color:white; font-weight:600; }
+    .lbl-form {
+        display: block;
+        color: #a0a0c0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .input-game {
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+    }
+
+        .input-game:focus {
+            border-color: var(--color-primary);
+        }
+
+        .input-game option {
+            background: #010f36;
+        }
+
+    .formulario-flash {
+        background: #010f36;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
 </style>

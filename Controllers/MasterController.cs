@@ -434,5 +434,20 @@ namespace AnzanMegaArithmetics.Controllers
             return Json(new { exito, mensaje });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerLicenciasInstitucion(int idInstitucion)
+        {
+            var licencias = await _masterDBService.ObtenerLicenciasDisponiblesAsync(idInstitucion);
+            return Json(licencias.Select(l => new
+            {
+                id = l.Id,
+                tipoLicencia = l.TipoLicencia,
+                fechaVencimiento = l.Fecha_Vencimiento.ToString("dd/MMM/yyyy"),
+                diasRestantes = l.DiasRestantes,
+                libre = l.Libre,
+                nombreUsuarioActual = l.NombreUsuarioActual
+            }));
+        }
+
     }
 }

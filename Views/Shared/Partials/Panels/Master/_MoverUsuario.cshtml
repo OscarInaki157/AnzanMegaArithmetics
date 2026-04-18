@@ -31,7 +31,7 @@
                 </label>
                 <select name="Id_Institucion_Destino" id="ddlInstitucionDestino"
                         class="input-game" required
-                        onchange="cargarClasesDestino(this.value)">
+                        onchange="cargarClasesYLicenciasDestino(this.value)">
                     <option value="">— Selecciona institución —</option>
                     @foreach (var inst in Model.InstitucionesDisponibles)
                     {
@@ -50,6 +50,23 @@
                 <select name="Id_Clase_Destino" id="ddlClaseDestino" class="input-game" required>
                     <option value="">— Primero selecciona institución —</option>
                 </select>
+            </div>
+
+            <div style="grid-column:1/-1; display:none;" id="divLicenciaDestino">
+                <label class="lbl-form">
+                    <i class="fas fa-id-card" style="color:#00c896;"></i>
+                    Licencia a asignar en destino
+                </label>
+                <select name="Id_Licencia_Individual" id="ddlLicenciaDestino"
+                        class="input-game" required>
+                    <option value="0">— Selecciona institución primero —</option>
+                </select>
+                <div id="msgSinLicencias" style="display:none; margin-top:0.5rem; color:#ff4757;
+                     background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3);
+                     border-radius:0.5rem; padding:0.5rem 1rem; font-size:0.85rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Esta institución no tiene licencias disponibles.
+                </div>
             </div>
         </div>
 

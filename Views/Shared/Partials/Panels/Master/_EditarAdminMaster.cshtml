@@ -8,7 +8,6 @@
     <form onsubmit="enviarEdicionAdminMaster(event)">
         @Html.AntiForgeryToken()
         <input type="hidden" name="Id_Usuario" value="@Model.Id_Usuario" />
-        <input type="hidden" name="Id_UsuarioLicencia" value="@Model.Id_UsuarioLicencia" />
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
             <div>
@@ -77,35 +76,11 @@
                 </label>
             </div>
 
-            <div style="grid-column:1/-1;">
-                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:0.5rem; padding:1rem;">
-                    <label class="lbl-form" style="margin-bottom:0.8rem;">
-                        <i class="fas fa-id-card" style="color:#a855f7;"></i>
-                        Licencia — <span style="color:#a0a0c0; text-transform:none; font-weight:400;">@Model.LicenciaActual</span>
-                    </label>
-                    @if (Model.Id_UsuarioLicencia.HasValue)
-                    {
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div>
-                                <label class="lbl-form">Fecha de inicio</label>
-                                <input type="date" name="Fecha_Inicio_Licencia" class="input-game"
-                                       value="@Model.Fecha_Inicio_Licencia?.ToString("yyyy-MM-dd")" />
-                            </div>
-                            <div>
-                                <label class="lbl-form">Fecha de vencimiento</label>
-                                <input type="date" name="Fecha_Fin_Licencia" class="input-game"
-                                       value="@Model.Fecha_Fin_Licencia?.ToString("yyyy-MM-dd")" />
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <p style="color:#ff4757; font-size:0.9rem; margin:0;">
-                            <i class="fas fa-exclamation-triangle"></i> Sin licencia asignada.
-                        </p>
-                    }
-                </div>
-            </div>
+            @* ↓ REEMPLAZA el bloque de fechas de licencia por esto *@
+            @await Html.PartialAsync(
+            "~/Views/Shared/Partials/Panels/Master/_SelectorLicencia.cshtml",
+                        new { Licencias = Model.LicenciasDisponibles, IdActual = Model.Id_Licencia_Individual }
+                        )
         </div>
 
         <div id="msgErrorEditarAdmin" style="display:none; color:#ff4757; background:rgba(255,71,87,0.1);

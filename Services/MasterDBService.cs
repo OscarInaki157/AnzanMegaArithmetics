@@ -100,31 +100,23 @@ namespace AnzanMegaArithmetics.Services
             {
                 string nombreLimpio = formModel.Nombre.Trim();
 
-
                 bool existe = await _context.Instituciones
                     .AnyAsync(i => i.Nombre.ToLower() == nombreLimpio.ToLower());
 
                 if (existe)
                     return (false, $"La institución '{nombreLimpio}' ya existe.");
 
-                var nuevaInstitucion = new InstitucionModel
+                var dbInstitucion = new InstitucionesDB
                 {
                     Nombre = nombreLimpio,
                     Activo = true,
                     Fecha_Registro = DateTime.Now
                 };
 
-                var dbInstitucion = new InstitucionesDB
-                {
-                    Nombre = nuevaInstitucion.Nombre,
-                    Activo = nuevaInstitucion.Activo,
-                    Fecha_Registro = nuevaInstitucion.Fecha_Registro
-                };
-
                 _context.Instituciones.Add(dbInstitucion);
                 await _context.SaveChangesAsync();
 
-                var nuevoInventario = new InventarioLicenciasModel
+                var dbInventario = new Instituciones_Inventario_LicenciasDB
                 {
                     Id_Institucion = dbInstitucion.Id_Institucion,
                     Id_Licencia = 1,
@@ -132,34 +124,43 @@ namespace AnzanMegaArithmetics.Services
                     Cantidad_Asignada = 0
                 };
 
-                var dbInventario = new Instituciones_Inventario_LicenciasDB
-                {
-                    Id_Institucion = nuevoInventario.Id_Institucion,
-                    Id_Licencia = nuevoInventario.Id_Licencia,
-                    Cantidad_Total = nuevoInventario.Cantidad_Total,
-                    Cantidad_Asignada = nuevoInventario.Cantidad_Asignada
-                };
-
                 _context.Instituciones_Inventario_Licencias.Add(dbInventario);
                 await _context.SaveChangesAsync();
 
-                var modulosDefault = new List<string>
+                var licenciaDB = await _context.Licencias.FindAsync(dbInventario.Id_Licencia);
+                int vigencia = licenciaDB?.Vigencia ?? 12;
+
+                for (int i = 0; i < formModel.LicenciasIniciales; i++)
                 {
-                    "ranking", "mi_perfil", "conferencias", "hojas_ejercicios",
-                    "panel_profesor", "desafios", "memorizacion",
-                    "fingermath_lectura", "fingermath_escritura",
-                    "soroban_lectura", "soroban_escritura",
-                    "suma_resta", "flash_numeros", "flash_dictado",
-                    "multiplicacion_tablas", "multiplicacion_ejercicios",
-                    "multiplicacion_competencia", "division",
-                    "memoria_numero_figura", "memoria_rutas",
-                    "memoria_flash", "memoria_cartas",
-                    "desafio_calendario_competencia", "desafio_calendario_practica",
-                    "desafio_cuadros_competencia", "desafio_cuadros_practica",
-                    "desafio_potencias_competencia", "desafio_potencias_practica",
-                    "desafio_raices_competencia", "desafio_raices_practica",
-                    "desafio_dados"
-                };
+                    _context.Licencias_Inventario_Individual.Add(new LicenciasInventarioIndividualDB
+                    {
+                        Id_Institucion = dbInstitucion.Id_Institucion,
+                        Id_Licencia = dbInventario.Id_Licencia,
+                        Fecha_Compra = DateTime.Now,
+                        Fecha_Vencimiento = DateTime.Now.AddMonths(vigencia),
+                        Id_Usuario = null,
+                        Activo = true
+                    });
+                }
+                await _context.SaveChangesAsync();
+
+                var modulosDefault = new List<string>
+        {
+            "ranking", "mi_perfil", "conferencias", "hojas_ejercicios",
+            "panel_profesor", "desafios", "memorizacion",
+            "fingermath_lectura", "fingermath_escritura",
+            "soroban_lectura", "soroban_escritura",
+            "suma_resta", "flash_numeros", "flash_dictado",
+            "multiplicacion_tablas", "multiplicacion_ejercicios",
+            "multiplicacion_competencia", "division",
+            "memoria_numero_figura", "memoria_rutas",
+            "memoria_flash", "memoria_cartas",
+            "desafio_calendario_competencia", "desafio_calendario_practica",
+            "desafio_cuadros_competencia", "desafio_cuadros_practica",
+            "desafio_potencias_competencia", "desafio_potencias_practica",
+            "desafio_raices_competencia", "desafio_raices_practica",
+            "desafio_dados"
+        };
 
                 foreach (var clave in modulosDefault)
                 {
@@ -171,6 +172,7 @@ namespace AnzanMegaArithmetics.Services
                     });
                 }
 
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return (true, "Institución registrada correctamente.");
@@ -178,7 +180,7 @@ namespace AnzanMegaArithmetics.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return (false, "Error interno: No se pudo completar el registro en la base de datos.");
+                return (false, $"Error interno: {ex.Message}");
             }
         }
 
