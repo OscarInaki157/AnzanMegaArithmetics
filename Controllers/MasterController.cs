@@ -449,5 +449,41 @@ namespace AnzanMegaArithmetics.Controllers
             }));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ObtenerTabLicencias(int idInstitucion)
+        {
+            var model = await _masterDBService.ObtenerTabLicenciasAsync(idInstitucion);
+            return PartialView("~/Views/Shared/Partials/Panels/Master/_TabLicencias.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearLicenciaIndividual(CrearLicenciaIndividualModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.CrearLicenciaIndividualAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EliminarLicenciaIndividual(int idLicencia)
+        {
+            var (exito, mensaje) = await _masterDBService.EliminarLicenciaIndividualAsync(idLicencia);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RenovarLicenciaIndividual(RenovarLicenciaModel model)
+        {
+            var (exito, mensaje) = await _masterDBService.RenovarLicenciaIndividualAsync(model);
+            return Json(new { exito, mensaje });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DesasignarLicenciaManual(int idLicencia)
+        {
+            var (exito, mensaje) = await _masterDBService.DesasignarLicenciaManualAsync(idLicencia);
+            return Json(new { exito, mensaje });
+        }
+
+
     }
 }

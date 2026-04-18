@@ -70,7 +70,14 @@ namespace AnzanMegaArithmetics.Services
 
             foreach (var inst in institucionesBD)
             {
-                var inventario = inventarios.FirstOrDefault(i => i.Id_Institucion == inst.Id_Institucion);
+                // Calcular desde la tabla real de licencias individuales
+                var totalLicencias = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == inst.Id_Institucion && l.Activo);
+
+                var licenciasUsadas = await _context.Licencias_Inventario_Individual
+                    .CountAsync(l => l.Id_Institucion == inst.Id_Institucion
+                                  && l.Activo
+                                  && l.Id_Usuario != null);
 
                 listaInstituciones.Add(new InstitucionDirectorioModel
                 {
@@ -78,8 +85,8 @@ namespace AnzanMegaArithmetics.Services
                     Nombre = inst.Nombre,
                     Activo = inst.Activo,
                     FechaRegistro = inst.Fecha_Registro,
-                    LicenciasTotales = inventario?.Cantidad_Total ?? 0,
-                    LicenciasUsadas = inventario?.Cantidad_Asignada ?? 0
+                    LicenciasTotales = totalLicencias,
+                    LicenciasUsadas = licenciasUsadas
                 });
             }
 
@@ -2224,6 +2231,145 @@ namespace AnzanMegaArithmetics.Services
             catch (Exception ex)
             {
                 return (false, $"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<GestionLicenciasIndividualViewModel> ObtenerTabLicenciasAsync(int idInstitucion)
+        {
+            var inst = await _context.Instituciones.FindAsync(idInstitucion);
+
+            var licencias = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .Include(l => l.Usuario)
+                .Where(l => l.Id_Institucion == idInstitucion)
+                .OrderBy(l => l.Id_Usuario.HasValue)
+                .ThenBy(l => l.Fecha_Vencimiento)
+                .ToListAsync();
+
+            var lista = licencias.Select(l => new LicenciaIndividualDetalleModel
+            {
+                Id = l.Id,
+                TipoLicencia = l.Licencia?.Nombre ?? "—",
+                Fecha_Compra = l.Fecha_Compra,
+                Fecha_Vencimiento = l.Fecha_Vencimiento,
+                Activo = l.Activo,
+                Id_Usuario = l.Id_Usuario,
+                NombreUsuario = l.Usuario?.Nombre ?? string.Empty,
+                CorreoUsuario = l.Usuario?.Correo ?? string.Empty
+            }).ToList();
+
+            return new GestionLicenciasIndividualViewModel
+            {
+                Id_Institucion = idInstitucion,
+                NombreInstitucion = inst?.Nombre ?? string.Empty,
+                TotalLicencias = lista.Count,
+                LicenciasAsignadas = lista.Count(l => !l.Libre),
+                LicenciasLibres = lista.Count(l => l.Libre),
+                LicenciasVencidas = lista.Count(l => l.Vencida),
+                Licencias = lista
+            };
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CrearLicenciaIndividualAsync(
+            CrearLicenciaIndividualModel model)
+        {
+            try
+            {
+                var inv = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
+                if (inv == null)
+                    return (false, "No se encontró el inventario de la institución.");
+
+                _context.Licencias_Inventario_Individual.Add(new LicenciasInventarioIndividualDB
+                {
+                    Id_Institucion = model.Id_Institucion,
+                    Id_Licencia = inv.Id_Licencia,
+                    Fecha_Compra = DateTime.Now,
+                    Fecha_Vencimiento = DateTime.Now.AddMonths(model.MesesVigencia),
+                    Id_Usuario = model.Id_Usuario,
+                    Activo = true
+                });
+
+                inv.Cantidad_Total++;
+                if (model.Id_Usuario.HasValue)
+                    inv.Cantidad_Asignada++;
+
+                await _context.SaveChangesAsync();
+                return (true, "Licencia creada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> EliminarLicenciaIndividualAsync(int idLicencia)
+        {
+            try
+            {
+                var lic = await _context.Licencias_Inventario_Individual.FindAsync(idLicencia);
+                if (lic == null) return (false, "Licencia no encontrada.");
+
+                if (lic.Id_Usuario.HasValue)
+                    return (false, "No puedes eliminar una licencia que está asignada a un usuario. Desasígnala primero.");
+
+                var inv = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == lic.Id_Institucion);
+                if (inv != null)
+                    inv.Cantidad_Total = Math.Max(0, inv.Cantidad_Total - 1);
+
+                _context.Licencias_Inventario_Individual.Remove(lic);
+                await _context.SaveChangesAsync();
+                return (true, "Licencia eliminada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> RenovarLicenciaIndividualAsync(
+            RenovarLicenciaModel model)
+        {
+            try
+            {
+                var lic = await _context.Licencias_Inventario_Individual.FindAsync(model.Id_Licencia_Individual);
+                if (lic == null) return (false, "Licencia no encontrada.");
+
+                // Si está vencida, renovar desde hoy; si no, extender desde su vencimiento actual
+                DateTime base_ = lic.Vencida ? DateTime.Now : lic.Fecha_Vencimiento;
+                lic.Fecha_Vencimiento = base_.AddMonths(model.MesesRenovacion);
+
+                await _context.SaveChangesAsync();
+                return (true, $"Licencia renovada hasta {lic.Fecha_Vencimiento:dd/MMM/yyyy}.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
+            }
+        }
+
+        public async Task<(bool Exito, string Mensaje)> DesasignarLicenciaManualAsync(int idLicencia)
+        {
+            try
+            {
+                var lic = await _context.Licencias_Inventario_Individual.FindAsync(idLicencia);
+                if (lic == null) return (false, "Licencia no encontrada.");
+                if (!lic.Id_Usuario.HasValue) return (false, "Esta licencia ya está libre.");
+
+                lic.Id_Usuario = null;
+
+                var inv = await _context.Instituciones_Inventario_Licencias
+                    .FirstOrDefaultAsync(i => i.Id_Institucion == lic.Id_Institucion);
+                if (inv != null)
+                    inv.Cantidad_Asignada = Math.Max(0, inv.Cantidad_Asignada - 1);
+
+                await _context.SaveChangesAsync();
+                return (true, "Licencia desasignada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error interno: {ex.Message}");
             }
         }
 

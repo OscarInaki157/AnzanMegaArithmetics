@@ -20,10 +20,7 @@
                     <i class="fa-solid fa-calendar-alt"></i>
                     <strong>Desde:</strong> @Model.FechaRegistro.ToString("dd/MMM/yyyy")
                 </span>
-                <span class="meta-item">
-                    <i class="fa-solid fa-key"></i>
-                    <strong>Bolsa de Licencias:</strong> @Model.LicenciasEnUso / @Model.TotalLicencias
-                </span>
+                
             </div>
         </div>
 
@@ -37,32 +34,41 @@
 
 <div class="tabs-container">
     <div class="tab-buttons">
-        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)"><i class="fas fa-chart-pie"></i> Resumen Sede</button>
-        <button type="button" class="tab-btn" onclick="mostrarTab('tab2', this)"><i class="fas fa-chalkboard"></i> Clases</button>
-
-        <button type="button" class="tab-btn"
-                onclick="mostrarTab('tab3', this); cargarTabAlumnos(@Model.Id_Institucion)">
-            <i class="fas fa-users"></i> Alumnos
+        <button type="button" class="tab-btn active" onclick="mostrarTab('tab1', this)">
+            <i class="fas fa-chart-pie"></i> Resumen Sede
         </button>
 
         <button type="button" class="tab-btn"
-                onclick="mostrarTab('tab4', this); cargarTabProfesores(@Model.Id_Institucion)">
-            <i class="fas fa-user-tie"></i> Profesores
+                onclick="mostrarTab('tab2', this); cargarTabLicencias(@Model.Id_Institucion)">
+            <i class="fas fa-key"></i> Licencias
+        </button>
+
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab3', this)">
+            <i class="fas fa-chalkboard"></i> Clases
         </button>
 
         <button type="button" class="tab-btn"
-                onclick="mostrarTab('tab5', this); cargarTabAdmins(@Model.Id_Institucion)">
+                onclick="mostrarTab('tab4', this); cargarTabAdmins(@Model.Id_Institucion)">
             <i class="fas fa-user-shield"></i> Administrativos
         </button>
 
         <button type="button" class="tab-btn"
-                onclick="mostrarTab('tab6', this)">
-            <i class="fas fa-clipboard-list"></i> Pruebas
+                onclick="mostrarTab('tab5', this); cargarTabProfesores(@Model.Id_Institucion)">
+            <i class="fas fa-user-tie"></i> Profesores
+        </button>
+
+        <button type="button" class="tab-btn"
+                onclick="mostrarTab('tab6', this); cargarTabAlumnos(@Model.Id_Institucion)">
+            <i class="fas fa-users"></i> Alumnos
         </button>
 
         <button type="button" class="tab-btn"
                 onclick="mostrarTab('tab7', this); cargarTabConfiguracion(@Model.Id_Institucion)">
             <i class="fas fa-cog"></i> Configuración
+        </button>
+
+        <button type="button" class="tab-btn" onclick="mostrarTab('tab8', this)">
+            <i class="fas fa-clipboard-list"></i> Pruebas
         </button>
     </div>
 
@@ -70,16 +76,25 @@
         <partial name="~/Views/Shared/Partials/Panels/Master/_ResumenSede.cshtml" model="Model" />
     </div>
 
-    <div class="formulario-flash tab-content" id="tab2">
+    <div class="formulario-flash tab-content" id="tab2"></div>
+
+    <div class="formulario-flash tab-content" id="tab3">
         <partial name="~/Views/Shared/Partials/Panels/_ListadoClases.cshtml" model="Model" />
     </div>
 
-    <div class="formulario-flash tab-content" id="tab3">
-    </div>
 
     <div class="formulario-flash tab-content" id="tab4"></div>
+
+
     <div class="formulario-flash tab-content" id="tab5"></div>
-    <div class="formulario-flash tab-content" id="tab6">
+
+
+    <div class="formulario-flash tab-content" id="tab6"></div>
+
+
+    <div class="formulario-flash tab-content" id="tab7"></div>
+
+    <div class="formulario-flash tab-content" id="tab8">
         <partial name="~/Views/Shared/Partials/Panels/_PanelPruebas.cshtml"
                  model='new AnzanMegaArithmetics.Models.ResumenClaseViewModel
                  {
@@ -88,7 +103,6 @@
                      TiposDePruebaDisponibles = Model.TiposDePruebaDisponibles
                  }' />
     </div>
-    <div class="formulario-flash tab-content" id="tab7"></div>
 </div>
 
 <div id="modalFichaJugador" class="modal-overlay">
@@ -552,7 +566,7 @@
 
         // ── TAB ALUMNOS ──────────────────────────────────────────
     async function cargarTabAlumnos(idInstitucion) {
-        const tab = document.getElementById('tab3');
+        const tab = document.getElementById('tab6');
         if (tab.dataset.cargado) return;
         tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
         try {
@@ -565,7 +579,7 @@
     }
 
     async function filtrarPorClaseMaster(clase, idInstitucion) {
-        const tab = document.getElementById('tab3');
+        const tab = document.getElementById('tab6');
         tab.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i></div>';
         try {
             const res = await fetch(`/Master/ObtenerTabAlumnos?idInstitucion=${idInstitucion}&clase=${encodeURIComponent(clase)}`);
@@ -605,7 +619,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab3');
+                const tab = document.getElementById('tab6');
                 tab.dataset.cargado = '';
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
@@ -669,7 +683,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab3');
+                const tab = document.getElementById('tab6');
                 tab.dataset.cargado = '';
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
@@ -696,7 +710,7 @@
             const result = await res.json();
             if (result.exito) {
                 // Refrescamos el tab sin recargar la página
-                const tab = document.getElementById('tab3');
+                const tab = document.getElementById('tab6');
                 tab.dataset.cargado = '';
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
@@ -725,11 +739,11 @@
         // ── VER ALUMNOS DE CLASE ─────────────────────────────────
     function verAlumnosDeClase(nombreClase) {
         // 1. Cambiar al tab de alumnos
-        const tabBtn = document.querySelector("button[onclick*='tab3']");
+        const tabBtn = document.querySelector("button[onclick*='tab6']");
         if (tabBtn) tabBtn.click();
 
         // 2. Forzar recarga con el filtro de clase
-        const tab = document.getElementById('tab3');
+        const tab = document.getElementById('tab6');
         tab.dataset.cargado = '';
 
         filtrarPorClaseMaster(nombreClase, @Model.Id_Institucion);
@@ -772,7 +786,7 @@
 
         // ── TAB PROFESORES ───────────────────────────────────────
     async function cargarTabProfesores(idInstitucion) {
-        const tab = document.getElementById('tab4');
+        const tab = document.getElementById('tab5');
         if (tab.dataset.cargado) return;
         tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
         try {
@@ -813,7 +827,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab4');
+                const tab = document.getElementById('tab5');
                 tab.dataset.cargado = '';
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
@@ -876,7 +890,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab4');
+                const tab = document.getElementById('tab5');
                 tab.dataset.cargado = '';
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
@@ -902,7 +916,7 @@
             const res    = await fetch('/Master/ToggleActivoProfesor', { method: 'POST', body: fd });
             const result = await res.json();
             if (result.exito) {
-                const tab = document.getElementById('tab4');
+                const tab = document.getElementById('tab5');
                 tab.dataset.cargado = '';
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
@@ -918,28 +932,28 @@
         // ── BUSCADORES ───────────────────────────────────────────
     function filtrarAlumnosMasterLocal() {
         const busqueda = document.getElementById('txtBuscarAlumnoMaster')?.value.toLowerCase() ?? '';
-        document.querySelectorAll('#tab3 .alumno-row').forEach(fila => {
+        document.querySelectorAll('#tab6 .alumno-row').forEach(fila => {
             fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
         });
     }
 
     function filtrarProfesLocal() {
         const busqueda = document.getElementById('txtBuscarProfe')?.value.toLowerCase() ?? '';
-        document.querySelectorAll('#tab4 .profe-row').forEach(fila => {
+        document.querySelectorAll('#tab5 .profe-row').forEach(fila => {
             fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
         });
     }
 
     function filtrarAdminsLocal() {
         const busqueda = document.getElementById('txtBuscarAdmin')?.value.toLowerCase() ?? '';
-        document.querySelectorAll('#tab5 .admin-row').forEach(fila => {
+        document.querySelectorAll('#tab4 .admin-row').forEach(fila => {
             fila.style.display = fila.getAttribute('data-search').includes(busqueda) ? '' : 'none';
         });
     }
 
         // ── TAB ADMINS ───────────────────────────────────────────
     async function cargarTabAdmins(idInstitucion) {
-        const tab = document.getElementById('tab5');
+        const tab = document.getElementById('tab4');
         if (tab.dataset.cargado) return;
         tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
         try {
@@ -979,7 +993,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab5');
+                const tab = document.getElementById('tab4');
                 tab.dataset.cargado = '';
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
@@ -1040,7 +1054,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab5');
+                const tab = document.getElementById('tab4');
                 tab.dataset.cargado = '';
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
@@ -1065,7 +1079,7 @@
             const res    = await fetch('/Master/ToggleActivoAdmin', { method: 'POST', body: fd });
             const result = await res.json();
             if (result.exito) {
-                const tab = document.getElementById('tab5');
+                const tab = document.getElementById('tab4');
                 tab.dataset.cargado = '';
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
@@ -1099,9 +1113,9 @@
                 if (tabActivo) {
                     tabActivo.dataset.cargado = '';
                     const idTab = tabActivo.id;
-                    if (idTab === 'tab3') cargarTabAlumnos(@Model.Id_Institucion);
-                    else if (idTab === 'tab4') cargarTabProfesores(@Model.Id_Institucion);
-                    else if (idTab === 'tab5') cargarTabAdmins(@Model.Id_Institucion);
+                    if (idTab === 'tab6') cargarTabAlumnos(@Model.Id_Institucion);
+                    else if (idTab === 'tab5') cargarTabProfesores(@Model.Id_Institucion);
+                    else if (idTab === 'tab4') cargarTabAdmins(@Model.Id_Institucion);
                 }
             } else {
                 alert('Error: ' + result.mensaje);
@@ -1276,9 +1290,9 @@
                 if (tabActivo) {
                     tabActivo.dataset.cargado = '';
                     const idTab = tabActivo.id;
-                    if (idTab === 'tab3') cargarTabAlumnos(@Model.Id_Institucion);
-                    else if (idTab === 'tab4') cargarTabProfesores(@Model.Id_Institucion);
-                    else if (idTab === 'tab5') cargarTabAdmins(@Model.Id_Institucion);
+                    if (idTab === 'tab6') cargarTabAlumnos(@Model.Id_Institucion);
+                    else if (idTab === 'tab5') cargarTabProfesores(@Model.Id_Institucion);
+                    else if (idTab === 'tab4') cargarTabAdmins(@Model.Id_Institucion);
                 }
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -1420,6 +1434,224 @@
         } finally {
             btn.disabled  = false;
             btn.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
+        }
+    }
+        // ── TAB LICENCIAS ────────────────────────────────────────
+    async function cargarTabLicencias(idInstitucion) {
+        const tab = document.getElementById('tab2');
+        if (tab.dataset.cargado) return;
+        tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+        try {
+            const res = await fetch(`/Master/ObtenerTabLicencias?idInstitucion=${idInstitucion}`);
+            tab.innerHTML = await res.text();
+            tab.dataset.cargado = '1';
+        } catch {
+            tab.innerHTML = '<div style="color:red;text-align:center;padding:2rem;">Error al cargar licencias.</div>';
+        }
+    }
+
+    function mostrarMsgLicencias(exito, mensaje) {
+        const msg = document.getElementById('msgTabLicencias');
+        if (!msg) return;
+        msg.textContent      = mensaje;
+        msg.style.display    = 'block';
+        msg.style.color      = exito ? '#00ff88' : '#ff4757';
+        msg.style.background = exito ? 'rgba(0,255,136,0.08)' : 'rgba(255,71,87,0.08)';
+        msg.style.border     = exito ? '1px solid rgba(0,255,136,0.3)' : '1px solid rgba(255,71,87,0.3)';
+        setTimeout(() => msg.style.display = 'none', 4000);
+    }
+
+    function recargarTabLicencias() {
+        const tab = document.getElementById('tab2');
+        tab.dataset.cargado = '';
+        cargarTabLicencias(@Model.Id_Institucion);
+    }
+
+    async function desasignarLicencia(idLicencia) {
+        if (!confirm('¿Desasignar esta licencia del usuario actual? El usuario quedará sin licencia.')) return;
+        const fd = new FormData();
+        fd.append('idLicencia', idLicencia);
+        try {
+            const res    = await fetch('/Master/DesasignarLicenciaManual', { method: 'POST', body: fd });
+            const result = await res.json();
+            mostrarMsgLicencias(result.exito, result.mensaje);
+            if (result.exito) recargarTabLicencias();
+        } catch {
+            mostrarMsgLicencias(false, 'Error de conexión.');
+        }
+    }
+
+    async function eliminarLicencia(idLicencia) {
+        if (!confirm('¿Eliminar esta licencia permanentemente?')) return;
+        const fd = new FormData();
+        fd.append('idLicencia', idLicencia);
+        try {
+            const res    = await fetch('/Master/EliminarLicenciaIndividual', { method: 'POST', body: fd });
+            const result = await res.json();
+            mostrarMsgLicencias(result.exito, result.mensaje);
+            if (result.exito) recargarTabLicencias();
+        } catch {
+            mostrarMsgLicencias(false, 'Error de conexión.');
+        }
+    }
+
+    async function renovarLicencia(idLicencia) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = `
+            <div class="formulario-flash">
+                <div class="form-header">
+                    <h2><i class="fas fa-sync-alt" style="color:#00c896; margin-right:0.5rem;"></i> Renovar Licencia</h2>
+                </div>
+                <div style="background:rgba(0,200,150,0.07); border:1px solid rgba(0,200,150,0.2);
+                            border-radius:0.5rem; padding:0.8rem 1rem; margin-bottom:1.5rem;
+                            color:#a0a0c0; font-size:0.85rem;">
+                    <i class="fas fa-info-circle" style="color:#00c896;"></i>
+                    Si la licencia está vencida, se renovará desde hoy.
+                    Si aún está vigente, se extenderá desde su fecha de vencimiento actual.
+                </div>
+                <form onsubmit="enviarRenovarLicencia(event)">
+                    <input type="hidden" name="Id_Licencia_Individual" value="${idLicencia}" />
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block; color:#a0a0c0; font-size:0.8rem;
+                                      text-transform:uppercase; font-weight:600; margin-bottom:0.4rem;">
+                            Meses a renovar
+                        </label>
+                        <input type="number" name="MesesRenovacion" value="12" min="1" max="120"
+                               style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1);
+                                      border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none;
+                                      transition:0.3s; box-sizing:border-box; font-size:0.95rem;"
+                               required />
+                    </div>
+                    <div id="msgErrorRenovar" style="display:none; color:#ff4757;
+                         background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3);
+                         border-radius:0.5rem; padding:0.7rem 1rem; margin-bottom:1rem; font-size:0.9rem;"></div>
+                    <div style="display:flex; gap:0.8rem; justify-content:flex-end;">
+                        <button type="button" onclick="cerrarModalSede()"
+                                style="background:rgba(255,255,255,0.05); color:white;
+                                       border:1px solid rgba(255,255,255,0.1); padding:0.7rem 1.5rem;
+                                       border-radius:0.5rem; cursor:pointer; font-weight:600;">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btnRenovarLicencia"
+                                style="background:linear-gradient(135deg,#00c896,#00a876); color:white; border:none;
+                                       padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer;
+                                       font-weight:600; display:inline-flex; align-items:center; gap:0.5rem;">
+                            <i class="fas fa-sync-alt"></i> Renovar
+                        </button>
+                    </div>
+                </form>
+            </div>`;
+    }
+
+    async function enviarRenovarLicencia(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnRenovarLicencia');
+        const msgErr = document.getElementById('msgErrorRenovar');
+        const fd     = new FormData(event.target);
+
+        btn.disabled  = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Renovando...';
+
+        try {
+            const res    = await fetch('/Master/RenovarLicenciaIndividual', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                mostrarMsgLicencias(true, result.mensaje);
+                recargarTabLicencias();
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-sync-alt"></i> Renovar';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-sync-alt"></i> Renovar';
+        }
+    }
+
+    async function abrirCrearLicencia(idInstitucion) {
+        const modal = document.getElementById('modalSede');
+        const body  = document.getElementById('modalSedeBody');
+        modal.style.display = 'flex';
+        body.innerHTML = `
+            <div class="formulario-flash">
+                <div class="form-header">
+                    <h2><i class="fas fa-key" style="color:var(--color-primary);margin-right:0.5rem;"></i> Nueva Licencia</h2>
+                </div>
+                <form onsubmit="enviarCrearLicencia(event)">
+                    <input type="hidden" name="Id_Institucion" value="${idInstitucion}" />
+                    <div style="display:grid; gap:1rem; margin-bottom:1.5rem;">
+                        <div>
+                            <label class="lbl-form" style="display:block; color:#a0a0c0; font-size:0.8rem;
+                                   text-transform:uppercase; font-weight:600; margin-bottom:0.4rem;">
+                                Meses de vigencia
+                            </label>
+                            <input type="number" name="MesesVigencia" value="12" min="1" max="120"
+                                   style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1);
+                                          border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none;
+                                          transition:0.3s; box-sizing:border-box; font-size:0.95rem;"
+                                   required />
+                        </div>
+                        <div style="background:rgba(76,76,255,0.08); border:1px solid rgba(76,76,255,0.2);
+                                    border-radius:0.5rem; padding:0.8rem 1rem; color:#a0a0c0; font-size:0.85rem;">
+                            <i class="fas fa-info-circle" style="color:var(--color-primary);"></i>
+                            La licencia se creará sin usuario asignado y comenzará a correr desde hoy.
+                            Puedes asignarla a un usuario desde el formulario de edición.
+                        </div>
+                    </div>
+                    <div id="msgErrorCrearLicencia" style="display:none; color:#ff4757;
+                         background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3);
+                         border-radius:0.5rem; padding:0.7rem 1rem; margin-bottom:1rem; font-size:0.9rem;"></div>
+                    <div style="display:flex; gap:0.8rem; justify-content:flex-end;">
+                        <button type="button" onclick="cerrarModalSede()"
+                                style="background:rgba(255,255,255,0.05); color:white;
+                                       border:1px solid rgba(255,255,255,0.1); padding:0.7rem 1.5rem;
+                                       border-radius:0.5rem; cursor:pointer; font-weight:600;">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btnCrearLicencia"
+                                style="background:var(--color-primary); color:white; border:none;
+                                       padding:0.7rem 1.5rem; border-radius:0.5rem; cursor:pointer;
+                                       font-weight:600; display:inline-flex; align-items:center; gap:0.5rem;">
+                            <i class="fas fa-plus"></i> Crear Licencia
+                        </button>
+                    </div>
+                </form>
+            </div>`;
+    }
+
+    async function enviarCrearLicencia(event) {
+        event.preventDefault();
+        const btn    = document.getElementById('btnCrearLicencia');
+        const msgErr = document.getElementById('msgErrorCrearLicencia');
+        const fd     = new FormData(event.target);
+
+        btn.disabled  = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Creando...';
+
+        try {
+            const res    = await fetch('/Master/CrearLicenciaIndividual', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.exito) {
+                cerrarModalSede();
+                recargarTabLicencias();
+            } else {
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-plus"></i> Crear Licencia';
+            }
+        } catch {
+            msgErr.textContent   = 'Error de conexión.';
+            msgErr.style.display = 'block';
+            btn.disabled         = false;
+            btn.innerHTML        = '<i class="fas fa-plus"></i> Crear Licencia';
         }
     }
 </script>

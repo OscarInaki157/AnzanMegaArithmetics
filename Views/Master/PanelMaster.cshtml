@@ -284,50 +284,7 @@
         }
     }
 
-        async function abrirModalLicencias(id) {
-        const modal = document.getElementById('modalMaster');
-        const body = document.getElementById('modalMasterBody');
-
-        modal.style.display = 'flex';
-        body.innerHTML = '<div style="text-align:center; padding:2rem; color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando inventario...</div>';
-
-        try {
-            const response = await fetch(`/Master/ObtenerGestionLicencias?id=${id}`);
-            body.innerHTML = await response.text();
-        } catch (e) {
-            body.innerHTML = '<div style="color:red;">Error al conectar con la bóveda.</div>';
-        }
-    }
-
-    async function enviarActualizacionLicencias(event) {
-        event.preventDefault();
-        const btn = document.getElementById('btnGuardarLic');
-        const msgError = document.getElementById('msgErrorLicencias');
-        const formData = new FormData(event.target);
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Actualizando...';
-
-        try {
-            const response = await fetch('/Master/ActualizarLicencias', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-
-            if (result.exito) {
-                window.location.reload();
-            } else {
-                msgError.textContent = result.mensaje;
-                msgError.style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar Bolsa';
-            }
-        } catch (e) {
-            msgError.textContent = "Error de red.";
-            btn.disabled = false;
-        }
-    }
+   
 
     // 1. Modificamos la función que ABRE la modal para agregar el efecto del Foco
     function abrirModalEditarInstitucion(idInstitucion) {
