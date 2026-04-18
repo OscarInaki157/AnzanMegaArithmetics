@@ -18,5 +18,7 @@ namespace AnzanMegaArithmetics.Models
         public DateTime Ultima_Cnx { get; set; }
         public string Licencia { get; set; }
         public string Frase_Bienvenida { get; set; } = string.Empty;
+
+        public string? MotivoRechazo { get; set; } // null = login exitoso
     }
 }

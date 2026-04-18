@@ -46,27 +46,17 @@ namespace AnzanMegaArithmetics.Controllers
         [HttpPost]
         public async Task<IActionResult> ValidarUser(LoginRequestModel model)
         {
-            string user = model.Usuario;
-            string pass = model.Pass;
+            LoginResponseModel response = _usersDBService.ValidateLogin(model.Usuario, model.Pass);
 
-            LoginResponseModel response = _usersDBService.ValidateLogin(user, pass);
-
-            if (response.Gamer_Tag.Contains("Error al validar") || response.Gamer_Tag.Contains("No hay coincidencias") || 
-                response.Licencia.Contains("Vencida") || response.Licencia.Contains("Sin Licencia"))
+            // Si hay motivo de rechazo, regresar al login con el mensaje
+            if (!string.IsNullOrEmpty(response.MotivoRechazo))
             {
-
-                string mensajeError = response.Gamer_Tag.Contains("Error al validar") || response.Gamer_Tag.Contains("No hay coincidencias")
-           ? "Error al validar, usuario no encontrado."
-           : "Tu licencia no está activa. Contacta al administrador.";
-
-                ViewBag.ErrorMessage = mensajeError;
-
+                ViewBag.ErrorMessage = response.MotivoRechazo;
                 return View("Login");
             }
 
-            //actualizar ultima conexion del chabon
-
-            bool cnx = _usersDBService.UltimaConexion(response);
+            // Actualizar última conexión
+            _usersDBService.UltimaConexion(response);
 
             var claims = new List<Claim>
             {
@@ -78,22 +68,19 @@ namespace AnzanMegaArithmetics.Controllers
                 new Claim("Racha", response.Racha.ToString()),
                 new Claim("Exp", response.Exp.ToString()),
                 new Claim("UltimaCnx", response.Ultima_Cnx.ToString("yyyy-MM-dd HH:mm:ss")),
-                new Claim("Licencia", response.Licencia)
+                new Claim("Licencia", response.Licencia),
+                new Claim("Clases", string.Join(",", response.Clases))
             };
-
-            claims.Add(new Claim("Clases", string.Join(",", response.Clases)));
 
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Crear un principal de claims
             var authProperties = new AuthenticationProperties
             {
                 AllowRefresh = true,
                 ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30),
             };
 
-            // Firmar al usuario
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),

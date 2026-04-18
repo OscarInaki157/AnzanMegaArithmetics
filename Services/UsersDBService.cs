@@ -21,85 +21,106 @@ namespace AnzanMegaArithmetics.Services
             {
                 string userNormalized = user.Replace(" ", "").ToLower();
 
+                // Paso 1: buscar usuario por credenciales (sin filtrar por Activo todavía)
                 var userDB = _context.Usuarios
-                    .Include(u => u.Rol)  // Para obtener el rol
-                    .Include(u => u.Usuario_Clase)  // Para obtener las clases
-                    .ThenInclude(uc => uc.Clase)  // Para obtener los datos de la clase
-                    .Include(u => u.UsuarioLicencias)
-                    .ThenInclude(ul => ul.Licencia)
-                .FirstOrDefault(x =>
-                    (x.Correo.Replace(" ", "").ToLower() == userNormalized ||
-                     x.Gamer_Tag.Replace(" ", "").ToLower() == userNormalized ||
-                     x.Nombre.Replace(" ", "").ToLower() == userNormalized) &&
-                     x.Pass == pass && x.Activo == true);
+                    .Include(u => u.Rol)
+                    .Include(u => u.Institucion) // asegúrate de tener esta navegación
+                    .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
+                    .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
+                    .FirstOrDefault(x =>
+                        (x.Correo.Replace(" ", "").ToLower() == userNormalized ||
+                         x.Gamer_Tag.Replace(" ", "").ToLower() == userNormalized ||
+                         x.Nombre.Replace(" ", "").ToLower() == userNormalized) &&
+                         x.Pass == pass);
 
-                if (userDB != null)
+                // Paso 2: usuario no encontrado o contraseña incorrecta
+                if (userDB == null)
                 {
-                    string rangoCalculado = CalcularRango(userDB.Experiencia_Total);
-                    
-                    if (string.IsNullOrEmpty(userDB.Rango_Actual) || userDB.Rango_Actual != rangoCalculado)
+                    response.MotivoRechazo = "Usuario o contraseña incorrectos.";
+                    return response;
+                }
+
+                // Paso 3: cuenta inactiva
+                if (!userDB.Activo)
+                {
+                    response.MotivoRechazo = "Tu cuenta está desactivada. Contacta a tu institución.";
+                    return response;
+                }
+
+                // Paso 4: institución inactiva (solo si tiene institución asignada)
+                if (userDB.Id_Institucion.HasValue)
+                {
+                    var inst = userDB.Institucion;
+                    if (inst != null && !inst.Activo)
                     {
-                        userDB.Rango_Actual = rangoCalculado;
-                        _context.SaveChanges();
+                        response.MotivoRechazo = "Tu institución está desactivada. Contacta al administrador.";
+                        return response;
+                    }
+                }
+
+                // Paso 5: verificar licencia en Licencias_Inventario_Individual
+                // Roles que NO requieren licencia: Master
+                bool esMaster = userDB.Rol?.Rol == "Master";
+
+                if (!esMaster)
+                {
+                    var licenciaIndividual = _context.Licencias_Inventario_Individual
+                        .FirstOrDefault(l => l.Id_Usuario == userDB.Id_Usuario && l.Activo);
+
+                    if (licenciaIndividual == null)
+                    {
+                        response.MotivoRechazo = "No tienes una licencia asignada. Contacta a tu institución.";
+                        return response;
                     }
 
-                    response.Id_Usuario = userDB.Id_Usuario;
-                    response.Nombre = userDB.Nombre;
-                    response.Correo = userDB.Correo;
-                    response.Gamer_Tag = userDB.Gamer_Tag;
+                    if (licenciaIndividual.Fecha_Vencimiento < DateTime.Now)
+                    {
+                        response.MotivoRechazo = $"Tu licencia venció el {licenciaIndividual.Fecha_Vencimiento:dd/MMM/yyyy}. Contacta a tu institución para renovarla.";
+                        return response;
+                    }
+                }
 
-                    response.Id_Rol = userDB.Rol?.Rol ?? "Alumno";
+                // Paso 6: login exitoso — calcular y actualizar rango
+                string rangoCalculado = CalcularRango(userDB.Experiencia_Total);
+                if (string.IsNullOrEmpty(userDB.Rango_Actual) || userDB.Rango_Actual != rangoCalculado)
+                {
+                    userDB.Rango_Actual = rangoCalculado;
+                    _context.SaveChanges();
+                }
 
-                    response.Clases = userDB.Usuario_Clase
-                    .Where(uc => uc.Clase != null) // Filtrar clases nulas
-                    .Select(uc => uc.Clase.Nombre) // Obtener solo los nombres
+                // Paso 7: obtener licencia para el claim (desde historial Usuarios_Licencias)
+                var licenciaActiva = userDB.UsuarioLicencias
+                    .Where(ul => ul.Fecha_Vencimiento >= DateTime.Now && ul.Licencia != null)
+                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                    .FirstOrDefault();
+
+                string nombreLicencia = licenciaActiva?.Licencia?.Nombre
+                    ?? userDB.UsuarioLicencias
+                        .Where(ul => ul.Licencia != null)
+                        .OrderByDescending(ul => ul.Fecha_Vencimiento)
+                        .FirstOrDefault()?.Licencia?.Nombre
+                    ?? "Premium";
+
+                // Paso 8: llenar response
+                response.Id_Usuario = userDB.Id_Usuario;
+                response.Nombre = userDB.Nombre;
+                response.Correo = userDB.Correo;
+                response.Gamer_Tag = userDB.Gamer_Tag;
+                response.Id_Rol = userDB.Rol?.Rol ?? "Alumno";
+                response.Clases = userDB.Usuario_Clase
+                    .Where(uc => uc.Clase != null)
+                    .Select(uc => uc.Clase.Nombre)
                     .ToList();
-
-                    var licenciaActiva = userDB.UsuarioLicencias
-                       .Where(ul => ul.Fecha_Vencimiento >= DateTime.Now &&
-                                   ul.Licencia != null)  // Solo licencias vigentes y con datos
-                       .OrderByDescending(ul => ul.Fecha_Vencimiento)  // La más reciente
-                       .FirstOrDefault();
-
-
-                    if (licenciaActiva != null)
-                    {
-                        response.Licencia = licenciaActiva.Licencia.Nombre;
-
-                    }
-                    else
-                    {
-                        // Verificar si tiene licencias pero están vencidas
-                        var licenciaVencida = userDB.UsuarioLicencias
-                            .Where(ul => ul.Licencia != null)
-                            .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                            .FirstOrDefault();
-
-                        if (licenciaVencida != null)
-                        {
-                            response.Licencia = $"{licenciaVencida.Licencia.Nombre} (Vencida)";
-                        }
-                        else
-                        {
-                            response.Licencia = "Sin licencia";
-                        }
-                    }
-
-
-                    response.Racha = userDB.Racha;
-                    response.Exp = userDB.Experiencia_Total;
-                    response.Ultima_Cnx = userDB.Ultima_Actividad;
-                    response.Rango_Actual = userDB.Rango_Actual;
-
-                }
-                else
-                {
-                    response.Gamer_Tag = "No hay coincidencias";
-                }
+                response.Racha = userDB.Racha;
+                response.Exp = userDB.Experiencia_Total;
+                response.Ultima_Cnx = userDB.Ultima_Actividad;
+                response.Rango_Actual = userDB.Rango_Actual;
+                response.Licencia = nombreLicencia;
+                response.MotivoRechazo = null; // exitoso
             }
             catch (Exception ex)
             {
-                response.Gamer_Tag = "Error al validar el inicio de sesión: " + ex.Message;
+                response.MotivoRechazo = "Error interno al validar el inicio de sesión.";
             }
 
             return response;
