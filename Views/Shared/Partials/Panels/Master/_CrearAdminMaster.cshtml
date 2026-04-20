@@ -45,30 +45,11 @@
                 </div>
             </div>
 
-            <div style="grid-column:1/-1;">
-                <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clases</label>
-                @if (Model.ClasesDisponibles.Any())
-                {
-                    <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.4rem;">
-                        @foreach (var c in Model.ClasesDisponibles)
-                        {
-                            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
-                                                  background:rgba(76,76,255,0.1); border:1px solid rgba(76,76,255,0.3);
-                                                  border-radius:0.5rem; padding:0.4rem 0.8rem;">
-                                <input type="checkbox" name="Ids_Clases" value="@c.Id_Clase"
-                                       style="accent-color:var(--color-primary);" />
-                                <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
-                            </label>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p style="color:#a0a0c0; font-size:0.85rem; margin-top:0.4rem;">No hay clases activas.</p>
-                }
-            </div>
+            @await Html.PartialAsync(
+            "~/Views/Shared/Partials/Panels/Master/_SelectorClasesMultiInstitucion.cshtml",
+                        new { Clases = Model.ClasesDisponibles, IdsActuales = new List<int>(), NombreInput = "Ids_Clases" }
+                        )
 
-            @* ↓ SELECTOR DE LICENCIA *@
             @await Html.PartialAsync(
             "~/Views/Shared/Partials/Panels/Master/_SelectorLicencia.cshtml",
                         new { Licencias = Model.LicenciasDisponibles, IdActual = 0 }

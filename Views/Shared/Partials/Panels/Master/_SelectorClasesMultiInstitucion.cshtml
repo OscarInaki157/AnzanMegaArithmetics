@@ -1,0 +1,59 @@
+﻿@model dynamic
+
+@{
+    var clases = (List<AnzanMegaArithmetics.Models.MasterModels.ClaseSedeModel>)Model.Clases;
+    var idsActuales = Model.IdsActuales as List<int> ?? new List<int>();
+    string nombreInput = (string)Model.NombreInput; // "Ids_Clases" o "Ids_Clases_Nuevas"
+
+    var porInstitucion = clases.GroupBy(c => new { c.Id_Institucion, c.NombreInstitucion })
+                               .OrderBy(g => g.Key.NombreInstitucion)
+                               .ToList();
+}
+
+<div style="grid-column:1/-1;">
+    <label class="lbl-form">
+        <i class="fas fa-chalkboard"></i> Asignar a clases (selecciona una o más)
+    </label>
+
+    @if (clases.Any())
+    {
+        <div style="display:flex; flex-direction:column; gap:1rem; margin-top:0.5rem;">
+            @foreach (var grupo in porInstitucion)
+            {
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+                                    border-radius:0.6rem; padding:0.8rem 1rem;">
+
+                    <div style="color:#a0a0c0; font-size:0.75rem; text-transform:uppercase;
+                                        font-weight:700; margin-bottom:0.6rem; letter-spacing:0.05em;">
+                        <i class="fas fa-building" style="color:var(--color-primary); margin-right:0.3rem;"></i>
+                        @grupo.Key.NombreInstitucion
+                    </div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                        @foreach (var c in grupo)
+                        {
+                            bool estaAsignado = idsActuales.Contains(c.Id_Clase);
+                            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
+                                                      background:@(estaAsignado ? "rgba(76,76,255,0.25)" : "rgba(76,76,255,0.08)");
+                                                      border:1px solid @(estaAsignado ? "rgba(76,76,255,0.5)" : "rgba(76,76,255,0.2)");
+                                                      border-radius:0.5rem; padding:0.4rem 0.8rem; transition:0.2s;"
+                                   onmouseover="this.style.background='rgba(76,76,255,0.2)'"
+                                   onmouseout="this.style.background='@(estaAsignado ? "rgba(76,76,255,0.25)" : "rgba(76,76,255,0.08)")'">
+                                <input type="checkbox" name="@nombreInput" value="@c.Id_Clase"
+                                       @(estaAsignado ? "checked" : "")
+                                       style="accent-color:var(--color-primary);" />
+                                <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p style="color:#ff4757; font-size:0.9rem; margin-top:0.4rem;">
+            <i class="fas fa-exclamation-triangle"></i> No hay clases activas disponibles.
+        </p>
+    }
+</div>

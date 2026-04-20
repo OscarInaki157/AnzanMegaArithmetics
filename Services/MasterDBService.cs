@@ -972,8 +972,17 @@ namespace AnzanMegaArithmetics.Services
         public async Task<CrearProfesorMasterModel> ObtenerFormularioCrearProfesorAsync(int idInstitucion)
         {
             var clases = await _context.Clases
-                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Include(c => c.Institucion)
+                .Where(c => c.Activo && c.Institucion.Activo)
+                .OrderBy(c => c.Institucion.Nombre)
+                .ThenBy(c => c.Nombre)
+                .Select(c => new ClaseSedeModel
+                {
+                    Id_Clase = c.Id_Clase,
+                    Nombre = c.Nombre,
+                    Id_Institucion = c.Id_Institucion ?? 0,
+                    NombreInstitucion = c.Institucion.Nombre
+                })
                 .ToListAsync();
 
             return new CrearProfesorMasterModel
@@ -1005,11 +1014,9 @@ namespace AnzanMegaArithmetics.Services
                 foreach (var idClase in model.Ids_Clases)
                 {
                     bool claseValida = await _context.Clases
-                        .AnyAsync(c => c.Id_Clase == idClase
-                                    && c.Id_Institucion == model.Id_Institucion
-                                    && c.Activo);
+                        .AnyAsync(c => c.Id_Clase == idClase && c.Activo);
                     if (!claseValida)
-                        return (false, "Una o más clases seleccionadas no pertenecen a esta institución.");
+                        return (false, "Una o más clases seleccionadas no son válidas.");
                 }
 
                 // Validar licencia
@@ -1091,8 +1098,17 @@ namespace AnzanMegaArithmetics.Services
             if (u == null) return null;
 
             var clases = await _context.Clases
-                .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Include(c => c.Institucion)
+                .Where(c => c.Activo && c.Institucion.Activo)
+                .OrderBy(c => c.Institucion.Nombre)
+                .ThenBy(c => c.Nombre)
+                .Select(c => new ClaseSedeModel
+                {
+                    Id_Clase = c.Id_Clase,
+                    Nombre = c.Nombre,
+                    Id_Institucion = c.Id_Institucion ?? 0,
+                    NombreInstitucion = c.Institucion.Nombre
+                })
                 .ToListAsync();
 
             var licInd = await _context.Licencias_Inventario_Individual
@@ -1149,9 +1165,7 @@ namespace AnzanMegaArithmetics.Services
                 foreach (var idClase in model.Ids_Clases_Nuevas)
                 {
                     bool valida = await _context.Clases
-                        .AnyAsync(c => c.Id_Clase == idClase
-                                    && c.Id_Institucion == u.Id_Institucion
-                                    && c.Activo);
+                        .AnyAsync(c => c.Id_Clase == idClase && c.Activo);
                     if (!valida)
                         return (false, "Una o más clases seleccionadas no son válidas.");
                 }
@@ -1298,8 +1312,17 @@ namespace AnzanMegaArithmetics.Services
         public async Task<CrearAdminMasterModel> ObtenerFormularioCrearAdminAsync(int idInstitucion)
         {
             var clases = await _context.Clases
-                .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Include(c => c.Institucion)
+                .Where(c => c.Activo && c.Institucion.Activo)
+                .OrderBy(c => c.Institucion.Nombre)
+                .ThenBy(c => c.Nombre)
+                .Select(c => new ClaseSedeModel
+                {
+                    Id_Clase = c.Id_Clase,
+                    Nombre = c.Nombre,
+                    Id_Institucion = c.Id_Institucion ?? 0,
+                    NombreInstitucion = c.Institucion.Nombre
+                })
                 .ToListAsync();
 
             return new CrearAdminMasterModel
@@ -1372,9 +1395,7 @@ namespace AnzanMegaArithmetics.Services
                     foreach (var idClase in model.Ids_Clases)
                     {
                         bool claseValida = await _context.Clases
-                            .AnyAsync(c => c.Id_Clase == idClase
-                                        && c.Id_Institucion == model.Id_Institucion
-                                        && c.Activo);
+                            .AnyAsync(c => c.Id_Clase == idClase && c.Activo);
                         if (claseValida)
                         {
                             _context.Usuarios_Clases.Add(new Usuario_ClaseDB
@@ -1418,8 +1439,17 @@ namespace AnzanMegaArithmetics.Services
             if (u == null) return null;
 
             var clases = await _context.Clases
-                .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Include(c => c.Institucion)
+                .Where(c => c.Activo && c.Institucion.Activo)
+                .OrderBy(c => c.Institucion.Nombre)
+                .ThenBy(c => c.Nombre)
+                .Select(c => new ClaseSedeModel
+                {
+                    Id_Clase = c.Id_Clase,
+                    Nombre = c.Nombre,
+                    Id_Institucion = c.Id_Institucion ?? 0,
+                    NombreInstitucion = c.Institucion.Nombre
+                })
                 .ToListAsync();
 
             var licInd = await _context.Licencias_Inventario_Individual

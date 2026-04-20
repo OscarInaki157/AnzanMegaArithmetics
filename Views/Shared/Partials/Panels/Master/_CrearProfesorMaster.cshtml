@@ -31,34 +31,11 @@
                        required maxlength="30" minlength="6" />
             </div>
 
-            <div style="grid-column:1/-1;">
-                <label class="lbl-form"><i class="fas fa-chalkboard"></i> Asignar a clases (selecciona una o más)</label>
-                @if (Model.ClasesDisponibles.Any())
-                {
-                    <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:0.4rem;">
-                        @foreach (var c in Model.ClasesDisponibles)
-                        {
-                            <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;
-                                                  background:rgba(76,76,255,0.1); border:1px solid rgba(76,76,255,0.3);
-                                                  border-radius:0.5rem; padding:0.4rem 0.8rem; transition:0.2s;"
-                                   onmouseover="this.style.background='rgba(76,76,255,0.25)'"
-                                   onmouseout="this.style.background='rgba(76,76,255,0.1)'">
-                                <input type="checkbox" name="Ids_Clases" value="@c.Id_Clase"
-                                       style="accent-color:var(--color-primary);" />
-                                <span style="color:white; font-size:0.9rem;">@c.Nombre</span>
-                            </label>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p style="color:#ff4757; font-size:0.9rem; margin-top:0.4rem;">
-                        <i class="fas fa-exclamation-triangle"></i> No hay clases activas en esta institución.
-                    </p>
-                }
-            </div>
+            @await Html.PartialAsync(
+            "~/Views/Shared/Partials/Panels/Master/_SelectorClasesMultiInstitucion.cshtml",
+                        new { Clases = Model.ClasesDisponibles, IdsActuales = new List<int>(), NombreInput = "Ids_Clases" }
+                        )
 
-            @* ↓ SELECTOR DE LICENCIA *@
             @await Html.PartialAsync(
             "~/Views/Shared/Partials/Panels/Master/_SelectorLicencia.cshtml",
                         new { Licencias = Model.LicenciasDisponibles, IdActual = 0 }
