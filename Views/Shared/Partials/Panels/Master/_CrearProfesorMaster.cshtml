@@ -33,7 +33,13 @@
 
             @await Html.PartialAsync(
             "~/Views/Shared/Partials/Panels/Master/_SelectorClasesMultiInstitucion.cshtml",
-                        new { Clases = Model.ClasesDisponibles, IdsActuales = new List<int>(), NombreInput = "Ids_Clases" }
+                        null,
+                        new ViewDataDictionary(ViewData)
+                        {
+                        { "Clases", Model.ClasesDisponibles },
+                        { "IdsActuales", new List<int>() },
+                        { "NombreInput", "Ids_Clases" }
+                        }
                         )
 
             @await Html.PartialAsync(

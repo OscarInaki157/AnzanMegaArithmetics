@@ -39,7 +39,13 @@
 
             @await Html.PartialAsync(
             "~/Views/Shared/Partials/Panels/Master/_SelectorClasesMultiInstitucion.cshtml",
-                        new { Clases = Model.ClasesDisponibles, IdsActuales = Model.Ids_Clases_Actuales, NombreInput = "Ids_Clases_Nuevas" }
+                        null,
+                        new ViewDataDictionary(ViewData)
+                        {
+                        { "Clases", Model.ClasesDisponibles },
+                        { "IdsActuales", Model.Ids_Clases_Actuales },
+                        { "NombreInput", "Ids_Clases_Nuevas" }
+                        }
                         )
 
             <div style="display:flex; align-items:center; gap:1rem;">
