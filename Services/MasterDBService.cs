@@ -2,6 +2,7 @@
 using AnzanMegaArithmetics.Models.MasterModels;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace AnzanMegaArithmetics.Services
 {
@@ -536,7 +537,6 @@ namespace AnzanMegaArithmetics.Services
             var alumnosQuery = _context.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .Where(u => u.Id_Institucion == idInstitucion && u.Rol.Rol == "Alumno");
 
             if (clase != "Todas")
@@ -553,11 +553,16 @@ namespace AnzanMegaArithmetics.Services
             var clases = new List<string> { "Todas" };
             clases.AddRange(clasesDeSede);
 
+            // Obtener licencias individuales de todos los alumnos de una vez
+            var idsAlumnos = alumnosBD.Select(u => u.Id_Usuario).ToList();
+            var licenciasIndividuales = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .Where(l => l.Id_Usuario.HasValue && idsAlumnos.Contains(l.Id_Usuario.Value) && l.Activo)
+                .ToListAsync();
+
             var lista = alumnosBD.Select(u =>
             {
-                var licencia = u.UsuarioLicencias
-                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                    .FirstOrDefault();
+                var licInd = licenciasIndividuales.FirstOrDefault(l => l.Id_Usuario == u.Id_Usuario);
 
                 return new UsuarioBDModel
                 {
@@ -572,12 +577,12 @@ namespace AnzanMegaArithmetics.Services
                     Rango_Actual = u.Rango_Actual,
                     Ultima_Cnx = u.Ultima_Actividad,
                     Clases = u.Usuario_Clase
-                                    .Where(uc => uc.Activo)
-                                    .Select(uc => uc.Clase.Nombre)
-                                    .ToList(),
-                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
-                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
-                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                                                .Where(uc => uc.Activo)
+                                                .Select(uc => uc.Clase.Nombre)
+                                                .ToList(),
+                    Licencia = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licInd?.Fecha_Compra,
+                    Fecha_Vencimiento_Licencia = licInd?.Fecha_Vencimiento
                 };
             }).ToList();
 
@@ -600,9 +605,9 @@ namespace AnzanMegaArithmetics.Services
 
             if (u == null) return null;
 
-            var licencia = u.UsuarioLicencias
-                .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                .FirstOrDefault();
+            var licInd = await _context.Licencias_Inventario_Individual
+    .Include(l => l.Licencia)
+    .FirstOrDefaultAsync(l => l.Id_Usuario == u.Id_Usuario && l.Activo);
 
             return new UsuarioBDModel
             {
@@ -620,9 +625,9 @@ namespace AnzanMegaArithmetics.Services
                                 .Where(uc => uc.Activo)
                                 .Select(uc => uc.Clase.Nombre)
                                 .ToList(),
-                Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
-                Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                Licencia = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                Fecha_Asignacion_Licencia = licInd?.Fecha_Compra,
+                Fecha_Vencimiento_Licencia = licInd?.Fecha_Vencimiento
             };
         }
 
@@ -737,7 +742,6 @@ namespace AnzanMegaArithmetics.Services
         {
             var u = await _context.Usuarios
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
 
@@ -750,9 +754,9 @@ namespace AnzanMegaArithmetics.Services
 
             var claseActual = u.Usuario_Clase.FirstOrDefault(uc => uc.Activo);
 
-            var licencia = u.UsuarioLicencias
-                .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                .FirstOrDefault();
+            var licInd = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario && l.Activo);
 
             return new EditarAlumnoMasterModel
             {
@@ -767,15 +771,14 @@ namespace AnzanMegaArithmetics.Services
                 Id_Clase_Actual = claseActual?.Id_Clase,
                 Id_Clase_Nueva = claseActual?.Id_Clase,
                 ClasesDisponibles = clases,
-                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
-                Id_UsuarioLicencia = licencia?.Id,
-                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento,
+                LicenciaActual = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licInd?.Id,
+                Fecha_Inicio_Licencia = licInd?.Fecha_Compra,
+                Fecha_Fin_Licencia = licInd?.Fecha_Vencimiento,
                 Id_Rol = u.Id_Rol,
                 NombreRol = u.Rol?.Rol ?? "",
                 LicenciasDisponibles = await ObtenerLicenciasDisponiblesAsync(u.Id_Institucion ?? 0),
-                Id_Licencia_Individual = (await _context.Licencias_Inventario_Individual
-        .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario))?.Id ?? 0
+                Id_Licencia_Individual = licInd?.Id ?? 0
             };
         }
 
@@ -924,15 +927,18 @@ namespace AnzanMegaArithmetics.Services
             var profesoresBD = await _context.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .Where(u => u.Id_Institucion == idInstitucion && u.Rol.Rol == "Profesor")
+                .ToListAsync();
+
+            var idsProfes = profesoresBD.Select(u => u.Id_Usuario).ToList();
+            var licenciasIndividuales = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .Where(l => l.Id_Usuario.HasValue && idsProfes.Contains(l.Id_Usuario.Value) && l.Activo)
                 .ToListAsync();
 
             var lista = profesoresBD.Select(u =>
             {
-                var licencia = u.UsuarioLicencias
-                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                    .FirstOrDefault();
+                var licInd = licenciasIndividuales.FirstOrDefault(l => l.Id_Usuario == u.Id_Usuario);
 
                 return new UsuarioBDModel
                 {
@@ -947,12 +953,12 @@ namespace AnzanMegaArithmetics.Services
                     Rango_Actual = u.Rango_Actual,
                     Ultima_Cnx = u.Ultima_Actividad,
                     Clases = u.Usuario_Clase
-                                    .Where(uc => uc.Activo)
-                                    .Select(uc => uc.Clase.Nombre)
-                                    .ToList(),
-                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
-                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
-                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                                                .Where(uc => uc.Activo)
+                                                .Select(uc => uc.Clase.Nombre)
+                                                .ToList(),
+                    Licencia = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licInd?.Fecha_Compra,
+                    Fecha_Vencimiento_Licencia = licInd?.Fecha_Vencimiento
                 };
             }).ToList();
 
@@ -1079,7 +1085,6 @@ namespace AnzanMegaArithmetics.Services
         {
             var u = await _context.Usuarios
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
 
@@ -1090,9 +1095,9 @@ namespace AnzanMegaArithmetics.Services
                 .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
                 .ToListAsync();
 
-            var licencia = u.UsuarioLicencias
-                .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                .FirstOrDefault();
+            var licInd = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario && l.Activo);
 
             return new EditarProfesorMasterModel
             {
@@ -1107,15 +1112,14 @@ namespace AnzanMegaArithmetics.Services
                 Ids_Clases_Actuales = u.Usuario_Clase.Where(uc => uc.Activo).Select(uc => uc.Id_Clase).ToList(),
                 Ids_Clases_Nuevas = u.Usuario_Clase.Where(uc => uc.Activo).Select(uc => uc.Id_Clase).ToList(),
                 ClasesDisponibles = clases,
-                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
-                Id_UsuarioLicencia = licencia?.Id,
-                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento,
+                LicenciaActual = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licInd?.Id,
+                Fecha_Inicio_Licencia = licInd?.Fecha_Compra,
+                Fecha_Fin_Licencia = licInd?.Fecha_Vencimiento,
                 Id_Rol = u.Id_Rol,
                 NombreRol = u.Rol?.Rol ?? "",
                 LicenciasDisponibles = await ObtenerLicenciasDisponiblesAsync(u.Id_Institucion ?? 0),
-                Id_Licencia_Individual = (await _context.Licencias_Inventario_Individual
-        .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario))?.Id ?? 0
+                Id_Licencia_Individual = licInd?.Id ?? 0
             };
         }
 
@@ -1248,16 +1252,19 @@ namespace AnzanMegaArithmetics.Services
             var adminsBD = await _context.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .Where(u => u.Id_Institucion == idInstitucion &&
                            (u.Id_Rol == 3 || u.Id_Rol == 4))
                 .ToListAsync();
 
+            var idsAdmins = adminsBD.Select(u => u.Id_Usuario).ToList();
+            var licenciasIndividuales = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .Where(l => l.Id_Usuario.HasValue && idsAdmins.Contains(l.Id_Usuario.Value) && l.Activo)
+                .ToListAsync();
+
             var lista = adminsBD.Select(u =>
             {
-                var licencia = u.UsuarioLicencias
-                    .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                    .FirstOrDefault();
+                var licInd = licenciasIndividuales.FirstOrDefault(l => l.Id_Usuario == u.Id_Usuario);
 
                 return new UsuarioBDModel
                 {
@@ -1273,11 +1280,11 @@ namespace AnzanMegaArithmetics.Services
                     Rango_Actual = u.Rango_Actual,
                     Ultima_Cnx = u.Ultima_Actividad,
                     Clases = u.Usuario_Clase
-                                    .Select(uc => uc.Clase.Nombre)
-                                    .ToList(),
-                    Licencia = licencia?.Licencia.Nombre ?? "Sin licencia",
-                    Fecha_Asignacion_Licencia = licencia?.Fecha_Asignacion,
-                    Fecha_Vencimiento_Licencia = licencia?.Fecha_Vencimiento
+                                                .Select(uc => uc.Clase.Nombre)
+                                                .ToList(),
+                    Licencia = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                    Fecha_Asignacion_Licencia = licInd?.Fecha_Compra,
+                    Fecha_Vencimiento_Licencia = licInd?.Fecha_Vencimiento
                 };
             }).ToList();
 
@@ -1406,7 +1413,6 @@ namespace AnzanMegaArithmetics.Services
             var u = await _context.Usuarios
                 .Include(u => u.Rol)
                 .Include(u => u.Usuario_Clase).ThenInclude(uc => uc.Clase)
-                .Include(u => u.UsuarioLicencias).ThenInclude(ul => ul.Licencia)
                 .FirstOrDefaultAsync(u => u.Id_Usuario == idUsuario);
 
             if (u == null) return null;
@@ -1416,9 +1422,9 @@ namespace AnzanMegaArithmetics.Services
                 .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
                 .ToListAsync();
 
-            var licencia = u.UsuarioLicencias
-                .OrderByDescending(ul => ul.Fecha_Vencimiento)
-                .FirstOrDefault();
+            var licInd = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Licencia)
+                .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario && l.Activo);
 
             return new EditarAdminMasterModel
             {
@@ -1435,13 +1441,12 @@ namespace AnzanMegaArithmetics.Services
                 Ids_Clases_Actuales = u.Usuario_Clase.Select(uc => uc.Id_Clase).ToList(),
                 Ids_Clases_Nuevas = u.Usuario_Clase.Select(uc => uc.Id_Clase).ToList(),
                 ClasesDisponibles = clases,
-                LicenciaActual = licencia?.Licencia.Nombre ?? "Sin licencia",
-                Id_UsuarioLicencia = licencia?.Id,
-                Fecha_Inicio_Licencia = licencia?.Fecha_Asignacion,
-                Fecha_Fin_Licencia = licencia?.Fecha_Vencimiento,
+                LicenciaActual = licInd?.Licencia?.Nombre ?? "Sin licencia",
+                Id_UsuarioLicencia = licInd?.Id,
+                Fecha_Inicio_Licencia = licInd?.Fecha_Compra,
+                Fecha_Fin_Licencia = licInd?.Fecha_Vencimiento,
                 LicenciasDisponibles = await ObtenerLicenciasDisponiblesAsync(u.Id_Institucion ?? 0),
-                Id_Licencia_Individual = (await _context.Licencias_Inventario_Individual
-        .FirstOrDefaultAsync(l => l.Id_Usuario == idUsuario))?.Id ?? 0
+                Id_Licencia_Individual = licInd?.Id ?? 0
             };
         }
 
