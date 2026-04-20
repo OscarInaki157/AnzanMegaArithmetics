@@ -13,7 +13,7 @@
         display: grid;
         grid-template-columns: 1fr 2fr;
         gap: 1rem;
-        align-items: start;
+        align-items: stretch;
         width: 100%;
        /*  max-width: 85rem; */
         box-sizing: border-box;
@@ -83,6 +83,7 @@
         background-color: var(--color-card-bg, #010f36); /* Aquí forzamos el azul oscuro */
         box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.2);
         overflow: hidden;
+        height:stretch;
     }
 
     .form-header {
@@ -193,7 +194,7 @@
 
 <div class="master-grid-layout">
 
-    <div class="left-column formulario-flash">
+    <div class="left-column formulario-flash" style="height:100%; box-sizing:border-box;">
         <partial name="~/Views/Shared/Partials/Panels/Master/_ColumnaIzquierda.cshtml" model="Model.DashboardIzquierdo" />
     </div>
 

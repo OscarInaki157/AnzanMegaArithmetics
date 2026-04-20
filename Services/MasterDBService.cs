@@ -37,9 +37,8 @@ namespace AnzanMegaArithmetics.Services
                 modelo.DashboardIzquierdo.TotalLicenciasGeneradas -
                 modelo.DashboardIzquierdo.LicenciasAsignadas;
 
-            // Alertas desde la fuente real
+            // Alertas de licencias disponibles bajas
             var listaAlertas = new List<AlertaMasterModel>();
-
             var institucionesActivas = await _context.Instituciones
                 .Where(i => i.Activo && i.Id_Institucion != 1)
                 .ToListAsync();
@@ -100,6 +99,80 @@ namespace AnzanMegaArithmetics.Services
                 .OrderBy(i => i.Id_Institucion != 1)
                 .ThenBy(i => i.Nombre)
                 .ToList();
+
+            // ── NUEVAS CONSULTAS ─────────────────────────────────────
+
+            // 1. Licencias próximas a vencer (≤60 días, con usuario asignado)
+            DateTime limite60 = DateTime.Now.AddDays(60);
+            var licenciasProximas = await _context.Licencias_Inventario_Individual
+                .Include(l => l.Usuario).ThenInclude(u => u.Rol)
+                .Include(l => l.Institucion)
+                .Where(l => l.Activo
+                         && l.Id_Usuario != null
+                         && l.Fecha_Vencimiento <= limite60
+                         && l.Fecha_Vencimiento >= DateTime.Now)
+                .OrderBy(l => l.Fecha_Vencimiento)
+                .Take(20)
+                .ToListAsync();
+
+            modelo.DashboardIzquierdo.LicenciasProximasAVencer = licenciasProximas
+                .Select(l => new AlertaLicenciaProximaModel
+                {
+                    NombreUsuario = l.Usuario?.Nombre ?? "—",
+                    NombreInstitucion = l.Institucion?.Nombre ?? "—",
+                    FechaVencimiento = l.Fecha_Vencimiento,
+                    DiasRestantes = (int)(l.Fecha_Vencimiento - DateTime.Now).TotalDays
+                }).ToList();
+
+            // 2. Usuarios activos sin licencia (roles 1, 2, 3 — excluye masters y la institución 1)
+            var idsConLicencia = await _context.Licencias_Inventario_Individual
+                .Where(l => l.Activo && l.Id_Usuario != null)
+                .Select(l => l.Id_Usuario!.Value)
+                .ToListAsync();
+
+            var usuariosSinLicencia = await _context.Usuarios
+                .Include(u => u.Rol)
+                .Include(u => u.Institucion)
+                .Where(u => u.Activo
+                         && u.Id_Rol != 4                          // excluir masters
+                         && u.Id_Institucion != 1                  // excluir institución base
+                         && !idsConLicencia.Contains(u.Id_Usuario))
+                .OrderBy(u => u.Institucion.Nombre)
+                .ThenBy(u => u.Nombre)
+                .Take(30)
+                .ToListAsync();
+
+            modelo.DashboardIzquierdo.UsuariosSinLicencia = usuariosSinLicencia
+                .Select(u => new AlertaUsuarioSinLicenciaModel
+                {
+                    NombreUsuario = u.Nombre,
+                    NombreInstitucion = u.Institucion?.Nombre ?? "—",
+                    Rol = u.Rol?.Rol ?? "—"
+                }).ToList();
+
+            // 3. Clases vacías (sin ningún usuario asignado)
+            var idsClasesConUsuarios = await _context.Usuarios_Clases
+                .Select(uc => uc.Id_Clase)
+                .Distinct()
+                .ToListAsync();
+
+            var clasesVacias = await _context.Clases
+                .Include(c => c.Institucion)
+                .Where(c => c.Activo
+                         && c.Id_Institucion != 1
+                         && !idsClasesConUsuarios.Contains(c.Id_Clase))
+                .OrderBy(c => c.Institucion.Nombre)
+                .ThenBy(c => c.Nombre)
+                .Take(20)
+                .ToListAsync();
+
+            modelo.DashboardIzquierdo.ClasesVacias = clasesVacias
+                .Select(c => new AlertaClaseVaciaModel
+                {
+                    NombreClase = c.Nombre,
+                    NombreInstitucion = c.Institucion?.Nombre ?? "—",
+                    Id_Institucion = c.Id_Institucion ?? 0
+                }).ToList();
 
             return modelo;
         }

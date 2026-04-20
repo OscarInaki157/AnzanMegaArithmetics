@@ -1,96 +1,416 @@
 ﻿@model AnzanMegaArithmetics.Models.MasterModels.DashboardIzquierdoViewModel
 
 <style>
-    .glass {
-        background-color: #1b1e3c;
-        border-radius: 0.8rem;
-        box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.2);
-        border: 0.06rem solid rgba(255, 255, 255, 0.05);
-        transition: transform 0.2s ease;
-        padding:1rem;
+    .panel-izq {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
     }
+
+    .glass-card {
+        background: #1b1e3c;
+        border-radius: 0.8rem;
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 1rem;
+    }
+
+    /* ── STATS ── */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
+    }
+
+    .stat-box {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 0.6rem;
+        padding: 0.7rem 0.5rem;
+        text-align: center;
+    }
+
+        .stat-box .num {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+            overflow:hidden;
+        }
+
+        .stat-box .lbl {
+            font-size: 0.72rem;
+            color: #a0a0c0;
+            margin-top: 0.2rem;
+        }
+
+    /* ── DONUT ── */
+    .donut-wrap {
+        position: relative;
+        height: 160px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* ── ACORDEÓN ── */
+    .acord-section {
+        border-radius: 0.6rem;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .acord-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 1rem;
+        cursor: pointer;
+        user-select: none;
+        transition: 0.2s;
+    }
+
+        .acord-header:hover {
+            filter: brightness(1.15);
+        }
+
+        .acord-header .acord-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: white;
+        }
+
+        .acord-header .acord-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+            background: rgba(0,0,0,0.25);
+            color: white;
+        }
+
+    .acord-chevron {
+        color: rgba(255,255,255,0.5);
+        font-size: 0.8rem;
+        transition: transform 0.25s;
+    }
+
+        .acord-chevron.open {
+            transform: rotate(180deg);
+        }
+
+    .acord-body {
+        display: none;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.6rem 0.8rem 0.8rem;
+        background: rgba(0,0,0,0.15);
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+        .acord-body.open {
+            display: flex;
+        }
+
+        .acord-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .acord-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .acord-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+        }
+
+    /* ── ITEMS DE ALERTA ── */
+    .alerta-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.02);
+        border-radius: 0.4rem;
+        padding: 0.5rem 0.6rem;
+        font-size: 0.82rem;
+    }
+
+        .alerta-item .alerta-icon {
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .alerta-item .alerta-main {
+            flex: 1;
+            line-height: 1.35;
+        }
+
+        .alerta-item .alerta-inst {
+            font-size: 0.72rem;
+            color: #a0a0c0;
+            margin-top: 0.1rem;
+        }
+
+        .alerta-item .alerta-badge {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 0.3rem;
+            align-self: center;
+        }
+
+    .empty-alerta {
+        text-align: center;
+        color: #a0a0c0;
+        font-size: 0.82rem;
+        padding: 0.8rem 0;
+    }
+
+        .empty-alerta i {
+            color: #00ff88;
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
 </style>
 
-<div class="master-card" style="margin-bottom: 1.5rem;">
-    <h3 style="margin-top: 0; color: white;"><i class="fas fa-chart-pie master-accent"></i> Resumen Global</h3>
-    <div style="display: flex; justify-content: space-between; margin-top: 1rem; text-align: center;">
-        <div class="glass">
-            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalEscuelas</div>
-            <div style="color: #a0a0c0; font-size: 0.8rem;">Escuelas</div>
+<div class="panel-izq">
+
+  
+    <div class="glass-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.8rem;">
+            <i class="fas fa-chart-pie" style="color:var(--color-primary);"></i>
+            <span style="color:white; font-weight:600; font-size:0.95rem;">Resumen Global</span>
         </div>
-        <div class="glass">
-            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalAlumnos.ToString("N0")</div>
-            <div style="color: #a0a0c0; font-size: 0.8rem;">Alumnos</div>
-        </div>
-        <div class="glass">
-            <div style="font-size: 1.8rem; font-weight: bold; color: white;">@Model.TotalLicenciasGeneradas.ToString("N0")</div>
-            <div style="color: #a0a0c0; font-size: 0.8rem;">Licencias</div>
-        </div>
-    </div>
-</div>
-
-<div class="master-card glass" style="margin-bottom: 1.5rem; text-align: center;">
-    <h3 style="margin-top: 0; color: white; text-align: left;"><i class="fas fa-circle-notch master-accent"></i> Licencias vendidas</h3>
-
-    <div style="position: relative; height: 200px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 1rem;">
-        <canvas id="licenciasDonutChart"></canvas>
-    </div>
-</div>
-
-<div class="master-card glass">
-    <h3 style="margin-top: 0; color: white;"><i class="fas fa-bell master-accent"></i> Alertas</h3>
-
-    @if (Model.Alertas != null && Model.Alertas.Any())
-    {
-        foreach (var alerta in Model.Alertas)
-        {
-            bool esPeligro = alerta.TipoAlerta.ToLower() == "peligro";
-            string colorBorde = esPeligro ? "#ff4757" : "#ffd700";
-            string bgSutil = esPeligro ? "rgba(255, 71, 87, 0.1)" : "rgba(255, 215, 0, 0.1)";
-            string iconoBtn = esPeligro ? "fa-plus" : "fa-envelope";
-
-            <div class="alert-card" style="border-left-color: @colorBorde; background: @bgSutil;">
-                <div>
-                    <strong style="color: white; display: block;">@alerta.NombreInstitucion</strong>
-                    <span style="color: @colorBorde; font-size: 0.85rem;">@alerta.MensajeAlerta</span>
-                </div>
-                <button class="btn-mini" style="background: @colorBorde; color: @(esPeligro ? "white" : "black");" title="Gestionar">
-                    <i class="fas @iconoBtn"></i>
-                </button>
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="num">@Model.TotalEscuelas</div>
+                <div class="lbl">Escuelas</div>
             </div>
-        }
-    }
-    else
-    {
-        <div style="text-align: center; color: #a0a0c0; padding: 1rem 0;">
-            <i class="fas fa-check-circle" style="font-size: 2rem; color: #28a745; margin-bottom: 0.5rem;"></i>
-            <p style="margin: 0;">Todo bajo control. No hay alertas.</p>
+            <div class="stat-box">
+                <div class="num">@Model.TotalAlumnos.ToString("N0")</div>
+                <div class="lbl">Alumnos</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">@Model.TotalLicenciasGeneradas.ToString("N0")</div>
+                <div class="lbl">Licencias</div>
+            </div>
         </div>
-    }
+    </div>
+
+    <div class="glass-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <i class="fas fa-circle-notch" style="color:var(--color-primary);"></i>
+            <span style="color:white; font-weight:600; font-size:0.95rem;">Licencias vendidas</span>
+        </div>
+        <div class="donut-wrap">
+            <canvas id="licenciasDonutChart"></canvas>
+        </div>
+    </div>
+
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem; flex:1; overflow-y:auto;">
+
+        @{
+            int cntSinLic = Model.Alertas?.Count(a => a.TipoAlerta == "Peligro") ?? 0;
+            int cntAdvert = Model.Alertas?.Count(a => a.TipoAlerta == "Advertencia") ?? 0;
+            int cntProximas = Model.LicenciasProximasAVencer?.Count ?? 0;
+            int cntSinLicUsr = Model.UsuariosSinLicencia?.Count ?? 0;
+            int cntVacias = Model.ClasesVacias?.Count ?? 0;
+        }
+
+        <div class="acord-section">
+            <div class="acord-header" style="background:rgba(255,71,87,0.15);"
+                 onclick="toggleAcord('acord1')">
+                <div class="acord-title">
+                    <i class="fas fa-ban" style="color:#ff4757;"></i>
+                    Sin licencias disponibles
+                    <span class="acord-badge" style="background:rgba(255,71,87,0.3);">@cntSinLic</span>
+                </div>
+                <i class="fas fa-chevron-down acord-chevron" id="chev-acord1"></i>
+            </div>
+            <div class="acord-body" id="acord1">
+                @if (cntSinLic == 0)
+                {
+                    <div class="empty-alerta"><i class="fas fa-check-circle"></i>Sin alertas críticas</div>
+                }
+                else
+                {
+                    @foreach (var a in Model.Alertas!.Where(a => a.TipoAlerta == "Peligro"))
+                    {
+                        <div class="alerta-item">
+                            <i class="fas fa-exclamation-circle alerta-icon" style="color:#ff4757;"></i>
+                            <div class="alerta-main">
+                                <span style="color:white;">@a.NombreInstitucion</span>
+                                <div class="alerta-inst">@a.MensajeAlerta</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="acord-section">
+            <div class="acord-header" style="background:rgba(255,165,0,0.12);"
+                 onclick="toggleAcord('acord2')">
+                <div class="acord-title">
+                    <i class="fas fa-exclamation-triangle" style="color:#ffa500;"></i>
+                    Pocas licencias disponibles
+                    <span class="acord-badge" style="background:rgba(255,165,0,0.3);">@cntAdvert</span>
+                </div>
+                <i class="fas fa-chevron-down acord-chevron" id="chev-acord2"></i>
+            </div>
+            <div class="acord-body" id="acord2">
+                @if (cntAdvert == 0)
+                {
+                    <div class="empty-alerta"><i class="fas fa-check-circle"></i>Todo bien aquí</div>
+                }
+                else
+                {
+                    @foreach (var a in Model.Alertas!.Where(a => a.TipoAlerta == "Advertencia"))
+                    {
+                        <div class="alerta-item">
+                            <i class="fas fa-exclamation-triangle alerta-icon" style="color:#ffa500;"></i>
+                            <div class="alerta-main">
+                                <span style="color:white;">@a.NombreInstitucion</span>
+                                <div class="alerta-inst">@a.MensajeAlerta</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+
+        <div class="acord-section">
+            <div class="acord-header" style="background:rgba(245,158,11,0.12);"
+                 onclick="toggleAcord('acord3')">
+                <div class="acord-title">
+                    <i class="fas fa-clock" style="color:#f59e0b;"></i>
+                    Licencias por vencer (60 días)
+                    <span class="acord-badge" style="background:rgba(245,158,11,0.3);">@cntProximas</span>
+                </div>
+                <i class="fas fa-chevron-down acord-chevron" id="chev-acord3"></i>
+            </div>
+            <div class="acord-body" id="acord3">
+                @if (cntProximas == 0)
+                {
+                    <div class="empty-alerta"><i class="fas fa-check-circle"></i>No hay licencias por vencer pronto</div>
+                }
+                else
+                {
+                    @foreach (var l in Model.LicenciasProximasAVencer!)
+                    {
+                        string colorDias = l.DiasRestantes <= 15 ? "#ff4757" : l.DiasRestantes <= 30 ? "#ffa500" : "#f59e0b";
+                        <div class="alerta-item">
+                            <i class="fas fa-id-card alerta-icon" style="color:@colorDias;"></i>
+                            <div class="alerta-main">
+                                <span style="color:white;">@l.NombreUsuario</span>
+                                <div class="alerta-inst">@l.NombreInstitucion — Vence @l.FechaVencimiento.ToString("dd/MMM/yyyy")</div>
+                            </div>
+                            <span class="alerta-badge" style="background:rgba(245,158,11,0.2); color:@colorDias;">
+                                @l.DiasRestantes d.
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+
+        <div class="acord-section">
+            <div class="acord-header" style="background:rgba(168,85,247,0.12);"
+                 onclick="toggleAcord('acord4')">
+                <div class="acord-title">
+                    <i class="fas fa-user-slash" style="color:#a855f7;"></i>
+                    Usuarios sin licencia
+                    <span class="acord-badge" style="background:rgba(168,85,247,0.3);">@cntSinLicUsr</span>
+                </div>
+                <i class="fas fa-chevron-down acord-chevron" id="chev-acord4"></i>
+            </div>
+            <div class="acord-body" id="acord4">
+                @if (cntSinLicUsr == 0)
+                {
+                    <div class="empty-alerta"><i class="fas fa-check-circle"></i>Todos los usuarios tienen licencia</div>
+                }
+                else
+                {
+                    @foreach (var u in Model.UsuariosSinLicencia!)
+                    {
+                        <div class="alerta-item">
+                            <i class="fas fa-user alerta-icon" style="color:#a855f7;"></i>
+                            <div class="alerta-main">
+                                <span style="color:white;">@u.NombreUsuario</span>
+                                <div class="alerta-inst">@u.NombreInstitucion — @u.Rol</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+
+        <div class="acord-section">
+            <div class="acord-header" style="background:rgba(100,116,139,0.15);"
+                 onclick="toggleAcord('acord5')">
+                <div class="acord-title">
+                    <i class="fas fa-chalkboard" style="color:#94a3b8;"></i>
+                    Clases vacías
+                    <span class="acord-badge" style="background:rgba(100,116,139,0.3);">@cntVacias</span>
+                </div>
+                <i class="fas fa-chevron-down acord-chevron" id="chev-acord5"></i>
+            </div>
+            <div class="acord-body" id="acord5">
+                @if (cntVacias == 0)
+                {
+                    <div class="empty-alerta"><i class="fas fa-check-circle"></i>No hay clases vacías</div>
+                }
+                else
+                {
+                    @foreach (var c in Model.ClasesVacias!)
+                    {
+                        <div class="alerta-item">
+                            <i class="fas fa-door-open alerta-icon" style="color:#94a3b8;"></i>
+                            <div class="alerta-main">
+                                <span style="color:white;">@c.NombreClase</span>
+                                <div class="alerta-inst">@c.NombreInstitucion</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script>
+    function toggleAcord(id) {
+        const body   = document.getElementById(id);
+        const chevron = document.getElementById('chev-' + id);
+        body.classList.toggle('open');
+        chevron.classList.toggle('open');
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const ctx = document.getElementById('licenciasDonutChart').getContext('2d');
-
-        // Pasamos los datos del modelo de C# a Javascript
-        const asignadas = @Model.LicenciasAsignadas;
+        const asignadas   = @Model.LicenciasAsignadas;
         const disponibles = @Model.LicenciasDisponibles;
 
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['En Uso (Asignadas)', 'En Bóveda (Disponibles)'],
+                labels: ['En Uso', 'Disponibles'],
                 datasets: [{
                     data: [asignadas, disponibles],
-                    backgroundColor: [
-                        '#28a745', // Verde para las que ya se están usando
-                        'rgba(255, 215, 0, 0.2)' // Dorado con opacidad para las guardadas
-                    ],
-                    borderColor: [
-                        '#28a745',
-                        '#ffd700'
-                    ],
+                    backgroundColor: ['#28a745', 'rgba(255,215,0,0.2)'],
+                    borderColor:     ['#28a745', '#ffd700'],
                     borderWidth: 1,
                     hoverOffset: 4
                 }]
@@ -98,7 +418,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '75%', // Hace que la dona sea más delgada y elegante
+                cutout: '75%',
                 plugins: {
                     legend: {
                         position: 'bottom',
