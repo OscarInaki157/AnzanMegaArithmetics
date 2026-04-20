@@ -666,7 +666,7 @@ namespace AnzanMegaArithmetics.Services
                 if (!claseValida)
                     return (false, "La clase seleccionada no pertenece a esta institución.");
 
-                // 4. Validar licencia individual seleccionada
+                // 4. Validar licencia
                 if (model.Id_Licencia_Individual <= 0)
                     return (false, "Debes seleccionar una licencia para asignar al alumno.");
 
@@ -676,11 +676,13 @@ namespace AnzanMegaArithmetics.Services
                 if (licInd == null)
                     return (false, "La licencia seleccionada no existe.");
 
-                if (licInd.Id_Usuario.HasValue)
-                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
-
                 if (licInd.Id_Institucion != model.Id_Institucion)
                     return (false, "La licencia no pertenece a esta institución.");
+
+                // Guardar si ya estaba asignada para no alterar el contador
+                bool licenciaYaEstabaAsignada = licInd.Id_Usuario.HasValue;
+                if (licenciaYaEstabaAsignada)
+                    licInd.Id_Usuario = null;
 
                 // 5. Crear usuario
                 var nuevoUsuario = new UsuariosDB
@@ -710,13 +712,13 @@ namespace AnzanMegaArithmetics.Services
                     Activo = true
                 });
 
-                // 7. Asignar licencia individual
+                // 7. Asignar licencia
                 licInd.Id_Usuario = nuevoUsuario.Id_Usuario;
 
-                // 8. Actualizar inventario
+                // 8. Actualizar inventario SOLO si la licencia estaba libre
                 var inventario = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
-                if (inventario != null)
+                if (inventario != null && !licenciaYaEstabaAsignada)
                     inventario.Cantidad_Asignada++;
 
                 await _context.SaveChangesAsync();
@@ -1004,7 +1006,7 @@ namespace AnzanMegaArithmetics.Services
                         return (false, "Una o más clases seleccionadas no pertenecen a esta institución.");
                 }
 
-                // Validar licencia individual seleccionada
+                // Validar licencia
                 if (model.Id_Licencia_Individual <= 0)
                     return (false, "Debes seleccionar una licencia para asignar al profesor.");
 
@@ -1014,11 +1016,12 @@ namespace AnzanMegaArithmetics.Services
                 if (licInd == null)
                     return (false, "La licencia seleccionada no existe.");
 
-                if (licInd.Id_Usuario.HasValue)
-                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
-
                 if (licInd.Id_Institucion != model.Id_Institucion)
                     return (false, "La licencia no pertenece a esta institución.");
+
+                bool licenciaYaEstabaAsignada = licInd.Id_Usuario.HasValue;
+                if (licenciaYaEstabaAsignada)
+                    licInd.Id_Usuario = null;
 
                 // Crear profesor
                 var nuevoProfesor = new UsuariosDB
@@ -1051,13 +1054,13 @@ namespace AnzanMegaArithmetics.Services
                     });
                 }
 
-                // Asignar licencia individual
+                // Asignar licencia
                 licInd.Id_Usuario = nuevoProfesor.Id_Usuario;
 
-                // Actualizar inventario
+                // Actualizar inventario SOLO si la licencia estaba libre
                 var inventario = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
-                if (inventario != null)
+                if (inventario != null && !licenciaYaEstabaAsignada)
                     inventario.Cantidad_Asignada++;
 
                 await _context.SaveChangesAsync();
@@ -1319,7 +1322,7 @@ namespace AnzanMegaArithmetics.Services
                 if (gtExiste)
                     return (false, "Ese GamerTag ya está en uso.");
 
-                // Validar licencia individual seleccionada
+                // Validar licencia
                 if (model.Id_Licencia_Individual <= 0)
                     return (false, "Debes seleccionar una licencia para asignar al usuario.");
 
@@ -1329,11 +1332,12 @@ namespace AnzanMegaArithmetics.Services
                 if (licInd == null)
                     return (false, "La licencia seleccionada no existe.");
 
-                if (licInd.Id_Usuario.HasValue)
-                    return (false, "La licencia seleccionada ya está asignada a otro usuario.");
-
                 if (licInd.Id_Institucion != model.Id_Institucion)
                     return (false, "La licencia no pertenece a esta institución.");
+
+                bool licenciaYaEstabaAsignada = licInd.Id_Usuario.HasValue;
+                if (licenciaYaEstabaAsignada)
+                    licInd.Id_Usuario = null;
 
                 // Crear usuario
                 var nuevo = new UsuariosDB
@@ -1376,13 +1380,13 @@ namespace AnzanMegaArithmetics.Services
                     }
                 }
 
-                // Asignar licencia individual
+                // Asignar licencia
                 licInd.Id_Usuario = nuevo.Id_Usuario;
 
-                // Actualizar inventario
+                // Actualizar inventario SOLO si la licencia estaba libre
                 var inventario = await _context.Instituciones_Inventario_Licencias
                     .FirstOrDefaultAsync(i => i.Id_Institucion == model.Id_Institucion);
-                if (inventario != null)
+                if (inventario != null && !licenciaYaEstabaAsignada)
                     inventario.Cantidad_Asignada++;
 
                 await _context.SaveChangesAsync();
