@@ -437,7 +437,7 @@
 </style>
 
 <script>
-    function mostrarTab(id, btn) {
+        function mostrarTab(id, btn) {
         document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
         document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
         document.getElementById(id).classList.add("active");
@@ -453,7 +453,14 @@
         }
     });
 
-        // ── MODAL SEDE ──────────────────────────────────────────
+    function invalidarTodosLosTabs() {
+        ['tab2', 'tab4', 'tab5', 'tab6'].forEach(id => {
+            const tab = document.getElementById(id);
+            if (tab) tab.dataset.cargado = '';
+        });
+    }
+
+    // ── MODAL SEDE ──────────────────────────────────────────
     function cerrarModalSede() {
         document.getElementById('modalSede').style.display = 'none';
         document.getElementById('modalSedeBody').innerHTML = '';
@@ -468,10 +475,8 @@
     async function abrirModalNuevaClase(idInstitucion) {
         const modal = document.getElementById('modalSede');
         const body  = document.getElementById('modalSedeBody');
-
         modal.style.display = 'flex';
         body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
-
         try {
             const res = await fetch(`/Master/ObtenerFormularioNuevaClase?idInstitucion=${idInstitucion}`);
             body.innerHTML = await res.text();
@@ -494,15 +499,14 @@
         try {
             const res    = await fetch('/Master/CrearClase', { method: 'POST', body: fd });
             const result = await res.json();
-
             if (result.exito) {
                 cerrarModalSede();
                 window.location.reload();
             } else {
-                msgErr.textContent      = result.mensaje;
-                msgErr.style.display    = 'block';
-                btn.disabled            = false;
-                btn.innerHTML           = '<i class="fas fa-save"></i> Crear Salón';
+                msgErr.textContent   = result.mensaje;
+                msgErr.style.display = 'block';
+                btn.disabled         = false;
+                btn.innerHTML        = '<i class="fas fa-save"></i> Crear Salón';
             }
         } catch {
             msgErr.textContent   = 'Error de conexión.';
@@ -516,10 +520,8 @@
     async function abrirEditarClase(idClase) {
         const modal = document.getElementById('modalSede');
         const body  = document.getElementById('modalSedeBody');
-
         modal.style.display = 'flex';
         body.innerHTML = '<div style="text-align:center;padding:2rem;color:white;"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
-
         try {
             const res = await fetch(`/Master/ObtenerFormularioEditarClase?idClase=${idClase}`);
             body.innerHTML = await res.text();
@@ -545,7 +547,6 @@
         try {
             const res    = await fetch('/Master/GuardarEdicionClase', { method: 'POST', body: fd });
             const result = await res.json();
-
             if (result.exito) {
                 cerrarModalSede();
                 window.location.reload();
@@ -564,7 +565,7 @@
         }
     }
 
-        // ── TAB ALUMNOS ──────────────────────────────────────────
+    // ── TAB ALUMNOS ──────────────────────────────────────────
     async function cargarTabAlumnos(idInstitucion) {
         const tab = document.getElementById('tab6');
         if (tab.dataset.cargado) return;
@@ -619,8 +620,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab6');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -670,7 +670,6 @@
         const msgErr = document.getElementById('msgErrorEditarAlumnoMaster');
         const fd     = new FormData(event.target);
 
-        // Checkbox no incluido si no está marcado
         if (!event.target.querySelector('[name="Activo"]').checked)
             fd.set('Activo', 'false');
 
@@ -683,8 +682,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab6');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -700,7 +698,7 @@
         }
     }
 
-    // ── TOGGLE ACTIVO ────────────────────────────────────────
+    // ── TOGGLE ACTIVO ALUMNO ─────────────────────────────────
     async function toggleActivoAlumno(idUsuario, btn) {
         btn.disabled = true;
         try {
@@ -709,9 +707,7 @@
             const res    = await fetch('/Master/ToggleActivoAlumno', { method: 'POST', body: fd });
             const result = await res.json();
             if (result.exito) {
-                // Refrescamos el tab sin recargar la página
-                const tab = document.getElementById('tab6');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAlumnos(@Model.Id_Institucion);
             } else {
                 alert(result.mensaje);
@@ -722,7 +718,8 @@
             btn.disabled = false;
         }
     }
-        // Reutilizamos la misma función de gestión de licencias
+
+    // ── MODAL LICENCIAS ──────────────────────────────────────
     async function abrirModalLicencias(id) {
         const modal = document.getElementById('modalSede');
         const body  = document.getElementById('modalSedeBody');
@@ -736,16 +733,12 @@
         }
     }
 
-        // ── VER ALUMNOS DE CLASE ─────────────────────────────────
+    // ── VER ALUMNOS DE CLASE ─────────────────────────────────
     function verAlumnosDeClase(nombreClase) {
-        // 1. Cambiar al tab de alumnos
         const tabBtn = document.querySelector("button[onclick*='tab6']");
         if (tabBtn) tabBtn.click();
-
-        // 2. Forzar recarga con el filtro de clase
         const tab = document.getElementById('tab6');
         tab.dataset.cargado = '';
-
         filtrarPorClaseMaster(nombreClase, @Model.Id_Institucion);
     }
 
@@ -765,16 +758,13 @@
         try {
             const fd = new FormData();
             fd.append('idClase', idClase);
-
             const res    = await fetch('/Master/ToggleActivoClase', { method: 'POST', body: fd });
             const result = await res.json();
-
             if (result.exito) {
-                // Recargar el tab de clases
                 window.location.reload();
             } else {
                 alert(result.mensaje);
-                btn.disabled   = false;
+                btn.disabled     = false;
                 iconEl.className = claseOriginal;
             }
         } catch {
@@ -784,7 +774,7 @@
         }
     }
 
-        // ── TAB PROFESORES ───────────────────────────────────────
+    // ── TAB PROFESORES ───────────────────────────────────────
     async function cargarTabProfesores(idInstitucion) {
         const tab = document.getElementById('tab5');
         if (tab.dataset.cargado) return;
@@ -827,8 +817,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab5');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -890,8 +879,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab5');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -916,8 +904,7 @@
             const res    = await fetch('/Master/ToggleActivoProfesor', { method: 'POST', body: fd });
             const result = await res.json();
             if (result.exito) {
-                const tab = document.getElementById('tab5');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabProfesores(@Model.Id_Institucion);
             } else {
                 alert(result.mensaje);
@@ -929,7 +916,7 @@
         }
     }
 
-        // ── BUSCADORES ───────────────────────────────────────────
+    // ── BUSCADORES ───────────────────────────────────────────
     function filtrarAlumnosMasterLocal() {
         const busqueda = document.getElementById('txtBuscarAlumnoMaster')?.value.toLowerCase() ?? '';
         document.querySelectorAll('#tab6 .alumno-row').forEach(fila => {
@@ -951,7 +938,7 @@
         });
     }
 
-        // ── TAB ADMINS ───────────────────────────────────────────
+    // ── TAB ADMINS ───────────────────────────────────────────
     async function cargarTabAdmins(idInstitucion) {
         const tab = document.getElementById('tab4');
         if (tab.dataset.cargado) return;
@@ -993,8 +980,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab4');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -1054,8 +1040,7 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                const tab = document.getElementById('tab4');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
                 msgErr.textContent   = result.mensaje;
@@ -1079,8 +1064,7 @@
             const res    = await fetch('/Master/ToggleActivoAdmin', { method: 'POST', body: fd });
             const result = await res.json();
             if (result.exito) {
-                const tab = document.getElementById('tab4');
-                tab.dataset.cargado = '';
+                invalidarTodosLosTabs();
                 cargarTabAdmins(@Model.Id_Institucion);
             } else {
                 alert(result.mensaje);
@@ -1092,7 +1076,7 @@
         }
     }
 
-        // ── ELIMINAR USUARIO ─────────────────────────────────────
+    // ── ELIMINAR USUARIO ─────────────────────────────────────
     async function confirmarEliminarUsuario(idUsuario, nombre) {
         const confirmar = confirm(
             `¿Eliminar permanentemente a "${nombre}"?\n\n` +
@@ -1106,12 +1090,10 @@
             fd.append('idUsuario', idUsuario);
             const res    = await fetch('/Master/EliminarUsuario', { method: 'POST', body: fd });
             const result = await res.json();
-
             if (result.exito) {
-                // Refrescar el tab activo
+                invalidarTodosLosTabs();
                 const tabActivo = document.querySelector('.tab-content.active');
                 if (tabActivo) {
-                    tabActivo.dataset.cargado = '';
                     const idTab = tabActivo.id;
                     if (idTab === 'tab6') cargarTabAlumnos(@Model.Id_Institucion);
                     else if (idTab === 'tab5') cargarTabProfesores(@Model.Id_Institucion);
@@ -1139,12 +1121,11 @@
         }
     }
 
-        async function confirmarEliminarClase(idClase) {
+    async function confirmarEliminarClase(idClase) {
         const btn    = document.getElementById('btnConfirmarEliminarClase');
         const msgErr = document.getElementById('msgErrorEliminarClase');
         const select = document.getElementById('ddlClaseDestino');
 
-        // Solo validar si el select es un <select> real (no el hidden con value=0)
         if (select && select.tagName === 'SELECT') {
             const idDestino = parseInt(select.value);
             if (idDestino === 0 || isNaN(idDestino)) {
@@ -1167,7 +1148,6 @@
 
             const res    = await fetch('/Master/EliminarClase', { method: 'POST', body: fd });
             const result = await res.json();
-
             if (result.exito) {
                 cerrarModalSede();
                 window.location.reload();
@@ -1185,7 +1165,7 @@
         }
     }
 
-        function cerrarModalFicha() {
+    function cerrarModalFicha() {
         document.getElementById('modalFichaJugador').style.display = 'none';
         document.getElementById('modalFichaBody').innerHTML = '';
     }
@@ -1195,7 +1175,7 @@
         if (e.target === modalFicha) cerrarModalFicha();
     });
 
-        // ── MOVER USUARIO ────────────────────────────────────────
+    // ── MOVER USUARIO ────────────────────────────────────────
     async function abrirMoverUsuario(idUsuario) {
         const modal = document.getElementById('modalSede');
         const body  = document.getElementById('modalSedeBody');
@@ -1209,25 +1189,23 @@
         }
     }
 
-       async function cargarClasesYLicenciasDestino(idInstitucion) {
-        const ddlClase     = document.getElementById('ddlClaseDestino');
-        const ddlLicencia  = document.getElementById('ddlLicenciaDestino');
-        const divLicencia  = document.getElementById('divLicenciaDestino');
-        const msgSin       = document.getElementById('msgSinLicencias');
+    async function cargarClasesYLicenciasDestino(idInstitucion) {
+        const ddlClase    = document.getElementById('ddlClaseDestino');
+        const ddlLicencia = document.getElementById('ddlLicenciaDestino');
+        const divLicencia = document.getElementById('divLicenciaDestino');
+        const msgSin      = document.getElementById('msgSinLicencias');
 
         ddlClase.innerHTML = '<option value="">Cargando...</option>';
 
         if (!idInstitucion) {
-            ddlClase.innerHTML    = '<option value="">— Primero selecciona institución —</option>';
+            ddlClase.innerHTML        = '<option value="">— Primero selecciona institución —</option>';
             divLicencia.style.display = 'none';
             return;
         }
 
-        // Cargar clases
         try {
             const res    = await fetch(`/Master/ObtenerClasesPorInstitucion?idInstitucion=${idInstitucion}`);
             const clases = await res.json();
-
             if (clases.length === 0) {
                 ddlClase.innerHTML = '<option value="">Sin clases disponibles</option>';
             } else {
@@ -1240,7 +1218,6 @@
             ddlClase.innerHTML = '<option value="">Error al cargar clases</option>';
         }
 
-        // Cargar licencias
         divLicencia.style.display = 'block';
         ddlLicencia.innerHTML     = '<option value="0">Cargando licencias...</option>';
         msgSin.style.display      = 'none';
@@ -1248,21 +1225,19 @@
         try {
             const res  = await fetch(`/Master/ObtenerLicenciasInstitucion?idInstitucion=${idInstitucion}`);
             const data = await res.json();
-
             if (!data.length) {
-                ddlLicencia.innerHTML    = '<option value="0">Sin licencias disponibles</option>';
-                msgSin.style.display     = 'block';
+                ddlLicencia.innerHTML = '<option value="0">Sin licencias disponibles</option>';
+                msgSin.style.display  = 'block';
                 return;
             }
-
             ddlLicencia.innerHTML = '<option value="0">— Selecciona una licencia —</option>';
             data.forEach(lic => {
                 const emoji = lic.libre
                     ? '🟢 LIBRE'
                     : `🔶 ASIGNADA a ${lic.nombreUsuarioActual}`;
-                const opt         = document.createElement('option');
-                opt.value         = lic.id;
-                opt.textContent   = `${emoji} | ${lic.tipoLicencia} — Vence: ${lic.fechaVencimiento} (${lic.diasRestantes} días)`;
+                const opt       = document.createElement('option');
+                opt.value       = lic.id;
+                opt.textContent = `${emoji} | ${lic.tipoLicencia} — Vence: ${lic.fechaVencimiento} (${lic.diasRestantes} días)`;
                 ddlLicencia.appendChild(opt);
             });
         } catch {
@@ -1285,10 +1260,9 @@
             const result = await res.json();
             if (result.exito) {
                 cerrarModalSede();
-                // Refrescar tab activo
+                invalidarTodosLosTabs();
                 const tabActivo = document.querySelector('.tab-content.active');
                 if (tabActivo) {
-                    tabActivo.dataset.cargado = '';
                     const idTab = tabActivo.id;
                     if (idTab === 'tab6') cargarTabAlumnos(@Model.Id_Institucion);
                     else if (idTab === 'tab5') cargarTabProfesores(@Model.Id_Institucion);
@@ -1352,7 +1326,8 @@
         }
     }
 
-        async function cargarTabConfiguracion(idInstitucion) {
+    // ── TAB CONFIGURACIÓN ────────────────────────────────────
+    async function cargarTabConfiguracion(idInstitucion) {
         const tab = document.getElementById('tab7');
         if (tab.dataset.cargado) return;
         tab.innerHTML = '<div style="text-align:center;padding:3rem;color:white;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
@@ -1365,7 +1340,7 @@
         }
     }
 
-        // ── CONFIGURACIÓN DE MÓDULOS ─────────────────────────────
+    // ── CONFIGURACIÓN DE MÓDULOS ─────────────────────────────
     function toggleGrupo(grupo) {
         const body    = document.getElementById('body-' + grupo);
         const chevron = document.getElementById('chevron-' + grupo);
@@ -1410,7 +1385,7 @@
             document.querySelectorAll('.config-checkbox:checked')
         ).map(cb => cb.dataset.clave);
 
-        btn.disabled = true;
+        btn.disabled  = true;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Guardando...';
         msg.style.display = 'none';
 
@@ -1436,7 +1411,8 @@
             btn.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
         }
     }
-        // ── TAB LICENCIAS ────────────────────────────────────────
+
+    // ── TAB LICENCIAS ────────────────────────────────────────
     async function cargarTabLicencias(idInstitucion) {
         const tab = document.getElementById('tab2');
         if (tab.dataset.cargado) return;
@@ -1462,8 +1438,7 @@
     }
 
     function recargarTabLicencias() {
-        const tab = document.getElementById('tab2');
-        tab.dataset.cargado = '';
+        invalidarTodosLosTabs();
         cargarTabLicencias(@Model.Id_Institucion);
     }
 
@@ -1521,8 +1496,7 @@
                         <input type="number" name="MesesRenovacion" value="12" min="1" max="120"
                                style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1);
                                       border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none;
-                                      transition:0.3s; box-sizing:border-box; font-size:0.95rem;"
-                               required />
+                                      transition:0.3s; box-sizing:border-box; font-size:0.95rem;" required />
                     </div>
                     <div id="msgErrorRenovar" style="display:none; color:#ff4757;
                          background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3);
@@ -1588,15 +1562,14 @@
                     <input type="hidden" name="Id_Institucion" value="${idInstitucion}" />
                     <div style="display:grid; gap:1rem; margin-bottom:1.5rem;">
                         <div>
-                            <label class="lbl-form" style="display:block; color:#a0a0c0; font-size:0.8rem;
+                            <label style="display:block; color:#a0a0c0; font-size:0.8rem;
                                    text-transform:uppercase; font-weight:600; margin-bottom:0.4rem;">
                                 Meses de vigencia
                             </label>
                             <input type="number" name="MesesVigencia" value="12" min="1" max="120"
                                    style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1);
                                           border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; outline:none;
-                                          transition:0.3s; box-sizing:border-box; font-size:0.95rem;"
-                                   required />
+                                          transition:0.3s; box-sizing:border-box; font-size:0.95rem;" required />
                         </div>
                         <div style="background:rgba(76,76,255,0.08); border:1px solid rgba(76,76,255,0.2);
                                     border-radius:0.5rem; padding:0.8rem 1rem; color:#a0a0c0; font-size:0.85rem;">
