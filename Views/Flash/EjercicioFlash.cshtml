@@ -9,11 +9,11 @@
     var colorB_key = ViewBag.ColorB as string ?? "color2";
 
     Func<string, (string hex, string rgb)> getColorMapping = (key) => key switch
-    {
-        "color1" => ("#ffffff", "255, 255, 255"),
-        "color2" => ("#065f46", "6, 95, 70"),
-        _ => ("#ffffff", "255, 255, 255")
-    };
+ {
+     "color1" => ("#ffffff", "255, 255, 255"),
+     "color2" => ("#39ff14", "57, 255, 20"),
+     _ => ("#ffffff", "255, 255, 255")
+ };
 
     var mappingA = getColorMapping(colorA_key);
     var mappingB = getColorMapping(colorB_key);
@@ -47,12 +47,12 @@
 
     .color-a {
         color: @colorA_hex;
-        text-shadow: 0 0 40px rgba( @shadowA_rgb, 0.9), 0 0 20px rgba( @shadowA_rgb, 0.7);
+        text-shadow: 0 0 30px rgba( @shadowA_rgb, 0.6), 0 0 60px rgba( @shadowA_rgb, 0.3);
     }
 
     .color-b {
         color: @colorB_hex;
-        text-shadow: 0 0 40px rgba( @shadowB_rgb, 0.9), 0 0 20px rgba( @shadowB_rgb, 0.7);
+        text-shadow: 0 0 8px rgba( @shadowB_rgb, 0.6);
     }
 
     .sombra-alterna {
