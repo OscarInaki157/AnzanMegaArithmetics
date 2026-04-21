@@ -85,12 +85,34 @@
 
         <div class="form-column">
 
+            
             <div>
                 <label>Velocidad de las preguntas:</label>
-                <div class="elslider">
-                    <input type="range" id="velocidadSlider" min="1" max="10" step="0.1" value="@velocidad" style="flex: 1; background-color: #292c4f;" />
-                    <input type="number" id="velocidadInput" name="velocidadPreguntas" min="1" max="10" step="0.1" value="@velocidad" style="width: 70px; background-color: #292c4f; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.95rem;" />
-                </div>
+                <select name="velocidadPreguntas" id="velocidadPreguntas">
+                    <option value="0" selected="@(Model.VelocidadPreguntas == "0")">0 (sin límite)</option>
+                    <option value="1" selected="@(Model.VelocidadPreguntas == "1")">1</option>
+                    <option value="2" selected="@(Model.VelocidadPreguntas == "2")">2</option>
+                    <option value="3" selected="@(Model.VelocidadPreguntas == "3")">3</option>
+                    <option value="4" selected="@(Model.VelocidadPreguntas == "4")">4</option>
+                    <option value="5" selected="@(Model.VelocidadPreguntas == "5")">5</option>
+                    <option value="6" selected="@(Model.VelocidadPreguntas == "6")">6</option>
+                    <option value="7" selected="@(Model.VelocidadPreguntas == "7")">7</option>
+                    <option value="8" selected="@(Model.VelocidadPreguntas == "8")">8</option>
+                    <option value="9" selected="@(Model.VelocidadPreguntas == "9")">9</option>
+                    <option value="10" selected="@(Model.VelocidadPreguntas == "10")">10</option>
+                    <option value="11" selected="@(Model.VelocidadPreguntas == "11")">11</option>
+                    <option value="12" selected="@(Model.VelocidadPreguntas == "12")">12</option>
+                    <option value="13" selected="@(Model.VelocidadPreguntas == "13")">13</option>
+                    <option value="14" selected="@(Model.VelocidadPreguntas == "14")">14</option>
+                    <option value="15" selected="@(Model.VelocidadPreguntas == "15")">15</option>
+                    <option value="16" selected="@(Model.VelocidadPreguntas == "16")">16</option>
+                    <option value="17" selected="@(Model.VelocidadPreguntas == "17")">17</option>
+                    <option value="18" selected="@(Model.VelocidadPreguntas == "18")">18</option>
+                    <option value="19" selected="@(Model.VelocidadPreguntas == "19")">19</option>
+                    <option value="20" selected="@(Model.VelocidadPreguntas == "20")">20</option>
+                </select>
+                <br />
+                <small style="color:#aaa; font-size:0.8rem;">Tiempo en segundos por ejercicio. 0 = sin límite (modo manual).</small>
             </div>
 
             <div>
@@ -435,26 +457,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-
-            const slider = document.getElementById("velocidadSlider");
-            const input = document.getElementById("velocidadInput");
-
-            slider.addEventListener("input", () => {
-                input.value = slider.value;
-            });
-
-            input.addEventListener("input", () => {
-                const val = parseFloat(input.value);
-                if (!isNaN(val) && val >= 1 && val <= 10) {
-                    slider.value = val;
-                } else {
-                    input.value = Math.min(Math.max(val, 1), 10);
-                }
-            });
-
-            
             const tipoPreguntasSelect = document.getElementById("TipoPreguntas");
-            const controlColoresDiv = document.getElementById("controlColores");
+            const controlColoresDiv  = document.getElementById("controlColores");
 
             function toggleColores() {
                 if (tipoPreguntasSelect.value === "Números") {
@@ -464,12 +468,8 @@
                 }
             }
 
-            
             tipoPreguntasSelect.addEventListener("change", toggleColores);
-
-            
             toggleColores();
-
         });
     </script>
 }

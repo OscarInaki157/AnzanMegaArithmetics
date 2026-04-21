@@ -7,6 +7,7 @@
     var sesionJson = JsonSerializer.Serialize(Model);
     int totalEjercicios = Model.Configuracion.CantidadEjercicios;
     int ejercicioActual = 1;
+    bool esModoManual = Model.Configuracion.VelocidadPreguntas == "0";
 }
 
 <div class="top-bar">
@@ -22,6 +23,7 @@
             <span id="progreso-texto" class="progreso-texto">@ejercicioActual / @totalEjercicios</span>
         </div>
     </div>
+
     <div id="iconoSonido"
          class="icono-sonido @(Model.Configuracion.ActivarSonido ? "activo" : "")">
         @(Model.Configuracion.ActivarSonido ? "🔊" : "🔇")
@@ -29,29 +31,32 @@
 </div>
 
 <div class="flash-wrapper">
-
     <div id="exercise-container" class="exercise-container">
 
-        <div id="pareja-imagen-display" class="pareja-section hidden">
-            @* Imagen de la pareja de memoria *@
-        </div>
+        <div id="pareja-imagen-display" class="pareja-section hidden"></div>
 
         <div class="main-content-wrapper">
-
-            <div id="pareja-id-display" class="pareja-id-section hidden">
-                @* ID del ejercicio *@
-            </div>
-
-            <div id="main-content" class="main-content-section numero-flash">
-                @* Dígitos o Figuras *@
-            </div>
+            <div id="pareja-id-display" class="pareja-id-section hidden"></div>
+            <div id="main-content" class="main-content-section numero-flash"></div>
         </div>
     </div>
+
+    @if (esModoManual)
+    {
+        <button id="btnSiguiente" onclick="siguienteManual()"
+                style="position:fixed; bottom:2rem; right:2rem;
+                           background:var(--color-primary); color:white; border:none;
+                           padding:1rem 2rem; border-radius:0.8rem; font-size:1.1rem;
+                           font-weight:700; cursor:pointer; z-index:100;
+                           box-shadow:0 4px 20px rgba(76,76,255,0.5);
+                           display:flex; align-items:center; gap:0.6rem;
+                           transition:0.2s;">
+            Siguiente <i class="fas fa-arrow-right"></i>
+        </button>
+    }
 </div>
 
-
 <style>
-
     .barra-progreso-contenedor {
         flex: 1;
         max-width: 420px;
@@ -137,11 +142,6 @@
             transform: scale(1.05);
         }
 
-    .barra-progreso-contenedor {
-        flex: 1;
-        max-width: 420px;
-    }
-
     .icono-sonido {
         font-size: 1.6rem;
         cursor: default;
@@ -153,8 +153,6 @@
             color: #00ff88;
             text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
-
-
 
     .info-tiempo {
         font-size: 1rem;
@@ -211,21 +209,19 @@
     }
 
     .pareja-section {
-        /* flex-shrink: 0; */
         width: 50%;
         max-width: 50%;
         text-align: center;
         display: flex;
         align-items: center;
         justify-content: center;
-        /* height: 300px; */
     }
 
         .pareja-section img {
             max-width: 100%;
             max-height: 250px;
             border-radius: 8px;
-            box-shadow: 0 0 15px rgba(76, 76, 255, 0.4); /* Tu color primario */
+            box-shadow: 0 0 15px rgba(76, 76, 255, 0.4);
             transform: scale(1.2);
         }
 
@@ -261,7 +257,6 @@
         display: none !important;
     }
 
-
     .numero-flash {
         font-size: clamp(12rem, 23rem, 30rem);
         font-weight: bold;
@@ -273,10 +268,13 @@
         height: 100%;
         width: 100%;
         transform: scale(1.5);
-        margin:0;
-        /* margin-top: -8rem; */
+        margin: 0;
     }
 
+    #btnSiguiente:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(76,76,255,0.7) !important;
+    }
 
     @@keyframes bounce {
         0% {
@@ -321,9 +319,7 @@
         }
     }
 
-
     @@media (max-width: 768px) {
-
         .info-tiempo {
             margin: 0 auto;
         }
@@ -343,124 +339,96 @@
             flex-direction: column-reverse;
         }
 
-        .pareja-section{
-            width:100%;
-            max-width:100%;
+        .pareja-section {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        #btnSiguiente {
+            bottom: 1rem !important;
+            right: 1rem !important;
+            padding: 0.8rem 1.5rem !important;
+            font-size: 1rem !important;
         }
     }
 </style>
 
 @section Scripts {
     <script>
-        // --- DATA DE LA SESIÓN ---
-        const sesionData = @Html.Raw(sesionJson);
-        const config = sesionData.Configuracion;
-        const ejercicios = sesionData.Ejercicios;
+        const sesionData      = @Html.Raw(sesionJson);
+        const config          = sesionData.Configuracion;
+        const ejercicios      = sesionData.Ejercicios;
         const totalEjercicios = ejercicios.length;
 
-        const CLASE_COLOR_A = "@Model.Configuracion.ColorA";
-        const CLASE_COLOR_B = "@Model.Configuracion.ColorB";
-
-        // --- REFERENCIAS DOM ---
-        const exerciseContainer = document.getElementById('exercise-container');
+        const exerciseContainer   = document.getElementById('exercise-container');
         const parejaImagenDisplay = document.getElementById('pareja-imagen-display');
-        const parejaIdDisplay = document.getElementById('pareja-id-display');
-        const mainContent = document.getElementById('main-content');
-        const soundIcon = document.getElementById('iconoSonido');
+        const parejaIdDisplay     = document.getElementById('pareja-id-display');
+        const mainContent         = document.getElementById('main-content');
+        const soundIcon           = document.getElementById('iconoSonido');
+        const progresoInterno     = document.getElementById('progreso-interno');
+        const progresoTexto       = document.getElementById('progreso-texto');
 
-        // Referencias de la BARRA DE PROGRESO
-        const progresoInterno = document.getElementById('progreso-interno');
-        const progresoTexto = document.getElementById('progreso-texto');
+        const velocidadStr       = config.VelocidadPreguntas.replace(',', '.');
+        const esModoManual       = velocidadStr === "0";
+        const tiempoPorEjercicio = esModoManual ? 0 : parseFloat(velocidadStr) * 1000;
 
-        // --- VARIABLES DE TIMING Y ESTADO ---
-        const velocidadStr = config.VelocidadPreguntas.replace(',', '.');
-        const tiempoPorEjercicio = parseFloat(velocidadStr) * 1000;
-
-        let tiempoInicio = null;
+        let tiempoInicio         = null;
         let ultimoIndiceMostrado = -1;
-        let esperaFinalizada = false;
-        let isSoundActive = config.ActivarSonido;
+        let esperaFinalizada     = false;
+        let isSoundActive        = config.ActivarSonido;
+        let indiceManual         = 0;
 
-        // --- AUDIO CONTEXT API ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function reproducirBeep() {
             if (!isSoundActive) return;
-
-            if (audioCtx.state === "suspended") {
-                 audioCtx.resume();
-            }
-
+            if (audioCtx.state === "suspended") audioCtx.resume();
             const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.type = 'sine';
+            const gainNode   = audioCtx.createGain();
+            oscillator.type  = 'sine';
             oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
             gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        // --- FUNCIÓN DE ACTUALIZACIÓN DE BARRA DE PROGRESO ---
         function updateProgressBar(current, total) {
-            const porcentaje = Math.round((current / total) * 100);
+            const porcentaje        = Math.round((current / total) * 100);
             progresoInterno.style.width = `${porcentaje}%`;
-            progresoTexto.textContent = `${current} / ${total}`;
+            progresoTexto.textContent   = `${current} / ${total}`;
         }
 
-        // --- RENDERIZADO DINÁMICO ---
-                function renderExercise(ejercicio) {
-
-            // 1. Limpiar y Preparar
-            mainContent.innerHTML = '';
+        function renderExercise(ejercicio) {
+            mainContent.innerHTML         = '';
             parejaImagenDisplay.innerHTML = '';
-            parejaIdDisplay.innerHTML = '';
-
+            parejaIdDisplay.innerHTML     = '';
             parejaImagenDisplay.classList.add('hidden');
             parejaIdDisplay.classList.add('hidden');
 
-            // 2. Renderizar Contenido Principal (Números vs Figuras)
-            const isNumbers = config.TipoPreguntas === "Números";
-
-            // Limpiamos la clase principal de color antes de renderizar
-            mainContent.className = `main-content-section numero-flash`;
-
+            const isNumbers       = config.TipoPreguntas === "Números";
+            mainContent.className = 'main-content-section numero-flash';
 
             if (isNumbers) {
-                const colorClaseEjercicio = ejercicio.ColorClase;
-
                 ejercicio.Digitos.forEach(digito => {
-                    const element = document.createElement('span');
-                    element.className = 'digit-display';
-
-                    element.classList.add(colorClaseEjercicio);
-
-                    element.textContent = digito.DigitoNumerico;
-                    mainContent.appendChild(element);
+                    const el       = document.createElement('span');
+                    el.className   = 'digit-display';
+                    el.classList.add(ejercicio.ColorClase);
+                    el.textContent = digito.DigitoNumerico;
+                    mainContent.appendChild(el);
                 });
             } else {
-                // Si son FIGURAS: Aplicamos la clase ColorClase al contenedor principal (si es necesario)
-                // y mostramos las figuras SIN aplicar clases de color a ellas mismas.
-
-                // Aplicamos la clase del ejercicio (solo se usa para figuras o si mainContent necesita la clase)
                 mainContent.classList.add(ejercicio.ColorClase);
-
                 ejercicio.Digitos.forEach(digito => {
-                    const img = document.createElement('img');
+                    const img     = document.createElement('img');
                     img.className = 'figure-image';
-                    img.src = digito.DigitoImagenRuta;
+                    img.src       = digito.DigitoImagenRuta;
                     mainContent.appendChild(img);
                 });
             }
 
-
-            // 3. Renderizar Pareja de Memoria
             if (ejercicio.ParejaMemoriaRuta) {
-
                 if (config.MostrarParejas === "Número") {
                     const idText = ejercicio.ParejaMemoriaRuta.replace('ID_', '');
                     parejaIdDisplay.innerHTML = `<span>${idText}</span>`;
@@ -471,47 +439,42 @@
                 }
             }
 
-            // 4. Actualizar barra superior, progreso y sonar
             updateProgressBar(ejercicio.Id_Ejercicio, totalEjercicios);
             reproducirBeep();
-
-            // Hacer visible el contenedor principal (opacidad a 1)
             exerciseContainer.style.opacity = 1;
         }
 
-        // Función para ocultar el contenido (dejar la pantalla "vacía")
         function clearDisplay() {
             exerciseContainer.style.opacity = 0;
-            mainContent.innerHTML = '';
-            parejaImagenDisplay.innerHTML = '';
-            parejaIdDisplay.innerHTML = '';
+            mainContent.innerHTML           = '';
+            parejaImagenDisplay.innerHTML   = '';
+            parejaIdDisplay.innerHTML       = '';
         }
 
-        // --- BUCLE DE ANIMACIÓN (RAF) ---
+        function finalizarSesion() {
+            clearDisplay();
+            exerciseContainer.style.opacity = 1;
+            updateProgressBar(totalEjercicios, totalEjercicios);
+            setTimeout(() => {
+                window.location.href = "@Url.Action("RespuestaMemoriaFlash", "MemoriaFlash")";
+            }, 800);
+        }
+
+        // ── MODO AUTOMÁTICO ──────────────────────────────────────
         function loop(timestamp) {
-            // Asegurar que tiempoInicio se inicialice solo una vez
             if (!tiempoInicio) tiempoInicio = timestamp;
 
             const elapsed = timestamp - tiempoInicio;
-            const index = Math.floor(elapsed / tiempoPorEjercicio);
+            const index   = Math.floor(elapsed / tiempoPorEjercicio);
 
             if (index >= ejercicios.length) {
-                // FASE DE FINALIZACIÓN
                 if (!esperaFinalizada) {
-                    clearDisplay();
                     esperaFinalizada = true;
-
-                    exerciseContainer.style.opacity = 1;
-                    updateProgressBar(totalEjercicios, totalEjercicios);
-
-                    setTimeout(() => {
-                        window.location.href = "@Url.Action("RespuestaMemoriaFlash", "MemoriaFlash")";
-                    }, 1000);
+                    finalizarSesion();
                 }
                 return;
             }
 
-            // Usar la variable declarada correctamente: ultimoIndiceMostrado
             if (index !== ultimoIndiceMostrado) {
                 renderExercise(ejercicios[index]);
                 ultimoIndiceMostrado = index;
@@ -520,12 +483,29 @@
             requestAnimationFrame(loop);
         }
 
-        // --- EVENTOS Y ACTIVACIÓN ---
+        // ── MODO MANUAL ──────────────────────────────────────────
+        function siguienteManual() {
+            if (indiceManual >= ejercicios.length) {
+                finalizarSesion();
+                return;
+            }
+
+            renderExercise(ejercicios[indiceManual]);
+            indiceManual++;
+
+            const btn = document.getElementById('btnSiguiente');
+            if (btn && indiceManual >= ejercicios.length) {
+                btn.innerHTML = 'Finalizar <i class="fas fa-check"></i>';
+            }
+        }
 
         function iniciarSesion() {
-            // Al iniciar la sesión, restablecemos tiempoInicio para la precisión.
             tiempoInicio = null;
-            requestAnimationFrame(loop);
+            if (esModoManual) {
+                siguienteManual();
+            } else {
+                requestAnimationFrame(loop);
+            }
         }
 
         function toggleSonido() {
@@ -535,21 +515,14 @@
         }
 
         window.addEventListener("pointerdown", () => {
-             if (audioCtx.state === "suspended") {
-                 audioCtx.resume();
-             }
+            if (audioCtx.state === "suspended") audioCtx.resume();
         }, { once: true });
 
-        // INICIO AUTOMÁTICO AL CARGAR LA PÁGINA
         window.onload = function () {
-             // Aseguramos que el progreso inicial sea 0/Total
-             updateProgressBar(0, totalEjercicios);
-             // Damos una pequeña pausa inicial (0.5s) y empezamos el loop
-             setTimeout(iniciarSesion, 500);
+            updateProgressBar(0, totalEjercicios);
+            setTimeout(iniciarSesion, 500);
         };
 
-        // Evento para el icono de sonido
         soundIcon.addEventListener('click', toggleSonido);
-
     </script>
 }
