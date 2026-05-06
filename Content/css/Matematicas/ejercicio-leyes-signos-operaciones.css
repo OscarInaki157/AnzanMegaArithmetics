@@ -1,0 +1,840 @@
+﻿/* ============================================================
+   ejercicio-leyes-signos-operaciones.css
+   NOTA: este archivo es autónomo, no depende de
+   ejercicio-negativos-positivos.css
+   ============================================================ */
+
+/* ── Layout general ────────────────────────────────────────── */
+.ejercicio-layout {
+    display: flex;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+/* ── Barra lateral de progreso ─────────────────────────────── */
+.progreso-lateral {
+    width: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    background: #fff;
+    border-right: 1px solid rgba(45,58,140,0.1);
+    flex-shrink: 0;
+}
+
+.progreso-lateral__track {
+    flex: 1;
+    width: 8px;
+    background: rgba(45,58,140,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-height: 60vh;
+}
+
+.progreso-lateral__fill {
+    width: 100%;
+    background: linear-gradient(to top, #2D3A8C, #6c82e8);
+    border-radius: 4px;
+    transition: height 0.5s ease;
+    min-height: 0;
+}
+
+.progreso-lateral__label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8888aa;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+}
+
+/* ── Centro del ejercicio ──────────────────────────────────── */
+.ejercicio-centro {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 2rem 2rem;
+    overflow-y: auto;
+    background: #f8f9ff;
+}
+
+/* ── Topbar ─────────────────────────────────────────────────── */
+.ejercicio-topbar {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+}
+
+.ejercicio-timer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-weight: 700;
+    color: #2D3A8C;
+}
+
+.ejercicio-timer__num {
+    font-size: 1.6rem;
+    color: #2D3A8C;
+    transition: color 0.3s;
+}
+
+    .ejercicio-timer__num.urgente {
+        color: #e53e3e;
+    }
+
+.ejercicio-timer__seg {
+    font-size: 0.85rem;
+    color: #8888aa;
+}
+
+.ejercicio-timer__libre {
+    font-size: 1rem;
+    color: #8888aa;
+    font-weight: 600;
+}
+
+.tipo-badge {
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.btn-terminar {
+    background: transparent;
+    border: 1.5px solid rgba(220,38,38,0.3);
+    color: #dc2626;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 0.4rem 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+    .btn-terminar:hover {
+        background: rgba(220,38,38,0.06);
+        border-color: #dc2626;
+    }
+
+/* ── Zona de operación ─────────────────────────────────────── */
+.operacion-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    width: 100%;
+    max-width: 680px;
+}
+
+.operacion-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8888aa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Display genérico (literales/reales/exponente) ─────────── */
+.operacion-display {
+    display: flex;
+    flex-direction: row; /* ← CLAVE: horizontal */
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.15);
+    border-radius: 16px;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    width: 100%;
+}
+
+.op-num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    line-height: 1;
+}
+
+.op-signo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6677cc;
+    line-height: 1;
+}
+
+.op-signo-inline {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #e53e3e;
+    line-height: 1;
+}
+
+.op-parentesis {
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: #94a3cc;
+    line-height: 1;
+}
+
+.op-resultado {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    min-width: 2.5rem;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+    .op-resultado.lejos {
+        color: #c0c8e8;
+    }
+
+    .op-resultado.cerca {
+        color: #eab308;
+    }
+
+    .op-resultado.correcto {
+        color: #16a34a;
+    }
+
+    .op-resultado.incorrecto {
+        color: #ef4444;
+    }
+
+.op-exponente {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #b45309;
+    vertical-align: super;
+}
+
+/* ── PURO SIGNO ─────────────────────────────────────────────── */
+.puro-signo-display {
+    display: flex;
+    flex-direction: row; /* ← CLAVE: horizontal */
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.15);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    width: 100%;
+    max-width: 500px;
+}
+
+.signo-grande {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 900;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.signo-grande--pos {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 3px solid #16a34a;
+}
+
+.signo-grande--neg {
+    background: #fff5f5;
+    color: #dc2626;
+    border: 3px solid #dc2626;
+}
+
+.signo-grande--incognita {
+    background: #f4f6ff;
+    color: #c0c8e8;
+    border: 3px dashed #c0c8e8;
+    font-size: 2rem;
+}
+
+    .signo-grande--incognita.seleccionado-pos {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 3px solid #16a34a;
+    }
+
+    .signo-grande--incognita.seleccionado-neg {
+        background: #fff5f5;
+        color: #dc2626;
+        border: 3px solid #dc2626;
+    }
+
+.op-signo-center {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #6677cc;
+}
+
+/* ── Botones de signo +/− ──────────────────────────────────── */
+.signo-btns-wrap {
+    display: flex;
+    flex-direction: row; /* ← CLAVE: horizontal */
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 420px;
+}
+
+.signo-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 1.25rem 1rem;
+    border-radius: 16px;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    background: none;
+    font-family: inherit;
+}
+
+    .signo-btn:hover {
+        transform: scale(1.06);
+    }
+
+    .signo-btn:active {
+        transform: scale(0.96);
+    }
+
+.signo-btn--pos {
+    background: #f0fdf4;
+    border-color: #16a34a;
+}
+
+    .signo-btn--pos:hover {
+        background: #dcfce7;
+    }
+
+    .signo-btn--pos.seleccionado {
+        background: #16a34a;
+    }
+
+        .signo-btn--pos.seleccionado .signo-btn__icon,
+        .signo-btn--pos.seleccionado .signo-btn__label {
+            color: #fff;
+        }
+
+.signo-btn--neg {
+    background: #fff5f5;
+    border-color: #dc2626;
+}
+
+    .signo-btn--neg:hover {
+        background: #fee2e2;
+    }
+
+    .signo-btn--neg.seleccionado {
+        background: #dc2626;
+    }
+
+        .signo-btn--neg.seleccionado .signo-btn__icon,
+        .signo-btn--neg.seleccionado .signo-btn__label {
+            color: #fff;
+        }
+
+.signo-btn__icon {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.signo-btn--pos .signo-btn__icon {
+    color: #16a34a;
+}
+
+.signo-btn--neg .signo-btn__icon {
+    color: #dc2626;
+}
+
+.signo-btn__label {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.signo-btn--pos .signo-btn__label {
+    color: #15803d;
+}
+
+.signo-btn--neg .signo-btn__label {
+    color: #dc2626;
+}
+
+/* ── LITERALES ─────────────────────────────────────────────── */
+.literal-display {
+    align-items: baseline;
+}
+
+.op-var {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #7c3aed;
+    font-style: italic;
+    line-height: 1;
+}
+
+.op-var-resp {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #c0c8e8;
+    font-style: italic;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+    .op-var-resp.correcto {
+        color: #16a34a;
+    }
+
+    .op-var-resp.cerca {
+        color: #eab308;
+    }
+
+    .op-var-resp.lejos {
+        color: #c0c8e8;
+    }
+
+    .op-var-resp.incorrecto {
+        color: #ef4444;
+    }
+
+/* ── PARÉNTESIS ─────────────────────────────────────────────── */
+.operacion-parentesis {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.15);
+    border-radius: 16px;
+    padding: 1.25rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    width: 100%;
+    max-width: 620px;
+}
+
+.parentesis-hint {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #c2410c;
+    background: #fff7ed;
+    padding: 0.35rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    animation: hint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+    0%,100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.parentesis-expr {
+    display: flex;
+    flex-direction: row; /* ← horizontal */
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.op-parentesis--resalto {
+    color: #c2410c;
+}
+
+.resalto {
+    background: #fff7ed;
+    border-radius: 4px;
+    padding: 0 2px;
+}
+
+/* ── Regla hint ─────────────────────────────────────────────── */
+.regla-hint {
+    font-size: 0.88rem;
+    color: #5566aa;
+    background: #f4f6ff;
+    border: 1px solid rgba(45,58,140,0.12);
+    border-radius: 10px;
+    padding: 0.5rem 1.25rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    max-width: 560px;
+    width: 100%;
+}
+
+    .regla-hint strong {
+        color: #2D3A8C;
+    }
+
+/* ── TECLADO NUMÉRICO ───────────────────────────────────────── */
+.teclado-wrap {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.teclado-display {
+    width: 100%;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.2);
+    border-radius: 14px;
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-height: 4rem;
+}
+
+    .teclado-display.lejos {
+        border-color: rgba(45,58,140,0.2);
+    }
+
+    .teclado-display.cerca {
+        border-color: #eab308;
+        box-shadow: 0 0 0 3px rgba(234,179,8,0.15);
+    }
+
+    .teclado-display.correcto {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
+    }
+
+    .teclado-display.vacio {
+        border-color: rgba(45,58,140,0.12);
+    }
+
+.teclado-display__val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    line-height: 1;
+    display: block;
+}
+
+.teclado-display.cerca .teclado-display__val {
+    color: #d97706;
+}
+
+.teclado-display.correcto .teclado-display__val {
+    color: #16a34a;
+}
+
+.teclado-display.vacio .teclado-display__val {
+    color: #c0c8e8;
+}
+
+.teclado-var-suffix {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #7c3aed;
+    font-style: italic;
+    margin-left: 2px;
+}
+
+.teclado-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.teclado-btn {
+    background: #fff;
+    border: 1.5px solid rgba(45,58,140,0.15);
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2D3A8C;
+    padding: 0.85rem 0.5rem;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.1s, border-color 0.12s;
+    box-shadow: 0 2px 0 rgba(45,58,140,0.1);
+    user-select: none;
+}
+
+    .teclado-btn:hover {
+        background: #f0f1fb;
+        border-color: #4338ca;
+    }
+
+    .teclado-btn:active {
+        transform: scale(0.93);
+        background: #e8eaf8;
+    }
+
+.teclado-btn--neg {
+    background: #f8f9ff;
+    color: #6677cc;
+    font-size: 1.2rem;
+}
+
+.teclado-btn--del {
+    background: #fff5f5;
+    border-color: rgba(220,38,38,0.2);
+    color: #dc2626;
+    font-size: 1.1rem;
+}
+
+    .teclado-btn--del:hover {
+        background: #fee2e2;
+        border-color: #dc2626;
+    }
+
+.teclado-btn--dec {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: rgba(21,128,61,0.2);
+}
+
+.teclado-btn--del-wide {
+    width: 100%;
+    border-radius: 10px;
+    padding: 0.65rem;
+    background: #fff5f5;
+    border: 1.5px solid rgba(220,38,38,0.2);
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s;
+    display: block;
+}
+
+    .teclado-btn--del-wide:hover {
+        background: #fee2e2;
+    }
+
+/* ── Botón enviar ───────────────────────────────────────────── */
+.respuesta-wrap {
+    width: 100%;
+    max-width: 420px;
+    margin-top: auto;
+    padding-top: 0.75rem;
+}
+
+.btn-confirmar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #2D3A8C;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s, opacity 0.2s;
+}
+
+    .btn-confirmar:hover:not(:disabled) {
+        background: #1e2d72;
+    }
+
+    .btn-confirmar:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
+    .btn-confirmar:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+.btn-confirmar--full {
+    width: 100%;
+    padding: 0.9rem 2rem;
+}
+
+/* ── Animaciones feedback ───────────────────────────────────── */
+@keyframes correctFlash {
+    0% {
+        background: #f0fdf4;
+        border-color: #16a34a;
+    }
+
+    50% {
+        background: #dcfce7;
+    }
+
+    100% {
+        background: #fff;
+        border-color: rgba(45,58,140,0.15);
+    }
+}
+
+@keyframes wrongShake {
+    0%,100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-8px);
+    }
+
+    40% {
+        transform: translateX(8px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+.flash-correct {
+    animation: correctFlash 0.7s ease;
+}
+
+.flash-wrong {
+    animation: wrongShake 0.4s ease;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .ejercicio-centro {
+        padding: 1rem;
+    }
+
+    .op-num {
+        font-size: 1.8rem;
+    }
+
+    .op-signo {
+        font-size: 1.5rem;
+    }
+
+    .signo-grande {
+        width: 4rem;
+        height: 4rem;
+        font-size: 2.2rem;
+    }
+
+    .puro-signo-display {
+        padding: 1rem 1rem;
+        gap: 0.6rem;
+    }
+
+    .operacion-display {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ── Puro Signo multi-operando ──────────────────────────── */
+.puro-signo-display.multi {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 1rem 1.5rem;
+}
+
+    .puro-signo-display.multi .signo-grande {
+        width: 3.5rem;
+        height: 3.5rem;
+        font-size: 2rem;
+    }
+
+/* ── RAÍZ CUADRADA ───────────────────────────────────────── */
+.raiz-display {
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.op-raiz-simbolo {
+    font-size: 4rem;
+    font-weight: 300;
+    color: #065f46;
+    line-height: 1;
+    margin-right: -0.5rem;
+}
+
+.op-raiz-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0.25rem 0.75rem 0 0.25rem;
+}
+
+.op-raiz-linea {
+    display: block;
+    height: 3px;
+    background: #065f46;
+    width: 100%;
+    border-radius: 2px;
+    margin-bottom: 0.2rem;
+}
+
+.op-raiz-contenido .op-num {
+    color: #065f46;
+}
+
+/* ── CORCHETES ───────────────────────────────────────────── */
+.operacion-corchetes {
+    border-color: rgba(146,64,14,0.25);
+}
+
+.corchetes-hint {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.op-corchete {
+    font-size: 2.8rem;
+    font-weight: 300;
+    color: #92400e;
+    line-height: 1;
+}
+
+/* ── Formulario: hint de operandos por tipo ──────────────── */
+.tipo-card--aleatorio.tipo-card--active {
+    border-color: #be185d;
+    background: #fdf2f8;
+}

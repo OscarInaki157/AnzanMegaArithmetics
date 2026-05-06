@@ -1,0 +1,173 @@
+﻿@{
+    var nivel = ViewBag.NivelActivo as string ?? "elementales";
+    var iniciales = "";
+    var nombreUsuario = User.Identity?.Name ?? "";
+    var partes = nombreUsuario.Trim().Split(' ');
+    if (partes.Length >= 2)
+        iniciales = (partes[0][0].ToString() + partes[^1][0].ToString()).ToUpper();
+    else if (partes.Length == 1 && partes[0].Length > 0)
+        iniciales = partes[0][..Math.Min(2, partes[0].Length)].ToUpper();
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MatesMéxico</title>
+    <link rel="shortcut icon" type="image/png" href="/Content/Images/iconoMM.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script src="https://kit.fontawesome.com/521fff03dd.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="/Content/css/estiloslayoutmates.css" />
+    <link rel="stylesheet" href="/Content/css/estilosdashboardmates.css" />
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <div class="mm-app">
+
+        <aside class="mm-sidebar" id="mmSidebar">
+
+            <a class="sb-logo" href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")">
+                <div class="sb-hex">
+                    <svg viewBox="0 0 34 34">
+                        <polygon points="17,2 32,9.5 32,24.5 17,32 2,24.5 2,9.5" fill="#4338ca" />
+                    </svg>
+                    <span>M</span>
+                </div>
+                <div class="sb-brand">
+                    <span class="sb-brand-name">MatesMéxico</span>
+                    <span class="sb-brand-tag">Aprende con estrellas</span>
+                </div>
+            </a>
+
+            <span class="sb-section-label">Curso</span>
+
+            <a href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")"
+               class="sb-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "DashboardMatematicas" ? "active" : "")">
+                <div class="sb-nav-icon"><i class="fas fa-book-open"></i></div>
+                Lecciones
+            </a>
+
+            <a href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")?nivel=elementales"
+               class="sb-sub-item @(nivel == "elementales" ? "active" : "")"
+               data-level="elementales">
+                Elementales
+            </a>
+            <a href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")?nivel=secundaria"
+               class="sb-sub-item @(nivel == "secundaria" ? "active" : "")"
+               data-level="secundaria">
+                Secundaria
+            </a>
+            <a href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")?nivel=preuniversitarias"
+               class="sb-sub-item @(nivel == "preuniversitarias" ? "active" : "")"
+               data-level="preuniversitarias">
+                Pre-universitarias
+            </a>
+
+            <hr class="sb-divider" />
+
+            <a href="#"
+               class="sb-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Ligas" ? "active" : "")">
+                <div class="sb-nav-icon"><i class="fas fa-trophy"></i></div>
+                Ligas
+            </a>
+
+            <a href="#"
+               class="sb-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Tienda" ? "active" : "")">
+                <div class="sb-nav-icon"><i class="fas fa-store"></i></div>
+                Tienda
+            </a>
+
+            <a href="#"
+               class="sb-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "MiPerfil" ? "active" : "")">
+                <div class="sb-nav-icon"><i class="fas fa-user"></i></div>
+                Mi perfil
+            </a>
+
+            <a href="#"
+               class="sb-nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Simulador" ? "active" : "")">
+                <div class="sb-nav-icon"><i class="fas fa-flask"></i></div>
+                Simulador
+            </a>
+
+            <div class="sb-spacer"></div>
+            <hr class="sb-divider" />
+
+            <form method="post" action="@Url.Action("Logout", "Inicio")" style="margin:1px 0;">
+                <button type="submit" class="sb-logout"
+                        style="background:none;border:none;width:100%;cursor:pointer;font-family:inherit;">
+                    <div class="sb-logout-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    Cerrar sesión
+                </button>
+            </form>
+
+        </aside>
+
+        <div class="mm-main">
+
+            <header class="mm-topbar">
+                <div class="topbar-left">
+                    <button class="mm-hamburger" id="mm-hamburger" aria-label="Abrir menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="mm-avatar">@iniciales</div>
+                    <div>
+                        <div class="topbar-name">@(ViewBag.NombreCompleto ?? nombreUsuario)</div>
+                        <div class="topbar-tag">
+                            @@@(ViewBag.GamerTag ?? "usuario") &nbsp;&middot;&nbsp; @(ViewBag.Licencia ?? "Licencia Básica")
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topbar-pills">
+                    <div class="stat-pill pill-xp">
+                        ✨ <span id="xp-counter-val" data-xp="@(ViewBag.XP ?? 0)">0 XP</span>
+                    </div>
+                    <div class="stat-pill pill-streak">
+                        🔥 <span>@(ViewBag.Racha ?? 0) días</span>
+                    </div>
+                    <div class="stat-pill pill-league">
+                        🥇 <span>@(ViewBag.Liga ?? "Liga Bronce")</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="mm-content" id="pathScroll">
+                <main>
+                    @RenderBody()
+                </main>
+            </div>
+
+        </div>
+
+    </div>
+
+    <button class="scroll-top-btn" id="scrollTopBtn" title="Volver arriba">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="/Content/js/dashboardmates.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    // <script>
+    //     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    //     document.addEventListener('keydown', function (e) {
+    //         if (e.key === 'F12' ||
+    //             (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+    //             (e.ctrlKey && e.key === 'U')) {
+    //             e.preventDefault();
+    //         }
+    //     });
+    // </script>
+
+</body>
+</html>

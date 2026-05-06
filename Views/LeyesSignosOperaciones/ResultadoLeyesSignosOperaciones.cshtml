@@ -1,0 +1,167 @@
+﻿@model AnzanMegaArithmetics.Models.MatematicasModels.LeyesSignosOperaciones.ResultadoFinalLeyesSignosOperacionesViewModel
+@using AnzanMegaArithmetics.Models.MatematicasModels.LeyesSignosOperaciones
+@{
+    ViewData["Title"] = "Resultados — Leyes de los signos";
+    Layout = "~/Views/Shared/MatematicasV/_LayoutDashboardMates.cshtml";
+
+    int total = Model.CantidadEjercicios;
+    int correctos = Model.Resultados.Count(r => r.EsCorrecto);
+    int incorrectos = Model.Resultados.Count(r => !r.EsCorrecto && !r.EsOmitido);
+    int omitidos = Model.Resultados.Count(r => r.EsOmitido);
+
+    float pctCorr = total > 0 ? (float)correctos / total * 100 : 0;
+    float pctInc = total > 0 ? (float)incorrectos / total * 100 : 0;
+    float pctOmit = total > 0 ? (float)omitidos / total * 100 : 0;
+
+    double tiempoPromedio = Model.Resultados
+        .Where(r => !r.EsOmitido && r.TiempoRespuesta > 0)
+        .Select(r => r.TiempoRespuesta)
+        .DefaultIfEmpty(0).Average();
+
+    string nombreTipo = Model.TipoEjercicio switch
+    {
+        TipoEjercicioLeyes.PuroSigno => "Puro signo",
+        TipoEjercicioLeyes.Literales => "Literales",
+        TipoEjercicioLeyes.Reales => "Reales",
+        TipoEjercicioLeyes.Parentesis => "Paréntesis",
+        TipoEjercicioLeyes.Exponente => "Exponente",
+        TipoEjercicioLeyes.Aleatorio => "Aleatorio",
+        _ => "Leyes"
+    };
+    string colorTipo = Model.TipoEjercicio switch
+    {
+        TipoEjercicioLeyes.PuroSigno => "#7c3aed",
+        TipoEjercicioLeyes.Literales => "#4338ca",
+        TipoEjercicioLeyes.Reales => "#15803d",
+        TipoEjercicioLeyes.Parentesis => "#c2410c",
+        TipoEjercicioLeyes.Exponente => "#b45309",
+        TipoEjercicioLeyes.Aleatorio => "#be185d",
+        _ => "#4338ca"
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/Content/css/Matematicas/resultado-negativos-positivos.css" />
+}
+
+<div class="resultado-page">
+
+    <div class="resultado-header">
+        <div class="resultado-header__icon" style="background:@colorTipo;">×÷</div>
+        <div>
+            <h1 class="resultado-header__title">Leyes de los signos</h1>
+            <p class="resultado-header__sub">
+                @nombreTipo · @correctos de @total correctos
+            </p>
+        </div>
+    </div>
+
+    <div class="resultado-body">
+
+        @* ── Columna izquierda ── *@
+        <aside class="resultado-resumen">
+
+            <div class="resumen-card">
+                <h3 class="resumen-card__titulo">Resultado general</h3>
+                <div class="pastel-wrap">
+                    <div class="pastel"
+                         style="--p-corr:@pctCorr.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                                --p-inc:@pctInc.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+                                --p-omit:@pctOmit.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);">
+                        <div class="pastel__centro">
+                            <span class="pastel__frac">@correctos/@total</span>
+                            <span class="pastel__label">correctos</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="leyenda">
+                    <div class="leyenda__item"><span class="leyenda__dot leyenda__dot--correcto"></span>Correctos <strong>@correctos</strong></div>
+                    <div class="leyenda__item"><span class="leyenda__dot leyenda__dot--incorrecto"></span>Incorrectos <strong>@incorrectos</strong></div>
+                    <div class="leyenda__item"><span class="leyenda__dot leyenda__dot--omitido"></span>Omitidos <strong>@omitidos</strong></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-card__val">@(tiempoPromedio > 0 ? tiempoPromedio.ToString("0.0") + "s" : "—")</span>
+                    <span class="stat-card__lbl">Tiempo prom.</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card__val">@(total > 0 ? ((int)pctCorr) + "%" : "—")</span>
+                    <span class="stat-card__lbl">Precisión</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card__val" style="color:@colorTipo;">@nombreTipo</span>
+                    <span class="stat-card__lbl">Tipo</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-card__val">@(Model.VelocidadEjercicio == "0" ? "Libre" : Model.VelocidadEjercicio + "s")</span>
+                    <span class="stat-card__lbl">Velocidad</span>
+                </div>
+            </div>
+
+            <div class="resultado-acciones">
+                <form method="post" asp-controller="LeyesSignosOperaciones" asp-action="Iniciar">
+                    <input type="hidden" name="CantidadEjercicios" value="@Model.CantidadEjercicios" />
+                    <input type="hidden" name="MinDigitos" value="@Model.MinDigitos" />
+                    <input type="hidden" name="MaxDigitos" value="@Model.MaxDigitos" />
+                    <input type="hidden" name="TipoEjercicio" value="@((int)Model.TipoEjercicio)" />
+                    <input type="hidden" name="VelocidadEjercicio" value="@Model.VelocidadEjercicio" />
+                    <button type="submit" class="btn btn--primary w-100">↺ &nbsp;Reintentar</button>
+                </form>
+                <a href="@Url.Action("Formulario", "LeyesSignosOperaciones")" class="btn btn--outline-indigo w-100">⚙️ &nbsp;Cambiar configuración</a>
+                <a href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")" class="btn btn--outline w-100">🏠 &nbsp;Volver al mapa</a>
+            </div>
+
+        </aside>
+
+        @* ── Columna derecha: detalle ── *@
+        <main class="resultado-detalle">
+            <h2 class="detalle-titulo">Detalle de respuestas</h2>
+            <div class="ejercicios-grid">
+                @{
+                    int idx = 1;
+                }
+                @foreach (var res in Model.Resultados)
+                {
+                    string cls = res.EsOmitido ? "ej-card--omitido" : res.EsCorrecto ? "ej-card--correcto" : "ej-card--incorrecto";
+                    string ico = res.EsOmitido ? "–" : res.EsCorrecto ? "✓" : "✕";
+                    string txt = res.EsOmitido ? "Omitido" : res.EsCorrecto ? "Correcto" : "Incorrecto";
+
+                    string respCorr = res.RespuestaCorrecta % 1 == 0
+                    ? ((int)res.RespuestaCorrecta).ToString()
+                    : res.RespuestaCorrecta.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+                    <div class="ej-card @cls">
+                        <div class="ej-card__header">
+                            <span class="ej-card__num">#@idx</span>
+                            <span class="ej-card__badge">@ico @txt</span>
+                        </div>
+                        <div class="ej-card__operacion">@res.Enunciado = @respCorr</div>
+                        <div class="ej-card__body">
+                            <div class="ej-dato">
+                                <span class="ej-dato__lbl">Correcta</span>
+                                <span class="ej-dato__val">@respCorr</span>
+                            </div>
+                            <div class="ej-dato">
+                                <span class="ej-dato__lbl">Tu resp.</span>
+                                <span class="ej-dato__val @(res.EsOmitido ? "ej-dato__val--muted" : "")">
+                                    @(res.EsOmitido ? "—" : res.RespuestaUsuario)
+                                </span>
+                            </div>
+                            @if (!res.EsOmitido && res.TiempoRespuesta > 0)
+                            {
+                                <div class="ej-dato">
+                                    <span class="ej-dato__lbl">Tiempo</span>
+                                    <span class="ej-dato__val">@res.TiempoRespuesta.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)s</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    idx++;
+                }
+            </div>
+        </main>
+
+    </div>
+</div>

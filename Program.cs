@@ -69,10 +69,18 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles(new StaticFileOptions()
+//app.UseStaticFiles(new StaticFileOptions()
+//{
+//    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Content")),
+//    RequestPath = new PathString("/Content")
+//});
+
+var contentPath = Path.Combine(app.Environment.ContentRootPath, "Content");
+
+app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Content")),
-    RequestPath = new PathString("/Content")
+    FileProvider = new PhysicalFileProvider(contentPath),
+    RequestPath = "/Content"
 });
 
 app.UseSession();

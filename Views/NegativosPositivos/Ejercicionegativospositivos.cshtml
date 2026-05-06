@@ -1,0 +1,217 @@
+﻿@model AnzanMegaArithmetics.Models.MatematicasModels.NegativosPositivos.EjercicioNegativosPositivosViewModel
+@using AnzanMegaArithmetics.Models.MatematicasModels.NegativosPositivos
+@{
+    ViewData["Title"] = Model.EsTutorial ? "Tutorial — Números con signo" : "Números con signo";
+    Layout = "~/Views/Shared/MatematicasV/_LayoutDashboardMates.cshtml";
+    int porcentaje = Model.CantidadEjercicios > 0
+        ? (int)((float)Model.EjerciciosRealizados / Model.CantidadEjercicios * 100)
+        : 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/Content/css/Matematicas/ejercicio-negativos-positivos.css" />
+    @if (Model.EsTutorial)
+    {
+        <link rel="stylesheet" href="/Content/css/Matematicas/tutorial-negativos-positivos.css" />
+    }
+}
+
+@* Form: avanzar *@
+<form id="formAvanzar" method="post" asp-controller="NegativosPositivos" asp-action="Avanzar">
+    <input type="hidden" asp-for="CantidadEjercicios" />
+    <input type="hidden" asp-for="MinDigitos" />
+    <input type="hidden" asp-for="MaxDigitos" />
+    <input type="hidden" asp-for="TipoEjercicio" />
+    <input type="hidden" asp-for="VelocidadEjercicio" />
+    <input type="hidden" asp-for="TipoDigitos" />
+    <input type="hidden" asp-for="EjerciciosRealizados" />
+    <input type="hidden" asp-for="ResultadosJson" />
+    <input type="hidden" asp-for="Operando1" />
+    <input type="hidden" asp-for="Operando2" />
+    <input type="hidden" asp-for="Operacion" />
+    <input type="hidden" asp-for="Resultado" />
+    <input type="hidden" asp-for="Posicion" />
+    <input type="hidden" asp-for="RespuestaCorrecta" />
+    <input type="hidden" asp-for="EsTutorial" />
+    <input type="hidden" asp-for="PasoTutorial" />
+    <input type="hidden" name="RespuestaUsuario" id="hdRespuesta" value="" />
+    <input type="hidden" name="TiempoRespuesta" id="hdTiempo" value="0" />
+</form>
+
+@* Form: terminar *@
+<form id="formFinalizar" method="post" asp-controller="NegativosPositivos" asp-action="Finalizar">
+    <input type="hidden" asp-for="CantidadEjercicios" />
+    <input type="hidden" asp-for="MinDigitos" />
+    <input type="hidden" asp-for="MaxDigitos" />
+    <input type="hidden" asp-for="TipoEjercicio" />
+    <input type="hidden" asp-for="VelocidadEjercicio" />
+    <input type="hidden" asp-for="TipoDigitos" />
+    <input type="hidden" asp-for="EjerciciosRealizados" />
+    <input type="hidden" asp-for="ResultadosJson" />
+    <input type="hidden" asp-for="EsTutorial" />
+</form>
+
+<div class="ejercicio-layout"
+     data-velocidad="@Model.VelocidadEjercicio"
+     data-respuesta-correcta="@Model.RespuestaCorrecta"
+     data-usa-recta="@Model.UsarRecta.ToString().ToLower()"
+     data-es-tutorial="@Model.EsTutorial.ToString().ToLower()"
+     id="ejercicioLayout">
+
+    @* Barra lateral de progreso *@
+    <aside class="progreso-lateral" aria-label="Progreso" id="progresoLateral">
+        <div class="progreso-lateral__track">
+            <div class="progreso-lateral__fill" style="height:@porcentaje%"></div>
+        </div>
+        <span class="progreso-lateral__label">@Model.EjerciciosRealizados/@Model.CantidadEjercicios</span>
+    </aside>
+
+    <main class="ejercicio-centro">
+
+        @* Topbar *@
+        <div class="ejercicio-topbar" id="ejercicioTopbar">
+            <div class="ejercicio-timer" id="timerWrap">
+                @if (Model.VelocidadEjercicio != "0")
+                {
+                    <span>⏱</span>
+                    <span class="ejercicio-timer__num" id="timerNum">@Model.VelocidadEjercicio</span>
+                    <span class="ejercicio-timer__seg">s</span>
+                }
+                else
+                {
+                    <span class="ejercicio-timer__libre">♾️ Libre</span>
+                }
+            </div>
+            <button type="button" class="btn-terminar" id="btnTerminar">
+                @(Model.EsTutorial ? "Salir del tutorial" : "Terminar")
+            </button>
+        </div>
+
+        @* Operación *@
+        <div class="operacion-wrap" id="operacionWrap">
+            <span class="operacion-label">Resuelve:</span>
+            <div class="operacion-display" id="operacionDisplay">
+                @if (Model.Posicion == PosicionIncognita.Operando1)
+                {
+                    <span class="op-num op-incognita lejos" id="resultadoDisplay">?</span>
+                }
+                else
+                {
+
+                    <span class="op-num">@Model.Operando1</span>
+                }
+
+                <span class="op-signo">@Model.Operacion</span>
+
+                @if (Model.Posicion == PosicionIncognita.Operando2)
+                {
+                    <span class="op-num op-incognita lejos" id="resultadoDisplay">?</span>
+                }
+                else
+                {
+
+                    <span class="op-num">@Model.Operando2</span>
+                }
+
+                <span class="op-signo">=</span>
+
+                @if (Model.Posicion == PosicionIncognita.Resultado)
+                {
+                    <span class="op-num op-incognita lejos" id="resultadoDisplay">?</span>
+                }
+                else
+                {
+
+                    <span class="op-num">@Model.Resultado</span>
+                }
+            </div>
+        </div>
+
+        @* Recta numérica *@
+        @if (Model.UsarRecta)
+        {
+            <div class="recta-wrap" id="rectaWrap">
+                <div class="recta-contenedor">
+                    <button type="button" class="recta-arrow" id="btnIzq" aria-label="Izquierda">‹</button>
+                    <div class="recta" id="recta">
+                        <div class="recta-linea"></div>
+                        @for (int n = -20; n <= 20; n++)
+                        {
+                            <div class="recta-marca @(n == 0 ? "recta-marca--cero" : n % 5 == 0 ? "recta-marca--mayor" : "")"
+                                 data-val="@n">
+                                @if (n == 0 || n % 5 == 0)
+                                {
+                                    <span class="recta-marca__num">@n</span>
+                                }
+                            </div>
+                        }
+                        <div class="recta-indicador" id="rectaIndicador">
+                            <div class="recta-indicador__punto"></div>
+                            <div class="recta-indicador__val" id="indicadorVal">0</div>
+                        </div>
+                    </div>
+                    <button type="button" class="recta-arrow" id="btnDer" aria-label="Derecha">›</button>
+                </div>
+                <p class="recta-hint">Haz clic en la recta o usa ‹ › para seleccionar tu respuesta</p>
+            </div>
+        }
+        else
+        {
+            <div class="teclado-wrap" id="tecladoWrap">
+                <div class="teclado-display" id="tecladoDisplay">
+                    <span class="teclado-display__val" id="tecladoVal">—</span>
+                </div>
+                <div class="teclado-grid">
+                    @foreach (var digit in new[] { "7", "8", "9", "4", "5", "6", "1", "2", "3" })
+                    {
+                        <button type="button" class="teclado-btn" data-digit="@digit">@digit</button>
+                    }
+                    <button type="button" class="teclado-btn teclado-btn--neg" id="btnNeg">±</button>
+                    <button type="button" class="teclado-btn" data-digit="0">0</button>
+                    <button type="button" class="teclado-btn teclado-btn--del" id="btnDel">⌫</button>
+                </div>
+            </div>
+        }
+
+        @* Confirmar *@
+        <div class="respuesta-wrap" id="respuestaWrap">
+            <button type="button" class="btn-confirmar btn-confirmar--full"
+                    id="btnConfirmar" disabled>
+                Confirmar ✓
+            </button>
+        </div>
+
+    </main>
+</div>
+
+@* ── OVERLAY DEL TUTORIAL (solo si es tutorial) ── *@
+@if (Model.EsTutorial)
+{
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+        <div class="tutorial-card" id="tutorialCard">
+            <div class="tutorial-card__header">
+                <span class="tutorial-card__paso" id="tutorialPaso">Paso 1 de 6</span>
+                <span class="tutorial-card__emoji" id="tutorialEmoji">🧑‍🚀</span>
+            </div>
+            <h3 class="tutorial-card__titulo" id="tutorialTitulo">Título</h3>
+            <p class="tutorial-card__desc" id="tutorialDesc">Descripción</p>
+            <div class="tutorial-card__footer">
+                <button class="tutorial-btn tutorial-btn--skip" id="btnSkipTutorial">
+                    Saltar tutorial
+                </button>
+                <button class="tutorial-btn tutorial-btn--next" id="btnNextTutorial">
+                    Entendido →
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="/Content/js/Matematicas/ejercicio-negativos-positivos.js"></script>
+    @if (Model.EsTutorial)
+    {
+        <script src="/Content/js/Matematicas/tutorial-negativos-positivos.js"></script>
+    }
+}

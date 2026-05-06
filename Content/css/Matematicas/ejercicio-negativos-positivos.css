@@ -1,0 +1,631 @@
+﻿/* ============================================================
+   ejercicio-negativos-positivos.css
+   Ruta: Content/css/Matematicas/ejercicio-negativos-positivos.css
+   ============================================================ */
+
+.ejercicio-layout {
+    display: flex;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+/* ── Barra lateral de progreso ────────────────────────────── */
+.progreso-lateral {
+    width: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    background: #fff;
+    border-right: 1px solid rgba(45,58,140,0.1);
+    flex-shrink: 0;
+}
+
+.progreso-lateral__track {
+    flex: 1;
+    width: 8px;
+    background: rgba(45,58,140,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-height: 60vh;
+}
+
+.progreso-lateral__fill {
+    width: 100%;
+    background: linear-gradient(to top, #2D3A8C, #6c82e8);
+    border-radius: 4px;
+    transition: height 0.5s ease;
+    min-height: 0;
+}
+
+.progreso-lateral__label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8888aa;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+}
+
+/* ── Centro ───────────────────────────────────────────────── */
+.ejercicio-centro {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 2rem 2rem;
+    overflow-y: auto;
+    background: #f8f9ff;
+}
+
+/* ── Topbar ───────────────────────────────────────────────── */
+.ejercicio-topbar {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.ejercicio-timer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-weight: 700;
+    color: #2D3A8C;
+}
+
+.ejercicio-timer__num {
+    font-size: 1.6rem;
+    color: #2D3A8C;
+    transition: color 0.3s;
+}
+
+    .ejercicio-timer__num.urgente {
+        color: #e53e3e;
+    }
+
+.ejercicio-timer__seg {
+    font-size: 0.85rem;
+    color: #8888aa;
+}
+
+.ejercicio-timer__libre {
+    font-size: 1rem;
+    color: #8888aa;
+    font-weight: 600;
+}
+
+.btn-terminar {
+    background: transparent;
+    border: 1.5px solid rgba(220,38,38,0.3);
+    color: #dc2626;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 0.4rem 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+    .btn-terminar:hover {
+        background: rgba(220,38,38,0.06);
+        border-color: #dc2626;
+    }
+
+/* ── Operación ────────────────────────────────────────────── */
+.operacion-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.operacion-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8888aa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.operacion-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.15);
+    border-radius: 16px;
+    padding: 1rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.op-num {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    line-height: 1;
+}
+
+.op-signo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #6677cc;
+    line-height: 1;
+}
+
+.op-resultado {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    min-width: 3rem;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+    .op-resultado.lejos {
+        color: #c0c8e8;
+    }
+
+    .op-resultado.cerca {
+        color: #eab308;
+    }
+
+    .op-resultado.correcto {
+        color: #16a34a;
+    }
+
+/* ── Recta numérica ───────────────────────────────────────── */
+.recta-wrap {
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 1.5rem;
+}
+
+.recta-contenedor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.recta-arrow {
+    background: #fff;
+    border: 1.5px solid rgba(45,58,140,0.2);
+    color: #2D3A8C;
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+    .recta-arrow:hover {
+        background: #f0f1fb;
+        border-color: #2D3A8C;
+    }
+
+    .recta-arrow:active {
+        transform: scale(0.92);
+    }
+
+.recta {
+    flex: 1;
+    position: relative;
+    height: 5rem;
+    cursor: pointer;
+    user-select: none;
+    overflow: visible;
+}
+
+.recta-linea {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #c0c8e8, #2D3A8C, #c0c8e8);
+    border-radius: 2px;
+    transform: translateY(-50%);
+}
+
+.recta-marca {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+    .recta-marca::before {
+        content: '';
+        display: block;
+        width: 1.5px;
+        height: 8px;
+        background: #c0c8e8;
+        margin-bottom: 2px;
+    }
+
+.recta-marca--mayor::before {
+    height: 14px;
+    background: #8898d4;
+}
+
+.recta-marca--cero::before {
+    height: 20px;
+    background: #2D3A8C;
+    width: 2.5px;
+}
+
+.recta-marca__num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #8898d4;
+    white-space: nowrap;
+    margin-top: 6px;
+}
+
+.recta-marca--cero .recta-marca__num {
+    color: #2D3A8C;
+    font-size: 0.75rem;
+}
+
+.recta-indicador {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+    transition: left 0.1s ease;
+    z-index: 5;
+}
+
+.recta-indicador__punto {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2D3A8C;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(45,58,140,0.4);
+    transition: background 0.2s;
+}
+
+.recta-indicador--cerca .recta-indicador__punto {
+    background: #eab308;
+    box-shadow: 0 2px 8px rgba(234,179,8,0.4);
+}
+
+.recta-indicador--correcto .recta-indicador__punto {
+    background: #16a34a;
+    box-shadow: 0 2px 8px rgba(22,163,74,0.4);
+}
+
+.recta-indicador__val {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    background: #fff;
+    border: 1.5px solid rgba(45,58,140,0.2);
+    border-radius: 6px;
+    padding: 1px 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.recta-indicador--cerca .recta-indicador__val {
+    color: #eab308;
+    border-color: #eab308;
+}
+
+.recta-indicador--correcto .recta-indicador__val {
+    color: #16a34a;
+    border-color: #16a34a;
+}
+
+.recta-hint {
+    font-size: 0.78rem;
+    color: #a0a8cc;
+    text-align: center;
+    margin-top: 0.4rem;
+}
+
+/* ── Input directo ────────────────────────────────────────── */
+.input-directo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-directo__label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #8888aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input-directo {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    text-align: center;
+    width: 12rem;
+    padding: 0.6rem 1rem;
+    border: 2px solid rgba(45,58,140,0.2);
+    border-radius: 14px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .input-directo:focus {
+        border-color: #2D3A8C;
+        box-shadow: 0 0 0 3px rgba(45,58,140,0.12);
+    }
+
+/* ── Confirmar ────────────────────────────────────────────── */
+.respuesta-wrap {
+    width: 100%;
+    max-width: 420px;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.btn-confirmar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #2D3A8C;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, opacity 0.2s;
+}
+
+    .btn-confirmar:hover:not(:disabled) {
+        background: #1e2d72;
+    }
+
+    .btn-confirmar:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
+    .btn-confirmar:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+.btn-confirmar--full {
+    width: 100%;
+    padding: 0.9rem 2rem;
+}
+
+/* ── Animaciones feedback ─────────────────────────────────── */
+@keyframes correctFlash {
+    0% {
+        background: #f0fdf4;
+        border-color: #16a34a;
+    }
+
+    50% {
+        background: #dcfce7;
+    }
+
+    100% {
+        background: #fff;
+        border-color: rgba(45,58,140,0.15);
+    }
+}
+
+.operacion-display.flash-correct {
+    animation: correctFlash 0.6s ease;
+}
+
+@keyframes wrongShake {
+    0%,100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-8px);
+    }
+
+    40% {
+        transform: translateX(8px);
+    }
+
+    60% {
+        transform: translateX(-5px);
+    }
+
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+.operacion-display.flash-wrong {
+    animation: wrongShake 0.4s ease;
+    border-color: rgba(220,38,38,0.4);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .ejercicio-centro {
+        padding: 1rem;
+    }
+
+    .op-num {
+        font-size: 2.2rem;
+    }
+
+    .op-signo {
+        font-size: 1.8rem;
+    }
+
+    .op-resultado {
+        font-size: 2.2rem;
+    }
+
+    .operacion-display {
+        padding: 0.75rem 1.25rem;
+        gap: 0.5rem;
+    }
+
+    .recta-arrow {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.2rem;
+    }
+}
+
+/* ── Incógnita en la operación ────────────────────────────── */
+.op-incognita {
+    min-width: 3.5rem;
+    text-align: center;
+    transition: color 0.2s;
+}
+
+    .op-incognita.lejos {
+        color: #c0c8e8;
+    }
+
+    .op-incognita.cerca {
+        color: #eab308;
+    }
+
+    .op-incognita.correcto {
+        color: #16a34a;
+    }
+
+/* ── TECLADO NUMÉRICO ─────────────────────────────────────── */
+.teclado-wrap {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Display del número ingresado */
+.teclado-display {
+    width: 100%;
+    background: #fff;
+    border: 2px solid rgba(45,58,140,0.2);
+    border-radius: 14px;
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .teclado-display.lejos {
+        border-color: rgba(45,58,140,0.2);
+    }
+
+    .teclado-display.cerca {
+        border-color: #eab308;
+        box-shadow: 0 0 0 3px rgba(234,179,8,0.15);
+    }
+
+    .teclado-display.correcto {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
+    }
+
+.teclado-display__val {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    line-height: 1;
+    display: block;
+    min-height: 3rem;
+    transition: color 0.2s;
+}
+
+.teclado-display.cerca .teclado-display__val {
+    color: #d97706;
+}
+
+.teclado-display.correcto .teclado-display__val {
+    color: #16a34a;
+}
+
+.teclado-display.vacio .teclado-display__val {
+    color: #c0c8e8;
+}
+
+/* Grid del teclado 3x4 */
+.teclado-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.teclado-btn {
+    background: #fff;
+    border: 1.5px solid rgba(45,58,140,0.15);
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2D3A8C;
+    padding: 0.85rem 0.5rem;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.1s, border-color 0.12s;
+    box-shadow: 0 2px 0 rgba(45,58,140,0.1);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    .teclado-btn:hover {
+        background: #f0f1fb;
+        border-color: #4338ca;
+    }
+
+    .teclado-btn:active {
+        transform: scale(0.93);
+        background: #e8eaf8;
+    }
+
+.teclado-btn--neg {
+    background: #f8f9ff;
+    color: #6677cc;
+    font-size: 1.2rem;
+}
+
+.teclado-btn--del {
+    background: #fff5f5;
+    border-color: rgba(220,38,38,0.2);
+    color: #dc2626;
+    font-size: 1.1rem;
+}
+
+    .teclado-btn--del:hover {
+        background: #fee2e2;
+        border-color: #dc2626;
+    }

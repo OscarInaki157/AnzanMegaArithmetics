@@ -1,0 +1,571 @@
+﻿@{
+    ViewData["Title"] = "MatesMéxico · Mapa de aprendizaje";
+    Layout = "~/Views/Shared/MatematicasV/_LayoutDashboardMates.cshtml";
+}
+
+<div class="path-scroll" id="pathScroll">
+
+    @* ══ UNIDAD 1 ══════════════════════════════════════════ *@
+    <div class="unit-banner u-indigo">
+        <div class="ub-emoji">±</div>
+        <div class="ub-info">
+            <div class="ub-title">Unidad 1 · Números positivos y negativos</div>
+            <div class="ub-sub">Recta numérica, valor absoluto y operaciones</div>
+        </div>
+        <div class="ub-progress">
+            <div class="ub-bar"><div class="ub-bar-fill" data-width="40" style="width:0%"></div></div>
+            <div class="ub-progress-text">2 / 5 nodos</div>
+        </div>
+    </div>
+
+    <div class="hex-path">
+
+        @* Nodo 1: Tutorial — Centro *@
+        <div class="hex-row row-C">
+            <div class="hex-node state-done" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#7c3aed" stroke="#6d28d9" stroke-width="2.5" /></svg>
+                    <span class="hex-inner">📖</span>
+                </div>
+                <div class="hex-label">Tutorial<br>Núm. ±</div>
+                <div class="node-tip">
+                    <div class="tip-head">
+                        <div class="tip-icon ic-purple">📖</div>
+                        <div class="tip-title">Tutorial: Números positivos y negativos</div>
+                    </div>
+                    <div class="tip-desc">Aprende los conceptos básicos de la recta numérica y qué significa cada signo.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
+                    <button class="tip-btn btn-repeat"
+                            onclick="window.location.href='@Url.Action("IniciarTutorial", "NegativosPositivos")'">
+                        Iniciar tutorial
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 2: Lección principal — Derecha *@
+        <div class="hex-row row-R">
+            <div class="hex-node state-done" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#4338ca" stroke="#3730a3" stroke-width="2.5" /></svg>
+                    <span class="hex-inner">⊕</span>
+                </div>
+                <div class="hex-label">Núm. positivos<br>y negativos</div>
+                <div class="node-tip tip-right">
+                    <div class="tip-head">
+                        <div class="tip-icon ic-blue">⊕</div>
+                        <div class="tip-title">Números positivos y negativos</div>
+                    </div>
+                    <div class="tip-desc">Opera y compara números en la recta numérica con ambos signos.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+50 XP</span></div>
+                    <button class="tip-btn btn-repeat"
+                            onclick="window.location.href='@Url.Action("Formulario", "NegativosPositivos")'">
+                        Ir a la lección
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodos 3,4,5: Cofres — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="chest-group" style="padding-left:14px;">
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-open">🎁</div>
+                    <div class="hex-label">Cofre 1</div>
+                    <div class="node-tip tip-left">
+                        <div class="tip-head"><div class="tip-icon ic-amber">🎁</div><div class="tip-title">Cofre de inicio</div></div>
+                        <div class="tip-desc">Desbloqueado por completar el tutorial de números positivos y negativos.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+80 XP</span></div>
+                        <button class="tip-btn btn-start" data-tipo="cofre">Reclamar</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 2</div>
+                    <div class="node-tip tip-left">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre perfección ×5</div></div>
+                        <div class="tip-desc">Completa 5 lecciones sin errores de esta unidad para desbloquearlo.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+150 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 3</div>
+                    <div class="node-tip tip-left">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre maestro ×10</div></div>
+                        <div class="tip-desc">Completa 10 lecciones sin errores. ¡El reto definitivo de esta unidad!</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+300 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Astronauta 1 *@
+        <div class="astro-wrap">
+            <div class="astro-body a1">🧑‍🚀</div>
+            <div class="astro-bubble">¡Excelente arranque, explorador!</div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 6: Fin Unidad 1 — Centro *@
+        <div class="hex-row row-C">
+            <div class="special-node" tabindex="0">
+                <div class="special-box fin-u1">🏁</div>
+                <div class="special-label lbl-fin">Fin Unidad 1</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-blue">🏁</div><div class="tip-title">¡Unidad 1 completada!</div></div>
+                    <div class="tip-desc">Completaste la unidad de números positivos y negativos. Se desbloquea la Unidad 2.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+500 XP</span><span class="tip-pill tp-spec">Bonus</span></div>
+                    <button class="tip-btn btn-locked" disabled>Pendiente</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @* ══ UNIDAD 2 ══════════════════════════════════════════ *@
+    <div class="unit-banner u-green">
+        <div class="ub-emoji">✕</div>
+        <div class="ub-info">
+            <div class="ub-title">Unidad 2 · Leyes de los signos</div>
+            <div class="ub-sub">Aprende a resolver operaciones con signos</div>
+        </div>
+        <div class="ub-progress">
+            <div class="ub-bar"><div class="ub-bar-fill" data-width="0" style="width:0%"></div></div>
+            <div class="ub-progress-text">0 / 4 nodos</div>
+        </div>
+    </div>
+
+    <div class="hex-path">
+
+        @* Nodo 7: Tutorial Signos — Derecha *@
+        <div class="hex-row row-R">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#d1fae5" stroke="#6ee7b7" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">Tutorial<br>Signos</div>
+                <div class="node-tip tip-right">
+                    <div class="tip-head"><div class="tip-icon ic-green">🔒</div><div class="tip-title">Tutorial: Leyes de los signos</div></div>
+                    <div class="tip-desc">Completa la Unidad 1 para desbloquear las leyes de los signos.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 8: Operaciones — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#d1fae5" stroke="#6ee7b7" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">Leyes:<br>Operaciones</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-green">🔒</div><div class="tip-title">Leyes de los signos: Operaciones</div></div>
+                    <div class="tip-desc">Practica operaciones aplicando las reglas de los signos.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+60 XP</span></div>
+                    <button class="tip-btn btn-repeat"
+                            onclick="window.location.href='@Url.Action("Formulario", "LeyesSignosOperaciones")'">
+                        Ir a la lección
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodos 9,10,11: Cofres — Derecha *@
+        <div class="hex-row row-R">
+            <div class="chest-group" style="padding-right:14px;">
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 4</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre signos</div></div>
+                        <div class="tip-desc">Completa el tutorial de leyes de los signos.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+80 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 5</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre experto ×5</div></div>
+                        <div class="tip-desc">5 lecciones sin errores de leyes de los signos.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+150 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 6</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre maestro ×10</div></div>
+                        <div class="tip-desc">10 lecciones perfectas de leyes de los signos.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+300 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 12: Fin Unidad 2 — Centro *@
+        <div class="hex-row row-C">
+            <div class="special-node" tabindex="0">
+                <div class="special-box fin-u2">🏁</div>
+                <div class="special-label lbl-fin" style="color:#15803d;">Fin Unidad 2</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-green">🏁</div><div class="tip-title">¡Unidad 2 completada!</div></div>
+                    <div class="tip-desc">¡Dominas las leyes de los signos! Se desbloquea la Unidad de Fracciones.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+500 XP</span><span class="tip-pill tp-spec">Bonus</span></div>
+                    <button class="tip-btn btn-locked" disabled>Pendiente</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @* ══ UNIDAD 3 ══════════════════════════════════════════ *@
+    <div class="unit-banner u-amber">
+        <div class="ub-emoji">½</div>
+        <div class="ub-info">
+            <div class="ub-title">Unidad 3 · Fracciones</div>
+            <div class="ub-sub">MCM, MCD, simplificación y operaciones</div>
+        </div>
+        <div class="ub-progress">
+            <div class="ub-bar"><div class="ub-bar-fill" data-width="0" style="width:0%"></div></div>
+            <div class="ub-progress-text">0 / 9 nodos</div>
+        </div>
+    </div>
+
+    <div class="hex-path">
+
+        @* Nodo 14: MCM Tutorial — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">MCM<br>Tutorial</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">Mínimo Común Múltiplo: Tutorial</div></div>
+                    <div class="tip-desc">Aprende qué es el MCM y cuándo lo necesitas en fracciones.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 15: MCM Operaciones — Derecha *@
+        <div class="hex-row row-R">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">MCM<br>Operaciones</div>
+                <div class="node-tip tip-right">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">MCM: Operaciones</div></div>
+                    <div class="tip-desc">Calcula el mínimo común múltiplo con ejercicios prácticos variados.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+50 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodos 16,17,18: Cofres MCM — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="chest-group" style="padding-left:14px;">
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 7</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCM</div></div>
+                        <div class="tip-desc">Completa el tutorial de MCM.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+80 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 8</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCM ×5</div></div>
+                        <div class="tip-desc">5 lecciones sin errores de MCM.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+150 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 9</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCM ×10</div></div>
+                        <div class="tip-desc">10 lecciones perfectas de MCM.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+300 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Astronauta 2 *@
+        <div class="astro-wrap">
+            <div class="astro-body a2">🧑‍🚀</div>
+            <div class="astro-bubble">¡El espacio de las fracciones!</div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 20: MCD Tutorial — Derecha *@
+        <div class="hex-row row-R">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">MCD<br>Tutorial</div>
+                <div class="node-tip tip-right">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">Máximo Común Divisor: Tutorial</div></div>
+                    <div class="tip-desc">Aprende qué es el MCD y su relación con la simplificación de fracciones.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 21: MCD Operaciones — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">MCD<br>Operaciones</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">MCD: Operaciones</div></div>
+                    <div class="tip-desc">Practica encontrar el máximo común divisor con distintos conjuntos de números.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+50 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodos 22,23,24: Cofres MCD — Derecha *@
+        <div class="hex-row row-R">
+            <div class="chest-group" style="padding-right:14px;">
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 10</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCD</div></div>
+                        <div class="tip-desc">Completa el tutorial de MCD.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+80 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 11</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCD ×5</div></div>
+                        <div class="tip-desc">5 lecciones sin errores de MCD.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+150 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 12</div>
+                    <div class="node-tip tip-right">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre MCD ×10</div></div>
+                        <div class="tip-desc">10 lecciones perfectas de MCD.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+300 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 25: Simplificación Tutorial — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">Simplif.<br>Tutorial</div>
+                <div class="node-tip">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">Simplificación: Tutorial</div></div>
+                    <div class="tip-desc">Aprende a reducir fracciones a su mínima expresión usando el MCD.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 26: Simplificación Operaciones — Derecha *@
+        <div class="hex-row row-R">
+            <div class="hex-node state-locked" tabindex="0">
+                <div class="hex-shape">
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#fef3c7" stroke="#fbbf24" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                </div>
+                <div class="hex-label">Simplif.<br>Operaciones</div>
+                <div class="node-tip tip-right">
+                    <div class="tip-head"><div class="tip-icon ic-amber">🔒</div><div class="tip-title">Simplificación: Operaciones</div></div>
+                    <div class="tip-desc">Practica simplificando fracciones de distintos niveles de dificultad.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+50 XP</span></div>
+                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodos 27,28,29: Cofres Simplificación — Izquierda *@
+        <div class="hex-row row-L">
+            <div class="chest-group" style="padding-left:14px;">
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 13</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre Simplif.</div></div>
+                        <div class="tip-desc">Completa el tutorial de simplificación.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+80 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 14</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre Simplif. ×5</div></div>
+                        <div class="tip-desc">5 lecciones sin errores de simplificación.</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+150 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+                <div class="chest-node" tabindex="0">
+                    <div class="chest-box c-locked">🔒</div>
+                    <div class="hex-label">Cofre 15</div>
+                    <div class="node-tip">
+                        <div class="tip-head"><div class="tip-icon ic-gray">🔒</div><div class="tip-title">Cofre Simplif. ×10</div></div>
+                        <div class="tip-desc">10 lecciones perfectas. ¡Maestro de las fracciones!</div>
+                        <div class="tip-pills"><span class="tip-pill tp-xp">+300 XP</span></div>
+                        <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Astronauta 3 *@
+        <div class="astro-wrap">
+            <div class="astro-body a3">🧑‍🚀</div>
+            <div class="astro-bubble">¡Casi desbloqueas el personaje!</div>
+        </div>
+
+        <svg class="path-connector"></svg>
+
+        @* Nodo 30: Desbloquea personaje — Centro *@
+        <div class="hex-row row-C">
+            <div class="special-node" tabindex="0">
+                <div class="special-box char-unlock">🎭</div>
+                <div class="special-label lbl-char">¡Desbloquea<br>un personaje!</div>
+                <div class="node-tip">
+                    <div class="tip-head">
+                        <div class="tip-icon" style="background:#f3e8ff;">🎭</div>
+                        <div class="tip-title">Desbloquear personaje especial</div>
+                    </div>
+                    <div class="tip-desc">Reclama los 15 cofres anteriores para desbloquear un personaje exclusivo de MatesMéxico.</div>
+                    <div class="tip-pills"><span class="tip-pill tp-xp">+1,000 XP</span><span class="tip-pill tp-spec">Único</span></div>
+                    <button class="tip-btn btn-locked" disabled>Pendiente (0/15 cofres)</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @* ══ FADE ZONE ══════════════════════════════════════════ *@
+    <div class="fade-zone">
+
+        <div class="unit-banner u-coming" style="margin-bottom:16px;">
+            <div class="ub-emoji" style="opacity:.5;">➕</div>
+            <div class="ub-info">
+                <div class="ub-title">31 · Fracciones: Suma</div>
+                <div class="ub-sub">Próximamente disponible</div>
+            </div>
+            <div class="coming-badge">En construcción</div>
+        </div>
+
+        <div class="hex-path fade-content">
+            <div class="hex-row row-L">
+                <div class="hex-node state-locked">
+                    <div class="hex-shape">
+                        <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="2.5" /></svg>
+                        <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                    </div>
+                    <div class="hex-label">Suma<br>Tutorial</div>
+                </div>
+            </div>
+            <svg class="path-connector"></svg>
+            <div class="hex-row row-R">
+                <div class="hex-node state-locked">
+                    <div class="hex-shape">
+                        <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="2.5" /></svg>
+                        <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                    </div>
+                    <div class="hex-label">Suma<br>Operaciones</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wip-footer">
+            <div class="wip-text">Más contenido próximamente...</div>
+            <div class="wip-dots">
+                <div class="wip-dot"></div>
+                <div class="wip-dot"></div>
+                <div class="wip-dot"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,147 @@
+﻿@model AnzanMegaArithmetics.Models.MatematicasModels.NegativosPositivos.ConfNegativosPositivosViewModel
+@{
+    ViewData["Title"] = "Números con signo — Configuración";
+    Layout = "~/Views/Shared/MatematicasV/_LayoutDashboardMates.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/Content/css/Matematicas/formulario-negativos-positivos.css" />
+}
+
+<header class="dash-topbar">
+    <a class="btn-regresar" href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")">
+        <span class="btn-regresar__icon">←</span> Volver al mapa
+    </a>
+    <div class="dash-topbar__greeting">
+        Configura tu práctica de <strong>Números positivos y negativos</strong>
+    </div>
+</header>
+
+<div class="dash-content">
+    <div class="config-card config-card--signo">
+
+        <div class="config-card__header">
+            <span class="config-card__icon" aria-hidden="true">±</span>
+            <div>
+                <h1 class="config-card__title">Números positivos y negativos</h1>
+                <p class="config-card__sub">Configura los parámetros de la sesión</p>
+            </div>
+        </div>
+
+        <form id="formSigno" method="post"
+              asp-controller="NegativosPositivos" asp-action="Iniciar" novalidate>
+
+            <div class="signo-form-grid">
+
+                @* ── Columna 1 ── *@
+                <div class="signo-col">
+
+                    <div class="config-group">
+                        <label class="form-label" asp-for="CantidadEjercicios">Cantidad de ejercicios</label>
+                        <div class="stepper">
+                            <button type="button" class="stepper__btn" data-target="CantidadEjercicios" data-dir="-1">−</button>
+                            <input class="stepper__val form-input" asp-for="CantidadEjercicios" type="number" min="1" max="100" />
+                            <button type="button" class="stepper__btn" data-target="CantidadEjercicios" data-dir="1">+</button>
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <label class="form-label">Dígitos por número</label>
+                        <div class="digits-range">
+                            <div class="digits-range__item">
+                                <span class="digits-range__label">Mín.</span>
+                                <div class="stepper stepper--sm">
+                                    <button type="button" class="stepper__btn" data-target="MinDigitos" data-dir="-1">−</button>
+                                    <input class="stepper__val form-input" asp-for="MinDigitos" type="number" min="1" max="5" />
+                                    <button type="button" class="stepper__btn" data-target="MinDigitos" data-dir="1">+</button>
+                                </div>
+                            </div>
+                            <span class="digits-range__sep">→</span>
+                            <div class="digits-range__item">
+                                <span class="digits-range__label">Máx.</span>
+                                <div class="stepper stepper--sm">
+                                    <button type="button" class="stepper__btn" data-target="MaxDigitos" data-dir="-1">−</button>
+                                    <input class="stepper__val form-input" asp-for="MaxDigitos" type="number" min="1" max="5" />
+                                    <button type="button" class="stepper__btn" data-target="MaxDigitos" data-dir="1">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="config-hint" id="hintRecta">
+                            Con 1 dígito se activa la <strong>recta numérica</strong> interactiva
+                        </p>
+                    </div>
+
+                    <div class="config-group">
+                        <label class="form-label">Velocidad por ejercicio</label>
+                        <div class="speed-pills" id="speedPills">
+                            @foreach (var v in new[] { "0", "5", "10", "15", "20", "30", "45", "60" })
+                            {
+                                var label = v == "0" ? "Libre" : v + "s";
+                                <button type="button"
+                                        class="speed-pill @(Model.VelocidadEjercicio == v ? "speed-pill--active" : "")"
+                                        data-val="@v">
+                                    @label
+                                </button>
+                            }
+                        </div>
+                        <input type="hidden" name="VelocidadEjercicio" id="hdVelocidad" value="@Model.VelocidadEjercicio" />
+                    </div>
+
+                </div>
+
+                @* ── Columna 2 ── *@
+                <div class="signo-col">
+
+                    <div class="config-group">
+                        <label class="form-label">Tipo de ejercicio</label>
+                        <div class="op-tabs">
+                            <label class="op-tab">
+                                <input type="radio" asp-for="TipoEjercicio" value="clasico" />
+                                <span>Clásico</span>
+                            </label>
+                            <label class="op-tab">
+                                <input type="radio" asp-for="TipoEjercicio" value="aleatorio" />
+                                <span>Aleatorio</span>
+                            </label>
+                        </div>
+                        <p class="config-hint">
+                            <strong>Clásico:</strong> suma o resta ordenada.&nbsp;
+                            <strong>Aleatorio:</strong> operandos y signos mixtos.
+                        </p>
+                    </div>
+
+                    <div class="config-group">
+                        <label class="form-label">Dígitos a usar</label>
+                        <div class="op-tabs op-tabs--col">
+                            <label class="op-tab">
+                                <input type="radio" asp-for="TipoDigitos" value="inferiores" />
+                                <span>Inferiores (1–5)</span>
+                            </label>
+                            <label class="op-tab">
+                                <input type="radio" asp-for="TipoDigitos" value="superiores" />
+                                <span>Superiores (6–9)</span>
+                            </label>
+                            <label class="op-tab">
+                                <input type="radio" asp-for="TipoDigitos" value="ambos" />
+                                <span>Ambos</span>
+                            </label>
+                        </div>
+                        <p class="config-hint">Solo aplica cuando los dígitos son 1.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="config-card__footer">
+                <button type="submit" class="btn btn--primary config-card__submit">
+                    Iniciar práctica ±
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/Content/js/Matematicas/formulario-negativos-positivos.js"></script>
+}

@@ -1,0 +1,275 @@
+﻿/* ============================================================
+   formulario-negativos-positivos.css
+   Ruta: Content/css/Matematicas/formulario-negativos-positivos.css
+   ============================================================ */
+
+.signo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.signo-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ── Stepper ─────────────────────────────────────────────── */
+.stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid rgba(45,58,140,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    width: fit-content;
+}
+
+.stepper__btn {
+    background: #f4f5fb;
+    border: none;
+    color: #2D3A8C;
+    font-size: 1.25rem;
+    font-weight: 700;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+    .stepper__btn:hover {
+        background: #e8eaf8;
+    }
+
+    .stepper__btn:active {
+        background: #d8dcf4;
+    }
+
+.stepper__val {
+    width: 3.5rem;
+    text-align: center;
+    border: none;
+    border-left: 1.5px solid rgba(45,58,140,0.15);
+    border-right: 1.5px solid rgba(45,58,140,0.15);
+    border-radius: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2D3A8C;
+    padding: 0.4rem 0.2rem;
+    background: #fff;
+    outline: none;
+    box-shadow: none;
+}
+
+.stepper--sm .stepper__btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+}
+
+.stepper--sm .stepper__val {
+    width: 2.5rem;
+    font-size: 0.9rem;
+}
+
+/* ── Rango de dígitos ─────────────────────────────────────── */
+.digits-range {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.digits-range__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.digits-range__label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #8888aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.digits-range__sep {
+    font-size: 1.25rem;
+    color: #c0c0d8;
+    margin-top: 1.2rem;
+}
+
+/* ── Speed pills ──────────────────────────────────────────── */
+.speed-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.speed-pill {
+    padding: 0.35rem 0.85rem;
+    border: 1.5px solid rgba(45,58,140,0.2);
+    border-radius: 50px;
+    background: #fafafa;
+    color: #5566aa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+    .speed-pill:hover {
+        border-color: #2D3A8C;
+        background: #f0f1fb;
+    }
+
+.speed-pill--active {
+    background: #2D3A8C;
+    color: #fff;
+    border-color: #2D3A8C;
+}
+
+/* ── Op-tabs ──────────────────────────────────────────────── */
+.op-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.op-tabs--col {
+    flex-direction: column;
+}
+
+.op-tab {
+    cursor: pointer;
+    position: relative;
+}
+
+    .op-tab input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .op-tab span {
+        display: block;
+        padding: 0.5rem 1.1rem;
+        border: 1.5px solid rgba(45,58,140,0.2);
+        border-radius: 50px;
+        background: #fafafa;
+        color: #5566aa;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all 0.15s;
+        user-select: none;
+    }
+
+    .op-tab input:checked + span {
+        background: #2D3A8C;
+        color: #fff;
+        border-color: #2D3A8C;
+    }
+
+    .op-tab:hover span {
+        border-color: #2D3A8C;
+        background: #f0f1fb;
+    }
+
+/* ── Hint ─────────────────────────────────────────────────── */
+.config-hint {
+    font-size: 0.82rem;
+    color: #9999bb;
+    margin: 0.25rem 0 0;
+    line-height: 1.5;
+}
+
+    .config-hint strong {
+        color: #2D3A8C;
+    }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .signo-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .config-card__footer {
+        justify-content: stretch;
+    }
+
+    .config-card__submit {
+        width: 100%;
+    }
+}
+
+/* ── Tarjeta del formulario ───────────────────────────────── */
+.config-card {
+    background: #ffffff;
+    border: 1px solid rgba(45,58,140,0.1);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(45,58,140,0.07);
+}
+
+.config-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(45,58,140,0.08);
+}
+
+.config-card__icon {
+    font-size: 2.2rem;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(135deg, #4338ca, #7c3aed);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+}
+
+.config-card__title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    margin: 0 0 0.2rem;
+}
+
+.config-card__sub {
+    font-size: 0.88rem;
+    color: #8888aa;
+    margin: 0;
+}
+
+.config-card__footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(45,58,140,0.08);
+    margin-top: 0.5rem;
+}
+
+.config-card__submit {
+    min-width: 220px;
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    border-radius: 50px;
+}
+
+.form-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #4a4a6a;
+    margin-bottom: 0.35rem;
+    display: block;
+}

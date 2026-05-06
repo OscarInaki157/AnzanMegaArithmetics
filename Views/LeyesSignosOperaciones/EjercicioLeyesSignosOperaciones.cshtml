@@ -1,0 +1,468 @@
+﻿@model AnzanMegaArithmetics.Models.MatematicasModels.LeyesSignosOperaciones.EjercicioLeyesSignosOperacionesViewModel
+@using AnzanMegaArithmetics.Models.MatematicasModels.LeyesSignosOperaciones
+@using System.Text.Json
+@{
+    ViewData["Title"] = Model.EsTutorial ? "Tutorial — Leyes de los signos" : "Leyes de los signos";
+    Layout = "~/Views/Shared/MatematicasV/_LayoutDashboardMates.cshtml";
+
+    int porcentaje = Model.CantidadEjercicios > 0
+        ? (int)((float)Model.EjerciciosRealizados / Model.CantidadEjercicios * 100) : 0;
+
+    var tipo = Model.TipoEjercicioActual;
+
+    var colorBanner = tipo switch
+    {
+        TipoEjercicioLeyes.PuroSigno => "#7c3aed",
+        TipoEjercicioLeyes.Literales => "#4338ca",
+        TipoEjercicioLeyes.Reales => "#15803d",
+        TipoEjercicioLeyes.Parentesis => "#c2410c",
+        TipoEjercicioLeyes.Corchetes => "#92400e",
+        TipoEjercicioLeyes.Exponente => "#b45309",
+        TipoEjercicioLeyes.Raiz => "#065f46",
+        _ => "#4338ca"
+    };
+    var nombreTipo = tipo switch
+    {
+        TipoEjercicioLeyes.PuroSigno => "Puro signo",
+        TipoEjercicioLeyes.Literales => "Literales",
+        TipoEjercicioLeyes.Reales => "Reales",
+        TipoEjercicioLeyes.Parentesis => "Paréntesis",
+        TipoEjercicioLeyes.Corchetes => "Corchetes",
+        TipoEjercicioLeyes.Exponente => "Exponente",
+        TipoEjercicioLeyes.Raiz => "Raíz √",
+        _ => "Leyes"
+    };
+
+    // Deserializar listas para renderizado
+    var signos = !string.IsNullOrEmpty(Model.SignosJson) && Model.SignosJson != "[]"
+        ? JsonSerializer.Deserialize<List<bool>>(Model.SignosJson)! : new List<bool>();
+    var valores = !string.IsNullOrEmpty(Model.ValoresJson) && Model.ValoresJson != "[]"
+        ? JsonSerializer.Deserialize<List<double>>(Model.ValoresJson)! : new List<double>();
+    var coefs = !string.IsNullOrEmpty(Model.CoefsJson) && Model.CoefsJson != "[]"
+        ? JsonSerializer.Deserialize<List<int>>(Model.CoefsJson)! : new List<int>();
+    var operaciones = !string.IsNullOrEmpty(Model.OperacionesJson) && Model.OperacionesJson != "[]"
+        ? JsonSerializer.Deserialize<List<int>>(Model.OperacionesJson)! : new List<int>();
+
+    string OpStr(int op) => op switch
+    {
+        0 => "+",
+        1 => "−",
+        2 => "×",
+        3 => "÷",
+        4 => "^",
+        _ => "?"
+    };
+    string SignoStr(bool s) => s ? "+" : "−";
+
+    // Para Paréntesis / Corchetes: deserializar estructura
+    JsonElement estructura = default;
+    bool tieneEstructura = false;
+    if ((tipo == TipoEjercicioLeyes.Parentesis || tipo == TipoEjercicioLeyes.Corchetes)
+        && !string.IsNullOrEmpty(Model.EstructuraJson) && Model.EstructuraJson.StartsWith("{"))
+    {
+        estructura = JsonSerializer.Deserialize<JsonElement>(Model.EstructuraJson);
+        tieneEstructura = true;
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/Content/css/Matematicas/ejercicio-leyes-signos-operaciones.css" />
+    @if (Model.EsTutorial)
+    {
+        <link rel="stylesheet" href="/Content/css/Matematicas/tutorial-leyes-signos-operaciones.css" />
+    }
+}
+
+@* ── Forms ── *@
+<form id="formAvanzar" method="post" asp-controller="LeyesSignosOperaciones" asp-action="Avanzar">
+    <input type="hidden" asp-for="CantidadEjercicios" />
+    <input type="hidden" asp-for="CantidadOperandos" />
+    <input type="hidden" asp-for="MinDigitos" />
+    <input type="hidden" asp-for="MaxDigitos" />
+    <input type="hidden" asp-for="TipoEjercicioConfig" />
+    <input type="hidden" asp-for="TipoEjercicioActual" />
+    <input type="hidden" asp-for="VelocidadEjercicio" />
+    <input type="hidden" asp-for="EjerciciosRealizados" />
+    <input type="hidden" asp-for="ResultadosJson" />
+    <input type="hidden" asp-for="SignosJson" />
+    <input type="hidden" asp-for="ValoresJson" />
+    <input type="hidden" asp-for="OperacionesJson" />
+    <input type="hidden" asp-for="CoefsJson" />
+    <input type="hidden" asp-for="Variable" />
+    <input type="hidden" asp-for="SignoA" />
+    <input type="hidden" asp-for="ValorA" />
+    <input type="hidden" asp-for="Exponente" />
+    <input type="hidden" asp-for="ValorRaiz" />
+    <input type="hidden" asp-for="EstructuraJson" />
+    <input type="hidden" asp-for="RespuestaCorrecta" />
+    <input type="hidden" asp-for="CoefRespuesta" />
+    <input type="hidden" asp-for="EsTutorial" />
+    <input type="hidden" asp-for="PasoTutorial" />
+    <input type="hidden" name="RespuestaUsuario" id="hdRespuesta" value="" />
+    <input type="hidden" name="TiempoRespuesta" id="hdTiempo" value="0" />
+</form>
+
+<form id="formFinalizar" method="post" asp-controller="LeyesSignosOperaciones" asp-action="Finalizar">
+    <input type="hidden" asp-for="CantidadEjercicios" />
+    <input type="hidden" asp-for="CantidadOperandos" />
+    <input type="hidden" asp-for="MinDigitos" />
+    <input type="hidden" asp-for="MaxDigitos" />
+    <input type="hidden" asp-for="TipoEjercicioConfig" />
+    <input type="hidden" asp-for="TipoEjercicioActual" />
+    <input type="hidden" asp-for="VelocidadEjercicio" />
+    <input type="hidden" asp-for="EjerciciosRealizados" />
+    <input type="hidden" asp-for="ResultadosJson" />
+    <input type="hidden" asp-for="EsTutorial" />
+</form>
+
+<div class="ejercicio-layout"
+     data-tipo="@((int)tipo)"
+     data-respuesta-correcta="@Model.RespuestaCorrecta.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+     data-coef-respuesta="@Model.CoefRespuesta"
+     data-es-puro-signo="@Model.EsPuroSigno.ToString().ToLower()"
+     data-es-literal="@Model.EsLiteral.ToString().ToLower()"
+     data-usa-decimales="@Model.UsaDecimales.ToString().ToLower()"
+     data-es-raiz="@Model.EsRaiz.ToString().ToLower()"
+     data-velocidad="@Model.VelocidadEjercicio"
+     data-es-tutorial="@Model.EsTutorial.ToString().ToLower()"
+     id="ejercicioLayout">
+
+    <aside class="progreso-lateral" id="progresoLateral">
+        <div class="progreso-lateral__track">
+            <div class="progreso-lateral__fill" style="height:@porcentaje%"></div>
+        </div>
+        <span class="progreso-lateral__label">@Model.EjerciciosRealizados/@Model.CantidadEjercicios</span>
+    </aside>
+
+    <main class="ejercicio-centro">
+
+        <div class="ejercicio-topbar" id="ejercicioTopbar">
+            <div class="ejercicio-timer" id="timerWrap">
+                @if (Model.VelocidadEjercicio != "0")
+                {
+                    <span>⏱</span>
+                    <span class="ejercicio-timer__num" id="timerNum">@Model.VelocidadEjercicio</span>
+                    <span class="ejercicio-timer__seg">s</span>
+                }
+                else
+                {
+
+                    <span class="ejercicio-timer__libre">♾️ Libre</span>
+                }
+            </div>
+            <span class="tipo-badge" style="background:@colorBanner;">@nombreTipo</span>
+            <button type="button" class="btn-terminar" id="btnTerminar">
+                @(Model.EsTutorial ? "Salir" : "Terminar")
+            </button>
+        </div>
+
+        <div class="operacion-wrap" id="operacionWrap">
+            <span class="operacion-label">Resuelve:</span>
+
+            @* ═══ PURO SIGNO — múltiples operandos ═══ *@
+            @if (tipo == TipoEjercicioLeyes.PuroSigno)
+            {
+                <div class="puro-signo-display multi" id="ejercicioDisplay">
+                    @for (int i = 0; i < signos.Count; i++)
+                    {
+                        <div class="signo-grande signo-grande--@(signos[i] ? "pos" : "neg")">
+                            @(signos[i] ? "+" : "−")
+                        </div>
+                        @if (i < operaciones.Count)
+                        {
+                            <div class="op-signo-center">@OpStr(operaciones[i])</div>
+                        }
+                    }
+                    <div class="op-signo-center">=</div>
+                    <div class="signo-grande signo-grande--incognita" id="resultadoDisplay">?</div>
+                </div>
+            }
+
+            @* ═══ LITERALES — múltiples términos ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Literales)
+            {
+                <div class="operacion-display literal-display" id="ejercicioDisplay">
+                    @for (int i = 0; i < signos.Count; i++)
+                    {
+                        <span class="op-parentesis">(</span>
+                        <span class="op-signo-inline">@SignoStr(signos[i])</span>
+                        <span class="op-num">@(i<coefs.Count? coefs[i] : 0)</span>
+                        <span class="op-var">@Model.Variable</span>
+                        <span class="op-parentesis">)</span>
+                        @if (i < operaciones.Count)
+                        {
+                            <span class="op-signo">@OpStr(operaciones[i])</span>
+                        }
+                    }
+                    <span class="op-signo">=</span>
+                    <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                    <span class="op-var-resp" id="varRespuesta">@Model.Variable</span>
+                </div>
+            }
+
+            @* ═══ REALES — múltiples operandos ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Reales)
+            {
+                <div class="operacion-display" id="ejercicioDisplay">
+                    @for (int i = 0; i < signos.Count; i++)
+                    {
+                        string vStr = i < valores.Count
+                        ? (valores[i] % 1 == 0
+                        ? ((int)valores[i]).ToString()
+                        : valores[i].ToString("0.#", System.Globalization.CultureInfo.InvariantCulture))
+                        : "?";
+                        <span class="op-parentesis">(</span>
+                        <span class="op-signo-inline">@SignoStr(signos[i])</span>
+                        <span class="op-num">@vStr</span>
+                        <span class="op-parentesis">)</span>
+                        @if (i < operaciones.Count)
+                        {
+                            <span class="op-signo">@OpStr(operaciones[i])</span>
+                        }
+                    }
+                    <span class="op-signo">=</span>
+                    <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                </div>
+            }
+
+            @* ═══ EXPONENTE ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Exponente)
+            {
+                string sa = Model.SignoA ? "+" : "−";
+                <div class="operacion-display" id="ejercicioDisplay">
+                    <span class="op-parentesis">(</span>
+                    <span class="op-signo-inline">@sa</span>
+                    <span class="op-num">@((int)Model.ValorA)</span>
+                    <span class="op-parentesis">)</span>
+                    <sup class="op-exponente">@Model.Exponente</sup>
+                    <span class="op-signo">=</span>
+                    <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                </div>
+            }
+
+            @* ═══ RAÍZ CUADRADA ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Raiz)
+            {
+                <div class="operacion-display raiz-display" id="ejercicioDisplay">
+                    <span class="op-raiz-simbolo">√</span>
+                    <span class="op-raiz-contenido">
+                        <span class="op-raiz-linea"></span>
+                        <span class="op-num">@((int)Model.ValorRaiz)</span>
+                    </span>
+                    <span class="op-signo">=</span>
+                    <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                </div>
+            }
+
+            @* ═══ PARÉNTESIS ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Parentesis && tieneEstructura)
+            {
+                var sIA = estructura.GetProperty("signosInternos")[0].GetBoolean();
+                var sIB = estructura.GetProperty("signosInternos")[1].GetBoolean();
+                var vIA = estructura.GetProperty("valsInternos")[0].GetInt32();
+                var vIB = estructura.GetProperty("valsInternos")[1].GetInt32();
+                var opI = estructura.GetProperty("opInterna").GetInt32();
+                var exts = estructura.GetProperty("signosExt");
+                var vExts = estructura.GetProperty("valsExt");
+                var opsE = estructura.GetProperty("opsExt");
+
+                <div class="operacion-parentesis" id="ejercicioDisplay">
+                    <div class="parentesis-hint">👇 Resuelve primero lo que está dentro del paréntesis</div>
+                    <div class="parentesis-expr">
+                        <span class="op-parentesis op-parentesis--resalto">(</span>
+                        <span class="op-signo-inline resalto">@(sIA ? "+" : "−")</span>
+                        <span class="op-num resalto">@vIA</span>
+                        <span class="op-signo resalto">@OpStr(opI)</span>
+                        <span class="op-signo-inline resalto">@(sIB ? "+" : "−")</span>
+                        <span class="op-num resalto">@vIB</span>
+                        <span class="op-parentesis op-parentesis--resalto">)</span>
+                        @for (int i = 0; i < opsE.GetArrayLength(); i++)
+                        {
+                            <span class="op-signo">@OpStr(opsE[i].GetInt32())</span>
+                            <span class="op-parentesis">(</span>
+                            <span class="op-signo-inline">@(exts[i].GetBoolean() ? "+" : "−")</span>
+                            <span class="op-num">@vExts[i].GetInt32()</span>
+                            <span class="op-parentesis">)</span>
+                        }
+                        <span class="op-signo">=</span>
+                        <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                    </div>
+                </div>
+            }
+
+            @* ═══ CORCHETES ═══ *@
+            else if (tipo == TipoEjercicioLeyes.Corchetes && tieneEstructura)
+            {
+                var sA2 = estructura.GetProperty("sA").GetBoolean();
+                var vA2 = estructura.GetProperty("vA").GetInt32();
+                var sB2 = estructura.GetProperty("sB").GetBoolean();
+                var vB2 = estructura.GetProperty("vB").GetInt32();
+                var op12 = estructura.GetProperty("op1").GetInt32();
+                var sC = estructura.GetProperty("sC").GetBoolean();
+                var vC = estructura.GetProperty("vC").GetInt32();
+                var op22 = estructura.GetProperty("op2").GetInt32();
+                var tieneExt = estructura.GetProperty("tieneExterno").GetBoolean();
+
+                <div class="operacion-parentesis operacion-corchetes" id="ejercicioDisplay">
+                    <div class="parentesis-hint corchetes-hint">
+                        🔢 Primero paréntesis, luego corchetes, luego el exterior
+                    </div>
+                    <div class="parentesis-expr">
+                        @if (tieneExt)
+                        {
+                            var sD2 = estructura.GetProperty("sD").GetBoolean();
+                            var vD2 = estructura.GetProperty("vD").GetInt32();
+                            var op32 = estructura.GetProperty("op3").GetInt32();
+                            <span class="op-corchete">{</span>
+                            <span class="op-corchete">[</span>
+                            <span class="op-parentesis op-parentesis--resalto">(</span>
+                            <span class="op-signo-inline resalto">@(sA2 ? "+" : "−")</span>
+                            <span class="op-num resalto">@vA2</span>
+                            <span class="op-signo resalto">@OpStr(op12)</span>
+                            <span class="op-signo-inline resalto">@(sB2 ? "+" : "−")</span>
+                            <span class="op-num resalto">@vB2</span>
+                            <span class="op-parentesis op-parentesis--resalto">)</span>
+                            <span class="op-signo">@OpStr(op22)</span>
+                            <span class="op-signo-inline">@(sC ? "+" : "−")</span>
+                            <span class="op-num">@vC</span>
+                            <span class="op-corchete">]</span>
+                            <span class="op-signo">@OpStr(op32)</span>
+                            <span class="op-signo-inline">@(sD2 ? "+" : "−")</span>
+                            <span class="op-num">@vD2</span>
+                            <span class="op-corchete">}</span>
+                        }
+                        else
+                        {
+                            <span class="op-corchete">[</span>
+                            <span class="op-parentesis op-parentesis--resalto">(</span>
+                            <span class="op-signo-inline resalto">@(sA2 ? "+" : "−")</span>
+                            <span class="op-num resalto">@vA2</span>
+                            <span class="op-signo resalto">@OpStr(op12)</span>
+                            <span class="op-signo-inline resalto">@(sB2 ? "+" : "−")</span>
+                            <span class="op-num resalto">@vB2</span>
+                            <span class="op-parentesis op-parentesis--resalto">)</span>
+                            <span class="op-signo">@OpStr(op22)</span>
+                            <span class="op-signo-inline">@(sC ? "+" : "−")</span>
+                            <span class="op-num">@vC</span>
+                            <span class="op-corchete">]</span>
+                        }
+                        <span class="op-signo">=</span>
+                        <span class="op-resultado lejos" id="resultadoDisplay">?</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* ── REGLA ACTIVA ── *@
+        <div class="regla-hint" id="reglaHint">
+            @if (tipo == TipoEjercicioLeyes.Literales)
+            {
+                <span>📌 Suma/resta los coeficientes y conserva la variable <strong>@Model.Variable</strong></span>
+            }
+            else if (tipo == TipoEjercicioLeyes.Exponente)
+            {
+                <span>
+                    📌 Base @(Model.SignoA ? "positiva" : "negativa"), exp. @Model.Exponente →
+                    <strong>@(Model.Exponente % 2 == 0 ? "resultado positivo" : "conserva el signo")</strong>
+                </span>
+            }
+            else if (tipo == TipoEjercicioLeyes.Parentesis)
+            {
+                <span>📌 Primero resuelve el <strong>paréntesis</strong>, luego la operación exterior</span>
+            }
+            else if (tipo == TipoEjercicioLeyes.Corchetes)
+            {
+                <span>📌 Orden: <strong>( ) → [ ] → { }</strong> de adentro hacia afuera</span>
+            }
+            else if (tipo == TipoEjercicioLeyes.Raiz)
+            {
+                <span>📌 La raíz cuadrada de un número perfecto siempre es <strong>positiva</strong></span>
+            }
+        </div>
+
+        @* ── ZONA DE RESPUESTA ── *@
+        @if (tipo == TipoEjercicioLeyes.PuroSigno)
+        {
+            <div class="signo-btns-wrap" id="signoBtnsWrap">
+                <button type="button" class="signo-btn signo-btn--pos" id="btnSignoPos" data-val="+">
+                    <span class="signo-btn__icon">+</span>
+                    <span class="signo-btn__label">Positivo</span>
+                </button>
+                <button type="button" class="signo-btn signo-btn--neg" id="btnSignoNeg" data-val="-">
+                    <span class="signo-btn__icon">−</span>
+                    <span class="signo-btn__label">Negativo</span>
+                </button>
+            </div>
+            <div class="respuesta-wrap">
+                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>
+                    Enviar ✓
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="teclado-wrap" id="tecladoWrap">
+                <div class="teclado-display" id="tecladoDisplay">
+                    <span class="teclado-display__val" id="tecladoVal">—</span>
+                    @if (tipo == TipoEjercicioLeyes.Literales)
+                    {
+                        <span class="teclado-var-suffix">@Model.Variable</span>
+                    }
+                </div>
+                <div class="teclado-grid">
+                    @foreach (var digit in new[] { "7", "8", "9", "4", "5", "6", "1", "2", "3" })
+                    {
+                        <button type="button" class="teclado-btn" data-digit="@digit">@digit</button>
+                    }
+                    <button type="button" class="teclado-btn teclado-btn--neg" id="btnNeg">±</button>
+                    <button type="button" class="teclado-btn" data-digit="0">0</button>
+                    @if (tipo == TipoEjercicioLeyes.Reales)
+                    {
+                        <button type="button" class="teclado-btn teclado-btn--dec" id="btnDec">.</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="teclado-btn teclado-btn--del" id="btnDel">⌫</button>
+                    }
+                </div>
+                @if (tipo == TipoEjercicioLeyes.Reales)
+                {
+                    <button type="button" class="teclado-btn teclado-btn--del teclado-btn--del-wide" id="btnDel">⌫ Borrar</button>
+                }
+            </div>
+            <div class="respuesta-wrap">
+                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>
+                    Enviar ✓
+                </button>
+            </div>
+        }
+
+    </main>
+</div>
+
+@if (Model.EsTutorial)
+{
+    <div class="tutorial-overlay" id="tutorialOverlay">
+        <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+        <div class="tutorial-card" id="tutorialCard">
+            <div class="tutorial-card__header">
+                <span class="tutorial-card__paso" id="tutorialPaso">Paso 1</span>
+                <span class="tutorial-card__emoji" id="tutorialEmoji">🧑‍🚀</span>
+            </div>
+            <h3 class="tutorial-card__titulo" id="tutorialTitulo"></h3>
+            <p class="tutorial-card__desc" id="tutorialDesc"></p>
+            <div class="tutorial-card__footer">
+                <button class="tutorial-btn tutorial-btn--skip" id="btnSkipTutorial">Saltar</button>
+                <button class="tutorial-btn tutorial-btn--next" id="btnNextTutorial">Entendido →</button>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="/Content/js/Matematicas/ejercicio-leyes-signos-operaciones.js"></script>
+    @if (Model.EsTutorial)
+    {
+        <script src="/Content/js/Matematicas/tutorial-leyes-signos-operaciones.js"></script>
+    }
+}
