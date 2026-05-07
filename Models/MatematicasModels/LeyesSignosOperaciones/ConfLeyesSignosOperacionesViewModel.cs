@@ -15,11 +15,15 @@
     public class ConfLeyesSignosOperacionesViewModel
     {
         public int CantidadEjercicios { get; set; } = 10;
-        public int CantidadOperandos { get; set; } = 2;  // 2-10
+        public int CantidadOperandos { get; set; } = 2;
         public int MinDigitos { get; set; } = 1;
         public int MaxDigitos { get; set; } = 1;
-        public TipoEjercicioLeyes TipoEjercicio { get; set; } = TipoEjercicioLeyes.PuroSigno;
         public string VelocidadEjercicio { get; set; } = "0";
+
+        public List<int> TiposSeleccionados { get; set; } = new() { 0 }; 
+        public bool OpSumaResta { get; set; } = true;
+        public bool OpMultiplicacion { get; set; } = true;
+        public bool OpDivision { get; set; } = true;
     }
 
 }

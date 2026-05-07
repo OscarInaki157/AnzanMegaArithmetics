@@ -838,3 +838,25 @@
     border-color: #be185d;
     background: #fdf2f8;
 }
+
+/* ── Literales: display sin paréntesis ─────────────────── */
+.lit-display {
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
+.op-lit {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2D3A8C;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* ── Llaves {} para corchetes con nivel externo ─────────── */
+.op-corchete--llave {
+    font-size: 3.2rem;
+    color: #7c2d12;
+    font-weight: 300;
+}

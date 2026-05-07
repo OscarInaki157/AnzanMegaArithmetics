@@ -9,25 +9,9 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
     {
         private static readonly Random _rng = new();
 
-        private static readonly TipoEjercicioLeyes[] _tiposAleatorios =
-        {
-            TipoEjercicioLeyes.PuroSigno,
-            TipoEjercicioLeyes.Literales,
-            TipoEjercicioLeyes.Reales,
-            TipoEjercicioLeyes.Parentesis,
-            TipoEjercicioLeyes.Exponente,
-            TipoEjercicioLeyes.Corchetes,
-            TipoEjercicioLeyes.Raiz
-        };
-
-        // ════════════════════════════════════════════════════
-        // ACCIONES
-        // ════════════════════════════════════════════════════
-
         [HttpGet]
         public IActionResult Formulario() =>
-            View("FormularioLeyesSignosOperaciones",
-                 new ConfLeyesSignosOperacionesViewModel());
+            View("FormularioLeyesSignosOperaciones", new ConfLeyesSignosOperacionesViewModel());
 
         [HttpPost]
         public IActionResult Iniciar(ConfLeyesSignosOperacionesViewModel config)
@@ -35,10 +19,21 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
             if (!ModelState.IsValid)
                 return View("FormularioLeyesSignosOperaciones", config);
 
+
+            config.OpSumaResta = Request.Form["OpSumaResta"].ToString().ToLower() == "true";
+            config.OpMultiplicacion = Request.Form["OpMultiplicacion"].ToString().ToLower() == "true";
+            config.OpDivision = Request.Form["OpDivision"].ToString().ToLower() == "true";
+
             config.CantidadEjercicios = Math.Clamp(config.CantidadEjercicios, 1, 100);
             config.CantidadOperandos = Math.Clamp(config.CantidadOperandos, 2, 10);
             config.MinDigitos = Math.Clamp(config.MinDigitos, 1, 3);
             config.MaxDigitos = Math.Clamp(config.MaxDigitos, config.MinDigitos, 3);
+
+            if (!config.OpSumaResta && !config.OpMultiplicacion && !config.OpDivision)
+                config.OpSumaResta = true;
+
+            if (config.TiposSeleccionados == null || config.TiposSeleccionados.Count == 0)
+                config.TiposSeleccionados = new List<int> { 0 };
 
             var estado = new EjercicioLeyesSignosOperacionesViewModel
             {
@@ -46,7 +41,10 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
                 CantidadOperandos = config.CantidadOperandos,
                 MinDigitos = config.MinDigitos,
                 MaxDigitos = config.MaxDigitos,
-                TipoEjercicioConfig = config.TipoEjercicio,
+                TiposSeleccionadosJson = JsonSerializer.Serialize(config.TiposSeleccionados),
+                OpSumaResta = config.OpSumaResta,
+                OpMultiplicacion = config.OpMultiplicacion,
+                OpDivision = config.OpDivision,
                 VelocidadEjercicio = config.VelocidadEjercicio,
                 EjerciciosRealizados = 0,
                 ResultadosJson = "[]",
@@ -66,12 +64,14 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
                 CantidadOperandos = 2,
                 MinDigitos = 1,
                 MaxDigitos = 1,
-                TipoEjercicioConfig = TipoEjercicioLeyes.PuroSigno,
+                TiposSeleccionadosJson = "[0]",
+                OpSumaResta = true,
+                OpMultiplicacion = true,
+                OpDivision = true,
                 VelocidadEjercicio = "0",
                 EjerciciosRealizados = 0,
                 ResultadosJson = "[]",
-                EsTutorial = true,
-                PasoTutorial = 0
+                EsTutorial = true
             };
             GenerarEjercicio(estado);
             return View("EjercicioLeyesSignosOperaciones", estado);
@@ -81,7 +81,6 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
         public IActionResult Avanzar(EjercicioLeyesSignosOperacionesViewModel estado)
         {
             ModelState.Clear();
-
             var lista = Deserializar(estado.ResultadosJson);
             lista.Add(new ResultadoLeyesSignosOperaciones
             {
@@ -127,15 +126,49 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
             RedirectToAction("DashboardMatematicas", "DashboardMatematicas");
 
         // ════════════════════════════════════════════════════
+        // POOL DE OPERACIONES — respeta configuración
+        // ════════════════════════════════════════════════════
+
+        private List<OperacionLeyes> OpsPool(EjercicioLeyesSignosOperacionesViewModel e,
+                                              bool soloSumaResta = false)
+        {
+            var pool = new List<OperacionLeyes>();
+
+            if (soloSumaResta)
+            {
+                // Literales siempre usan solo suma/resta
+                pool.Add(OperacionLeyes.Suma);
+                pool.Add(OperacionLeyes.Resta);
+                return pool;
+            }
+
+            if (e.OpSumaResta) { pool.Add(OperacionLeyes.Suma); pool.Add(OperacionLeyes.Resta); }
+            if (e.OpMultiplicacion) { pool.Add(OperacionLeyes.Multiplicacion); }
+            if (e.OpDivision) { pool.Add(OperacionLeyes.Division); }
+            if (pool.Count == 0) { pool.Add(OperacionLeyes.Suma); pool.Add(OperacionLeyes.Resta); }
+
+            return pool;
+        }
+
+        private OperacionLeyes ElegirOp(EjercicioLeyesSignosOperacionesViewModel e,
+                                         bool soloSumaResta = false)
+        {
+            var pool = OpsPool(e, soloSumaResta);
+            return pool[_rng.Next(pool.Count)];
+        }
+
+        // ════════════════════════════════════════════════════
         // GENERADORES
         // ════════════════════════════════════════════════════
 
         private void GenerarEjercicio(EjercicioLeyesSignosOperacionesViewModel e)
         {
-            if (e.TipoEjercicioConfig == TipoEjercicioLeyes.Aleatorio)
-                e.TipoEjercicioActual = _tiposAleatorios[_rng.Next(_tiposAleatorios.Length)];
-            else
-                e.TipoEjercicioActual = e.TipoEjercicioConfig;
+            var tipos = JsonSerializer.Deserialize<List<int>>(e.TiposSeleccionadosJson ?? "[0]") ?? new() { 0 };
+            e.TipoEjercicioActual = (TipoEjercicioLeyes)tipos[_rng.Next(tipos.Count)];
+
+            e.SignosJson = "[]"; e.ValoresJson = "[]";
+            e.OperacionesJson = "[]"; e.CoefsJson = "[]";
+            e.EstructuraJson = "{}";
 
             switch (e.TipoEjercicioActual)
             {
@@ -154,67 +187,52 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
         }
 
         // ── Puro Signo ────────────────────────────────────────
-        // Múltiples operandos: solo signos, respuesta es el signo del resultado
         private void GenerarPuroSigno(EjercicioLeyesSignosOperacionesViewModel e)
         {
             int n = e.CantidadOperandos;
             var signos = Enumerable.Range(0, n).Select(_ => _rng.Next(2) == 0).ToList();
-            var ops = Enumerable.Range(0, n - 1)
-                .Select(_ => _rng.Next(2) == 0 ? OperacionLeyes.Multiplicacion : OperacionLeyes.Division)
-                .ToList();
+            var ops = Enumerable.Range(0, n - 1).Select(_ => ElegirOp(e)).ToList();
 
             e.SignosJson = JsonSerializer.Serialize(signos);
-            e.OperacionesJson = JsonSerializer.Serialize(ops);
-            e.ValoresJson = "[]";
+            e.OperacionesJson = JsonSerializer.Serialize(ops.Select(o => (int)o).ToList());
 
-            // Para mult/div: par de negativos → positivo
-            // Aplicar de izquierda a derecha
-            bool resPositivo = signos[0];
+            // Calcular: para ×÷ → regla de signos. Para +− → si ambos neg → neg
+            bool res = signos[0];
             for (int i = 0; i < ops.Count; i++)
             {
                 if (ops[i] == OperacionLeyes.Multiplicacion || ops[i] == OperacionLeyes.Division)
-                    resPositivo = resPositivo == signos[i + 1];
-                else if (ops[i] == OperacionLeyes.Suma)
-                    resPositivo = resPositivo || signos[i + 1];
+                    res = (res == signos[i + 1]); // igual=pos, distinto=neg
                 else
-                    resPositivo = resPositivo;
+                    res = res || signos[i + 1];
             }
-
-            e.RespuestaCorrecta = resPositivo ? 1 : -1;
-            e.EstructuraJson = ConstruirEnunciadoPuroSigno(signos, ops);
+            e.RespuestaCorrecta = res ? 1 : -1;
         }
 
         // ── Literales ─────────────────────────────────────────
-        // Múltiples términos: 3x - 5x + 2x = ?x
         private void GenerarLiterales(EjercicioLeyesSignosOperacionesViewModel e)
         {
             int n = e.CantidadOperandos;
             var signos = Enumerable.Range(0, n).Select(_ => _rng.Next(2) == 0).ToList();
             var coefs = Enumerable.Range(0, n).Select(_ => GenerarEntero(e.MinDigitos, e.MaxDigitos)).ToList();
-            var ops = Enumerable.Range(0, n - 1)
-                .Select(_ => _rng.Next(2) == 0 ? OperacionLeyes.Suma : OperacionLeyes.Resta)
-                .ToList();
+            var ops = Enumerable.Range(0, n - 1).Select(_ => ElegirOp(e, soloSumaResta: true)).ToList();
 
             e.Variable = "x";
             e.SignosJson = JsonSerializer.Serialize(signos);
             e.CoefsJson = JsonSerializer.Serialize(coefs);
-            e.OperacionesJson = JsonSerializer.Serialize(ops);
+            e.OperacionesJson = JsonSerializer.Serialize(ops.Select(o => (int)o).ToList());
 
-            // Calcular coeficiente resultado
+            // Valor real de cada término = signo × coef
             int resultado = signos[0] ? coefs[0] : -coefs[0];
             for (int i = 0; i < ops.Count; i++)
             {
                 int c = signos[i + 1] ? coefs[i + 1] : -coefs[i + 1];
                 resultado = ops[i] == OperacionLeyes.Suma ? resultado + c : resultado - c;
             }
-
             e.CoefRespuesta = resultado;
             e.RespuestaCorrecta = resultado;
-            e.EstructuraJson = ConstruirEnunciadoLiteral(signos, coefs, ops, e.Variable);
         }
 
         // ── Reales ────────────────────────────────────────────
-        // Múltiples operandos con decimales
         private void GenerarReales(EjercicioLeyesSignosOperacionesViewModel e)
         {
             int n = e.CantidadOperandos;
@@ -222,176 +240,169 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
             var valores = Enumerable.Range(0, n)
                 .Select(_ => Math.Round(_rng.NextDouble() * (Math.Pow(10, e.MaxDigitos) - 1) + 1, 1))
                 .ToList();
-            var ops = Enumerable.Range(0, n - 1).Select(_ => ElegirOp(false)).ToList();
+            var ops = Enumerable.Range(0, n - 1).Select(_ => ElegirOp(e)).ToList();
 
-            // Evitar divisiones por cero
             for (int i = 0; i < ops.Count; i++)
-                if (ops[i] == OperacionLeyes.Division && valores[i + 1] == 0)
-                    valores[i + 1] = 1.0;
+                if (ops[i] == OperacionLeyes.Division && valores[i + 1] == 0) valores[i + 1] = 1.0;
 
             e.SignosJson = JsonSerializer.Serialize(signos);
             e.ValoresJson = JsonSerializer.Serialize(valores);
-            e.OperacionesJson = JsonSerializer.Serialize(ops);
+            e.OperacionesJson = JsonSerializer.Serialize(ops.Select(o => (int)o).ToList());
 
-            double resultado = signos[0] ? valores[0] : -valores[0];
+            // Calcular: valor real = signo × valor absoluto
+            double res = signos[0] ? valores[0] : -valores[0];
             for (int i = 0; i < ops.Count; i++)
             {
                 double v = signos[i + 1] ? valores[i + 1] : -valores[i + 1];
-                resultado = ops[i] switch
-                {
-                    OperacionLeyes.Suma => resultado + v,
-                    OperacionLeyes.Resta => resultado - v,
-                    OperacionLeyes.Multiplicacion => resultado * v,
-                    OperacionLeyes.Division => Math.Round(resultado / v, 2),
-                    _ => resultado + v
-                };
+                res = AplicarOp(ops[i], res, v);
             }
-
-            e.RespuestaCorrecta = Math.Round(resultado, 2);
-            e.EstructuraJson = ConstruirEnunciadoReales(signos, valores, ops);
+            e.RespuestaCorrecta = Math.Round(res, 2);
         }
 
         // ── Paréntesis ────────────────────────────────────────
-        // Estructura: (A op B) op C op D...
-        // El primer grupo va entre paréntesis, luego opera con el resto
+        // Estructura: (vIA op vIB) opExt1 vExt1 opExt2 vExt2 ...
+        // TODOS los valores se guardan con signo incluido (int con signo)
         private void GenerarParentesis(EjercicioLeyesSignosOperacionesViewModel e)
         {
-            // Grupo interno (entre paréntesis): siempre 2 operandos
-            var signosInternos = new List<bool> { _rng.Next(2) == 0, _rng.Next(2) == 0 };
-            var valsInternos = new List<int>  { GenerarEntero(e.MinDigitos, e.MaxDigitos),
-                                                  GenerarEntero(e.MinDigitos, e.MaxDigitos) };
-            var opInterna = ElegirOp(false);
-            if (opInterna == OperacionLeyes.Division && valsInternos[1] == 0)
-                valsInternos[1] = 1;
-
-            double rIA = signosInternos[0] ? valsInternos[0] : -valsInternos[0];
-            double rIB = signosInternos[1] ? valsInternos[1] : -valsInternos[1];
-            double resInterno = opInterna switch
+            for (int intento = 0; intento < 40; intento++)
             {
-                OperacionLeyes.Suma => rIA + rIB,
-                OperacionLeyes.Resta => rIA - rIB,
-                OperacionLeyes.Multiplicacion => rIA * rIB,
-                OperacionLeyes.Division => Math.Round(rIA / rIB, 2),
-                _ => rIA + rIB
-            };
+                // Valores dentro del paréntesis CON signo
+                int vIA = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                int vIB = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                var opI = ElegirOp(e);
 
-            // Operandos externos (el resto de CantidadOperandos - 2, mínimo 1 externo)
-            int nExt = Math.Max(1, e.CantidadOperandos - 2);
-            var signosExt = Enumerable.Range(0, nExt).Select(_ => _rng.Next(2) == 0).ToList();
-            var valsExt = Enumerable.Range(0, nExt)
-                .Select(_ => GenerarEntero(e.MinDigitos, e.MaxDigitos)).ToList();
-            var opsExt = Enumerable.Range(0, nExt).Select(_ => ElegirOp(false)).ToList();
-            for (int i = 0; i < opsExt.Count; i++)
-                if (opsExt[i] == OperacionLeyes.Division && valsExt[i] == 0)
-                    valsExt[i] = 1;
-
-            double resultado = resInterno;
-            for (int i = 0; i < nExt; i++)
-            {
-                double v = signosExt[i] ? valsExt[i] : -valsExt[i];
-                resultado = opsExt[i] switch
+                if (opI == OperacionLeyes.Division)
                 {
-                    OperacionLeyes.Suma => resultado + v,
-                    OperacionLeyes.Resta => resultado - v,
-                    OperacionLeyes.Multiplicacion => resultado * v,
-                    OperacionLeyes.Division => v != 0 ? Math.Round(resultado / v, 2) : resultado,
-                    _ => resultado + v
-                };
+                    if (vIB == 0) continue;
+                    if (vIA % vIB != 0) continue; // solo enteros
+                }
+
+                double resP = AplicarOp(opI, vIA, vIB);
+                if (resP != Math.Floor(resP)) continue;
+
+                // Operandos externos CON signo
+                int nExt = Math.Max(1, e.CantidadOperandos - 2);
+                var vExts = Enumerable.Range(0, nExt)
+                            .Select(_ => GenerarValorConSigno(e.MinDigitos, e.MaxDigitos))
+                            .ToList();
+                var opExts = Enumerable.Range(0, nExt).Select(_ => ElegirOp(e)).ToList();
+
+                bool ok = true;
+                double res = resP;
+                for (int i = 0; i < nExt; i++)
+                {
+                    if (opExts[i] == OperacionLeyes.Division)
+                    {
+                        if (vExts[i] == 0 || res % vExts[i] != 0) { ok = false; break; }
+                    }
+                    res = AplicarOp(opExts[i], res, vExts[i]);
+                    if (res != Math.Floor(res)) { ok = false; break; }
+                }
+                if (!ok) continue;
+
+                e.RespuestaCorrecta = res;
+                // Guardar: vIA, vIB YA tienen signo. vExts YA tienen signo.
+                e.EstructuraJson = JsonSerializer.Serialize(new
+                {
+                    tipo = "parentesis",
+                    vIA,    // int con signo, ej: -5 o 3
+                    vIB,    // int con signo
+                    opI = (int)opI,
+                    vExts,  // List<int> con signo
+                    opExts = opExts.Select(o => (int)o).ToList()
+                });
+                return;
             }
 
-            e.RespuestaCorrecta = Math.Round(resultado, 2);
-
-            // Serializar estructura para la vista
-            var estructura = new
+            // Fallback: (2+3)+(1) = 6
+            e.RespuestaCorrecta = 6;
+            e.EstructuraJson = JsonSerializer.Serialize(new
             {
                 tipo = "parentesis",
-                signosInternos,
-                valsInternos,
-                opInterna = (int)opInterna,
-                signosExt,
-                valsExt,
-                opsExt = opsExt.Select(o => (int)o).ToList()
-            };
-            e.EstructuraJson = JsonSerializer.Serialize(estructura);
+                vIA = 2,
+                vIB = 3,
+                opI = 0,
+                vExts = new List<int> { 1 },
+                opExts = new List<int> { 0 }
+            });
         }
 
         // ── Corchetes ─────────────────────────────────────────
-        // Estructura: {[A op B] op C} op D
-        // Nivel 1: corchetes, Nivel 2: paréntesis dentro
+        // Estructura: [(vA op1 vB) op2 vC] op3 vD
+        // Todos los valores YA tienen signo incluido
         private void GenerarCorchetes(EjercicioLeyesSignosOperacionesViewModel e)
         {
-            // Núcleo: (a op b)
-            bool sA = _rng.Next(2) == 0, sB = _rng.Next(2) == 0;
-            int vA = GenerarEntero(e.MinDigitos, e.MaxDigitos);
-            int vB = GenerarEntero(e.MinDigitos, e.MaxDigitos);
-            var op1 = ElegirOp(false);
-            if (op1 == OperacionLeyes.Division && vB == 0) vB = 1;
-
-            double rA = sA ? vA : -vA, rB = sB ? vB : -vB;
-            double resParens = op1 switch
+            for (int intento = 0; intento < 40; intento++)
             {
-                OperacionLeyes.Suma => rA + rB,
-                OperacionLeyes.Resta => rA - rB,
-                OperacionLeyes.Multiplicacion => rA * rB,
-                OperacionLeyes.Division => Math.Round(rA / rB, 2),
-                _ => rA + rB
-            };
+                int vA = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                int vB = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                var op1 = ElegirOp(e);
 
-            // Nivel corchete: [resultado op c]
-            bool sC = _rng.Next(2) == 0;
-            int vC = GenerarEntero(e.MinDigitos, e.MaxDigitos);
-            var op2 = ElegirOp(false);
-            if (op2 == OperacionLeyes.Division && vC == 0) vC = 1;
-            double rC = sC ? vC : -vC;
-            double resCorchete = op2 switch
-            {
-                OperacionLeyes.Suma => resParens + rC,
-                OperacionLeyes.Resta => resParens - rC,
-                OperacionLeyes.Multiplicacion => resParens * rC,
-                OperacionLeyes.Division => rC != 0 ? Math.Round(resParens / rC, 2) : resParens,
-                _ => resParens + rC
-            };
-
-            // Nivel externo: {resultado op d} (solo si hay suficientes operandos)
-            double resultado = resCorchete;
-            bool tieneExterno = e.CantidadOperandos >= 4;
-            bool sD = false; int vD = 0; OperacionLeyes op3 = OperacionLeyes.Suma;
-            if (tieneExterno)
-            {
-                sD = _rng.Next(2) == 0;
-                vD = GenerarEntero(e.MinDigitos, e.MaxDigitos);
-                op3 = ElegirOp(false);
-                if (op3 == OperacionLeyes.Division && vD == 0) vD = 1;
-                double rD = sD ? vD : -vD;
-                resultado = op3 switch
+                if (op1 == OperacionLeyes.Division)
                 {
-                    OperacionLeyes.Suma => resCorchete + rD,
-                    OperacionLeyes.Resta => resCorchete - rD,
-                    OperacionLeyes.Multiplicacion => resCorchete * rD,
-                    OperacionLeyes.Division => rD != 0 ? Math.Round(resCorchete / rD, 2) : resCorchete,
-                    _ => resCorchete + rD
-                };
+                    if (vB == 0 || vA % vB != 0) continue;
+                }
+
+                double resNucleo = AplicarOp(op1, vA, vB);
+                if (resNucleo != Math.Floor(resNucleo)) continue;
+
+                int vC = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                var op2 = ElegirOp(e);
+
+                if (op2 == OperacionLeyes.Division)
+                {
+                    if (vC == 0 || resNucleo % vC != 0) continue;
+                }
+
+                double resCorch = AplicarOp(op2, resNucleo, vC);
+                if (resCorch != Math.Floor(resCorch)) continue;
+
+                bool tieneExt = e.CantidadOperandos >= 4;
+                double resultado = resCorch;
+                int vD = 0; var op3 = OperacionLeyes.Suma;
+
+                if (tieneExt)
+                {
+                    vD = GenerarValorConSigno(e.MinDigitos, e.MaxDigitos);
+                    op3 = ElegirOp(e);
+                    if (op3 == OperacionLeyes.Division)
+                    {
+                        if (vD == 0 || resCorch % vD != 0) continue;
+                    }
+                    resultado = AplicarOp(op3, resCorch, vD);
+                    if (resultado != Math.Floor(resultado)) continue;
+                }
+
+                e.RespuestaCorrecta = resultado;
+                e.EstructuraJson = JsonSerializer.Serialize(new
+                {
+                    tipo = "corchetes",
+                    vA,
+                    vB,
+                    op1 = (int)op1,
+                    vC,
+                    op2 = (int)op2,
+                    tieneExterno = tieneExt,
+                    vD,
+                    op3 = (int)op3
+                });
+                return;
             }
 
-            e.RespuestaCorrecta = Math.Round(resultado, 2);
-
-            var estructura = new
+            // Fallback: [(4-3)-1] = 0
+            e.RespuestaCorrecta = 0;
+            e.EstructuraJson = JsonSerializer.Serialize(new
             {
                 tipo = "corchetes",
-                sA,
-                vA,
-                sB,
-                vB,
-                op1 = (int)op1,
-                sC,
-                vC,
-                op2 = (int)op2,
-                tieneExterno,
-                sD,
-                vD,
-                op3 = (int)op3
-            };
-            e.EstructuraJson = JsonSerializer.Serialize(estructura);
+                vA = 4,
+                vB = -3,
+                op1 = 0,   // 4+(-3)=1
+                vC = -1,
+                op2 = 0,             // 1+(-1)=0
+                tieneExterno = false,
+                vD = 0,
+                op3 = 0
+            });
         }
 
         // ── Exponente ─────────────────────────────────────────
@@ -399,40 +410,33 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
         {
             e.SignoA = _rng.Next(2) == 0;
             e.ValorA = GenerarEntero(e.MinDigitos, Math.Min(e.MaxDigitos, 2));
-            e.Exponente = _rng.Next(2, 5);
+            e.Exponente = _rng.Next(1, 4);
+            e.ExpConParentesis = _rng.Next(2) == 0;
             double base_ = e.SignoA ? e.ValorA : -e.ValorA;
             e.RespuestaCorrecta = Math.Round(Math.Pow(base_, e.Exponente), 2);
-            string sa = e.SignoA ? "+" : "−";
-            e.EstructuraJson = $"({sa}{(int)e.ValorA})^{e.Exponente}";
         }
 
-        // ── Raíz cuadrada ─────────────────────────────────────
-        // √(valor) = ? donde valor siempre es un cuadrado perfecto
+        // ── Raíz ─────────────────────────────────────────────
         private void GenerarRaiz(EjercicioLeyesSignosOperacionesViewModel e)
         {
-            // Generar raíces perfectas: 1,4,9,16,25,36,49,64,81,100,121,144,169,196,225
-            var raicesPerfectas = new[] { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
-            // Filtrar según dígitos
+            var raices = new[] { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
             int maxVal = (int)Math.Pow(10, e.MaxDigitos) - 1;
-            var validas = raicesPerfectas.Where(r => r <= maxVal && r >= 1).ToArray();
+            var validas = raices.Where(r => r <= maxVal).ToArray();
             if (validas.Length == 0) validas = new[] { 4, 9, 16 };
-
             e.ValorRaiz = validas[_rng.Next(validas.Length)];
             e.RespuestaCorrecta = Math.Sqrt(e.ValorRaiz);
-            e.EstructuraJson = $"√({(int)e.ValorRaiz})";
         }
 
-        // ── Helpers ──────────────────────────────────────────
+        // ════════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════════
 
-        private OperacionLeyes ElegirOp(bool potencia)
+        // Genera un entero CON signo aleatorio: ej -5, 3, -8, 2
+        private int GenerarValorConSigno(int minDig, int maxDig)
         {
-            var ops = new List<OperacionLeyes>
-            {
-                OperacionLeyes.Suma, OperacionLeyes.Resta,
-                OperacionLeyes.Multiplicacion, OperacionLeyes.Division
-            };
-            if (potencia) ops.Add(OperacionLeyes.Potencia);
-            return ops[_rng.Next(ops.Count)];
+            int abs = GenerarEntero(minDig, maxDig);
+            bool pos = _rng.Next(2) == 0;
+            return pos ? abs : -abs;
         }
 
         private int GenerarEntero(int minDig, int maxDig)
@@ -441,130 +445,160 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
             return _rng.Next((int)Math.Pow(10, d - 1), (int)Math.Pow(10, d));
         }
 
-        private static string OpStr(OperacionLeyes op) => op switch
+        // Aplica operación entre dos doubles ya con signo
+        private static double AplicarOp(OperacionLeyes op, double a, double b) => op switch
         {
-            OperacionLeyes.Suma => "+",
-            OperacionLeyes.Resta => "−",
-            OperacionLeyes.Multiplicacion => "×",
-            OperacionLeyes.Division => "÷",
-            OperacionLeyes.Potencia => "^",
-            _ => "?"
+            OperacionLeyes.Suma => a + b,
+            OperacionLeyes.Resta => a - b,
+            OperacionLeyes.Multiplicacion => a * b,
+            OperacionLeyes.Division => b != 0 ? a / b : a,
+            _ => a + b
         };
 
-        private static string ConstruirEnunciadoPuroSigno(List<bool> signos, List<OperacionLeyes> ops)
-        {
-            var parts = signos.Select(s => s ? "(+)" : "(−)").ToList();
-            var result = parts[0];
-            for (int i = 0; i < ops.Count; i++)
-                result += $" {OpStr(ops[i])} {parts[i + 1]}";
-            return result;
-        }
+        private static string OpStr(int op) => op switch
+        { 0 => "+", 1 => "−", 2 => "×", 3 => "÷", _ => "?" };
 
-        private static string ConstruirEnunciadoLiteral(
-            List<bool> signos, List<int> coefs, List<OperacionLeyes> ops, string variable)
-        {
-            var parts = signos.Select((s, i) => $"({(s ? "+" : "−")}{coefs[i]}{variable})").ToList();
-            var result = parts[0];
-            for (int i = 0; i < ops.Count; i++)
-                result += $" {OpStr(ops[i])} {parts[i + 1]}";
-            return result;
-        }
+        private static string OpStr(OperacionLeyes op) => OpStr((int)op);
 
-        private static string ConstruirEnunciadoReales(
-            List<bool> signos, List<double> valores, List<OperacionLeyes> ops)
-        {
-            var parts = signos.Select((s, i) =>
-            {
-                string v = valores[i] % 1 == 0
-                    ? ((int)valores[i]).ToString()
-                    : valores[i].ToString("0.#", CultureInfo.InvariantCulture);
-                return $"({(s ? "+" : "−")}{v})";
-            }).ToList();
-            var result = parts[0];
-            for (int i = 0; i < ops.Count; i++)
-                result += $" {OpStr(ops[i])} {parts[i + 1]}";
-            return result;
-        }
+        // ════════════════════════════════════════════════════
+        // ENUNCIADOS PARA PANTALLA DE RESULTADOS
+        // ════════════════════════════════════════════════════
 
-
-        /// <summary>
-        /// Construye el texto del enunciado para mostrar en resultados.
-        /// Para Paréntesis y Corchetes usa EstructuraJson para armar el texto legible.
-        /// </summary>
         private static string ConstruirEnunciadoResultado(EjercicioLeyesSignosOperacionesViewModel e)
         {
+            var signos = Deser<bool>(e.SignosJson);
+            var ops = Deser<int>(e.OperacionesJson);
+            var coefs = Deser<int>(e.CoefsJson);
+            var vals = Deser<double>(e.ValoresJson);
+
             switch (e.TipoEjercicioActual)
             {
                 case TipoEjercicioLeyes.PuroSigno:
                     {
-                        var signos = System.Text.Json.JsonSerializer.Deserialize<List<bool>>(e.SignosJson ?? "[]") ?? new();
-                        var ops = System.Text.Json.JsonSerializer.Deserialize<List<int>>(e.OperacionesJson ?? "[]") ?? new();
-                        return ConstruirEnunciadoPuroSigno(signos, ops.Select(o => (OperacionLeyes)o).ToList());
+                        var partes = signos.Select(s => s ? "(+)" : "(−)").ToList();
+                        var r = partes[0];
+                        for (int i = 0; i < ops.Count; i++) r += $" {OpStr(ops[i])} {partes[i + 1]}";
+                        return r;
                     }
                 case TipoEjercicioLeyes.Literales:
                     {
-                        var signos = System.Text.Json.JsonSerializer.Deserialize<List<bool>>(e.SignosJson ?? "[]") ?? new();
-                        var coefs = System.Text.Json.JsonSerializer.Deserialize<List<int>>(e.CoefsJson ?? "[]") ?? new();
-                        var ops = System.Text.Json.JsonSerializer.Deserialize<List<int>>(e.OperacionesJson ?? "[]") ?? new();
-                        return ConstruirEnunciadoLiteral(signos, coefs, ops.Select(o => (OperacionLeyes)o).ToList(), e.Variable);
+                        if (signos.Count == 0) return "";
+                        int c0 = signos[0] ? coefs[0] : -coefs[0];
+                        var sb = new System.Text.StringBuilder($"{c0}{e.Variable}");
+                        for (int i = 0; i < ops.Count; i++)
+                        {
+                            int c = signos[i + 1] ? coefs[i + 1] : -coefs[i + 1];
+                            sb.Append(ops[i] == 0
+                                ? (c >= 0 ? $"+{c}{e.Variable}" : $"{c}{e.Variable}")
+                                : (c >= 0 ? $"−{c}{e.Variable}" : $"+{Math.Abs(c)}{e.Variable}"));
+                        }
+                        return sb.ToString();
                     }
                 case TipoEjercicioLeyes.Reales:
                     {
-                        var signos = System.Text.Json.JsonSerializer.Deserialize<List<bool>>(e.SignosJson ?? "[]") ?? new();
-                        var valores = System.Text.Json.JsonSerializer.Deserialize<List<double>>(e.ValoresJson ?? "[]") ?? new();
-                        var ops = System.Text.Json.JsonSerializer.Deserialize<List<int>>(e.OperacionesJson ?? "[]") ?? new();
-                        return ConstruirEnunciadoReales(signos, valores, ops.Select(o => (OperacionLeyes)o).ToList());
+                        if (signos.Count == 0) return "";
+                        string V(int i) => vals[i] % 1 == 0
+                            ? ((int)vals[i]).ToString()
+                            : vals[i].ToString("0.#", CultureInfo.InvariantCulture);
+                        double v0 = signos[0] ? vals[0] : -vals[0];
+                        var sb = new System.Text.StringBuilder(v0 < 0 ? $"(−{V(0)})" : V(0));
+                        for (int i = 0; i < ops.Count; i++)
+                        {
+                            double v = signos[i + 1] ? vals[i + 1] : -vals[i + 1];
+                            sb.Append($" {OpStr(ops[i])} {(v < 0 ? $"(−{V(i + 1)})" : V(i + 1))}");
+                        }
+                        return sb.ToString();
                     }
                 case TipoEjercicioLeyes.Exponente:
-                    {
-                        string sa = e.SignoA ? "+" : "−";
-                        return $"({sa}{(int)e.ValorA})^{e.Exponente}";
-                    }
+                    return e.ExpConParentesis
+                        ? $"({(e.SignoA ? "" : "−")}{(int)e.ValorA})^{e.Exponente}"
+                        : $"{(e.SignoA ? "" : "−")}{(int)e.ValorA}^{e.Exponente}";
                 case TipoEjercicioLeyes.Raiz:
                     return $"√({(int)e.ValorRaiz})";
                 case TipoEjercicioLeyes.Parentesis:
-                    {
-                        if (string.IsNullOrEmpty(e.EstructuraJson) || !e.EstructuraJson.StartsWith("{"))
-                            return e.EstructuraJson ?? "";
-                        var est = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(e.EstructuraJson);
-                        var sIA = est.GetProperty("signosInternos")[0].GetBoolean();
-                        var sIB = est.GetProperty("signosInternos")[1].GetBoolean();
-                        var vIA = est.GetProperty("valsInternos")[0].GetInt32();
-                        var vIB = est.GetProperty("valsInternos")[1].GetInt32();
-                        var opI = (OperacionLeyes)est.GetProperty("opInterna").GetInt32();
-                        var opsE = est.GetProperty("opsExt");
-                        var vExt = est.GetProperty("valsExt");
-                        var sExt = est.GetProperty("signosExt");
-                        var txt = $"({(sIA ? "+" : "−")}{vIA} {OpStr(opI)} {(sIB ? "+" : "−")}{vIB})";
-                        for (int i = 0; i < opsE.GetArrayLength(); i++)
-                            txt += $" {OpStr((OperacionLeyes)opsE[i].GetInt32())} ({(sExt[i].GetBoolean() ? "+" : "−")}{vExt[i].GetInt32()})";
-                        return txt;
-                    }
                 case TipoEjercicioLeyes.Corchetes:
-                    {
-                        if (string.IsNullOrEmpty(e.EstructuraJson) || !e.EstructuraJson.StartsWith("{"))
-                            return e.EstructuraJson ?? "";
-                        var est = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(e.EstructuraJson);
-                        var sA2 = est.GetProperty("sA").GetBoolean();
-                        var vA2 = est.GetProperty("vA").GetInt32();
-                        var sB2 = est.GetProperty("sB").GetBoolean();
-                        var vB2 = est.GetProperty("vB").GetInt32();
-                        var op1 = (OperacionLeyes)est.GetProperty("op1").GetInt32();
-                        var sC = est.GetProperty("sC").GetBoolean();
-                        var vC = est.GetProperty("vC").GetInt32();
-                        var op2 = (OperacionLeyes)est.GetProperty("op2").GetInt32();
-                        var tieneExt = est.GetProperty("tieneExterno").GetBoolean();
-                        var inner = $"({(sA2 ? "+" : "−")}{vA2} {OpStr(op1)} {(sB2 ? "+" : "−")}{vB2})";
-                        var bracket = $"[{inner} {OpStr(op2)} {(sC ? "+" : "−")}{vC}]";
-                        if (!tieneExt) return bracket;
-                        var sD = est.GetProperty("sD").GetBoolean();
-                        var vD = est.GetProperty("vD").GetInt32();
-                        var op3 = (OperacionLeyes)est.GetProperty("op3").GetInt32();
-                        return $"{{{bracket} {OpStr(op3)} {(sD ? "+" : "−")}{vD}}}";
-                    }
+                    return EnunciadoDesdeEstructura(e);
                 default:
-                    return e.EstructuraJson ?? "";
+                    return "";
             }
+        }
+
+        // Construye el enunciado legible desde la estructura JSON
+        // Los valores YA tienen signo, solo hay que mostrarlos limpiamente
+        private static string EnunciadoDesdeEstructura(EjercicioLeyesSignosOperacionesViewModel e)
+        {
+            if (string.IsNullOrEmpty(e.EstructuraJson) || !e.EstructuraJson.StartsWith("{"))
+                return "";
+
+            var est = JsonSerializer.Deserialize<JsonElement>(e.EstructuraJson);
+            string tipo = est.GetProperty("tipo").GetString() ?? "";
+
+            if (tipo == "parentesis")
+            {
+                int vIA = est.GetProperty("vIA").GetInt32();
+                int vIB = est.GetProperty("vIB").GetInt32();
+                int opI = est.GetProperty("opI").GetInt32();
+                var vExts = est.GetProperty("vExts");
+                var opExts = est.GetProperty("opExts");
+
+                // Dentro del paréntesis: mostrar limpio
+                string inner = FormatearParentesisInterno(vIA, opI, vIB);
+                var sb = new System.Text.StringBuilder(inner);
+                for (int i = 0; i < vExts.GetArrayLength(); i++)
+                {
+                    int v = vExts[i].GetInt32();
+                    int op = opExts[i].GetInt32();
+                    sb.Append($" {OpStr(op)} {(v < 0 ? $"(−{Math.Abs(v)})" : v.ToString())}");
+                }
+                return sb.ToString();
+            }
+            else // corchetes
+            {
+                int vA = est.GetProperty("vA").GetInt32();
+                int vB = est.GetProperty("vB").GetInt32();
+                int op1 = est.GetProperty("op1").GetInt32();
+                int vC = est.GetProperty("vC").GetInt32();
+                int op2 = est.GetProperty("op2").GetInt32();
+                bool ext = est.GetProperty("tieneExterno").GetBoolean();
+
+                string inner = FormatearParentesisInterno(vA, op1, vB);
+                string cStr = vC < 0 ? $"(−{Math.Abs(vC)})" : vC.ToString();
+                string bracket = $"[{inner}{OpStr(op2)}{cStr}]";
+
+                if (!ext) return bracket;
+
+                int vD = est.GetProperty("vD").GetInt32();
+                int op3 = est.GetProperty("op3").GetInt32();
+                string dStr = vD < 0 ? $"(−{Math.Abs(vD)})" : vD.ToString();
+                return $"{{{bracket}{OpStr(op3)}{dStr}}}";
+            }
+        }
+
+        // Formatea el interior de un paréntesis: "5−3" o "−2+7"
+        private static string FormatearParentesisInterno(int a, int op, int b)
+        {
+            // a ya tiene signo. El operador es op. b ya tiene signo.
+            // Mostrar: (a op |b|) donde el signo de b lo da el operador visualmente
+            string aStr = a < 0 ? $"−{Math.Abs(a)}" : a.ToString();
+
+            // Si op=Suma: mostrar +b o -b según signo de b
+            // Si op=Resta: mostrar -b o +b (inverso)
+            // Si op=Mult/Div: mostrar × o ÷ con valor absoluto de b
+            string resto;
+            if (op == 0) // Suma: a + b efectivamente
+                resto = b >= 0 ? $"+{b}" : $"−{Math.Abs(b)}";
+            else if (op == 1) // Resta: a - b efectivamente
+                resto = b >= 0 ? $"−{b}" : $"+{Math.Abs(b)}";
+            else // Mult/Div
+                resto = $"{OpStr(op)}{(b < 0 ? $"(−{Math.Abs(b)})" : b.ToString())}";
+
+            return $"({aStr}{resto})";
+        }
+
+        private static List<T> Deser<T>(string json)
+        {
+            if (string.IsNullOrEmpty(json) || json == "[]") return new();
+            return JsonSerializer.Deserialize<List<T>>(json) ?? new();
         }
 
         private IActionResult VistaResultado(
@@ -577,7 +611,7 @@ namespace AnzanMegaArithmetics.Controllers.Matematicas
                     Resultados = lista,
                     CantidadEjercicios = e.CantidadEjercicios,
                     CantidadOperandos = e.CantidadOperandos,
-                    TipoEjercicio = e.TipoEjercicioConfig,
+                    TipoEjercicio = e.TipoEjercicioActual,
                     VelocidadEjercicio = e.VelocidadEjercicio,
                     MinDigitos = e.MinDigitos,
                     MaxDigitos = e.MaxDigitos

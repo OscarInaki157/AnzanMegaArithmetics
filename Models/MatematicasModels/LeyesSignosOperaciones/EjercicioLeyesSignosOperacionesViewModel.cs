@@ -9,7 +9,14 @@
         public int CantidadOperandos { get; set; } = 2;
         public int MinDigitos { get; set; }
         public int MaxDigitos { get; set; }
-        public TipoEjercicioLeyes TipoEjercicioConfig { get; set; }
+        // Tipos y ops serializados para persistir entre ejercicios
+        public string TiposSeleccionadosJson { get; set; } = "[0]";
+        // Suma y Resta van juntas como una sola opción
+        public bool OpSumaResta { get; set; } = true;
+        public bool OpMultiplicacion { get; set; } = true;
+        public bool OpDivision { get; set; } = true;
+
+        // Tipo real del ejercicio actual (ya resuelto el sorteo)
         public TipoEjercicioLeyes TipoEjercicioActual { get; set; }
         public string VelocidadEjercicio { get; set; } = "0";
 
@@ -17,36 +24,24 @@
         public int EjerciciosRealizados { get; set; }
         public string ResultadosJson { get; set; } = "[]";
 
-        // ── Operandos múltiples (serializado como JSON) ──────
-        // Lista de signos: true=positivo, false=negativo
+        // ── Operandos múltiples ───────────────────────────────
         public string SignosJson { get; set; } = "[]";
-        // Lista de valores absolutos
         public string ValoresJson { get; set; } = "[]";
-        // Lista de operaciones ENTRE operandos (N-1 para N operandos)
         public string OperacionesJson { get; set; } = "[]";
-        // Lista de coeficientes (para literales)
         public string CoefsJson { get; set; } = "[]";
         public string Variable { get; set; } = "x";
 
         // ── Campos específicos por tipo ───────────────────────
-
-        // Exponente: base y exponente (1 solo operando)
         public bool SignoA { get; set; } = true;
         public double ValorA { get; set; }
         public int Exponente { get; set; } = 2;
-
-        // Raíz: valor bajo la raíz (siempre positivo para √)
+        public bool ExpConParentesis { get; set; } = true; // punto 7
         public double ValorRaiz { get; set; }
-
-        // Paréntesis/Corchetes: estructura jerárquica serializada
-        // Formato JSON: { "grupos": [ {signos, valores, ops}, ... ], "opsEntre": [...] }
         public string EstructuraJson { get; set; } = "{}";
 
-        // Respuesta
+        // ── Respuesta ─────────────────────────────────────────
         public double RespuestaCorrecta { get; set; }
-        public int CoefRespuesta { get; set; }  // para literales
-
-        // ── Respuesta del usuario ─────────────────────────────
+        public int CoefRespuesta { get; set; }
         public string RespuestaUsuario { get; set; } = "";
         public double TiempoRespuesta { get; set; }
 

@@ -14,9 +14,7 @@
     <a class="btn-regresar" href="@Url.Action("DashboardMatematicas", "DashboardMatematicas")">
         <span class="btn-regresar__icon">←</span> Volver al mapa
     </a>
-    <div class="dash-topbar__greeting">
-        Configura tu práctica de <strong>Leyes de los signos</strong>
-    </div>
+    <div class="dash-topbar__greeting">Configura tu práctica de <strong>Leyes de los signos</strong></div>
 </header>
 
 <div class="dash-content">
@@ -39,29 +37,26 @@
                 <div class="leyes-col">
 
                     <div class="config-group">
-                        <label class="form-label" asp-for="CantidadEjercicios">Cantidad de ejercicios</label>
+                        <label class="form-label">Cantidad de ejercicios</label>
                         <div class="stepper">
                             <button type="button" class="stepper__btn" data-target="CantidadEjercicios" data-dir="-1">−</button>
-                            <input class="stepper__val form-input" asp-for="CantidadEjercicios" type="number" min="1" max="100" />
+                            <input class="stepper__val" asp-for="CantidadEjercicios" type="number" min="1" max="100" />
                             <button type="button" class="stepper__btn" data-target="CantidadEjercicios" data-dir="1">+</button>
                         </div>
                     </div>
 
                     <div class="config-group" id="grupoCantOperandos">
-                        <label class="form-label" asp-for="CantidadOperandos">Cantidad de operandos</label>
+                        <label class="form-label">Cantidad de operandos</label>
                         <div class="stepper">
                             <button type="button" class="stepper__btn" data-target="CantidadOperandos" data-dir="-1">−</button>
-                            <input class="stepper__val form-input" asp-for="CantidadOperandos" type="number" min="2" max="10" />
+                            <input class="stepper__val" asp-for="CantidadOperandos" type="number" min="2" max="10" />
                             <button type="button" class="stepper__btn" data-target="CantidadOperandos" data-dir="1">+</button>
                         </div>
                         <p class="config-hint" id="hintOperandos">
-                            Mínimo 2, máximo 10. Ej: con 3 → <strong>(+3x) − (−5x) + (+2x)</strong>
+                            Con 3 → <strong>−4x + 8x − 2x =</strong>
                         </p>
-                        <p class="config-hint" id="hintRaiz" style="display:none;">
-                            La raíz cuadrada siempre usa <strong>1 operando</strong>.
-                        </p>
-                        <p class="config-hint" id="hintExponente" style="display:none;">
-                            El exponente siempre usa <strong>1 operando</strong> (la base).
+                        <p class="config-hint" id="hintRaizExp" style="display:none;">
+                            Raíz y Exponente siempre usan <strong>1 operando</strong>.
                         </p>
                     </div>
 
@@ -72,7 +67,7 @@
                                 <span class="digits-range__label">Mín.</span>
                                 <div class="stepper stepper--sm">
                                     <button type="button" class="stepper__btn" data-target="MinDigitos" data-dir="-1">−</button>
-                                    <input class="stepper__val form-input" asp-for="MinDigitos" type="number" min="1" max="3" />
+                                    <input class="stepper__val" asp-for="MinDigitos" type="number" min="1" max="3" />
                                     <button type="button" class="stepper__btn" data-target="MinDigitos" data-dir="1">+</button>
                                 </div>
                             </div>
@@ -81,7 +76,7 @@
                                 <span class="digits-range__label">Máx.</span>
                                 <div class="stepper stepper--sm">
                                     <button type="button" class="stepper__btn" data-target="MaxDigitos" data-dir="-1">−</button>
-                                    <input class="stepper__val form-input" asp-for="MaxDigitos" type="number" min="1" max="3" />
+                                    <input class="stepper__val" asp-for="MaxDigitos" type="number" min="1" max="3" />
                                     <button type="button" class="stepper__btn" data-target="MaxDigitos" data-dir="1">+</button>
                                 </div>
                             </div>
@@ -93,98 +88,83 @@
                         <div class="speed-pills" id="speedPills">
                             @foreach (var v in new[] { "0", "5", "10", "15", "20", "30", "45", "60" })
                             {
-                                var label = v == "0" ? "Libre" : v + "s";
                                 <button type="button"
                                         class="speed-pill @(Model.VelocidadEjercicio == v ? "speed-pill--active" : "")"
                                         data-val="@v">
-                                    @label
+                                    @(v == "0" ? "Libre" : v + "s")
                                 </button>
                             }
                         </div>
                         <input type="hidden" name="VelocidadEjercicio" id="hdVelocidad" value="@Model.VelocidadEjercicio" />
                     </div>
 
+                    @* ── Operaciones permitidas (punto 9) ── *@
+                    <div class="config-group">
+                        <label class="form-label">Operaciones permitidas</label>
+                        <div class="op-checks">
+                            <label class="op-check op-check--sr" id="lblSumaResta">
+                                <span class="op-check__box">±</span>
+                                <span class="op-check__lbl">Suma y Resta</span>
+                            </label>
+                            <label class="op-check op-check--mult" id="lblMult">
+                                <span class="op-check__box">×</span>
+                                <span class="op-check__lbl">Multiplicación</span>
+                            </label>
+                            <label class="op-check op-check--div" id="lblDiv">
+                                <span class="op-check__box">÷</span>
+                                <span class="op-check__lbl">División</span>
+                            </label>
+                        </div>
+                        @* Hiddens que el JS actualiza al hacer click *@
+                        <input type="hidden" name="OpSumaResta" id="hdOpSR" value="@(Model.OpSumaResta ? "true" : "false")" />
+                        <input type="hidden" name="OpMultiplicacion" id="hdOpMult" value="@(Model.OpMultiplicacion ? "true" : "false")" />
+                        <input type="hidden" name="OpDivision" id="hdOpDiv" value="@(Model.OpDivision ? "true" : "false")" />
+                        <p class="config-hint">Selecciona las operaciones que pueden aparecer.</p>
+                    </div>
+
                 </div>
 
-                @* ── Columna 2: Tipo de ejercicio ── *@
+                @* ── Columna 2: Tipos (checkboxes múltiples — punto 10) ── *@
                 <div class="leyes-col">
                     <div class="config-group">
                         <label class="form-label">Tipo de ejercicio</label>
+                        <p class="config-hint" style="margin-bottom:0.5rem;">
+                            Selecciona uno o varios. Con varios se mezclan aleatoriamente.
+                        </p>
                         <div class="tipo-cards" id="tipoCards">
 
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.PuroSigno ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.PuroSigno)" />
-                                <div class="tipo-card__icon" style="background:#f3e8ff;color:#7c3aed;">±</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Puro signo</span>
-                                    <span class="tipo-card__desc">(+) × (−) = ?</span>
-                                </div>
-                            </label>
+                            @{
+                                var tiposUI = new[]
+                                {
+                                                        ((int)TipoEjercicioLeyes.PuroSigno,  "±",   "#f3e8ff", "#7c3aed", "Puro signo",      "(+) × (−) = ?"),
+                                                        ((int)TipoEjercicioLeyes.Literales,  "ax",  "#eeefff", "#4338ca", "Literales",       "3x − 5x = ?"),
+                                                        ((int)TipoEjercicioLeyes.Reales,     "1.5", "#f0fdf4", "#15803d", "Reales",          "(−1.5) × (+2) = ?"),
+                                                        ((int)TipoEjercicioLeyes.Parentesis, "()",  "#fff7ed", "#c2410c", "Paréntesis",      "(2+3) × (−4) = ?"),
+                                                        ((int)TipoEjercicioLeyes.Corchetes,  "{[]}", "#fef3c7","#92400e", "Corchetes",       "{[(2+3)×4]−5} = ?"),
+                                                        ((int)TipoEjercicioLeyes.Exponente,  "x²",  "#fef9c3", "#b45309", "Exponente",       "(−2)³ = ?"),
+                                                        ((int)TipoEjercicioLeyes.Raiz,       "√",   "#ecfdf5", "#065f46", "Raíz cuadrada",   "√(16) = ?"),
+                                                        };
+                            }
 
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Literales ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Literales)" />
-                                <div class="tipo-card__icon" style="background:#eeefff;color:#4338ca;">ax</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Literales</span>
-                                    <span class="tipo-card__desc">3x − 5x + 2x = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Reales ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Reales)" />
-                                <div class="tipo-card__icon" style="background:#f0fdf4;color:#15803d;">1.5</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Reales</span>
-                                    <span class="tipo-card__desc">(−1.5) × (+2.0) = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Parentesis ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Parentesis)" />
-                                <div class="tipo-card__icon" style="background:#fff7ed;color:#c2410c;">()</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Paréntesis</span>
-                                    <span class="tipo-card__desc">(2+3) × (−4) = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Corchetes ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Corchetes)" />
-                                <div class="tipo-card__icon" style="background:#fef3c7;color:#92400e;">{[]}</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Corchetes</span>
-                                    <span class="tipo-card__desc">{[(2+3)×4]−5} = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Exponente ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Exponente)" />
-                                <div class="tipo-card__icon" style="background:#fef9c3;color:#b45309;">x²</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Exponente</span>
-                                    <span class="tipo-card__desc">(−2)³ = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card @(Model.TipoEjercicio == TipoEjercicioLeyes.Raiz ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Raiz)" />
-                                <div class="tipo-card__icon" style="background:#ecfdf5;color:#065f46;">√</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Raíz cuadrada</span>
-                                    <span class="tipo-card__desc">√(16) = ?</span>
-                                </div>
-                            </label>
-
-                            <label class="tipo-card tipo-card--aleatorio @(Model.TipoEjercicio == TipoEjercicioLeyes.Aleatorio ? "tipo-card--active" : "")">
-                                <input type="radio" asp-for="TipoEjercicio" value="@((int)TipoEjercicioLeyes.Aleatorio)" />
-                                <div class="tipo-card__icon" style="background:#fce7f3;color:#be185d;">🎲</div>
-                                <div class="tipo-card__info">
-                                    <span class="tipo-card__nombre">Aleatorio</span>
-                                    <span class="tipo-card__desc">Mezcla de todos los modos</span>
-                                </div>
-                            </label>
+                            @foreach (var (val, icono, bg, color, nombre, desc) in tiposUI)
+                            {
+                                bool seleccionado = Model.TiposSeleccionados != null
+                                && Model.TiposSeleccionados.Contains(val);
+                                <label class="tipo-card @(seleccionado ? "tipo-card--active" : "")">
+                                    <input type="checkbox" name="TiposSeleccionados" value="@val"
+                                           @(seleccionado ? "checked" : "") />
+                                    <div class="tipo-card__icon" style="background:@bg;color:@color;">@icono</div>
+                                    <div class="tipo-card__info">
+                                        <span class="tipo-card__nombre">@nombre</span>
+                                        <span class="tipo-card__desc">@desc</span>
+                                    </div>
+                                </label>
+                            }
 
                         </div>
+                        <p class="config-hint" id="hintMultiTipo" style="display:none; color:#be185d; margin-top:0.4rem;">
+                            🎲 Varios tipos seleccionados → se mezclan aleatoriamente
+                        </p>
                     </div>
                 </div>
 

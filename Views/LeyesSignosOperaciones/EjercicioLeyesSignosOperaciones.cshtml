@@ -33,7 +33,7 @@
         _ => "Leyes"
     };
 
-    // Deserializar listas para renderizado
+    // Deserializar listas
     var signos = !string.IsNullOrEmpty(Model.SignosJson) && Model.SignosJson != "[]"
         ? JsonSerializer.Deserialize<List<bool>>(Model.SignosJson)! : new List<bool>();
     var valores = !string.IsNullOrEmpty(Model.ValoresJson) && Model.ValoresJson != "[]"
@@ -43,18 +43,64 @@
     var operaciones = !string.IsNullOrEmpty(Model.OperacionesJson) && Model.OperacionesJson != "[]"
         ? JsonSerializer.Deserialize<List<int>>(Model.OperacionesJson)! : new List<int>();
 
-    string OpStr(int op) => op switch
-    {
-        0 => "+",
-        1 => "−",
-        2 => "×",
-        3 => "÷",
-        4 => "^",
-        _ => "?"
-    };
-    string SignoStr(bool s) => s ? "+" : "−";
+    // Helpers para renderizado limpio
+    string OpStr(int op) => op switch { 0 => "+", 1 => "−", 2 => "×", 3 => "÷", 4 => "^", _ => "?" };
 
-    // Para Paréntesis / Corchetes: deserializar estructura
+    // Término literal limpio: sin paréntesis, sin + innecesario
+    // Punto 1 y 2: -4x, 8x, -7x (nunca +4x)
+    string TermLit(int i)
+    {
+        int c = i < coefs.Count ? coefs[i] : 0;
+        bool s = i < signos.Count && signos[i];
+        int val = s ? c : -c;
+        return val == 0 ? $"0{Model.Variable}"
+             : val > 0 ? $"{val}{Model.Variable}"
+             : $"−{Math.Abs(val)}{Model.Variable}";
+    }
+
+    // Operador entre términos literales (puntos 1-2):
+    // Si el siguiente término es negativo → ya lleva el −, usamos +
+    // (+8x)-(-7x) → 8x+(-7x)... pero regla: si se resta un negativo → +abs
+    // Lógica: la operación es Suma/Resta entre términos con signo
+    // Resultado: lo que el alumno ve algebraicamente correcto
+    string OpLit(int opIdx, int termIdx)
+    {
+        int op = opIdx < operaciones.Count ? operaciones[opIdx] : 0;
+        bool sNext = termIdx < signos.Count && signos[termIdx];
+        int cNext = termIdx < coefs.Count ? coefs[termIdx] : 0;
+        // op=Suma: (+c) → +c, (-c) → -c (el signo del término absorbe el +)
+        // op=Resta: (+c) → -c, (-c) → +c (se invierte el signo)
+        int valEfectivo = op == 0
+            ? (sNext ? cNext : -cNext)
+            : (sNext ? -cNext : cNext);
+
+        if (valEfectivo > 0) return $"+{valEfectivo}{Model.Variable}";
+        if (valEfectivo < 0) return $"−{Math.Abs(valEfectivo)}{Model.Variable}";
+        return $"+0{Model.Variable}";
+    }
+
+    // Número dentro de paréntesis limpio (punto 3):
+    // Primer número de la operación: sin + si es positivo
+    // Si es negativo → −n, si es positivo → n (sin signo)
+    string NumParens(bool signo, int val, bool esPrimero)
+    {
+        if (signo) return val.ToString();   // positivo: sin signo
+        return $"−{val}";                    // negativo: con −
+    }
+
+    // Operador limpio entre elementos dentro de un paréntesis (punto 3)
+    // (+2-+3) → (2-3), (+2++3) → (2+3), (+2-(-3)) → (2+3)
+    string OpDentroParens(int op, bool signoSig, int valSig)
+    {
+        // op=Suma+sig_pos → +n, op=Suma+sig_neg → −n, op=Resta+sig_pos → −n, op=Resta+sig_neg → +n
+        int efectivo = op == 0
+            ? (signoSig ? valSig : -valSig)
+            : (signoSig ? -valSig : valSig);
+        if (efectivo >= 0) return $"+{efectivo}";
+        return $"−{Math.Abs(efectivo)}";
+    }
+
+    // Para paréntesis/corchetes
     JsonElement estructura = default;
     bool tieneEstructura = false;
     if ((tipo == TipoEjercicioLeyes.Parentesis || tipo == TipoEjercicioLeyes.Corchetes)
@@ -79,7 +125,10 @@
     <input type="hidden" asp-for="CantidadOperandos" />
     <input type="hidden" asp-for="MinDigitos" />
     <input type="hidden" asp-for="MaxDigitos" />
-    <input type="hidden" asp-for="TipoEjercicioConfig" />
+    <input type="hidden" asp-for="TiposSeleccionadosJson" />
+    <input type="hidden" asp-for="OpSumaResta" />
+    <input type="hidden" asp-for="OpMultiplicacion" />
+    <input type="hidden" asp-for="OpDivision" />
     <input type="hidden" asp-for="TipoEjercicioActual" />
     <input type="hidden" asp-for="VelocidadEjercicio" />
     <input type="hidden" asp-for="EjerciciosRealizados" />
@@ -92,6 +141,7 @@
     <input type="hidden" asp-for="SignoA" />
     <input type="hidden" asp-for="ValorA" />
     <input type="hidden" asp-for="Exponente" />
+    <input type="hidden" asp-for="ExpConParentesis" />
     <input type="hidden" asp-for="ValorRaiz" />
     <input type="hidden" asp-for="EstructuraJson" />
     <input type="hidden" asp-for="RespuestaCorrecta" />
@@ -107,7 +157,10 @@
     <input type="hidden" asp-for="CantidadOperandos" />
     <input type="hidden" asp-for="MinDigitos" />
     <input type="hidden" asp-for="MaxDigitos" />
-    <input type="hidden" asp-for="TipoEjercicioConfig" />
+    <input type="hidden" asp-for="TiposSeleccionadosJson" />
+    <input type="hidden" asp-for="OpSumaResta" />
+    <input type="hidden" asp-for="OpMultiplicacion" />
+    <input type="hidden" asp-for="OpDivision" />
     <input type="hidden" asp-for="TipoEjercicioActual" />
     <input type="hidden" asp-for="VelocidadEjercicio" />
     <input type="hidden" asp-for="EjerciciosRealizados" />
@@ -146,7 +199,6 @@
                 }
                 else
                 {
-
                     <span class="ejercicio-timer__libre">♾️ Libre</span>
                 }
             </div>
@@ -159,7 +211,7 @@
         <div class="operacion-wrap" id="operacionWrap">
             <span class="operacion-label">Resuelve:</span>
 
-            @* ═══ PURO SIGNO — múltiples operandos ═══ *@
+            @* ═══ PURO SIGNO ═══ *@
             @if (tipo == TipoEjercicioLeyes.PuroSigno)
             {
                 <div class="puro-signo-display multi" id="ejercicioDisplay">
@@ -178,21 +230,16 @@
                 </div>
             }
 
-            @* ═══ LITERALES — múltiples términos ═══ *@
+            @* ═══ LITERALES — sin paréntesis, sin + innecesario ═══ *@
             else if (tipo == TipoEjercicioLeyes.Literales)
             {
-                <div class="operacion-display literal-display" id="ejercicioDisplay">
-                    @for (int i = 0; i < signos.Count; i++)
+                <div class="operacion-display lit-display" id="ejercicioDisplay">
+                    @* Primer término: sin + si es positivo *@
+                    <span class="op-lit">@TermLit(0)</span>
+                    @* Siguientes términos con operador algebraico correcto *@
+                    @for (int i = 0; i < operaciones.Count; i++)
                     {
-                        <span class="op-parentesis">(</span>
-                        <span class="op-signo-inline">@SignoStr(signos[i])</span>
-                        <span class="op-num">@(i<coefs.Count? coefs[i] : 0)</span>
-                        <span class="op-var">@Model.Variable</span>
-                        <span class="op-parentesis">)</span>
-                        @if (i < operaciones.Count)
-                        {
-                            <span class="op-signo">@OpStr(operaciones[i])</span>
-                        }
+                        <span class="op-lit">@OpLit(i, i + 1)</span>
                     }
                     <span class="op-signo">=</span>
                     <span class="op-resultado lejos" id="resultadoDisplay">?</span>
@@ -200,7 +247,7 @@
                 </div>
             }
 
-            @* ═══ REALES — múltiples operandos ═══ *@
+            @* ═══ REALES ═══ *@
             else if (tipo == TipoEjercicioLeyes.Reales)
             {
                 <div class="operacion-display" id="ejercicioDisplay">
@@ -211,13 +258,27 @@
                         ? ((int)valores[i]).ToString()
                         : valores[i].ToString("0.#", System.Globalization.CultureInfo.InvariantCulture))
                         : "?";
-                        <span class="op-parentesis">(</span>
-                        <span class="op-signo-inline">@SignoStr(signos[i])</span>
-                        <span class="op-num">@vStr</span>
-                        <span class="op-parentesis">)</span>
-                        @if (i < operaciones.Count)
+                        bool s = signos[i];
+                        @* Punto 2: primer positivo sin signo *@
+                        if (i == 0)
                         {
-                            <span class="op-signo">@OpStr(operaciones[i])</span>
+                            if (!s)
+                            {
+                                <span class="op-signo-inline">−</span>
+                            }
+                            <span class="op-num">@vStr</span>
+                        }
+                        else
+                        {
+                            <span class="op-signo">@OpStr(operaciones[i - 1])</span>
+                            <span class="op-parentesis">(</span>
+                            if (!s)
+                            {
+
+                                <span class="op-signo-inline">−</span>
+                            }
+                            <span class="op-num">@vStr</span>
+                            <span class="op-parentesis">)</span>
                         }
                     }
                     <span class="op-signo">=</span>
@@ -225,22 +286,37 @@
                 </div>
             }
 
-            @* ═══ EXPONENTE ═══ *@
+            @* ═══ EXPONENTE — con o sin paréntesis, sin + ═══ *@
             else if (tipo == TipoEjercicioLeyes.Exponente)
             {
-                string sa = Model.SignoA ? "+" : "−";
                 <div class="operacion-display" id="ejercicioDisplay">
-                    <span class="op-parentesis">(</span>
-                    <span class="op-signo-inline">@sa</span>
-                    <span class="op-num">@((int)Model.ValorA)</span>
-                    <span class="op-parentesis">)</span>
+                    @if (Model.ExpConParentesis)
+                    {
+                        @* Con paréntesis: (−2)³ o (2)³ *@
+                        <span class="op-parentesis">(</span>
+                        @if (!Model.SignoA)
+                        {
+                            <span class="op-signo-inline">−</span>
+                        }
+                        <span class="op-num">@((int)Model.ValorA)</span>
+                        <span class="op-parentesis">)</span>
+                    }
+                    else
+                    {
+                        @* Sin paréntesis: −2³ o 2³ *@
+                        @if (!Model.SignoA)
+                        {
+                            <span class="op-signo-inline">−</span>
+                        }
+                        <span class="op-num">@((int)Model.ValorA)</span>
+                    }
                     <sup class="op-exponente">@Model.Exponente</sup>
                     <span class="op-signo">=</span>
                     <span class="op-resultado lejos" id="resultadoDisplay">?</span>
                 </div>
             }
 
-            @* ═══ RAÍZ CUADRADA ═══ *@
+            @* ═══ RAÍZ ═══ *@
             else if (tipo == TipoEjercicioLeyes.Raiz)
             {
                 <div class="operacion-display raiz-display" id="ejercicioDisplay">
@@ -254,35 +330,39 @@
                 </div>
             }
 
-            @* ═══ PARÉNTESIS ═══ *@
+            @* ═══ PARÉNTESIS — limpio ═══ *@
             else if (tipo == TipoEjercicioLeyes.Parentesis && tieneEstructura)
             {
-                var sIA = estructura.GetProperty("signosInternos")[0].GetBoolean();
-                var sIB = estructura.GetProperty("signosInternos")[1].GetBoolean();
-                var vIA = estructura.GetProperty("valsInternos")[0].GetInt32();
-                var vIB = estructura.GetProperty("valsInternos")[1].GetInt32();
-                var opI = estructura.GetProperty("opInterna").GetInt32();
-                var exts = estructura.GetProperty("signosExt");
-                var vExts = estructura.GetProperty("valsExt");
-                var opsE = estructura.GetProperty("opsExt");
+                // Valores YA tienen signo incluido (int con signo)
+                int vIA2 = estructura.GetProperty("vIA").GetInt32();
+                int vIB2 = estructura.GetProperty("vIB").GetInt32();
+                int opI2 = estructura.GetProperty("opI").GetInt32();
+                var vExts2 = estructura.GetProperty("vExts");
+                var opExts2 = estructura.GetProperty("opExts");
+
+                // Mostrar dentro del paréntesis limpio
+                string aStr2 = vIA2 < 0 ? $"−{Math.Abs(vIA2)}" : vIA2.ToString();
+                // Operador + vIB limpio
+                string bStr2;
+                if (opI2 == 0) bStr2 = vIB2 >= 0 ? $"+{vIB2}" : $"−{Math.Abs(vIB2)}";
+                else if (opI2 == 1) bStr2 = vIB2 >= 0 ? $"−{vIB2}" : $"+{Math.Abs(vIB2)}";
+                else bStr2 = $"{(opI2 == 2 ? "×" : "÷")}{(vIB2 < 0 ? $"(−{Math.Abs(vIB2)})" : vIB2.ToString())}";
 
                 <div class="operacion-parentesis" id="ejercicioDisplay">
                     <div class="parentesis-hint">👇 Resuelve primero lo que está dentro del paréntesis</div>
                     <div class="parentesis-expr">
                         <span class="op-parentesis op-parentesis--resalto">(</span>
-                        <span class="op-signo-inline resalto">@(sIA ? "+" : "−")</span>
-                        <span class="op-num resalto">@vIA</span>
-                        <span class="op-signo resalto">@OpStr(opI)</span>
-                        <span class="op-signo-inline resalto">@(sIB ? "+" : "−")</span>
-                        <span class="op-num resalto">@vIB</span>
+                        <span class="op-num resalto">@aStr2@bStr2</span>
                         <span class="op-parentesis op-parentesis--resalto">)</span>
-                        @for (int i = 0; i < opsE.GetArrayLength(); i++)
+
+                        @for (int i = 0; i < vExts2.GetArrayLength(); i++)
                         {
-                            <span class="op-signo">@OpStr(opsE[i].GetInt32())</span>
-                            <span class="op-parentesis">(</span>
-                            <span class="op-signo-inline">@(exts[i].GetBoolean() ? "+" : "−")</span>
-                            <span class="op-num">@vExts[i].GetInt32()</span>
-                            <span class="op-parentesis">)</span>
+                            int vv2 = vExts2[i].GetInt32();
+                            int opv2 = opExts2[i].GetInt32();
+                            string opvStr = opv2 == 0 ? "+" : opv2 == 1 ? "−" : opv2 == 2 ? "×" : "÷";
+                            string numStr2 = vv2 < 0 ? $"(−{Math.Abs(vv2)})" : vv2.ToString();
+                            <span class="op-signo">@opvStr</span>
+                            <span class="op-num">@numStr2</span>
                         }
                         <span class="op-signo">=</span>
                         <span class="op-resultado lejos" id="resultadoDisplay">?</span>
@@ -290,60 +370,59 @@
                 </div>
             }
 
-            @* ═══ CORCHETES ═══ *@
+            @* ═══ CORCHETES — limpio ═══ *@
             else if (tipo == TipoEjercicioLeyes.Corchetes && tieneEstructura)
             {
-                var sA2 = estructura.GetProperty("sA").GetBoolean();
-                var vA2 = estructura.GetProperty("vA").GetInt32();
-                var sB2 = estructura.GetProperty("sB").GetBoolean();
-                var vB2 = estructura.GetProperty("vB").GetInt32();
-                var op12 = estructura.GetProperty("op1").GetInt32();
-                var sC = estructura.GetProperty("sC").GetBoolean();
-                var vC = estructura.GetProperty("vC").GetInt32();
-                var op22 = estructura.GetProperty("op2").GetInt32();
-                var tieneExt = estructura.GetProperty("tieneExterno").GetBoolean();
+                // Valores YA tienen signo incluido
+                int cvA = estructura.GetProperty("vA").GetInt32();
+                int cvB = estructura.GetProperty("vB").GetInt32();
+                int cop1 = estructura.GetProperty("op1").GetInt32();
+                int cvC = estructura.GetProperty("vC").GetInt32();
+                int cop2 = estructura.GetProperty("op2").GetInt32();
+                bool cTieneExt = estructura.GetProperty("tieneExterno").GetBoolean();
+
+                string caStr = cvA < 0 ? $"−{Math.Abs(cvA)}" : cvA.ToString();
+                string cbStr;
+                if (cop1 == 0) cbStr = cvB >= 0 ? $"+{cvB}" : $"−{Math.Abs(cvB)}";
+                else if (cop1 == 1) cbStr = cvB >= 0 ? $"−{cvB}" : $"+{Math.Abs(cvB)}";
+                else cbStr = $"{(cop1 == 2 ? "×" : "÷")}{(cvB < 0 ? $"(−{Math.Abs(cvB)})" : cvB.ToString())}";
+
+                string ccStr;
+                if (cop2 == 0) ccStr = cvC >= 0 ? $"+{cvC}" : $"−{Math.Abs(cvC)}";
+                else if (cop2 == 1) ccStr = cvC >= 0 ? $"−{cvC}" : $"+{Math.Abs(cvC)}";
+                else ccStr = $"{(cop2 == 2 ? "×" : "÷")}{(cvC < 0 ? $"(−{Math.Abs(cvC)})" : cvC.ToString())}";
 
                 <div class="operacion-parentesis operacion-corchetes" id="ejercicioDisplay">
                     <div class="parentesis-hint corchetes-hint">
-                        🔢 Primero paréntesis, luego corchetes, luego el exterior
+                        🔢 Primero ( ), luego [ ], luego { }
                     </div>
                     <div class="parentesis-expr">
-                        @if (tieneExt)
+                        @if (cTieneExt)
                         {
-                            var sD2 = estructura.GetProperty("sD").GetBoolean();
-                            var vD2 = estructura.GetProperty("vD").GetInt32();
-                            var op32 = estructura.GetProperty("op3").GetInt32();
-                            <span class="op-corchete">{</span>
+                            int cvD = estructura.GetProperty("vD").GetInt32();
+                            int cop3 = estructura.GetProperty("op3").GetInt32();
+                            string cdStr;
+                            if (cop3 == 0) cdStr = cvD >= 0 ? $"+{cvD}" : $"−{Math.Abs(cvD)}";
+                            else if (cop3 == 1) cdStr = cvD >= 0 ? $"−{cvD}" : $"+{Math.Abs(cvD)}";
+                            else cdStr = $"{(cop3 == 2 ? "×" : "÷")}{(cvD < 0 ? $"(−{Math.Abs(cvD)})" : cvD.ToString())}";
+
+                            <span class="op-corchete op-corchete--llave">{</span>
                             <span class="op-corchete">[</span>
                             <span class="op-parentesis op-parentesis--resalto">(</span>
-                            <span class="op-signo-inline resalto">@(sA2 ? "+" : "−")</span>
-                            <span class="op-num resalto">@vA2</span>
-                            <span class="op-signo resalto">@OpStr(op12)</span>
-                            <span class="op-signo-inline resalto">@(sB2 ? "+" : "−")</span>
-                            <span class="op-num resalto">@vB2</span>
+                            <span class="op-num resalto">@caStr@cbStr</span>
                             <span class="op-parentesis op-parentesis--resalto">)</span>
-                            <span class="op-signo">@OpStr(op22)</span>
-                            <span class="op-signo-inline">@(sC ? "+" : "−")</span>
-                            <span class="op-num">@vC</span>
+                            <span class="op-num">@ccStr</span>
                             <span class="op-corchete">]</span>
-                            <span class="op-signo">@OpStr(op32)</span>
-                            <span class="op-signo-inline">@(sD2 ? "+" : "−")</span>
-                            <span class="op-num">@vD2</span>
-                            <span class="op-corchete">}</span>
+                            <span class="op-num">@cdStr</span>
+                            <span class="op-corchete op-corchete--llave">}</span>
                         }
                         else
                         {
                             <span class="op-corchete">[</span>
                             <span class="op-parentesis op-parentesis--resalto">(</span>
-                            <span class="op-signo-inline resalto">@(sA2 ? "+" : "−")</span>
-                            <span class="op-num resalto">@vA2</span>
-                            <span class="op-signo resalto">@OpStr(op12)</span>
-                            <span class="op-signo-inline resalto">@(sB2 ? "+" : "−")</span>
-                            <span class="op-num resalto">@vB2</span>
+                            <span class="op-num resalto">@caStr@cbStr</span>
                             <span class="op-parentesis op-parentesis--resalto">)</span>
-                            <span class="op-signo">@OpStr(op22)</span>
-                            <span class="op-signo-inline">@(sC ? "+" : "−")</span>
-                            <span class="op-num">@vC</span>
+                            <span class="op-num">@ccStr</span>
                             <span class="op-corchete">]</span>
                         }
                         <span class="op-signo">=</span>
@@ -357,7 +436,7 @@
         <div class="regla-hint" id="reglaHint">
             @if (tipo == TipoEjercicioLeyes.Literales)
             {
-                <span>📌 Suma/resta los coeficientes y conserva la variable <strong>@Model.Variable</strong></span>
+                <span>📌 Suma/resta los coeficientes, conserva la variable <strong>@Model.Variable</strong></span>
             }
             else if (tipo == TipoEjercicioLeyes.Exponente)
             {
@@ -376,7 +455,7 @@
             }
             else if (tipo == TipoEjercicioLeyes.Raiz)
             {
-                <span>📌 La raíz cuadrada de un número perfecto siempre es <strong>positiva</strong></span>
+                <span>📌 La raíz cuadrada siempre da un resultado <strong>positivo</strong></span>
             }
         </div>
 
@@ -394,9 +473,7 @@
                 </button>
             </div>
             <div class="respuesta-wrap">
-                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>
-                    Enviar ✓
-                </button>
+                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>Enviar ✓</button>
             </div>
         }
         else
@@ -431,9 +508,7 @@
                 }
             </div>
             <div class="respuesta-wrap">
-                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>
-                    Enviar ✓
-                </button>
+                <button type="button" class="btn-confirmar btn-confirmar--full" id="btnConfirmar" disabled>Enviar ✓</button>
             </div>
         }
 

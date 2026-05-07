@@ -20,7 +20,7 @@
 
     <div class="hex-path">
 
-        @* Nodo 1: Tutorial — Centro *@
+        @* Nodo 1: Tutorial — Centro (DESBLOQUEADO) *@
         <div class="hex-row row-C">
             <div class="hex-node state-done" tabindex="0">
                 <div class="hex-shape">
@@ -35,19 +35,19 @@
                     </div>
                     <div class="tip-desc">Aprende los conceptos básicos de la recta numérica y qué significa cada signo.</div>
                     <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
-                    <button class="tip-btn btn-repeat"
-                            onclick="window.location.href='@Url.Action("IniciarTutorial", "NegativosPositivos")'">
+                    <a href="@Url.Action("IniciarTutorial", "NegativosPositivos")"
+                       class="tip-btn btn-repeat" style="text-decoration:none;text-align:center;display:block;">
                         Iniciar tutorial
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
 
         <svg class="path-connector"></svg>
 
-        @* Nodo 2: Lección principal — Derecha *@
+        @* Nodo 2: Lección principal — Derecha (DESBLOQUEADO) *@
         <div class="hex-row row-R">
-            <div class="hex-node state-done" tabindex="0">
+            <div class="hex-node state-available" tabindex="0">
                 <div class="hex-shape">
                     <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#4338ca" stroke="#3730a3" stroke-width="2.5" /></svg>
                     <span class="hex-inner">⊕</span>
@@ -60,19 +60,21 @@
                     </div>
                     <div class="tip-desc">Opera y compara números en la recta numérica con ambos signos.</div>
                     <div class="tip-pills"><span class="tip-pill tp-xp">+50 XP</span></div>
-                    <button class="tip-btn btn-repeat"
-                            onclick="window.location.href='@Url.Action("Formulario", "NegativosPositivos")'">
+                    <a href="@Url.Action("Formulario", "NegativosPositivos")"
+                       class="tip-btn btn-start" style="text-decoration:none;text-align:center;display:block;">
                         Ir a la lección
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
 
         <svg class="path-connector"></svg>
 
-        @* Nodos 3,4,5: Cofres — Izquierda *@
+        @* Nodos 3,4,5: Cofres — Izquierda (Cofre 1 desbloqueado) *@
         <div class="hex-row row-L">
             <div class="chest-group" style="padding-left:14px;">
+
+                @* Cofre 1 DESBLOQUEADO *@
                 <div class="chest-node" tabindex="0">
                     <div class="chest-box c-open">🎁</div>
                     <div class="hex-label">Cofre 1</div>
@@ -83,6 +85,8 @@
                         <button class="tip-btn btn-start" data-tipo="cofre">Reclamar</button>
                     </div>
                 </div>
+
+                @* Cofre 2 BLOQUEADO *@
                 <div class="chest-node" tabindex="0">
                     <div class="chest-box c-locked">🔒</div>
                     <div class="hex-label">Cofre 2</div>
@@ -93,6 +97,8 @@
                         <button class="tip-btn btn-locked" disabled>Bloqueado</button>
                     </div>
                 </div>
+
+                @* Cofre 3 BLOQUEADO *@
                 <div class="chest-node" tabindex="0">
                     <div class="chest-box c-locked">🔒</div>
                     <div class="hex-label">Cofre 3</div>
@@ -103,6 +109,7 @@
                         <button class="tip-btn btn-locked" disabled>Bloqueado</button>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -148,48 +155,51 @@
 
     <div class="hex-path">
 
-        @* Nodo 7: Tutorial Signos — Derecha *@
+        @* Nodo 7: Tutorial Signos — Derecha (DESBLOQUEADO) *@
         <div class="hex-row row-R">
-            <div class="hex-node state-locked" tabindex="0">
+            <div class="hex-node state-done" tabindex="0">
                 <div class="hex-shape">
-                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#d1fae5" stroke="#6ee7b7" stroke-width="2.5" /></svg>
-                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#15803d" stroke="#166534" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">📖</span>
                 </div>
                 <div class="hex-label">Tutorial<br>Signos</div>
                 <div class="node-tip tip-right">
-                    <div class="tip-head"><div class="tip-icon ic-green">🔒</div><div class="tip-title">Tutorial: Leyes de los signos</div></div>
-                    <div class="tip-desc">Completa la Unidad 1 para desbloquear las leyes de los signos.</div>
+                    <div class="tip-head"><div class="tip-icon ic-green">📖</div><div class="tip-title">Tutorial: Leyes de los signos</div></div>
+                    <div class="tip-desc">Aprende las reglas de los signos en multiplicación, división y más.</div>
                     <div class="tip-pills"><span class="tip-pill tp-xp">+20 XP</span></div>
-                    <button class="tip-btn btn-locked" disabled>Bloqueado</button>
+                    <a href="@Url.Action("IniciarTutorial", "LeyesSignosOperaciones")"
+                       class="tip-btn btn-repeat" style="text-decoration:none;text-align:center;display:block;">
+                        Iniciar tutorial
+                    </a>
                 </div>
             </div>
         </div>
 
         <svg class="path-connector"></svg>
 
-        @* Nodo 8: Operaciones — Izquierda *@
+        @* Nodo 8: Operaciones — Izquierda (DESBLOQUEADO) *@
         <div class="hex-row row-L">
-            <div class="hex-node state-locked" tabindex="0">
+            <div class="hex-node state-available" tabindex="0">
                 <div class="hex-shape">
-                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#d1fae5" stroke="#6ee7b7" stroke-width="2.5" /></svg>
-                    <span class="hex-inner" style="font-size:1.1rem;">🔒</span>
+                    <svg viewBox="0 0 58 58"><polygon points="29,3 53,16 53,42 29,55 5,42 5,16" fill="#16a34a" stroke="#15803d" stroke-width="2.5" /></svg>
+                    <span class="hex-inner" style="font-size:1.1rem;">×÷</span>
                 </div>
                 <div class="hex-label">Leyes:<br>Operaciones</div>
                 <div class="node-tip">
-                    <div class="tip-head"><div class="tip-icon ic-green">🔒</div><div class="tip-title">Leyes de los signos: Operaciones</div></div>
+                    <div class="tip-head"><div class="tip-icon ic-green">×÷</div><div class="tip-title">Leyes de los signos: Operaciones</div></div>
                     <div class="tip-desc">Practica operaciones aplicando las reglas de los signos.</div>
                     <div class="tip-pills"><span class="tip-pill tp-xp">+60 XP</span></div>
-                    <button class="tip-btn btn-repeat"
-                            onclick="window.location.href='@Url.Action("Formulario", "LeyesSignosOperaciones")'">
+                    <a href="@Url.Action("Formulario", "LeyesSignosOperaciones")"
+                       class="tip-btn btn-start" style="text-decoration:none;text-align:center;display:block;">
                         Ir a la lección
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
 
         <svg class="path-connector"></svg>
 
-        @* Nodos 9,10,11: Cofres — Derecha *@
+        @* Nodos 9,10,11: Cofres — Derecha (todos bloqueados) *@
         <div class="hex-row row-R">
             <div class="chest-group" style="padding-right:14px;">
                 <div class="chest-node" tabindex="0">
