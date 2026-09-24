@@ -72,12 +72,15 @@
                        display:inline-flex; align-items:center; justify-content:center; transition:0.3s;">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+                    @if (User.IsInRole("Master"))
+                    {
                     <button onclick="abrirMoverUsuario(@profe.Id_Usuario)" title="Mover a otra institución"
                             style="border:none; width:2.5rem; height:2.5rem; border-radius:0.5rem; cursor:pointer;
                        background:rgba(0,200,150,0.2); color:#00c896; font-size:1rem;
                        display:inline-flex; align-items:center; justify-content:center; transition:0.3s;">
                         <i class="fas fa-exchange-alt"></i>
                     </button>
+                    }
                     <button class="btn-mini-sec" onclick="abrirFichaProfesorMaster(@profe.Id_Usuario)" title="Ver Perfil">
                         <i class="fas fa-address-card"></i>
                     </button>

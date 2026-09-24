@@ -931,6 +931,15 @@
                         </li>
                     }
 
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <li>
+                            <a href="@Url.Action("PanelMaster", "Master")" id="PanelMaster">
+                                <i class="fas fa-user-shield"></i> Panel Institución
+                            </a>
+                        </li>
+                    }
+
                     @if (User.IsInRole("Master"))
                     {
                         <li>

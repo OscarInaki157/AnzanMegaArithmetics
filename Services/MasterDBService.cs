@@ -708,7 +708,7 @@ namespace AnzanMegaArithmetics.Services
         {
             var clases = await _context.Clases
                 .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre, Id_Institucion = c.Id_Institucion ?? 0 })
                 .ToListAsync();
 
             return new CrearAlumnoMasterModel
@@ -822,7 +822,7 @@ namespace AnzanMegaArithmetics.Services
 
             var clases = await _context.Clases
                 .Where(c => c.Id_Institucion == u.Id_Institucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre, Id_Institucion = c.Id_Institucion ?? 0 })
                 .ToListAsync();
 
             var claseActual = u.Usuario_Clase.FirstOrDefault(uc => uc.Activo);
@@ -1720,7 +1720,7 @@ namespace AnzanMegaArithmetics.Services
                 .Where(c => c.Id_Institucion == clase.Id_Institucion
                          && c.Id_Clase != idClase
                          && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre, Id_Institucion = c.Id_Institucion ?? 0 })
                 .ToListAsync();
 
             // Contar usuarios únicos asignados a esta clase
@@ -1833,7 +1833,7 @@ namespace AnzanMegaArithmetics.Services
         {
             return await _context.Clases
                 .Where(c => c.Id_Institucion == idInstitucion && c.Activo)
-                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre })
+                .Select(c => new ClaseSedeModel { Id_Clase = c.Id_Clase, Nombre = c.Nombre, Id_Institucion = c.Id_Institucion ?? 0 })
                 .ToListAsync();
         }
 
@@ -2485,5 +2485,39 @@ namespace AnzanMegaArithmetics.Services
             }
         }
 
+    
+        // ===================== PERMISOS POR INSTITUCIÓN =====================
+
+        public async Task<int?> ObtenerInstitucionDeUsuarioAsync(int idUsuario)
+        {
+            return await _context.Usuarios
+                .Where(u => u.Id_Usuario == idUsuario)
+                .Select(u => (int?)u.Id_Institucion)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<int?> ObtenerRolDeUsuarioAsync(int idUsuario)
+        {
+            return await _context.Usuarios
+                .Where(u => u.Id_Usuario == idUsuario)
+                .Select(u => (int?)u.Id_Rol)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<int?> ObtenerInstitucionDeClaseAsync(int idClase)
+        {
+            return await _context.Clases
+                .Where(c => c.Id_Clase == idClase)
+                .Select(c => (int?)c.Id_Institucion)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<int?> ObtenerInstitucionDeLicenciaAsync(int idLicencia)
+        {
+            return await _context.Licencias_Inventario_Individual
+                .Where(l => l.Id == idLicencia)
+                .Select(l => (int?)l.Id_Institucion)
+                .FirstOrDefaultAsync();
+        }
     }
 }

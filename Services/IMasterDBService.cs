@@ -65,5 +65,11 @@ namespace AnzanMegaArithmetics.Services
         Task<(bool Exito, string Mensaje)> EliminarLicenciaIndividualAsync(int idLicencia);
         Task<(bool Exito, string Mensaje)> RenovarLicenciaIndividualAsync(RenovarLicenciaModel model);
         Task<(bool Exito, string Mensaje)> DesasignarLicenciaManualAsync(int idLicencia);
+
+        // Permisos por institución (usados para restringir a los Administradores)
+        Task<int?> ObtenerInstitucionDeUsuarioAsync(int idUsuario);
+        Task<int?> ObtenerRolDeUsuarioAsync(int idUsuario);
+        Task<int?> ObtenerInstitucionDeClaseAsync(int idClase);
+        Task<int?> ObtenerInstitucionDeLicenciaAsync(int idLicencia);
     }
 }
