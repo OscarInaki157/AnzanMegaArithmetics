@@ -58,6 +58,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 var app = builder.Build();
 
+//crear la base de datos si no existe y aplicar migraciones pendientes
+//using (var scope = app.Services.CreateScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<AnzanMegaContext>();
+//    context.Database.Migrate();
+//}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

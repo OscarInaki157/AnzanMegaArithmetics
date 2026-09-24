@@ -120,7 +120,14 @@ namespace AnzanMegaArithmetics.Services
             }
             catch (Exception ex)
             {
-                response.MotivoRechazo = "Error interno al validar el inicio de sesión.";
+                // Esto concatenará el error principal y el error interno (muy común en Entity Framework)
+                string errorDetallado = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorDetallado += " | Detalle interno: " + ex.InnerException.Message;
+                }
+
+                response.MotivoRechazo = "Error: " + errorDetallado;
             }
 
             return response;

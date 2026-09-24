@@ -57,7 +57,6 @@ html, body {
     overflow-x: hidden;
     font-size: 14px;
     user-select: none;
-    overflow-y:hidden;
 }
 
 /* ── App wrapper ──────────────────────────────────────────── */
@@ -586,4 +585,74 @@ html, body {
 .btn-regresar__icon {
     font-size: 1rem;
     line-height: 1;
+}
+
+/* ── FIX MÓVIL: formularios con scroll ─────────────────── */
+@media (max-width: 900px) {
+    .dash-content {
+        padding: 1rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .config-card {
+        padding: 1.25rem;
+    }
+
+    .config-card__footer {
+        flex-direction: column;
+    }
+
+    .config-card__submit {
+        width: 100%;
+        min-width: unset;
+        padding: 0.9rem;
+        font-size: 1rem;
+    }
+
+    .leyes-form-grid,
+    .signo-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .tipo-cards {
+        max-height: 55vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ── FIX MÓVIL: scroll en formularios ──────────────────── */
+@media (max-width: 900px) {
+    .dash-content {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 1rem;
+    }
+
+    .config-card__footer {
+        flex-direction: column;
+    }
+
+    .config-card__submit {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .leyes-form-grid,
+    .signo-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .mm-avata {
+        display:none;
+    }
+
+    .topbar-name {
+        font-size:10px;
+    }
+
+    .topbar-tag {
+        display:none;
+    }
 }

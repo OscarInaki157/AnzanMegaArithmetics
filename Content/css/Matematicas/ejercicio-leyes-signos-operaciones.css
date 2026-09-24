@@ -8,7 +8,8 @@
 .ejercicio-layout {
     display: flex;
     height: calc(100vh - 56px);
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
 }
 
 /* ── Barra lateral de progreso ─────────────────────────────── */
@@ -859,4 +860,69 @@
     font-size: 3.2rem;
     color: #7c2d12;
     font-weight: 300;
+}
+
+/* ── FIX TABLET/MÓVIL: botón fijo abajo + scroll ────────── */
+
+/* Tablet (769px–1024px): sidebar fijo de 210px visible */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .ejercicio-centro {
+        overflow-y: auto;
+        padding-bottom: 5.5rem;
+    }
+
+    .respuesta-wrap {
+        position: fixed;
+        bottom: 0;
+        left: 210px;
+        right: 0;
+        padding: 0.75rem 1.25rem;
+        background: #f8f9ff;
+        border-top: 1px solid rgba(45,58,140,0.1);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+        z-index: 600;
+        margin: 0;
+        max-width: calc(100% - 210px);
+        pointer-events: all;
+    }
+
+    .btn-confirmar--full {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.05rem;
+        position: relative;
+        z-index: 601;
+        pointer-events: all;
+    }
+}
+
+/* Móvil (≤768px): sidebar oculto fuera de pantalla */
+@media (max-width: 768px) {
+    .ejercicio-centro {
+        overflow-y: auto;
+        padding-bottom: 5.5rem;
+    }
+
+    .respuesta-wrap {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.75rem 1rem;
+        background: #f8f9ff;
+        border-top: 1px solid rgba(45,58,140,0.1);
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+        z-index: 600;
+        margin: 0;
+        pointer-events: all;
+    }
+
+    .btn-confirmar--full {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.05rem;
+        position: relative;
+        z-index: 601;
+        pointer-events: all;
+    }
 }
